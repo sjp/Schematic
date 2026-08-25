@@ -152,9 +152,11 @@ public class ReportGenerator
     // render and where to write it flow in through RenderAsync instead — see IDataRenderer.
     private IEnumerable<IDataRenderer> GetRenderers()
     {
-        // Lint analysis produces data/lint.json from the default HTML rule set.
+        // Lint analysis produces data/lint.json from the default HTML rule set. Rules are taken at
+        // their own default levels rather than being forced to a single one: the report's severity
+        // filter is only useful if the rules actually disagree about how serious they are.
         var ruleProvider = new DefaultHtmlRuleProvider();
-        var rules = ruleProvider.GetRules(Connection, RuleLevel.Warning);
+        var rules = ruleProvider.GetRules(Connection);
         var linter = new RelationalDatabaseLinter(rules);
 
         return

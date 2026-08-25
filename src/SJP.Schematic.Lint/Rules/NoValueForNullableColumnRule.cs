@@ -16,13 +16,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class NoValueForNullableColumnRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// an always-null column may simply be unused so far.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="NoValueForNullableColumnRule"/> class.
     /// </summary>
     /// <param name="connection">A database connection.</param>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
@@ -174,7 +180,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' has a nullable column '{columnName}' whose values are always null. Consider removing the column.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

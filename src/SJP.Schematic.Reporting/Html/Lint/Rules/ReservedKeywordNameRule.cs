@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKeywordNameRule
 {
-    public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel level)
+    public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel? level = null)
         : base(dialect, level)
     {
     }
@@ -16,7 +16,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName.ToVisibleName()} is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildTableColumnMessage(Identifier tableName, string columnName)
@@ -25,7 +25,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildViewMessage(Identifier viewName)
@@ -33,7 +33,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view {viewName.ToVisibleName()} is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     protected override IRuleMessage BuildViewColumnMessage(Identifier viewName, string columnName)
@@ -42,7 +42,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The view {viewName.ToVisibleName()} contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     protected override IRuleMessage BuildSequenceMessage(Identifier sequenceName)
@@ -50,7 +50,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var messageText = $"The sequence {sequenceName.ToVisibleName()} is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, sequenceName);
     }
 
     protected override IRuleMessage BuildSynonymMessage(Identifier synonymName)
@@ -58,7 +58,7 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentNullException.ThrowIfNull(synonymName);
 
         var messageText = $"The synonym {synonymName.ToVisibleName()} is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, synonymName);
     }
 
     protected override IRuleMessage BuildRoutineMessage(Identifier routineName)
@@ -66,6 +66,6 @@ internal sealed class ReservedKeywordNameRule : Schematic.Lint.Rules.ReservedKey
         ArgumentNullException.ThrowIfNull(routineName);
 
         var messageText = $"The routine {routineName.ToVisibleName()} is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, routineName);
     }
 }

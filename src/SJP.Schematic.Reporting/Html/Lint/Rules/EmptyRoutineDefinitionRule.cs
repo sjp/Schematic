@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class EmptyRoutineDefinitionRule : Schematic.Lint.Rules.EmptyRoutineDefinitionRule
 {
-    public EmptyRoutineDefinitionRule(RuleLevel level)
+    public EmptyRoutineDefinitionRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -16,6 +16,6 @@ internal sealed class EmptyRoutineDefinitionRule : Schematic.Lint.Rules.EmptyRou
         ArgumentNullException.ThrowIfNull(routineName);
 
         var messageText = $"The routine {routineName.ToVisibleName()} has an empty definition. Consider removing it if it is unused, or restoring its body if the definition was lost.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, routineName);
     }
 }

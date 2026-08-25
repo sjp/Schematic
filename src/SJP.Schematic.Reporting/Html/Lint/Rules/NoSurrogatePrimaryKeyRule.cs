@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoSurrogatePrimaryKeyRule : Schematic.Lint.Rules.NoSurrogatePrimaryKeyRule
 {
-    public NoSurrogatePrimaryKeyRule(RuleLevel level)
+    public NoSurrogatePrimaryKeyRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -16,6 +16,6 @@ internal sealed class NoSurrogatePrimaryKeyRule : Schematic.Lint.Rules.NoSurroga
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has a multi-column primary key. Consider introducing a surrogate primary key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

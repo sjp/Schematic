@@ -6,12 +6,13 @@ import {
   ListOrdered,
   ListTree,
   Replace,
+  ShieldCheck,
   SquareFunction,
   Table2,
 } from "lucide-react";
 
 import { useSummary } from "@/hooks/useReportData";
-import type { MainSummary } from "@/types/report";
+import type { LintSummary, MainSummary } from "@/types/report";
 
 type Stat = {
   label: string;
@@ -22,6 +23,9 @@ type Stat = {
 
 export function DashboardPage() {
   const { data, isPending, isError, error } = useSummary<MainSummary>("main");
+  // Lint is a separate payload, and the dashboard is still worth showing without it, so its
+  // tile is simply omitted until the query resolves rather than gating the whole page.
+  const { data: lint } = useSummary<LintSummary>("lint");
 
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
@@ -75,6 +79,15 @@ export function DashboardPage() {
       href: "#/routines",
     },
   ];
+
+  if (lint !== undefined) {
+    stats.push({
+      label: lint.messageCount === 1 ? "Lint issue" : "Lint issues",
+      value: lint.messageCount,
+      icon: ShieldCheck,
+      href: "#/lint",
+    });
+  }
 
   return (
     <div className="space-y-6">

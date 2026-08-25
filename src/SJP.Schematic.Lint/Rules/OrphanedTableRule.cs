@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class OrphanedTableRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// standalone tables (config, logs, staging) are legitimate.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="OrphanedTableRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public OrphanedTableRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public OrphanedTableRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -68,7 +74,7 @@ public class OrphanedTableRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName} is not related to any other table. Consider adding relations or removing the table.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

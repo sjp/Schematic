@@ -19,11 +19,17 @@ public partial class SelectStarInViewDefinitionRule : Rule, IViewRule
     private static partial Regex SelectStarRegex();
 
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// SELECT * makes the view's shape change silently when a base table changes.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="SelectStarInViewDefinitionRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public SelectStarInViewDefinitionRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public SelectStarInViewDefinitionRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -69,7 +75,7 @@ public partial class SelectStarInViewDefinitionRule : Rule, IViewRule
         ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view {viewName} selects all columns using a '*' wildcard. This makes the view brittle, as its result set silently changes when the underlying tables change. Consider listing columns explicitly.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     /// <summary>

@@ -4,6 +4,7 @@ import { Check, Minus } from "lucide-react";
 import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
+import { LintFindings } from "@/components/LintFindings";
 import { useDetail } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { ViewColumn, ViewDetail } from "@/types/report";
@@ -84,6 +85,8 @@ export function ViewDetailPage() {
         <h1 className="text-2xl font-semibold">{data.name}</h1>
         <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
       </div>
+
+      <LintFindings objectUrl={`#/views/${viewKey}`} />
 
       <Section title="Columns" count={data.columnsCount}>
         <DataTable

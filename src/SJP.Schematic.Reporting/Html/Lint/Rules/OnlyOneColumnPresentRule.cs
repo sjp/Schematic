@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class OnlyOneColumnPresentRule : Schematic.Lint.Rules.OnlyOneColumnPresentRule
 {
-    public OnlyOneColumnPresentRule(RuleLevel level)
+    public OnlyOneColumnPresentRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -18,6 +18,6 @@ internal sealed class OnlyOneColumnPresentRule : Schematic.Lint.Rules.OnlyOneCol
         var messageText = columnCount == 0
             ? $"The table {tableName.ToVisibleName()} has too few columns. It has no columns, consider adding more."
             : $"The table {tableName.ToVisibleName()} has too few columns. It has one column, consider adding more.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

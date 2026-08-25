@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -17,11 +18,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ForeignKeyRelationshipCycleRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a cycle makes insert ordering and deletion undecidable without deferred constraints.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ForeignKeyRelationshipCycleRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ForeignKeyRelationshipCycleRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ForeignKeyRelationshipCycleRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -58,7 +65,13 @@ public class ForeignKeyRelationshipCycleRule : Rule, ITableRule
             .Join(" -> ");
         var message = "Cycle found for the following path: " + tableNames;
 
-        return new RuleMessage(RuleId, RuleTitle, Level, message);
+        // A cycle belongs to every table on the path rather than to one of them. Anchor it to the
+        // table the path starts at so the message still links somewhere the reader can act on.
+        var anchorTable = cyclePath.Count > 0
+            ? Option<Identifier>.Some(cyclePath.First())
+            : Option<Identifier>.None;
+
+        return new RuleMessage(RuleId, RuleTitle, Level, message, anchorTable);
     }
 
     /// <summary>

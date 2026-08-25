@@ -16,11 +16,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ColumnTypeMismatchAcrossTablesRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// a naming coincidence across unrelated tables is common and harmless.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ColumnTypeMismatchAcrossTablesRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ColumnTypeMismatchAcrossTablesRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ColumnTypeMismatchAcrossTablesRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -81,6 +87,10 @@ public class ColumnTypeMismatchAcrossTablesRule : Rule, ITableRule
             .Append(". Consider using a consistent type to avoid implicit conversions and join errors.");
 
         var messageText = builder.GetStringAndRelease();
+
+        // Deliberately reported without an owning object: the finding is about a column name
+        // shared by several unrelated tables, so attributing it to any one of them would send
+        // the reader to a table that is no more at fault than the others.
         return new RuleMessage(RuleId, RuleTitle, Level, messageText);
     }
 

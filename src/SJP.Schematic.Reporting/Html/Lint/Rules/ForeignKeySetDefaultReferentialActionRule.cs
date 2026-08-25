@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ForeignKeySetDefaultReferentialActionRule : Schematic.Lint.Rules.ForeignKeySetDefaultReferentialActionRule
 {
-    public ForeignKeySetDefaultReferentialActionRule(RuleLevel level)
+    public ForeignKeySetDefaultReferentialActionRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -31,6 +31,6 @@ internal sealed class ForeignKeySetDefaultReferentialActionRule : Schematic.Lint
         builder.Append(" with a SET DEFAULT referential action, but one or more of its columns have no default value. The action can never succeed and will cause referential operations to fail.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 }

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class CandidateKeyMissingRule : Schematic.Lint.Rules.CandidateKeyMissingRule
 {
-    public CandidateKeyMissingRule(RuleLevel level)
+    public CandidateKeyMissingRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -16,6 +16,6 @@ internal sealed class CandidateKeyMissingRule : Schematic.Lint.Rules.CandidateKe
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

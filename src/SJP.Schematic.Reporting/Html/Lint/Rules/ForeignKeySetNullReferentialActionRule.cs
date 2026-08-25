@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ForeignKeySetNullReferentialActionRule : Schematic.Lint.Rules.ForeignKeySetNullReferentialActionRule
 {
-    public ForeignKeySetNullReferentialActionRule(RuleLevel level)
+    public ForeignKeySetNullReferentialActionRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -31,6 +31,6 @@ internal sealed class ForeignKeySetNullReferentialActionRule : Schematic.Lint.Ru
         builder.Append(" with a SET NULL referential action, but one or more of its columns are not nullable. The action can never succeed and will cause referential operations to fail.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 }

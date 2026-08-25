@@ -21,9 +21,8 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
         public LintOutputFormat Format { get; init; }
 
         [CommandOption("--level <LEVEL>")]
-        [Description("The reporting level applied to all lint rules. One of: information, warning, error. Defaults to information.")]
-        [DefaultValue(RuleLevel.Information)]
-        public RuleLevel Level { get; init; }
+        [Description("Forces every lint rule to this reporting level. One of: information, warning, error. If not set, each rule reports at its own level.")]
+        public RuleLevel? Level { get; init; }
 
         [CommandOption("--fail-on <LEVEL>")]
         [Description("The minimum rule level that causes the command to exit with a non-zero exit code. One of: information, warning, error. If not set, the command always exits successfully.")]
@@ -52,7 +51,11 @@ internal sealed class LintCommand : AsyncCommand<LintCommand.Settings>
         var database = await databaseProvider.GetRelationalDatabaseAsync(cancellationToken);
 
         var ruleProvider = new DefaultRuleProvider();
-        var rules = ruleProvider.GetRules(connection, settings.Level);
+        // Without an explicit --level, rules keep their own default severities, which is what
+        // makes --fail-on able to distinguish a broken schema from an untidy one.
+        var rules = settings.Level.HasValue
+            ? ruleProvider.GetRules(connection, settings.Level.Value)
+            : ruleProvider.GetRules(connection);
         var linter = new RelationalDatabaseLinter(rules);
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);

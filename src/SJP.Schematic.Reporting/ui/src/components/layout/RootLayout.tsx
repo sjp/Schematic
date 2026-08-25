@@ -19,7 +19,9 @@ import {
 import { useEffect, useState } from "react";
 
 import { SearchCommand } from "@/components/SearchCommand";
+import { useSummary } from "@/hooks/useReportData";
 import { cn } from "@/lib/utils";
+import type { LintSummary } from "@/types/report";
 
 type NavItem = {
   /** Hash-route fragment (e.g. `#/tables`). */
@@ -71,6 +73,9 @@ const NAV: NavItem[] = [
 export function RootLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [searchOpen, setSearchOpen] = useState(false);
+  // One cached query shared with the lint page and every detail page, so the badge costs
+  // nothing beyond the first load.
+  const { data: lint } = useSummary<LintSummary>("lint");
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -109,6 +114,18 @@ export function RootLayout() {
               >
                 <Icon className="size-4" />
                 {item.label}
+                {item.path === "/lint" && lint !== undefined && lint.messageCount > 0 && (
+                  <span
+                    className={cn(
+                      "ml-auto rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums",
+                      lint.errorCount > 0
+                        ? "bg-destructive/15 text-destructive"
+                        : "bg-sidebar-accent text-sidebar-foreground/80",
+                    )}
+                  >
+                    {lint.messageCount}
+                  </span>
+                )}
               </a>
             );
           })}

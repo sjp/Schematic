@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NullableBooleanColumnRule : Schematic.Lint.Rules.NullableBooleanColumnRule
 {
-    public NullableBooleanColumnRule(RuleLevel level)
+    public NullableBooleanColumnRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class NullableBooleanColumnRule : Schematic.Lint.Rules.NullableB
         ArgumentNullException.ThrowIfNull(columnName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has a nullable boolean column '{columnName.LocalName}'. This introduces an ambiguous three-valued state (true, false, unknown); consider making it non-nullable with a default value.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

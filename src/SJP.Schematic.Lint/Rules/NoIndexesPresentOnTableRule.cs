@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class NoIndexesPresentOnTableRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a table with no indexes at all can only ever be scanned.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="NoIndexesPresentOnTableRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public NoIndexesPresentOnTableRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public NoIndexesPresentOnTableRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -68,7 +74,7 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName} does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

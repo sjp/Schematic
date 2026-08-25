@@ -12,7 +12,7 @@ import { ColumnsPage } from "@/routes/columns";
 import { ConstraintsPage } from "@/routes/constraints";
 import { DashboardPage } from "@/routes/dashboard";
 import { IndexesPage } from "@/routes/indexes";
-import { LintPage } from "@/routes/lint";
+import { LintPage, parseLintSearch } from "@/routes/lint";
 import { OrphansPage } from "@/routes/orphans";
 import { RelationshipsPage } from "@/routes/relationships";
 import { RoutineDetailPage } from "@/routes/routine-detail";
@@ -183,6 +183,9 @@ const lintRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/lint",
   component: LintPage,
+  // The lint page keeps its severity/rule/view selection in the URL so a particular slice of a
+  // large result set can be linked to and shared.
+  validateSearch: parseLintSearch,
   loader: () => ensureSummary("lint"),
   head: () => titleMeta("Lint"),
 });

@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ForeignKeySetDefaultReferentialActionRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// SET DEFAULT silently rewrites data on parent changes.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ForeignKeySetDefaultReferentialActionRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ForeignKeySetDefaultReferentialActionRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ForeignKeySetDefaultReferentialActionRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -95,7 +101,7 @@ public class ForeignKeySetDefaultReferentialActionRule : Rule, ITableRule
         builder.Append(" with a SET DEFAULT referential action, but one or more of its columns have no default value. The action can never succeed and will cause referential operations to fail.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 
     /// <summary>

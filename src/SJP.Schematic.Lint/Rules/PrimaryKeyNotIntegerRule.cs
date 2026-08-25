@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class PrimaryKeyNotIntegerRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// non-integer primary keys are a legitimate trade-off.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="PrimaryKeyNotIntegerRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public PrimaryKeyNotIntegerRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public PrimaryKeyNotIntegerRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -78,7 +84,7 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName} has a primary key which is not a single-column whose type is an integer.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

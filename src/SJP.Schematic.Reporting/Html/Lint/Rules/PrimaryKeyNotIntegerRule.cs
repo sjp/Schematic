@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class PrimaryKeyNotIntegerRule : Schematic.Lint.Rules.PrimaryKeyNotIntegerRule
 {
-    public PrimaryKeyNotIntegerRule(RuleLevel level)
+    public PrimaryKeyNotIntegerRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class PrimaryKeyNotIntegerRule : Schematic.Lint.Rules.PrimaryKey
 
         var messageText = $"The table {tableName.ToVisibleName()} has a primary key which is not a single-column whose type is an integer.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class TooManyColumnsRule : Schematic.Lint.Rules.TooManyColumnsRule
 {
-    public TooManyColumnsRule(RuleLevel level, uint columnLimit = 100)
+    public TooManyColumnsRule(RuleLevel? level = null, uint columnLimit = 100)
         : base(level, columnLimit)
     {
     }
@@ -18,6 +18,6 @@ internal sealed class TooManyColumnsRule : Schematic.Lint.Rules.TooManyColumnsRu
 
         var messageText = $"The table {tableName.ToVisibleName()} has too many columns. It has {columnCount.ToString(CultureInfo.InvariantCulture)} columns.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

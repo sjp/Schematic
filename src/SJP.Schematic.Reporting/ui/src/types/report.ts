@@ -369,17 +369,48 @@ export interface OrphansSummary {
   tables: OrphanTable[];
 }
 
-/** A group of lint messages produced by a single rule, in `data/lint.json`. */
+/** Severity of a lint finding, ordered least to most severe. */
+export type LintLevel = "Information" | "Warning" | "Error";
+
+/** The kind of database object a lint message is attributed to. */
+export type LintObjectType = "Table" | "View" | "Sequence" | "Synonym" | "Routine";
+
+/** A rule that raised at least one message, in `data/lint.json`. */
 export interface LintRule {
+  /** Stable rule identifier, e.g. `SCHEMATIC0009`. */
+  ruleId: string;
   ruleTitle: string;
-  messages: string[];
+  level: LintLevel;
   messageCount: number;
+}
+
+/**
+ * A single lint finding. Messages are a flat list rather than being nested inside their rule;
+ * `ruleId` joins a message back to its entry in `lintRules`.
+ */
+export interface LintMessage {
+  ruleId: string;
+  ruleTitle: string;
+  level: LintLevel;
+  message: string;
+  /** Qualified name of the object this concerns; absent for schema-wide findings. */
+  objectName?: string;
+  objectType?: LintObjectType;
+  /** Hash route to the object's detail page, e.g. `#/tables/actor-d4592e62`. */
+  objectUrl?: string;
 }
 
 /** `data/lint.json`. */
 export interface LintSummary {
+  /** How many distinct rules fired. Not the number of issues — that is `messageCount`. */
   lintRulesCount: number;
   lintRules: LintRule[];
+  messageCount: number;
+  messages: LintMessage[];
+  errorCount: number;
+  warningCount: number;
+  informationCount: number;
+  objectsAffectedCount: number;
 }
 
 /** `data/relationships.json` — the schema-wide relationship graph (laid out and drawn client-side). */

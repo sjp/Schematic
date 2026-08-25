@@ -19,11 +19,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, ISynonymRule, IRoutineRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a name containing whitespace breaks any query that does not quote it.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="WhitespaceNameRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public WhitespaceNameRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public WhitespaceNameRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -256,7 +262,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table '{tableName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -272,7 +278,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' contains a column '{columnName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -286,7 +292,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view '{viewName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     /// <summary>
@@ -302,7 +308,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The view '{viewName}' contains a column '{columnName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     /// <summary>
@@ -316,7 +322,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var messageText = $"The sequence '{sequenceName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, sequenceName);
     }
 
     /// <summary>
@@ -330,7 +336,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentNullException.ThrowIfNull(synonymName);
 
         var messageText = $"The synonym '{synonymName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, synonymName);
     }
 
     /// <summary>
@@ -344,7 +350,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
         ArgumentNullException.ThrowIfNull(routineName);
 
         var messageText = $"The routine '{routineName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, routineName);
     }
 
     /// <summary>

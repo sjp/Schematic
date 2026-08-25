@@ -16,13 +16,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class TooManyColumnsRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a very wide table usually indicates a missing normalisation boundary.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="TooManyColumnsRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <param name="columnLimit">The column limit. When exceeded, this rule will report issues.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="columnLimit"/> is less than one.</exception>
-    public TooManyColumnsRule(RuleLevel level, uint columnLimit = 100)
-        : base(RuleId, RuleTitle, level)
+    public TooManyColumnsRule(RuleLevel? level = null, uint columnLimit = 100)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         if (columnLimit == 0)
             throw new ArgumentOutOfRangeException(nameof(columnLimit), "The column limit must be at least 1.");
@@ -81,7 +87,7 @@ public class TooManyColumnsRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName} has too many columns. It has {columnCount.ToString(CultureInfo.InvariantCulture)} columns.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

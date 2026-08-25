@@ -16,11 +16,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// column ordering is a convention, not a defect.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="PrimaryKeyColumnNotFirstColumnRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public PrimaryKeyColumnNotFirstColumnRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public PrimaryKeyColumnNotFirstColumnRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -90,7 +96,7 @@ public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName} has a primary key whose column is not the first column in the table.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

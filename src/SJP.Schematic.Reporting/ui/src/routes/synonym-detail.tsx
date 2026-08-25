@@ -1,5 +1,6 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 
+import { LintFindings } from "@/components/LintFindings";
 import { useDetail } from "@/hooks/useReportData";
 import type { SynonymDetail } from "@/types/report";
 
@@ -27,6 +28,8 @@ export function SynonymDetailPage() {
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
       </div>
+
+      <LintFindings objectUrl={`#/synonyms/${synonymKey}`} />
 
       <dl className="flex flex-col gap-0.5">
         <dt className="text-sm text-muted-foreground">Target</dt>

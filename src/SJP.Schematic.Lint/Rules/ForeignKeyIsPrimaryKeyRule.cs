@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a key that references its own table's primary key is self-referential by mistake.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ForeignKeyIsPrimaryKeyRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ForeignKeyIsPrimaryKeyRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ForeignKeyIsPrimaryKeyRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -102,7 +108,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
             .Append(" contains the same column set as the target key.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 
     /// <summary>

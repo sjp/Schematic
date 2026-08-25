@@ -160,8 +160,8 @@ internal static class LintCommandTests
             var app = new CommandApp(registrar);
             app.Configure(config => config.AddCommand<LintCommand>("lint"));
 
-            // Rules default to RuleLevel.Information (see LintCommand.Settings.Level),
-            // so the sample database's foreign-key-index issue is reported at that level.
+            // Every finding is at least Information, whatever level each rule reports at, so
+            // --fail-on information trips as soon as anything at all is reported.
             var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--fail-on", "information"]);
 
             Assert.That(exitCode, Is.EqualTo(1));
@@ -187,7 +187,8 @@ internal static class LintCommandTests
             var app = new CommandApp(registrar);
             app.Configure(config => config.AddCommand<LintCommand>("lint"));
 
-            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--fail-on", "warning"]);
+            // --level pins every rule to Information, so nothing is reported at Warning or above.
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--level", "information", "--fail-on", "warning"]);
 
             Assert.That(exitCode, Is.Zero);
         }
@@ -250,7 +251,7 @@ internal static class LintCommandTests
     }
 
     [Test]
-    public static async Task ExecuteAsync_GivenNoLevel_DefaultsToInformation()
+    public static async Task ExecuteAsync_GivenLevelInformation_ReportsIssues()
     {
         var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
         try
@@ -272,6 +273,131 @@ internal static class LintCommandTests
                 Assert.That(exitCode, Is.Zero);
                 Assert.That(output, Does.Contain("Rule:"));
                 Assert.That(output, Does.Contain("foreign key"));
+            }
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenNoLevel_ReportsEachRuleAtItsOwnLevel()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (console, writer) = CommandAppHarness.CreateCapturingConsole();
+
+            var registrar = new CommandAppHarness.InstanceRegistrar();
+            registrar.RegisterInstance(typeof(IAnsiConsole), console);
+            registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+            var app = new CommandApp(registrar);
+            app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--format", "json"]);
+
+            var output = writer.ToString();
+            using var document = JsonDocument.Parse(output);
+
+            var levels = document.RootElement
+                .EnumerateArray()
+                .Select(static e => e.GetProperty("level").GetString())
+                .Distinct(StringComparer.Ordinal)
+                .ToList();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exitCode, Is.Zero);
+                // The point of per-rule levels: without --level, findings are not all one severity.
+                Assert.That(levels, Has.Count.GreaterThan(1));
+            }
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenJsonFormat_AttributesIssuesToTheirObject()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (console, writer) = CommandAppHarness.CreateCapturingConsole();
+
+            var registrar = new CommandAppHarness.InstanceRegistrar();
+            registrar.RegisterInstance(typeof(IAnsiConsole), console);
+            registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+            var app = new CommandApp(registrar);
+            app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--format", "json"]);
+
+            var output = writer.ToString();
+            using var document = JsonDocument.Parse(output);
+
+            var objectNames = document.RootElement
+                .EnumerateArray()
+                .Where(static e => e.TryGetProperty("objectName", out _))
+                .Select(static e => e.GetProperty("objectName").GetString())
+                .ToList();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exitCode, Is.Zero);
+                Assert.That(objectNames, Is.Not.Empty);
+                Assert.That(objectNames, Has.Some.Contains("book").Or.Some.Contains("author"));
+            }
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenSarifFormat_EmitsLogicalLocationsForIssues()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (console, writer) = CommandAppHarness.CreateCapturingConsole();
+
+            var registrar = new CommandAppHarness.InstanceRegistrar();
+            registrar.RegisterInstance(typeof(IAnsiConsole), console);
+            registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+            var app = new CommandApp(registrar);
+            app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+            var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--format", "sarif"]);
+
+            var output = writer.ToString();
+            using var document = JsonDocument.Parse(output);
+
+            var results = document.RootElement
+                .GetProperty("runs")[0]
+                .GetProperty("results")
+                .EnumerateArray()
+                .ToList();
+
+            var located = results
+                .Where(static r => r.TryGetProperty("locations", out _))
+                .Select(static r => r.GetProperty("locations")[0]
+                    .GetProperty("logicalLocations")[0]
+                    .GetProperty("fullyQualifiedName")
+                    .GetString())
+                .ToList();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exitCode, Is.Zero);
+                Assert.That(results, Is.Not.Empty);
+                Assert.That(located, Is.Not.Empty);
             }
         }
         finally

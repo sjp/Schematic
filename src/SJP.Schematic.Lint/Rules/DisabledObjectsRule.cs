@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class DisabledObjectsRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a disabled constraint silently stops enforcing what the schema claims.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="DisabledObjectsRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public DisabledObjectsRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public DisabledObjectsRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -115,7 +121,7 @@ public class DisabledObjectsRule : Rule, ITableRule
         );
 
         var messageText = $"The table '{tableName}' contains a disabled foreign key{messageKeyName}. Consider enabling or removing the foreign key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -135,7 +141,7 @@ public class DisabledObjectsRule : Rule, ITableRule
         );
 
         var messageText = $"The table '{tableName}' contains a disabled primary key{messageKeyName}. Consider enabling or removing the primary key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -155,7 +161,7 @@ public class DisabledObjectsRule : Rule, ITableRule
         );
 
         var messageText = $"The table '{tableName}' contains a disabled unique key{messageKeyName}. Consider enabling or removing the unique key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -175,7 +181,7 @@ public class DisabledObjectsRule : Rule, ITableRule
         );
 
         var messageText = $"The table '{tableName}' contains a disabled check constraint{messageCheckName}. Consider enabling or removing the check constraint.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -194,7 +200,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             : string.Empty;
 
         var messageText = $"The table '{tableName}' contains a disabled index{messageIndexName}. Consider enabling or removing the index.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -213,7 +219,7 @@ public class DisabledObjectsRule : Rule, ITableRule
             : string.Empty;
 
         var messageText = $"The table '{tableName}' contains a disabled trigger{messageTriggerName}. Consider enabling or removing the trigger.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

@@ -7,7 +7,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ForeignKeyMissingRule : Schematic.Lint.Rules.ForeignKeyMissingRule
 {
-    public ForeignKeyMissingRule(RuleLevel level)
+    public ForeignKeyMissingRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -28,6 +28,6 @@ internal sealed class ForeignKeyMissingRule : Schematic.Lint.Rules.ForeignKeyMis
             .Append(" which is missing a foreign key constraint.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

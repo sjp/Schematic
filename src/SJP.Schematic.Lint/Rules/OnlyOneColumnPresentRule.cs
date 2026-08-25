@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class OnlyOneColumnPresentRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// single-column lookup and tally tables are legitimate.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="OnlyOneColumnPresentRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public OnlyOneColumnPresentRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public OnlyOneColumnPresentRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -70,7 +76,7 @@ public class OnlyOneColumnPresentRule : Rule, ITableRule
         var messageText = columnCount == 0
             ? $"The table {tableName} has too few columns. It has no columns, consider adding more."
             : $"The table {tableName} has too few columns. It has one column, consider adding more.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

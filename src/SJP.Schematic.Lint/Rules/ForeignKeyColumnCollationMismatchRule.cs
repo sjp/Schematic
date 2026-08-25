@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ForeignKeyColumnCollationMismatchRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// mismatched collations make joins non-sargable and can compare unequal.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ForeignKeyColumnCollationMismatchRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ForeignKeyColumnCollationMismatchRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ForeignKeyColumnCollationMismatchRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -103,7 +109,7 @@ public class ForeignKeyColumnCollationMismatchRule : Rule, ITableRule
             .Append(" contains columns with mismatching collations. These should match to avoid implicit conversions and to ensure that joins and comparisons behave consistently.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 
     /// <summary>

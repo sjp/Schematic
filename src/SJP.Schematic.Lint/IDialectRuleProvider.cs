@@ -17,4 +17,12 @@ public interface IDialectRuleProvider<TDialect> where TDialect : notnull, IDatab
     /// <param name="level">The level used for reporting.</param>
     /// <returns>Rules used for analyzing a dialect's database objects.</returns>
     IEnumerable<IRule> GetRules(ISchematicConnection connection, RuleLevel level);
+
+    /// <summary>
+    /// Retrieves the set of rules used to analyze a dialect's database objects for reporting,
+    /// each at its own default reporting level.
+    /// </summary>
+    /// <param name="connection">A schematic connection.</param>
+    /// <returns>Rules used for analyzing a dialect's database objects.</returns>
+    IEnumerable<IRule> GetRules(ISchematicConnection connection);
 }

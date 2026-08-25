@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ForeignKeyColumnTypeMismatchRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: error, because
+    /// a foreign key whose column types differ cannot reliably match its parent.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Error;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ForeignKeyColumnTypeMismatchRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ForeignKeyColumnTypeMismatchRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ForeignKeyColumnTypeMismatchRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -101,7 +107,7 @@ public class ForeignKeyColumnTypeMismatchRule : Rule, ITableRule
             .Append(" contains mismatching column types. These should be the same in order to ensure that foreign keys can always hold the same information as the target key.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 
     /// <summary>

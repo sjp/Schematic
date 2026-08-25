@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoRowsPresentOnTableRule : Schematic.Lint.Rules.NoRowsPresentOnTableRule
 {
-    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel level)
+    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel? level = null)
         : base(connection, level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class NoRowsPresentOnTableRule : Schematic.Lint.Rules.NoRowsPres
 
         var messageText = $"The table {tableName.ToVisibleName()} contains no rows. Consider removing it if it is unused.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

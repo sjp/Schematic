@@ -16,13 +16,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class InvalidViewDefinitionRule : Rule, IViewRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: error, because
+    /// the view does not execute, so anything depending on it is broken.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Error;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="InvalidViewDefinitionRule"/> class.
     /// </summary>
     /// <param name="connection">A database connection.</param>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public InvalidViewDefinitionRule(ISchematicConnection connection, RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    public InvalidViewDefinitionRule(ISchematicConnection connection, RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
     }
@@ -168,7 +174,7 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
         ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view {viewName} was unable to be queried. This may indicate an incorrect view definition.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     /// <summary>

@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { DataTable } from "@/components/DataTable";
 import { IconTooltip } from "@/components/IconTooltip";
+import { LintFindings } from "@/components/LintFindings";
 import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { Button } from "@/components/ui/button";
 import {
@@ -179,6 +180,8 @@ export function TableDetailPage() {
         <h1 className="text-2xl font-semibold">{data.name}</h1>
         <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
       </div>
+
+      <LintFindings objectUrl={`#/tables/${tableKey}`} />
 
       <Section title="Columns" count={data.columnsCount}>
         <DataTable

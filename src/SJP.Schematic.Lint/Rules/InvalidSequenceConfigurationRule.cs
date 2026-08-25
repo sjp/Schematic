@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class InvalidSequenceConfigurationRule : Rule, ISequenceRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: error, because
+    /// the sequence cannot produce the values it is configured to produce.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Error;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="InvalidSequenceConfigurationRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public InvalidSequenceConfigurationRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public InvalidSequenceConfigurationRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -86,7 +92,7 @@ public class InvalidSequenceConfigurationRule : Rule, ISequenceRule
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var messageText = $"The sequence {sequenceName} {reason}";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, sequenceName);
     }
 
     /// <summary>

@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class CascadeDeleteRule : Schematic.Lint.Rules.CascadeDeleteRule
 {
-    public CascadeDeleteRule(RuleLevel level)
+    public CascadeDeleteRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -34,6 +34,6 @@ internal sealed class CascadeDeleteRule : Schematic.Lint.Rules.CascadeDeleteRule
             .Append(" has a CASCADE delete action. Deleting a parent row will also delete the related child rows; ensure this is intended, as cascades can propagate and remove large amounts of data.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 }

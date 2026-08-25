@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class EmptyRoutineDefinitionRule : Rule, IRoutineRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// an empty definition is either a stub or a failed metadata read.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="EmptyRoutineDefinitionRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public EmptyRoutineDefinitionRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public EmptyRoutineDefinitionRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -65,7 +71,7 @@ public class EmptyRoutineDefinitionRule : Rule, IRoutineRule
         ArgumentNullException.ThrowIfNull(routineName);
 
         var messageText = $"The routine {routineName} has an empty definition. Consider removing it if it is unused, or restoring its body if the definition was lost.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, routineName);
     }
 
     /// <summary>

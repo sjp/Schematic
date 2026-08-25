@@ -17,13 +17,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class TooManyIndexColumnsRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a very wide index is rarely usable beyond its leading columns.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="TooManyIndexColumnsRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <param name="columnLimit">The maximum number of columns an index may contain before being reported.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="columnLimit"/> is zero.</exception>
-    public TooManyIndexColumnsRule(RuleLevel level, uint columnLimit = 5)
-        : base(RuleId, RuleTitle, level)
+    public TooManyIndexColumnsRule(RuleLevel? level = null, uint columnLimit = 5)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         if (columnLimit == 0)
             throw new ArgumentOutOfRangeException(nameof(columnLimit), "The column limit must be at least 1.");
@@ -88,7 +94,7 @@ public class TooManyIndexColumnsRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(indexName);
 
         var messageText = $"The table {tableName} has an index '{indexName.LocalName}' with {columnCount.ToString()} columns, which exceeds the configured limit of {ColumnLimit.ToString()}. Consider whether such a wide index is necessary.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

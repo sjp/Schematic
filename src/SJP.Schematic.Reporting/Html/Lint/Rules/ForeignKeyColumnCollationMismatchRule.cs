@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ForeignKeyColumnCollationMismatchRule : Schematic.Lint.Rules.ForeignKeyColumnCollationMismatchRule
 {
-    public ForeignKeyColumnCollationMismatchRule(RuleLevel level)
+    public ForeignKeyColumnCollationMismatchRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -34,6 +34,6 @@ internal sealed class ForeignKeyColumnCollationMismatchRule : Schematic.Lint.Rul
             .Append(" contains columns with mismatching collations. These should match to avoid implicit conversions and to ensure that joins and comparisons behave consistently.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 }

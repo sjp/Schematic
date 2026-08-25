@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class OrphanedTableRule : Schematic.Lint.Rules.OrphanedTableRule
 {
-    public OrphanedTableRule(RuleLevel level)
+    public OrphanedTableRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class OrphanedTableRule : Schematic.Lint.Rules.OrphanedTableRule
 
         var messageText = $"The table {tableName.ToVisibleName()} is not related to any other table. Consider adding relations or removing the table.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

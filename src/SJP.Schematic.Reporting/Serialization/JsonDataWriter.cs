@@ -85,8 +85,10 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Constraints))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Indexes))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Orphans))]
-// Lint page: lint messages grouped by rule.
+// Lint page: the rule catalogue plus a flat list of every message.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.LintResults))]
+// data/lint.sarif: the same findings in the interchange format code-scanning tools read.
+[JsonSerializable(typeof(SJP.Schematic.Lint.Serialization.SarifLog))]
 // Relationships: schema-wide diagram levels referencing data/diagrams/*.svg.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Relationships))]
 // Search: flat index of every object + column for the Cmd/Ctrl-K palette.

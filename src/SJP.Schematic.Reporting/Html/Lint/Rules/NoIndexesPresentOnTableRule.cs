@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoIndexesPresentOnTableRule : Schematic.Lint.Rules.NoIndexesPresentOnTableRule
 {
-    public NoIndexesPresentOnTableRule(RuleLevel level)
+    public NoIndexesPresentOnTableRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class NoIndexesPresentOnTableRule : Schematic.Lint.Rules.NoIndex
 
         var messageText = $"The table {tableName.ToVisibleName()} does not have any indexes present, requiring table scans to access records. Consider introducing an index or a primary key or a unique key constraint.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

@@ -27,4 +27,17 @@ public sealed class EmptyRuleProvider : IRuleProvider
 
         return [];
     }
+
+    /// <summary>
+    /// Retrieves an empty set of rules used for reporting.
+    /// </summary>
+    /// <param name="connection">A schematic connection.</param>
+    /// <returns>An empty set of rules.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
+    public IEnumerable<IRule> GetRules(ISchematicConnection connection)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        return [];
+    }
 }

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class SelectStarInViewDefinitionRule : Schematic.Lint.Rules.SelectStarInViewDefinitionRule
 {
-    public SelectStarInViewDefinitionRule(RuleLevel level)
+    public SelectStarInViewDefinitionRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -16,6 +16,6 @@ internal sealed class SelectStarInViewDefinitionRule : Schematic.Lint.Rules.Sele
         ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view {viewName.ToVisibleName()} selects all columns using a '*' wildcard. This makes the view brittle, as its result set silently changes when the underlying tables change. Consider listing columns explicitly.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 }

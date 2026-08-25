@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.ForeignKeySelfReferenceRule
 {
-    public ForeignKeySelfReferenceRule(ISchematicConnection connection, RuleLevel level)
+    public ForeignKeySelfReferenceRule(ISchematicConnection connection, RuleLevel? level = null)
         : base(connection, level)
     {
     }
@@ -36,6 +36,6 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
         var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

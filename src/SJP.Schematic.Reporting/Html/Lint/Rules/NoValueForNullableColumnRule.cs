@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValueForNullableColumnRule
 {
-    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel level)
+    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel? level = null)
         : base(connection, level)
     {
     }
@@ -18,6 +18,6 @@ internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValu
 
         var messageText = $"The table {tableName.ToVisibleName()} has a nullable column '{columnName}' whose values are always NULL. Consider removing the column.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

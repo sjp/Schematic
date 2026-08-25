@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndexesRule
 {
-    public RedundantIndexesRule(RuleLevel level)
+    public RedundantIndexesRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -67,6 +67,6 @@ internal sealed class RedundantIndexesRule : Schematic.Lint.Rules.RedundantIndex
         builder.Append('.');
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

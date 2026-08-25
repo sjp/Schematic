@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class TriggerWithNoEnabledEventsRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a trigger that fires on nothing is dead code that reads as live.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="TriggerWithNoEnabledEventsRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public TriggerWithNoEnabledEventsRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public TriggerWithNoEnabledEventsRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -73,7 +79,7 @@ public class TriggerWithNoEnabledEventsRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(triggerName);
 
         var messageText = $"The table {tableName} has a trigger '{triggerName.LocalName}' that is not bound to any event (INSERT, UPDATE or DELETE), so it can never fire. Consider removing it or binding it to an event.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

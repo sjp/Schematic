@@ -16,13 +16,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class NoRowsPresentOnTableRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// an empty table is normal in a fresh or reference schema.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="NoRowsPresentOnTableRule"/> class.
     /// </summary>
     /// <param name="connection">A database connection.</param>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
@@ -122,7 +128,7 @@ public class NoRowsPresentOnTableRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table '{tableName}' contains no rows. Consider removing it if it is unused.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

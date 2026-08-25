@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// nullable columns defeat the uniqueness the index claims to enforce.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="UniqueIndexWithNullableColumnsRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public UniqueIndexWithNullableColumnsRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public UniqueIndexWithNullableColumnsRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -107,7 +113,7 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
             .AppendJoin(", ", columnNames);
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class InconsistentColumnNamingConventionRule : Schematic.Lint.Rules.InconsistentColumnNamingConventionRule
 {
-    public InconsistentColumnNamingConventionRule(RuleLevel level)
+    public InconsistentColumnNamingConventionRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class InconsistentColumnNamingConventionRule : Schematic.Lint.Ru
         ArgumentNullException.ThrowIfNull(columnName);
 
         var messageText = $"The column '{columnName.LocalName}' in the table {tableName.ToVisibleName()} does not follow the dominant naming convention used elsewhere in the schema. Consider using a consistent convention for all column names.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

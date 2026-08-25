@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using EnumsNET;
+using LanguageExt;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint;
 
@@ -10,7 +12,8 @@ namespace SJP.Schematic.Lint;
 public class RuleMessage : IRuleMessage
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="RuleMessage"/> class.
+    /// Initializes a new instance of the <see cref="RuleMessage"/> class that is not attributable
+    /// to a single database object.
     /// </summary>
     /// <param name="ruleId">The rule identifier.</param>
     /// <param name="title">The rule title.</param>
@@ -19,6 +22,21 @@ public class RuleMessage : IRuleMessage
     /// <exception cref="ArgumentNullException"><paramref name="ruleId"/> or <paramref name="title"/> or <paramref name="message"/> are <see langword="null" />, empty or whitespace.</exception>
     /// <exception cref="ArgumentException">The given rule reporting level was not a valid value.</exception>
     public RuleMessage(string ruleId, string title, RuleLevel level, string message)
+        : this(ruleId, title, level, message, Option<Identifier>.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RuleMessage"/> class.
+    /// </summary>
+    /// <param name="ruleId">The rule identifier.</param>
+    /// <param name="title">The rule title.</param>
+    /// <param name="level">The warning/reporting level.</param>
+    /// <param name="message">A descriptive message that informs about the potential issue that was discovered.</param>
+    /// <param name="objectName">The name of the database object the message concerns, when attributable to one.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="ruleId"/> or <paramref name="title"/> or <paramref name="message"/> are <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentException">The given rule reporting level was not a valid value.</exception>
+    public RuleMessage(string ruleId, string title, RuleLevel level, string message, Option<Identifier> objectName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ruleId);
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
@@ -30,6 +48,7 @@ public class RuleMessage : IRuleMessage
         Title = title;
         Level = level;
         Message = message;
+        ObjectName = objectName;
     }
 
     /// <summary>
@@ -55,4 +74,11 @@ public class RuleMessage : IRuleMessage
     /// </summary>
     /// <value>A descriptive message.</value>
     public string Message { get; }
+
+    /// <summary>
+    /// The name of the database object the message is about, when the message is attributable to
+    /// a single object.
+    /// </summary>
+    /// <value>The name of the object the message concerns, if any.</value>
+    public Option<Identifier> ObjectName { get; }
 }

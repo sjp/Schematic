@@ -1,5 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Lint.Tests;
 
@@ -99,5 +101,22 @@ internal static class RuleMessageTests
         var ruleMessage = new RuleMessage(ruleId, title, level, message);
 
         Assert.That(ruleMessage.Message, Is.EqualTo(message));
+    }
+
+    [Test]
+    public static void ObjectName_GivenNoObjectName_IsNone()
+    {
+        var message = new RuleMessage("TEST_ID", "title", RuleLevel.Error, "message");
+
+        Assert.That(message.ObjectName.IsNone, Is.True);
+    }
+
+    [Test]
+    public static void ObjectName_GivenObjectName_IsThatName()
+    {
+        var objectName = Identifier.CreateQualifiedIdentifier("main", "test_table");
+        var message = new RuleMessage("TEST_ID", "title", RuleLevel.Error, "message", objectName);
+
+        Assert.That(message.ObjectName.UnwrapSome(), Is.EqualTo(objectName));
     }
 }

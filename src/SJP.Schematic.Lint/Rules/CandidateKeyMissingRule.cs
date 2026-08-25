@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class CandidateKeyMissingRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: error, because
+    /// a table with no candidate key has no way to address a single row.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Error;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CandidateKeyMissingRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public CandidateKeyMissingRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public CandidateKeyMissingRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -66,7 +72,7 @@ public class CandidateKeyMissingRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName} has no candidate (primary or unique) keys. Consider adding one to ensure records are unique.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

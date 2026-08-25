@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class NullableBooleanColumnRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a three-state boolean is nearly always unintended.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="NullableBooleanColumnRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public NullableBooleanColumnRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public NullableBooleanColumnRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -73,7 +79,7 @@ public class NullableBooleanColumnRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(columnName);
 
         var messageText = $"The table {tableName} has a nullable boolean column '{columnName.LocalName}'. This introduces an ambiguous three-valued state (true, false, unknown); consider making it non-nullable with a default value.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

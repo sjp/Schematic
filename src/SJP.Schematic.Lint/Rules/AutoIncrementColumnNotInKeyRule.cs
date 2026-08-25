@@ -15,11 +15,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class AutoIncrementColumnNotInKeyRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// an auto-increment column outside the key is usually an accident, but is not always wrong.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="AutoIncrementColumnNotInKeyRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public AutoIncrementColumnNotInKeyRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public AutoIncrementColumnNotInKeyRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -81,7 +87,7 @@ public class AutoIncrementColumnNotInKeyRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(columnName);
 
         var messageText = $"The table {tableName} has an auto-incrementing column '{columnName.LocalName}' that is not part of any primary or unique key. This is often unintended.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

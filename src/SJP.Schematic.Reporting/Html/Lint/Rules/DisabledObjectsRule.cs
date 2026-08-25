@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjectsRule
 {
-    public DisabledObjectsRule(RuleLevel level)
+    public DisabledObjectsRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -21,7 +21,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
         );
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a disabled foreign key{messageKeyName}. Consider enabling or removing the foreign key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildDisabledPrimaryKeyMessage(Identifier tableName, Option<Identifier> primaryKeyName)
@@ -32,7 +32,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
            );
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a disabled primary key{messageKeyName}. Consider enabling or removing the primary key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildDisabledUniqueKeyMessage(Identifier tableName, Option<Identifier> uniqueKeyName)
@@ -43,7 +43,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
         );
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a disabled unique key{messageKeyName}. Consider enabling or removing the unique key.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildDisabledCheckConstraintMessage(Identifier tableName, Option<Identifier> checkName)
@@ -56,7 +56,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
         );
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a disabled check constraint{messageCheckName}. Consider enabling or removing the check constraint.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildDisabledIndexMessage(Identifier tableName, string? indexName)
@@ -68,7 +68,7 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
             : string.Empty;
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a disabled index{messageIndexName}. Consider enabling or removing the index.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     protected override IRuleMessage BuildDisabledTriggerMessage(Identifier tableName, string? triggerName)
@@ -80,6 +80,6 @@ internal sealed class DisabledObjectsRule : Schematic.Lint.Rules.DisabledObjects
             : string.Empty;
 
         var messageText = $"The table {tableName.ToVisibleName()} contains a disabled trigger{messageTriggerName}. Consider enabling or removing the trigger.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

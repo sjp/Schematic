@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class PrimaryKeyColumnNotFirstColumnRule : Schematic.Lint.Rules.PrimaryKeyColumnNotFirstColumnRule
 {
-    public PrimaryKeyColumnNotFirstColumnRule(RuleLevel level)
+    public PrimaryKeyColumnNotFirstColumnRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class PrimaryKeyColumnNotFirstColumnRule : Schematic.Lint.Rules.
 
         var messageText = $"The table {tableName.ToVisibleName()} has a primary key whose column is not the first column in the table.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

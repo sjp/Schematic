@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class TooManyIndexColumnsRule : Schematic.Lint.Rules.TooManyIndexColumnsRule
 {
-    public TooManyIndexColumnsRule(RuleLevel level, uint columnLimit = 5)
+    public TooManyIndexColumnsRule(RuleLevel? level = null, uint columnLimit = 5)
         : base(level, columnLimit)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class TooManyIndexColumnsRule : Schematic.Lint.Rules.TooManyInde
         ArgumentNullException.ThrowIfNull(indexName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has an index '{indexName.LocalName}' with {columnCount.ToString()} columns, which exceeds the configured limit of {ColumnLimit.ToString()}. Consider whether such a wide index is necessary.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

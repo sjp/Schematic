@@ -19,13 +19,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRule, ISynonymRule, IRoutineRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a keyword name breaks any query that does not quote it.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ReservedKeywordNameRule"/> class.
     /// </summary>
     /// <param name="dialect">A database dialect.</param>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="dialect"/> is <see langword="null" />.</exception>
-    public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    public ReservedKeywordNameRule(IDatabaseDialect dialect, RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Dialect = dialect ?? throw new ArgumentNullException(nameof(dialect));
     }
@@ -252,7 +258,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table '{tableName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -268,7 +274,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>
@@ -282,7 +288,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentNullException.ThrowIfNull(viewName);
 
         var messageText = $"The view '{viewName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     /// <summary>
@@ -298,7 +304,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The view '{viewName}' contains a column '{columnName}' which is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, viewName);
     }
 
     /// <summary>
@@ -312,7 +318,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var messageText = $"The sequence '{sequenceName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, sequenceName);
     }
 
     /// <summary>
@@ -326,7 +332,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentNullException.ThrowIfNull(synonymName);
 
         var messageText = $"The synonym '{synonymName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, synonymName);
     }
 
     /// <summary>
@@ -340,7 +346,7 @@ public class ReservedKeywordNameRule : Rule, ITableRule, IViewRule, ISequenceRul
         ArgumentNullException.ThrowIfNull(routineName);
 
         var messageText = $"The routine '{routineName}' is also a database keyword and may require quoting to be used. Consider renaming to a non-keyword name.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, routineName);
     }
 
     /// <summary>

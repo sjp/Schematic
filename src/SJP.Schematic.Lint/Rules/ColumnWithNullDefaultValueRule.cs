@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class ColumnWithNullDefaultValueRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: warning, because
+    /// a literal 'NULL' default is nearly always a mistranslated default.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Warning;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ColumnWithNullDefaultValueRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public ColumnWithNullDefaultValueRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public ColumnWithNullDefaultValueRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -94,7 +100,7 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table '{tableName}' has a column '{columnName}' whose default value is null. Consider removing the default value on the column.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

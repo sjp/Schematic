@@ -46,4 +46,20 @@ public class CompositeRuleProvider : IRuleProvider
             .SelectMany(rp => rp.GetRules(connection, level))
             .ToList();
     }
+
+    /// <summary>
+    /// Retrieves the rules used to analyze database objects, each at its own default reporting
+    /// level.
+    /// </summary>
+    /// <param name="connection">A schematic connection.</param>
+    /// <returns>Rules used for analyzing database objects.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
+    public IEnumerable<IRule> GetRules(ISchematicConnection connection)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        return RuleProviders
+            .SelectMany(rp => rp.GetRules(connection))
+            .ToList();
+    }
 }

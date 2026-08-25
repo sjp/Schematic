@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoNonNullableColumnsPresentRule : Schematic.Lint.Rules.NoNonNullableColumnsPresentRule
 {
-    public NoNonNullableColumnsPresentRule(RuleLevel level)
+    public NoNonNullableColumnsPresentRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -16,6 +16,6 @@ internal sealed class NoNonNullableColumnsPresentRule : Schematic.Lint.Rules.NoN
         ArgumentNullException.ThrowIfNull(tableName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has no not-nullable columns present. Consider adding one to ensure that each record contains data.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

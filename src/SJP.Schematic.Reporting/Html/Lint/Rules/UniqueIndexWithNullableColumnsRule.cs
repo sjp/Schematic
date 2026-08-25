@@ -10,7 +10,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.UniqueIndexWithNullableColumnsRule
 {
-    public UniqueIndexWithNullableColumnsRule(RuleLevel level)
+    public UniqueIndexWithNullableColumnsRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -42,6 +42,6 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
         builder.AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"));
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

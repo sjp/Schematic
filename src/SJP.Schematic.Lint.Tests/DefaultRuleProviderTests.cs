@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Linq;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -31,5 +32,46 @@ internal static class DefaultRuleProviderTests
         var rules = RuleProvider.GetRules(connection, RuleLevel.Error);
 
         Assert.That(rules, Is.Not.Empty);
+    }
+
+    [Test]
+    public static void GetRules_GivenNullConnectionAndNoLevel_ThrowsArgumentNullException()
+    {
+        Assert.That(() => RuleProvider.GetRules(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetRules_GivenNoLevel_ReturnsTheSameRulesAsTheLevelOverload()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+
+        var defaulted = RuleProvider.GetRules(connection).Select(static r => r.Id).ToList();
+        var levelled = RuleProvider.GetRules(connection, RuleLevel.Error).Select(static r => r.Id).ToList();
+
+        Assert.That(defaulted, Is.EqualTo(levelled));
+    }
+
+    [Test]
+    public static void GetRules_GivenNoLevel_ReturnsRulesAtMoreThanOneLevel()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+
+        var levels = RuleProvider.GetRules(connection)
+            .Select(static r => r.Level)
+            .Distinct()
+            .ToList();
+
+        // The point of per-rule defaults: severity is a signal, not a constant.
+        Assert.That(levels, Has.Count.GreaterThan(1));
+    }
+
+    [Test]
+    public static void GetRules_GivenExplicitLevel_ReturnsEveryRuleAtThatLevel()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+
+        var rules = RuleProvider.GetRules(connection, RuleLevel.Error);
+
+        Assert.That(rules.Select(static r => r.Level), Is.All.EqualTo(RuleLevel.Error));
     }
 }

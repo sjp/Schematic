@@ -1,5 +1,6 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 
+import { LintFindings } from "@/components/LintFindings";
 import { useDetail } from "@/hooks/useReportData";
 import type { RoutineDetail } from "@/types/report";
 
@@ -27,6 +28,8 @@ export function RoutineDetailPage() {
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
       </div>
+
+      <LintFindings objectUrl={`#/routines/${routineKey}`} />
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">Definition</h2>

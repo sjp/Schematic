@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class InvalidSequenceConfigurationRule : Schematic.Lint.Rules.InvalidSequenceConfigurationRule
 {
-    public InvalidSequenceConfigurationRule(RuleLevel level)
+    public InvalidSequenceConfigurationRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -16,6 +16,6 @@ internal sealed class InvalidSequenceConfigurationRule : Schematic.Lint.Rules.In
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var messageText = $"The sequence {sequenceName.ToVisibleName()} {reason}";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, sequenceName);
     }
 }

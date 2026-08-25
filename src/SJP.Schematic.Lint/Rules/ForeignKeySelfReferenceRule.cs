@@ -17,13 +17,19 @@ namespace SJP.Schematic.Lint.Rules;
 public class ForeignKeySelfReferenceRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// self-referencing keys are legitimate for hierarchies.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="ForeignKeySelfReferenceRule"/> class.
     /// </summary>
     /// <param name="connection">A database connection.</param>
-    /// <param name="level">The reporting level.</param>
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public ForeignKeySelfReferenceRule(ISchematicConnection connection, RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    public ForeignKeySelfReferenceRule(ISchematicConnection connection, RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
@@ -198,7 +204,7 @@ where {whereFilterClauses}
         var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
 
         var messageText = $"The table '{tableName}' contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 
     /// <summary>

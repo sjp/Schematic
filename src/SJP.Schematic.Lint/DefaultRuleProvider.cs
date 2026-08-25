@@ -26,6 +26,27 @@ public class DefaultRuleProvider : IRuleProvider
         if (!level.IsValid())
             throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
+        return BuildRules(connection, level);
+    }
+
+    /// <summary>
+    /// Retrieves the default set of rules used to analyze database objects, each at its own
+    /// default reporting level.
+    /// </summary>
+    /// <param name="connection">A schematic connection.</param>
+    /// <returns>Rules used for analyzing database objects.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
+    public IEnumerable<IRule> GetRules(ISchematicConnection connection)
+    {
+        ArgumentNullException.ThrowIfNull(connection);
+
+        return BuildRules(connection, level: null);
+    }
+
+    // One list serves both overloads: a null level means "leave each rule at its own
+    // DefaultLevel", which is exactly what each rule's optional level parameter already does.
+    private static IEnumerable<IRule> BuildRules(ISchematicConnection connection, RuleLevel? level)
+    {
         return
         [
             new AutoIncrementColumnNotInKeyRule(level),

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ColumnWithNullDefaultValueRule : Schematic.Lint.Rules.ColumnWithNullDefaultValueRule
 {
-    public ColumnWithNullDefaultValueRule(RuleLevel level)
+    public ColumnWithNullDefaultValueRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class ColumnWithNullDefaultValueRule : Schematic.Lint.Rules.Colu
         ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has a column '{columnName}' whose default value is NULL. Consider removing the default value on the column.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

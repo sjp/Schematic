@@ -17,11 +17,17 @@ namespace SJP.Schematic.Lint.Rules;
 public class CascadeDeleteRule : Rule, ITableRule
 {
     /// <summary>
+    /// The reporting level this rule uses unless a caller overrides it: information, because
+    /// cascading deletes are a deliberate design choice as often as they are a mistake.
+    /// </summary>
+    public const RuleLevel DefaultLevel = RuleLevel.Information;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CascadeDeleteRule"/> class.
     /// </summary>
-    /// <param name="level">The reporting level.</param>
-    public CascadeDeleteRule(RuleLevel level)
-        : base(RuleId, RuleTitle, level)
+    /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
+    public CascadeDeleteRule(RuleLevel? level = null)
+        : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }
 
@@ -92,7 +98,7 @@ public class CascadeDeleteRule : Rule, ITableRule
             .Append(" has a CASCADE delete action. Deleting a parent row will also delete the related child rows; ensure this is intended, as cascades can propagate and remove large amounts of data.");
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, childTableName);
     }
 
     /// <summary>

@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ColumnWithNumericSuffix : Schematic.Lint.Rules.ColumnWithNumericSuffix
 {
-    public ColumnWithNumericSuffix(RuleLevel level)
+    public ColumnWithNumericSuffix(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -18,6 +18,6 @@ internal sealed class ColumnWithNumericSuffix : Schematic.Lint.Rules.ColumnWithN
 
         var messageText = $"The table {tableName.ToVisibleName()} has a column '{columnName}' with a numeric suffix, indicating denormalization.";
 
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

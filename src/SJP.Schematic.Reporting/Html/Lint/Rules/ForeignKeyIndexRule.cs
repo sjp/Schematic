@@ -11,7 +11,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndexRule
 {
-    public ForeignKeyIndexRule(RuleLevel level)
+    public ForeignKeyIndexRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -45,6 +45,6 @@ internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndex
             .AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"));
 
         var messageText = builder.GetStringAndRelease();
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

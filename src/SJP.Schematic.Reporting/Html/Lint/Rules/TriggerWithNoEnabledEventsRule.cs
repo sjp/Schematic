@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class TriggerWithNoEnabledEventsRule : Schematic.Lint.Rules.TriggerWithNoEnabledEventsRule
 {
-    public TriggerWithNoEnabledEventsRule(RuleLevel level)
+    public TriggerWithNoEnabledEventsRule(RuleLevel? level = null)
         : base(level)
     {
     }
@@ -17,6 +17,6 @@ internal sealed class TriggerWithNoEnabledEventsRule : Schematic.Lint.Rules.Trig
         ArgumentNullException.ThrowIfNull(triggerName);
 
         var messageText = $"The table {tableName.ToVisibleName()} has a trigger '{triggerName.LocalName}' that is not bound to any event (INSERT, UPDATE or DELETE), so it can never fire. Consider removing it or binding it to an event.";
-        return new RuleMessage(RuleId, RuleTitle, Level, messageText);
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }
