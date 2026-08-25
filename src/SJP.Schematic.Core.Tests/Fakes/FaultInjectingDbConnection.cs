@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
@@ -10,16 +10,18 @@ using Polly;
 namespace SJP.Schematic.Core.Tests.Fakes;
 
 /// <summary>
-/// Decides which query executions fail, and how far into their results the failure occurs.
+/// Decides which connection opens and query executions fail, and how far into their results the failure occurs.
 /// </summary>
 internal sealed class FaultInjector
 {
     /// <param name="rowsBeforeFailure">The number of rows to return successfully before failing.</param>
     /// <param name="failureCount">The number of executions that should fail, starting from the first.</param>
-    public FaultInjector(int rowsBeforeFailure, int failureCount)
+    /// <param name="openFailureCount">The number of connection opens that should fail, starting from the first.</param>
+    public FaultInjector(int rowsBeforeFailure, int failureCount, int openFailureCount = 0)
     {
         RowsBeforeFailure = rowsBeforeFailure;
         _remainingFailures = failureCount;
+        _remainingOpenFailures = openFailureCount;
     }
 
     public int RowsBeforeFailure { get; }
@@ -28,6 +30,11 @@ internal sealed class FaultInjector
     /// The number of times a query has been executed, i.e. how many attempts have been made.
     /// </summary>
     public int ExecutionCount { get; private set; }
+
+    /// <summary>
+    /// The number of times a connection has been asked for, including opens that failed.
+    /// </summary>
+    public int OpenCount { get; private set; }
 
     /// <summary>
     /// Records a query execution, and determines whether this particular execution should fail.
@@ -43,12 +50,27 @@ internal sealed class FaultInjector
         return true;
     }
 
+    /// <summary>
+    /// Records a connection open, and determines whether this particular open should fail.
+    /// </summary>
+    public bool BeginOpen()
+    {
+        OpenCount++;
+
+        if (_remainingOpenFailures == 0)
+            return false;
+
+        _remainingOpenFailures--;
+        return true;
+    }
+
     private int _remainingFailures;
+    private int _remainingOpenFailures;
 }
 
 /// <summary>
-/// A connection factory that returns connections whose readers fail mid-stream, in the manner
-/// of a transient error occurring while results are being read.
+/// A connection factory whose opens fail, and whose connections return readers that fail mid-stream,
+/// in the manner of transient errors occurring while connecting and while results are being read.
 /// </summary>
 internal sealed class FaultInjectingConnectionFactory : IDbConnectionFactory
 {
@@ -64,6 +86,9 @@ internal sealed class FaultInjectingConnectionFactory : IDbConnectionFactory
 
     public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
+        if (_injector.BeginOpen())
+            throw new TimeoutException("A transient failure occurred while opening a connection.");
+
         var connection = await _innerFactory.OpenConnectionAsync(cancellationToken);
         return new FaultInjectingDbConnection(connection, _injector);
     }

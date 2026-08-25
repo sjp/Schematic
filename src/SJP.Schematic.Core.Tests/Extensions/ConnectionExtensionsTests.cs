@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using Polly;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Tests.Utilities;
@@ -408,6 +409,7 @@ internal static class ConnectionExtensionsTests
     {
         var factoryMock = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
         factoryMock.Setup(f => f.OpenConnectionAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("the connection is closed"));
+        factoryMock.Setup(f => f.RetryPolicy).Returns(Policy.Handle<TimeoutException>());
 
         return factoryMock.Object;
     }

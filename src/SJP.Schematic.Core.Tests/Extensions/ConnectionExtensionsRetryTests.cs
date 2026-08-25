@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -96,6 +96,132 @@ internal static class ConnectionExtensionsRetryTests
         var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
 
         Assert.That(async () => await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None)), Throws.InstanceOf<TimeoutException>());
+    }
+
+    [Test]
+    public static async Task QueryAsync_WhenFirstConnectionOpenFails_RetriesAndReturnsResults()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        var results = await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(results, Is.EqualTo(new[] { "first", "second", "third" }));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static async Task QueryAsync_WithParamsWhenFirstConnectionOpenFails_RetriesAndReturnsResults()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+        var param = new TestQuery { Test = "test" };
+
+        var results = await connectionFactory.QueryAsync("select @Test as dummy", param, CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(results, Is.EqualTo(new[] { "test" }));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static async Task QueryEnumerableAsync_WhenFirstConnectionOpenFails_RetriesAndReturnsResults()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        var results = await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None));
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(results, Is.EqualTo(new[] { "first", "second", "third" }));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static async Task ExecuteScalarAsync_WhenFirstConnectionOpenFails_RetriesAndReturnsResult()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        var result = await connectionFactory.ExecuteScalarAsync<string>("select 'test' as dummy", CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo("test"));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_WhenFirstConnectionOpenFails_RetriesAndCompletes()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        await connectionFactory.ExecuteAsync("create table test_table (test_column int)", CancellationToken.None);
+
+        Assert.That(injector.OpenCount, Is.EqualTo(2));
+    }
+
+    [Test]
+    public static async Task QueryFirstOrNone_WhenFirstConnectionOpenFails_RetriesAndReturnsResult()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        var result = await connectionFactory.QueryFirstOrNone<string>(ThreeRowQuery, CancellationToken.None).ToOption();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.UnwrapSome(), Is.EqualTo("first"));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static async Task QuerySingleAsync_WhenFirstConnectionOpenFails_RetriesAndReturnsResult()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        var result = await connectionFactory.QuerySingleAsync<string>("select 'test' as dummy", CancellationToken.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Is.EqualTo("test"));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static async Task QuerySingleOrNone_WhenFirstConnectionOpenFails_RetriesAndReturnsResult()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: 1);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        var result = await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.UnwrapSome(), Is.EqualTo("test"));
+            Assert.That(injector.OpenCount, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public static void QueryAsync_WhenEveryConnectionOpenFails_PropagatesException()
+    {
+        var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: int.MaxValue);
+        var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
+
+        Assert.That(async () => await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None), Throws.InstanceOf<TimeoutException>());
     }
 
     private static IDbConnectionFactory CreateFaultInjectingConnectionFactory(FaultInjector injector) =>
