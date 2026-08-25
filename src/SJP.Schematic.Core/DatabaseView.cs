@@ -28,11 +28,9 @@ public class DatabaseView : IDatabaseView
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
-        if (columns.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(columns));
 
         Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
-        Columns = columns;
+        Columns = columns.ToDefensiveCopy(nameof(columns));
         Definition = definition;
     }
 

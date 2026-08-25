@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Comments;
 
@@ -38,12 +39,12 @@ public class RelationalDatabaseTableComments : IRelationalDatabaseTableComments
         TableName = tableName ?? throw new ArgumentNullException(nameof(tableName));
         Comment = comment;
         PrimaryKeyComment = primaryKeyComment;
-        ColumnComments = columnComments ?? throw new ArgumentNullException(nameof(columnComments));
-        CheckComments = checkComments ?? throw new ArgumentNullException(nameof(checkComments));
-        UniqueKeyComments = uniqueKeyComments ?? throw new ArgumentNullException(nameof(uniqueKeyComments));
-        ForeignKeyComments = foreignKeyComments ?? throw new ArgumentNullException(nameof(foreignKeyComments));
-        IndexComments = indexComments ?? throw new ArgumentNullException(nameof(indexComments));
-        TriggerComments = triggerComments ?? throw new ArgumentNullException(nameof(triggerComments));
+        ColumnComments = columnComments.ToDefensiveCopy(nameof(columnComments));
+        CheckComments = checkComments.ToDefensiveCopy(nameof(checkComments));
+        UniqueKeyComments = uniqueKeyComments.ToDefensiveCopy(nameof(uniqueKeyComments));
+        ForeignKeyComments = foreignKeyComments.ToDefensiveCopy(nameof(foreignKeyComments));
+        IndexComments = indexComments.ToDefensiveCopy(nameof(indexComments));
+        TriggerComments = triggerComments.ToDefensiveCopy(nameof(triggerComments));
     }
 
     /// <summary>

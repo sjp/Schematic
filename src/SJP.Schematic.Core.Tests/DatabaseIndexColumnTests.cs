@@ -129,4 +129,17 @@ internal static class DatabaseIndexColumnTests
 
         Assert.That(result, Is.EqualTo(expectedResult));
     }
+
+    [Test]
+    public static void DependentColumns_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
+    {
+        const string expression = "\"test\"";
+        var dependentColumns = new List<IDatabaseColumn> { Mock.Of<IDatabaseColumn>() };
+
+        var indexColumn = new DatabaseIndexColumn(expression, dependentColumns, IndexColumnOrder.Ascending);
+
+        dependentColumns.Add(Mock.Of<IDatabaseColumn>());
+
+        Assert.That(indexColumn.DependentColumns, Has.Count.EqualTo(1));
+    }
 }

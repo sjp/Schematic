@@ -117,4 +117,19 @@ internal static class DatabaseViewCommentsTests
             Assert.That(columnComments["test_column_3"].UnwrapSome(), Is.EqualTo(propColumnComments["test_column_3"].UnwrapSome()));
         }
     }
+
+    [Test]
+    public static void ColumnComments_WhenSourceDictionaryMutatedAfterConstruction_RemainsUnchanged()
+    {
+        var columnComments = new Dictionary<Identifier, Option<string>>
+        {
+            ["test_column_1"] = Option<string>.Some("test comment")
+        };
+
+        var comments = new DatabaseViewComments("test_view", Option<string>.None, columnComments);
+
+        columnComments["test_column_2"] = Option<string>.Some("another comment");
+
+        Assert.That(comments.ColumnComments, Has.Count.EqualTo(1));
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -158,5 +159,18 @@ internal static class DatabaseKeyTests
         var result = key.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public static void Columns_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
+    {
+        Identifier keyName = "test_key";
+        var columns = new List<IDatabaseColumn> { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true);
+
+        columns.Add(Mock.Of<IDatabaseColumn>());
+
+        Assert.That(key.Columns, Has.Count.EqualTo(1));
     }
 }

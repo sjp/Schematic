@@ -29,17 +29,16 @@ public class DatabaseIndex : IDatabaseIndex
     public DatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isEnabled, Option<string> filterDefinition)
     {
         ArgumentNullException.ThrowIfNull(name);
-        if (columns.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(columns));
-        if (columns.Empty())
+
+        var indexColumns = columns.ToDefensiveCopy(nameof(columns));
+        if (indexColumns.Empty())
             throw new ArgumentException("An index must have at least one column.", nameof(columns));
-        if (includedColumns.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(includedColumns));
+        var indexIncludedColumns = includedColumns.ToDefensiveCopy(nameof(includedColumns));
 
         Name = name.LocalName;
         IsUnique = isUnique;
-        Columns = columns;
-        IncludedColumns = includedColumns;
+        Columns = indexColumns;
+        IncludedColumns = indexIncludedColumns;
         IsEnabled = isEnabled;
         FilterDefinition = filterDefinition;
     }

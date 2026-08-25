@@ -30,7 +30,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="sequences">A collection of database sequences.</param>
     /// <param name="synonyms">A collection of database synonyms.</param>
     /// <param name="routines">A collection of database routines.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/> or <paramref name="routines"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
     public RelationalDatabase(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -43,11 +43,11 @@ public class RelationalDatabase : IRelationalDatabase
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-        Tables = tables ?? throw new ArgumentNullException(nameof(tables));
-        Views = views ?? throw new ArgumentNullException(nameof(views));
-        Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
-        Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
-        Routines = routines ?? throw new ArgumentNullException(nameof(routines));
+        Tables = tables.ToDefensiveCopy(nameof(tables));
+        Views = views.ToDefensiveCopy(nameof(views));
+        Sequences = sequences.ToDefensiveCopy(nameof(sequences));
+        Synonyms = synonyms.ToDefensiveCopy(nameof(synonyms));
+        Routines = routines.ToDefensiveCopy(nameof(routines));
 
         _tablesByName = BuildLookup(Tables);
         _viewsByName = BuildLookup(Views);

@@ -44,20 +44,13 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
         IReadOnlyCollection<IDatabaseCheckConstraint> checks,
         IReadOnlyCollection<IDatabaseTrigger> triggers)
     {
-        if (columns.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(columns));
-        if (uniqueKeys.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(uniqueKeys));
-        if (parentKeys.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(parentKeys));
-        if (childKeys.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(childKeys));
-        if (indexes.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(indexes));
-        if (checks.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(checks));
-        if (triggers.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(triggers));
+        var tableColumns = columns.ToDefensiveCopy(nameof(columns));
+        var tableUniqueKeys = uniqueKeys.ToDefensiveCopy(nameof(uniqueKeys));
+        var tableParentKeys = parentKeys.ToDefensiveCopy(nameof(parentKeys));
+        var tableChildKeys = childKeys.ToDefensiveCopy(nameof(childKeys));
+        var tableIndexes = indexes.ToDefensiveCopy(nameof(indexes));
+        var tableChecks = checks.ToDefensiveCopy(nameof(checks));
+        var tableTriggers = triggers.ToDefensiveCopy(nameof(triggers));
 
         primaryKey.IfSome(static pk =>
         {
@@ -65,19 +58,19 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
                 throw new ArgumentException("The given primary key did not have a key type of '" + nameof(DatabaseKeyType.Primary) + "'", nameof(primaryKey));
         });
 
-        var anyNonUniqueKey = uniqueKeys.Any(static uk => uk.KeyType != DatabaseKeyType.Unique);
+        var anyNonUniqueKey = tableUniqueKeys.Any(static uk => uk.KeyType != DatabaseKeyType.Unique);
         if (anyNonUniqueKey)
             throw new ArgumentException("A given unique key did not have a key type of '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 
         Name = tableName ?? throw new ArgumentNullException(nameof(tableName));
-        Columns = columns;
+        Columns = tableColumns;
         PrimaryKey = primaryKey;
-        UniqueKeys = uniqueKeys;
-        ParentKeys = parentKeys;
-        ChildKeys = childKeys;
-        Indexes = indexes;
-        Checks = checks;
-        Triggers = triggers;
+        UniqueKeys = tableUniqueKeys;
+        ParentKeys = tableParentKeys;
+        ChildKeys = tableChildKeys;
+        Indexes = tableIndexes;
+        Checks = tableChecks;
+        Triggers = tableTriggers;
     }
 
     /// <summary>

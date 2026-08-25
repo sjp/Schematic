@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Collections.Generic;
+using Moq;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
@@ -109,5 +110,19 @@ internal static class DatabaseViewTests
         var result = view.ToString();
 
         Assert.That(result, Is.EqualTo(expectedOutput));
+    }
+
+    [Test]
+    public static void Columns_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
+    {
+        Identifier viewName = "test_view";
+        const string definition = "select * from test";
+        var columns = new List<IDatabaseColumn> { Mock.Of<IDatabaseColumn>() };
+
+        var view = new DatabaseView(viewName, definition, columns);
+
+        columns.Add(Mock.Of<IDatabaseColumn>());
+
+        Assert.That(view.Columns, Has.Count.EqualTo(1));
     }
 }

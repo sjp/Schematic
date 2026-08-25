@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -293,5 +294,49 @@ internal static class RelationalDatabaseTableTests
         var result = table.ToString();
 
         Assert.That(result, Is.EqualTo(expectedOutput));
+    }
+
+    [Test]
+    public static void Collections_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
+    {
+        Identifier tableName = "test_table";
+        var columns = new List<IDatabaseColumn>();
+        var uniqueKeys = new List<IDatabaseKey>();
+        var parentKeys = new List<IDatabaseRelationalKey>();
+        var childKeys = new List<IDatabaseRelationalKey>();
+        var indexes = new List<IDatabaseIndex>();
+        var checks = new List<IDatabaseCheckConstraint>();
+        var triggers = new List<IDatabaseTrigger>();
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            columns,
+            Option<IDatabaseKey>.None,
+            uniqueKeys,
+            parentKeys,
+            childKeys,
+            indexes,
+            checks,
+            triggers
+        );
+
+        columns.Add(Mock.Of<IDatabaseColumn>());
+        uniqueKeys.Add(Mock.Of<IDatabaseKey>());
+        parentKeys.Add(Mock.Of<IDatabaseRelationalKey>());
+        childKeys.Add(Mock.Of<IDatabaseRelationalKey>());
+        indexes.Add(Mock.Of<IDatabaseIndex>());
+        checks.Add(Mock.Of<IDatabaseCheckConstraint>());
+        triggers.Add(Mock.Of<IDatabaseTrigger>());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Columns, Is.Empty);
+            Assert.That(table.UniqueKeys, Is.Empty);
+            Assert.That(table.ParentKeys, Is.Empty);
+            Assert.That(table.ChildKeys, Is.Empty);
+            Assert.That(table.Indexes, Is.Empty);
+            Assert.That(table.Checks, Is.Empty);
+            Assert.That(table.Triggers, Is.Empty);
+        }
     }
 }

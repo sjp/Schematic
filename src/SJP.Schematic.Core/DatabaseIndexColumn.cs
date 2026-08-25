@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -40,11 +39,8 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
-        ArgumentNullException.ThrowIfNull(dependentColumns);
 
-        var columns = dependentColumns.ToList();
-        if (columns.AnyNull())
-            throw new ArgumentNullException(nameof(dependentColumns));
+        var columns = dependentColumns.ToDefensiveCopy(nameof(dependentColumns));
         if (columns.Empty())
             throw new ArgumentException("An index column must depend on at least one column.", nameof(dependentColumns));
         if (!order.IsValid())

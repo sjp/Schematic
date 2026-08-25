@@ -27,16 +27,15 @@ public class DatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
     public DatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
-        if (columns.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(columns));
-        if (columns.Empty())
+        var keyColumns = columns.ToDefensiveCopy(nameof(columns));
+        if (keyColumns.Empty())
             throw new ArgumentException("A key must have at least one column.", nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
         Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName));
         KeyType = keyType;
-        Columns = columns;
+        Columns = keyColumns;
         IsEnabled = isEnabled;
     }
 

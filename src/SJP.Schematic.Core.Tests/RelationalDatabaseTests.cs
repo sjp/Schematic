@@ -191,6 +191,143 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
+    public static void Ctor_GivenTablesContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                new IRelationalDatabaseTable[] { null },
+                [],
+                [],
+                [],
+                []
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenViewsContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                [],
+                new IDatabaseView[] { null },
+                [],
+                [],
+                []
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenSequencesContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                [],
+                [],
+                new IDatabaseSequence[] { null },
+                [],
+                []
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenSynonymsContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                [],
+                [],
+                [],
+                new IDatabaseSynonym[] { null },
+                []
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenRoutinesContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                [],
+                [],
+                [],
+                [],
+                new IDatabaseRoutine[] { null }
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static async Task Collections_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = new List<IRelationalDatabaseTable>();
+        var views = new List<IDatabaseView>();
+        var sequences = new List<IDatabaseSequence>();
+        var synonyms = new List<IDatabaseSynonym>();
+        var routines = new List<IDatabaseRoutine>();
+
+        var database = new RelationalDatabase(
+            identifierDefaults,
+            identifierResolver,
+            tables,
+            views,
+            sequences,
+            synonyms,
+            routines
+        );
+
+        tables.Add(Mock.Of<IRelationalDatabaseTable>());
+        views.Add(Mock.Of<IDatabaseView>());
+        sequences.Add(Mock.Of<IDatabaseSequence>());
+        synonyms.Add(Mock.Of<IDatabaseSynonym>());
+        routines.Add(Mock.Of<IDatabaseRoutine>());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await database.GetAllTables(), Is.Empty);
+            Assert.That(await database.GetAllViews(), Is.Empty);
+            Assert.That(await database.GetAllSequences(), Is.Empty);
+            Assert.That(await database.GetAllSynonyms(), Is.Empty);
+            Assert.That(await database.GetAllRoutines(), Is.Empty);
+        }
+    }
+
+    [Test]
     public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
     {
         Assert.That(() => EmptyDatabase.GetTable(null), Throws.ArgumentNullException);

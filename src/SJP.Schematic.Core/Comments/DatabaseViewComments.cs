@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Comments;
 
@@ -25,7 +26,7 @@ public class DatabaseViewComments : IDatabaseViewComments
     {
         ViewName = viewName ?? throw new ArgumentNullException(nameof(viewName));
         Comment = comment;
-        ColumnComments = columnComments ?? throw new ArgumentNullException(nameof(columnComments));
+        ColumnComments = columnComments.ToDefensiveCopy(nameof(columnComments));
     }
 
     /// <summary>

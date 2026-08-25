@@ -796,4 +796,44 @@ internal static class RelationalDatabaseTableCommentsTests
             Assert.That(triggerComments["test_trigger_3"].UnwrapSome(), Is.EqualTo(propTriggerComments["test_trigger_3"].UnwrapSome()));
         }
     }
+
+    [Test]
+    public static void CommentLookups_WhenSourceDictionariesMutatedAfterConstruction_RemainUnchanged()
+    {
+        var columnComments = new Dictionary<Identifier, Option<string>>();
+        var checkComments = new Dictionary<Identifier, Option<string>>();
+        var uniqueKeyComments = new Dictionary<Identifier, Option<string>>();
+        var foreignKeyComments = new Dictionary<Identifier, Option<string>>();
+        var indexComments = new Dictionary<Identifier, Option<string>>();
+        var triggerComments = new Dictionary<Identifier, Option<string>>();
+
+        var comments = new RelationalDatabaseTableComments(
+            "test_table",
+            Option<string>.None,
+            Option<string>.None,
+            columnComments,
+            checkComments,
+            uniqueKeyComments,
+            foreignKeyComments,
+            indexComments,
+            triggerComments
+        );
+
+        columnComments["test_column"] = Option<string>.Some("test comment");
+        checkComments["test_check"] = Option<string>.Some("test comment");
+        uniqueKeyComments["test_uk"] = Option<string>.Some("test comment");
+        foreignKeyComments["test_fk"] = Option<string>.Some("test comment");
+        indexComments["test_index"] = Option<string>.Some("test comment");
+        triggerComments["test_trigger"] = Option<string>.Some("test comment");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(comments.ColumnComments, Is.Empty);
+            Assert.That(comments.CheckComments, Is.Empty);
+            Assert.That(comments.UniqueKeyComments, Is.Empty);
+            Assert.That(comments.ForeignKeyComments, Is.Empty);
+            Assert.That(comments.IndexComments, Is.Empty);
+            Assert.That(comments.TriggerComments, Is.Empty);
+        }
+    }
 }

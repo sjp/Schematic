@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -214,5 +215,24 @@ internal static class DatabaseIndexTests
         var result = index.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public static void Columns_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
+    {
+        Identifier indexName = "test_index";
+        var columns = new List<IDatabaseIndexColumn> { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = new List<IDatabaseColumn>();
+
+        var index = new DatabaseIndex(indexName, false, columns, includedColumns, true, Option<string>.None);
+
+        columns.Add(Mock.Of<IDatabaseIndexColumn>());
+        includedColumns.Add(Mock.Of<IDatabaseColumn>());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.Columns, Has.Count.EqualTo(1));
+            Assert.That(index.IncludedColumns, Is.Empty);
+        }
     }
 }
