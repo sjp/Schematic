@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -383,7 +384,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         return results.ToDictionary(static r => r.ColumnName, static r => r.TypeName, StringComparer.Ordinal);
     }
 
-    private static readonly IReadOnlyDictionary<string, string?> EmptyColumnTypeLookup = new Dictionary<string, string?>(0, StringComparer.Ordinal);
+    private static readonly FrozenDictionary<string, string?> EmptyColumnTypeLookup = FrozenDictionary<string, string?>.Empty;
 
     /// <summary>
     /// Qualifies the name of the view.

@@ -7,6 +7,7 @@ using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.PostgreSql.Queries;
 
 namespace SJP.Schematic.PostgreSql.Comments;
@@ -187,7 +188,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         if (!commentsByType.TryGetValue(objectType, out var comments))
-            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+            return Empty.CommentLookup;
 
         return comments
             .Select(static c => new KeyValuePair<Identifier, Option<string>>(

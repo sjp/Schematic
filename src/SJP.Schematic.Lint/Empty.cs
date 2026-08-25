@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Lint;
@@ -11,5 +12,5 @@ public static class Empty
     /// <summary>
     /// Retrieves an empty set of rule messages for general use.
     /// </summary>
-    public static Task<IReadOnlyCollection<IRuleMessage>> RuleMessages { get; } = Task.FromResult<IReadOnlyCollection<IRuleMessage>>([]);
+    public static Task<IReadOnlyCollection<IRuleMessage>> RuleMessages { get; } = Task.FromResult<IReadOnlyCollection<IRuleMessage>>(FrozenSet<IRuleMessage>.Empty);
 }

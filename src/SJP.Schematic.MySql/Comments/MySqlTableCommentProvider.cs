@@ -185,7 +185,7 @@ public class MySqlTableCommentProvider : IRelationalDatabaseTableCommentProvider
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
 
         if (!commentsByType.TryGetValue(objectType, out var comments))
-            return new Dictionary<Identifier, Option<string>>(IdentifierComparer.Ordinal);
+            return Empty.CommentLookup;
 
         return comments
             .Select(static c => new KeyValuePair<Identifier, Option<string>>(

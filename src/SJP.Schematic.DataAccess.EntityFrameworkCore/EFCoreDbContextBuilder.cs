@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using LanguageExt;
 using Microsoft.CodeAnalysis;
@@ -83,18 +84,15 @@ public class EFCoreDbContextBuilder
     private const string ModelBuilderMethodSummaryComment = "Configure the model that was discovered by convention from the defined entity types.";
     private const string ModelBuilderMethodParamComment = "The builder being used to construct the model for this context.";
 
-    private static readonly IEnumerable<string> Namespaces = new[]
-        {
-            SystemNamespace,
-            EfCoreNamespace,
-        }
-        .OrderNamespaces()
-        .ToList();
+    private static readonly ImmutableArray<string> Namespaces =
+    [
+        .. new[] { SystemNamespace, EfCoreNamespace }.OrderNamespaces(),
+    ];
 
-    private static readonly IEnumerable<UsingDirectiveSyntax> UsingStatements = Namespaces
-        .Select(static ns => ParseName(ns))
-        .Select(UsingDirective)
-        .ToList();
+    private static readonly ImmutableArray<UsingDirectiveSyntax> UsingStatements =
+    [
+        .. Namespaces.Select(static ns => UsingDirective(ParseName(ns))),
+    ];
 
     private SyntaxTriviaList OnModelCreateComment { get; } = SyntaxUtilities.BuildCommentTriviaWithParams(
         [XmlText(ModelBuilderMethodSummaryComment)],

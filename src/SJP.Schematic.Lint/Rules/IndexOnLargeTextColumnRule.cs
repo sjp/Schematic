@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,12 +15,11 @@ namespace SJP.Schematic.Lint.Rules;
 /// <seealso cref="ITableRule"/>
 public class IndexOnLargeTextColumnRule : Rule, ITableRule
 {
-    private static readonly IReadOnlyCollection<DataType> LargeDataTypes =
-    [
+    private static readonly FrozenSet<DataType> LargeDataTypes = FrozenSet.Create(
         DataType.Text,
         DataType.UnicodeText,
-        DataType.LargeBinary,
-    ];
+        DataType.LargeBinary
+    );
 
     /// <summary>
     /// The reporting level this rule uses unless a caller overrides it: warning, because
