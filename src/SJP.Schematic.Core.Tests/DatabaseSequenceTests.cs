@@ -32,15 +32,33 @@ internal static class DatabaseSequenceTests
     }
 
     [Test]
-    public static void Ctor_GivenNegativeIncrementAndMinValueLessThanStart_ThrowsArgumentException()
+    public static void Ctor_GivenNegativeIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
     {
-        Assert.That(() => new DatabaseSequence("test", 1, -1, Option<decimal>.Some(0), Option<decimal>.None, true, 0), Throws.ArgumentException);
+        Assert.That(() => new DatabaseSequence("test", 1, -1, Option<decimal>.Some(2), Option<decimal>.None, true, 0), Throws.ArgumentException);
     }
 
     [Test]
-    public static void Ctor_GivenNegativeIncrementAndMaxValueGreaterThanStart_ThrowsArgumentException()
+    public static void Ctor_GivenNegativeIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
     {
-        Assert.That(() => new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(2), true, 0), Throws.ArgumentException);
+        Assert.That(() => new DatabaseSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(-1), true, 0), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNegativeIncrementAndStartingAtMaxValue_DoesNotThrow()
+    {
+        Assert.That(() => new DatabaseSequence("test", 100, -1, Option<decimal>.Some(1), Option<decimal>.Some(100), true, 0), Throws.Nothing);
+    }
+
+    [Test]
+    public static void Ctor_GivenNegativeIncrementAndStartWithinMinAndMaxValues_DoesNotThrow()
+    {
+        Assert.That(() => new DatabaseSequence("test", 50, -1, Option<decimal>.Some(1), Option<decimal>.Some(100), true, 0), Throws.Nothing);
+    }
+
+    [Test]
+    public static void Ctor_GivenPositiveIncrementAndStartWithinMinAndMaxValues_DoesNotThrow()
+    {
+        Assert.That(() => new DatabaseSequence("test", 50, 1, Option<decimal>.Some(1), Option<decimal>.Some(100), true, 0), Throws.Nothing);
     }
 
     [Test]
