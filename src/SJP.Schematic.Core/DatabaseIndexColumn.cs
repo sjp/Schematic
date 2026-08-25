@@ -36,17 +36,22 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <param name="dependentColumns">Columns that the index column is dependent upon.</param>
     /// <param name="order">The index column ordering.</param>
     /// <exception cref="ArgumentNullException"><paramref name="dependentColumns"/> is <see langword="null" /> or contains <see langword="null" /> values. Alternatively if <paramref name="expression"/> is <see langword="null" />, empty or whitespace.</exception>
-    /// <exception cref="ArgumentException"><paramref name="order"/> is an invalid enum.</exception>
+    /// <exception cref="ArgumentException"><paramref name="dependentColumns"/> is empty, or <paramref name="order"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
-        if (dependentColumns.NullOrEmpty() || dependentColumns.AnyNull())
+        ArgumentNullException.ThrowIfNull(dependentColumns);
+
+        var columns = dependentColumns.ToList();
+        if (columns.AnyNull())
             throw new ArgumentNullException(nameof(dependentColumns));
+        if (columns.Empty())
+            throw new ArgumentException("An index column must depend on at least one column.", nameof(dependentColumns));
         if (!order.IsValid())
             throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
 
         Expression = expression;
-        DependentColumns = dependentColumns.ToList();
+        DependentColumns = columns;
         Order = order;
     }
 

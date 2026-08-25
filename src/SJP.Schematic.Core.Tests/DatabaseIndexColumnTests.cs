@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -39,6 +40,15 @@ internal static class DatabaseIndexColumnTests
         const string expression = "lower(test_column)";
 
         Assert.That(() => new DatabaseIndexColumn(expression, (IEnumerable<IDatabaseColumn>)null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenEmptyDependentColumns_ThrowsArgumentException()
+    {
+        const string expression = "lower(test_column)";
+        var columns = Array.Empty<IDatabaseColumn>();
+
+        Assert.That(() => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending), Throws.ArgumentException);
     }
 
     [Test]

@@ -45,6 +45,20 @@ internal static class DatabaseColumnTests
     }
 
     [Test]
+    public static void Name_GivenQualifiedCtorArg_PropertyGetReturnsLocalNameOnly()
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_schema", "test_column_name");
+        var dbType = Mock.Of<IDbType>();
+        const bool isNullable = false;
+        var defaultValue = Option<string>.Some("test_default_value");
+        var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
+
+        var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
+
+        Assert.That(column.Name, Is.EqualTo(Identifier.CreateQualifiedIdentifier("test_column_name")));
+    }
+
+    [Test]
     public static void Type_PropertyGet_EqualsCtorArg()
     {
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");

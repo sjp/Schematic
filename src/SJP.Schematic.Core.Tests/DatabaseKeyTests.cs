@@ -41,13 +41,13 @@ internal static class DatabaseKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentException);
     }
 
     [Test]
@@ -71,6 +71,18 @@ internal static class DatabaseKeyTests
         var key = new DatabaseKey(keyName, keyType, columns, true);
 
         Assert.That(key.Name.UnwrapSome(), Is.EqualTo(keyName));
+    }
+
+    [Test]
+    public static void Name_GivenQualifiedCtorArg_PropertyGetReturnsLocalNameOnly()
+    {
+        var keyName = Identifier.CreateQualifiedIdentifier("test_schema", "test_key");
+        const DatabaseKeyType keyType = DatabaseKeyType.Primary;
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, keyType, columns, true);
+
+        Assert.That(key.Name.UnwrapSome(), Is.EqualTo(Identifier.CreateQualifiedIdentifier("test_key")));
     }
 
     [Test]

@@ -83,6 +83,19 @@ internal static class DatabaseTriggerTests
     }
 
     [Test]
+    public static void Name_GivenQualifiedCtorArg_PropertyGetReturnsLocalNameOnly()
+    {
+        var triggerName = Identifier.CreateQualifiedIdentifier("test_schema", "test_trigger");
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
+
+        Assert.That(trigger.Name, Is.EqualTo(Identifier.CreateQualifiedIdentifier("test_trigger")));
+    }
+
+    [Test]
     public static void Definition_PropertyGet_EqualsCtorArg()
     {
         Identifier triggerName = "test_trigger";

@@ -27,12 +27,12 @@ internal static class DatabaseIndexTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier indexName = "test_index";
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None), Throws.ArgumentException);
     }
 
     [Test]
@@ -83,6 +83,18 @@ internal static class DatabaseIndexTests
         var index = new DatabaseIndex(indexName, false, columns, includedColumns, true, Option<string>.None);
 
         Assert.That(index.Name, Is.EqualTo(indexName));
+    }
+
+    [Test]
+    public static void Name_GivenQualifiedCtorArg_PropertyGetReturnsLocalNameOnly()
+    {
+        var indexName = Identifier.CreateQualifiedIdentifier("test_schema", "test_index");
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        var includedColumns = Array.Empty<IDatabaseColumn>();
+
+        var index = new DatabaseIndex(indexName, false, columns, includedColumns, true, Option<string>.None);
+
+        Assert.That(index.Name, Is.EqualTo(Identifier.CreateQualifiedIdentifier("test_index")));
     }
 
     [Test]

@@ -20,7 +20,7 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// Initializes a new instance of the <see cref="RelationalDatabaseTable"/> class.
     /// </summary>
     /// <param name="tableName">Name of the table.</param>
-    /// <param name="columns">The columns.</param>
+    /// <param name="columns">The columns. May be empty, as a provider is not always able to resolve the columns of a table, e.g. when the table is inaccessible.</param>
     /// <param name="primaryKey">The primary key.</param>
     /// <param name="uniqueKeys">The unique keys.</param>
     /// <param name="parentKeys">The parent keys.</param>

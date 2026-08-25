@@ -19,7 +19,7 @@ public class DatabaseView : IDatabaseView
     /// </summary>
     /// <param name="viewName">The view name.</param>
     /// <param name="definition">The view definition.</param>
-    /// <param name="columns">An ordered collection of columns defined by the view definition.</param>
+    /// <param name="columns">An ordered collection of columns defined by the view definition. May be empty, as a provider is not always able to resolve the columns of a view, e.g. when the view is invalid or inaccessible.</param>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />, or <paramref name="definition"/> is <see langword="null" />, empty, or whitespace, or <paramref name="columns"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
     public DatabaseView(
         Identifier viewName,

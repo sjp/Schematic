@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using EnumsNET;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core;
@@ -17,7 +16,7 @@ public class DatabaseTrigger : IDatabaseTrigger
     /// <summary>
     /// Initializes a new instance of the <see cref="DatabaseTrigger"/> class.
     /// </summary>
-    /// <param name="name">The name.</param>
+    /// <param name="name">The name. Only the local name is kept.</param>
     /// <param name="definition">The definition.</param>
     /// <param name="queryTiming">The query timing.</param>
     /// <param name="events">The events.</param>
@@ -86,12 +85,8 @@ public class DatabaseTrigger : IDatabaseTrigger
         {
             var builder = StringBuilderCache.Acquire();
 
-            builder.Append("Trigger: ");
-
-            if (!Name.Schema.IsNullOrWhiteSpace())
-                builder.Append(Name.Schema).Append('.');
-
-            builder.Append(Name.LocalName);
+            builder.Append("Trigger: ")
+                .Append(Name.LocalName);
 
             return builder.GetStringAndRelease();
         }

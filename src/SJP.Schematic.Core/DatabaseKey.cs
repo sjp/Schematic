@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
@@ -12,25 +13,28 @@ namespace SJP.Schematic.Core;
 /// A database key constraint.
 /// </summary>
 /// <seealso cref="IDatabaseKey" />
+[DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
 public class DatabaseKey : IDatabaseKey
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="DatabaseKey"/> class.
     /// </summary>
-    /// <param name="name">A constraint name, if available.</param>
+    /// <param name="name">A constraint name, if available. Only the local name is kept.</param>
     /// <param name="keyType">The key constraint type.</param>
     /// <param name="columns">The columns covered by the key.</param>
     /// <param name="isEnabled">Whether the constraint is enabled.</param>
     /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
-    /// <exception cref="ArgumentException"><paramref name="keyType"/> is an invalid enum value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
     public DatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
-        if (columns.NullOrEmpty() || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
+        if (columns.Empty())
+            throw new ArgumentException("A key must have at least one column.", nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 
-        Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName)); // strip to localname only
+        Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName));
         KeyType = keyType;
         Columns = columns;
         IsEnabled = isEnabled;
