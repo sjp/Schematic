@@ -34,7 +34,7 @@ internal static class SqliteDatabaseIndexTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier indexName = "test_index";
         const bool isUnique = true;
@@ -42,7 +42,7 @@ internal static class SqliteDatabaseIndexTests
         var includedColumn = Mock.Of<IDatabaseColumn>();
         var includedColumns = new[] { includedColumn };
 
-        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentException);
     }
 
     [Test]

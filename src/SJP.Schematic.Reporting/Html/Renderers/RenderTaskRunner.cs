@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +21,7 @@ internal static class RenderTaskRunner
     /// <paramref name="cancellationToken"/> propagates as an <see cref="OperationCanceledException"/>
     /// and is never recorded as a failure.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="items"/>, <paramref name="describe"/> or <paramref name="action"/> is <see langword="null" />.</exception>
     public static async Task RunAllAsync<T>(
         IEnumerable<T> items,
         Func<T, string> describe,
@@ -67,6 +68,7 @@ internal static class RenderTaskRunner
     /// Throws a single <see cref="AggregateException"/> containing <paramref name="failures"/>
     /// (ordered by label) when any are present; otherwise does nothing.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="failures"/> is <see langword="null" />.</exception>
     public static void ThrowIfAnyFailed(IEnumerable<RenderException> failures)
     {
         ArgumentNullException.ThrowIfNull(failures);

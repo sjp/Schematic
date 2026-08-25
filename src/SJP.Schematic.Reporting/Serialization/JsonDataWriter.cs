@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -27,6 +27,7 @@ public sealed class JsonDataWriter
     /// Produces the canonical JSON string for a viewmodel. The runtime type of
     /// <paramref name="vm"/> must be registered with <see cref="ReportingJsonContext"/>.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="vm"/> is <see langword="null" />.</exception>
     public string Serialize(object vm)
     {
         ArgumentNullException.ThrowIfNull(vm);
@@ -37,6 +38,7 @@ public sealed class JsonDataWriter
     /// Writes a previously-serialized JSON string to <paramref name="file"/> as UTF-8 (no BOM),
     /// creating the parent directory if necessary.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="file"/> or <paramref name="json"/> is <see langword="null" />.</exception>
     public async Task WriteJsonAsync(FileInfo file, string json, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(file);

@@ -24,13 +24,15 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// <param name="keyType">The key type.</param>
     /// <param name="columns">The columns comprised by the key.</param>
     /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> is <see langword="null" />, empty or contains a <see langword="null" /> value.</exception>
-    /// <exception cref="ArgumentException"><paramref name="keyType"/> is an invalid enum value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
     public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
     {
         ArgumentNullException.ThrowIfNull(name);
-        if (columns.NullOrEmpty() || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
+        if (columns.Empty())
+            throw new ArgumentException("A key must have at least one column.", nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 

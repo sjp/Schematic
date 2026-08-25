@@ -33,7 +33,7 @@ public static class RelationalDatabaseSnapshotExtensions
     /// <param name="snapshotOptions">Options that are used to configure which database objects should be snapshotted.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A relational database with the same data as <paramref name="database"/>, but serialized into an in-memory copy.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="database"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="database"/> or <paramref name="snapshotOptions"/> is <see langword="null" />.</exception>
     public static Task<IRelationalDatabase> SnapshotAsync(this IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(database);

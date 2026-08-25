@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
@@ -35,7 +35,8 @@ internal sealed class ExistsQueryExecutor
     /// <param name="filterSql">A query whose existence of any resulting row is being tested, e.g. <c>select 1 from some_table</c>.</param>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns><see langword="true" /> if any row is returned by <paramref name="filterSql"/>; otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentException"><paramref name="filterSql"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="filterSql"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="filterSql"/> is empty or whitespace.</exception>
     public Task<bool> ExistsAsync(string filterSql, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(filterSql);

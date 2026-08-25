@@ -24,12 +24,14 @@ public class SqliteDatabaseKey : IDatabaseKey
     /// <param name="name">The constraint name, if available.</param>
     /// <param name="keyType">Type of the key constraint.</param>
     /// <param name="columns">A collection of table columns.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" />, empty, or has <see langword="null" /> values.</exception>
-    /// <exception cref="ArgumentException"><paramref name="keyType"/> is not a valid enum.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or has <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
     public SqliteDatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
     {
-        if (columns.NullOrEmpty() || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
+        if (columns.Empty())
+            throw new ArgumentException("A key must have at least one column.", nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
 

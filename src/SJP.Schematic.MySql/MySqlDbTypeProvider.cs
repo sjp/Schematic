@@ -127,7 +127,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     /// <param name="typeMetadata">The type metadata.</param>
     /// <returns>A string representing a type name.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">Thrown when a type name is missing.</exception>
+    /// <exception cref="ArgumentException"><paramref name="typeMetadata"/> does not have a type name.</exception>
     protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
     {
         ArgumentNullException.ThrowIfNull(typeMetadata);

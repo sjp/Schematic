@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using EnumsNET;
 
 namespace SJP.Schematic.Sqlite.Parsing;
@@ -19,7 +19,8 @@ public class Column
     /// <param name="defaultValue">The default value.</param>
     /// <param name="computedDefinition">The computed definition.</param>
     /// <param name="computedColumnType">The computed column type.</param>
-    /// <exception cref="ArgumentException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace. Alternatively if <paramref name="collation"/> or <paramref name="computedColumnType"/> are invalid enum values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace, or <paramref name="collation"/> or <paramref name="computedColumnType"/> is not a valid enum.</exception>
     public Column(
         string columnName,
         string typeDefinition,

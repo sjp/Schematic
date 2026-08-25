@@ -301,7 +301,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>An ordered collection of columns.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="pragma"/> or <paramref name="viewName"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsync(ISqliteDatabasePragma pragma, Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(pragma);

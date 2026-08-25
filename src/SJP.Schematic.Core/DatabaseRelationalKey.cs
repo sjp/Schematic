@@ -23,13 +23,8 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// <param name="parentKey">The parent key.</param>
     /// <param name="deleteAction">The delete action.</param>
     /// <param name="updateAction">The update action.</param>
-    /// <exception cref="ArgumentException">
-    /// <paramref name="updateAction"/> or <paramref name="deleteAction"/> will throw this exception if given an invalid enum value.
-    /// Alternatively if the child key is not a foreign key this will also be thrown.
-    /// Furthermore, if the parent key is not a unique or primary key, this will also be thrown.
-    /// Lastly, if the child and parent keys do not have the same number of columns, this will also be thrown.
-    /// </exception>
-    /// <exception cref="ArgumentNullException"><paramref name="parentTableName"/> or <paramref name="childTableName"/> or <paramref name="parentKey"/> or <paramref name="childKey"/> is <see langword="null" /></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/> or <paramref name="parentKey"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="deleteAction"/> or <paramref name="updateAction"/> is not a valid enum, <paramref name="childKey"/> is not a foreign key, <paramref name="parentKey"/> is not a primary or unique key, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
     public DatabaseRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
     {
         if (!deleteAction.IsValid())

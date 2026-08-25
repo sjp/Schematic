@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -41,6 +41,7 @@ internal sealed class ReferencedObjectTargets
     /// Resolves the objects referenced by <paramref name="expression"/> to structured links
     /// (name + absolute hash route) for the JSON payload.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
     public IReadOnlyCollection<View.ReferencedObject> GetReferencedObjects(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);

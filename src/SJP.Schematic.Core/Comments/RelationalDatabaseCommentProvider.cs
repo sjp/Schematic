@@ -31,6 +31,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="sequenceComments">A collection of database sequence comment information.</param>
     /// <param name="synonymComments">A collection of database synonym comment information.</param>
     /// <param name="routineComments">A collection of database routine comment information.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/> or <paramref name="routineComments"/> is <see langword="null" />.</exception>
     public RelationalDatabaseCommentProvider(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,

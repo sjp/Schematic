@@ -139,7 +139,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="objectsByName">Database objects, keyed by their qualified names.</param>
     /// <param name="objectName">The name of the database object to retrieve.</param>
     /// <returns>An option type with a database object, if available, otherwise an option type in the none state.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="objectsByName"/> or <paramref name="objectName"/> is <see langword="null" />.</exception>
     protected OptionAsync<T> GetResolvedObject<T>(IReadOnlyDictionary<Identifier, T> objectsByName, Identifier objectName) where T : IDatabaseEntity
     {
         ArgumentNullException.ThrowIfNull(objectsByName);

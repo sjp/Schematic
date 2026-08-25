@@ -475,7 +475,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of check constraints.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> is <see langword="null" />.</exception>
     protected Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -836,11 +836,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
     protected static string GenerateNotNullDefinition(string columnName)
     {
-        if (columnName.IsNullOrWhiteSpace())
-            throw new ArgumentNullException(nameof(columnName));
+        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
 
         return "\"" + columnName + "\" IS NOT NULL";
     }

@@ -29,13 +29,13 @@ internal static class MySqlDatabaseIndexTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier indexName = "test_index";
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentException);
     }
 
     [Test]

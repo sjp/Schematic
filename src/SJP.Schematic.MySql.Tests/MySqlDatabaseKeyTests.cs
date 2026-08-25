@@ -40,13 +40,13 @@ internal static class MySqlDatabaseKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new MySqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
     }
 
     [Test]

@@ -24,8 +24,8 @@ public class MySqlRelationalKey : IDatabaseRelationalKey
     /// <param name="parentKey">The parent key.</param>
     /// <param name="deleteAction">The delete action.</param>
     /// <param name="updateAction">The update action.</param>
-    /// <exception cref="ArgumentException"><paramref name="deleteAction"/> or <paramref name="updateAction"/> are invalid enums or have invalid values.</exception>
-    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/> or <paramref name="childKey"/> or <paramref name="parentTableName"/> or <paramref name="parentKey"/> are <see langword="null" /></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/> or <paramref name="parentKey"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="deleteAction"/> or <paramref name="updateAction"/> is not a valid enum or is <c>SET DEFAULT</c>, <paramref name="childKey"/> is not a foreign key, or <paramref name="parentKey"/> is not a primary or unique key.</exception>
     public MySqlRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
     {
         if (!deleteAction.IsValid())

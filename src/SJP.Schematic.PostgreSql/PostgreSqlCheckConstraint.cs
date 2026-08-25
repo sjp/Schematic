@@ -19,7 +19,7 @@ public class PostgreSqlCheckConstraint : IDatabaseCheckConstraint
     /// </summary>
     /// <param name="checkName">The name of the check constraint, if available.</param>
     /// <param name="definition">The constraint definition.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="checkName"/> or <paramref name="definition"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace.</exception>
     public PostgreSqlCheckConstraint(Identifier checkName, string definition)
     {

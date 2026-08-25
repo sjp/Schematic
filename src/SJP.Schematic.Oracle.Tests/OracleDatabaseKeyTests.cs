@@ -43,14 +43,14 @@ internal static class OracleDatabaseKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
         const bool enabled = true;
 
-        Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentNullException);
+        Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentException);
     }
 
     [Test]

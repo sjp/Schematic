@@ -85,7 +85,7 @@ public class IndexOnLargeTextColumnRule : Rule, ITableRule
     /// <param name="indexName">The name of the index.</param>
     /// <param name="columnName">The name of the large text or binary column.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="indexName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="indexName"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, Identifier indexName, string columnName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

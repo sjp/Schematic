@@ -22,12 +22,15 @@ public class MySqlDatabaseIndex : IDatabaseIndex
     /// <param name="name">An index name.</param>
     /// <param name="isUnique">Determines whether the index is unique, if <see langword="true"/>, the index is unique.</param>
     /// <param name="columns">The columns.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />. Alternatively if <paramref name="columns"/> is <see langword="null" />, empty or has a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty.</exception>
     public MySqlDatabaseIndex(Identifier name, bool isUnique, IReadOnlyCollection<IDatabaseIndexColumn> columns)
     {
         ArgumentNullException.ThrowIfNull(name);
-        if (columns.NullOrEmpty() || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
+        if (columns.Empty())
+            throw new ArgumentException("An index must have at least one column.", nameof(columns));
 
         Name = name.LocalName;
         IsUnique = isUnique;

@@ -30,13 +30,13 @@ internal static class PostgreSqlDatabaseIndexTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier indexName = "test_index";
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentException);
     }
 
     [Test]

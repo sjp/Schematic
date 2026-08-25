@@ -14,7 +14,7 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
     /// Initializes a new instance of the <see cref="OracleDatabaseIdentifierLengthValidation"/> class.
     /// </summary>
     /// <param name="maxLength">The maximum length that is permitted for identifiers.</param>
-    /// <exception cref="ArgumentException">The maximum identifier length must be at least 1.</exception>
+    /// <exception cref="ArgumentException"><paramref name="maxLength"/> is zero.</exception>
     public OracleDatabaseIdentifierLengthValidation(uint maxLength)
     {
         if (maxLength == 0)
@@ -34,7 +34,7 @@ public class OracleDatabaseIdentifierLengthValidation : IOracleDatabaseIdentifie
     /// </summary>
     /// <param name="identifier">An identifier.</param>
     /// <returns><see langword="true" /> if the identifier is valid for use in an Oracle database; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException">identifier</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
     public bool IsValidIdentifier(Identifier identifier)
     {
         ArgumentNullException.ThrowIfNull(identifier);

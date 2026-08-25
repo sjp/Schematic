@@ -25,12 +25,15 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// <param name="columns">The index key columns.</param>
     /// <param name="includedColumns">The index's included columns, available once the key columns are searched.</param>
     /// <param name="filterDefinition">The definition, if present, for the subset of rows the index applies to</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/>, <paramref name="includedColumns"/> or <paramref name="name"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> or <paramref name="includedColumns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty.</exception>
     public SqliteDatabaseIndex(Identifier name, bool isUnique, IEnumerable<IDatabaseIndexColumn> columns, IEnumerable<IDatabaseColumn> includedColumns, Option<string> filterDefinition)
     {
         ArgumentNullException.ThrowIfNull(name);
-        if (columns.NullOrEmpty() || columns.AnyNull())
+        if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
+        if (columns.Empty())
+            throw new ArgumentException("An index must have at least one column.", nameof(columns));
         if (includedColumns?.AnyNull() == true)
             throw new ArgumentNullException(nameof(includedColumns));
 

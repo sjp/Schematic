@@ -25,7 +25,7 @@ public class DatabaseSequence : IDatabaseSequence
     /// <param name="cycle">Determines whether the sequence can cycle back to its starting values.</param>
     /// <param name="cacheSize">Size of the sequence cache.</param>
     /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">Invalid combinations of values for <paramref name="minValue"/> and <paramref name="maxValue"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="increment"/> is zero, or <paramref name="minValue"/> or <paramref name="maxValue"/> does not contain <paramref name="start"/>.</exception>
     public DatabaseSequence(
         Identifier sequenceName,
         decimal start,

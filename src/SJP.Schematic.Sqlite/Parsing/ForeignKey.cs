@@ -31,14 +31,18 @@ public class ForeignKey
     /// <param name="columnNames">The column names comprising this foreign key.</param>
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
     /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="parentTable"/> is <see langword="null" />. Alternatively if either <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> are <see langword="null" />, empty, or contains a <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="parentTable"/>, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is <see langword="null" />, or <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is empty or contains an empty or whitespace value, or <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements.</exception>
     public ForeignKey(Option<string> constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
     {
-        if (columnNames.NullOrEmpty() || columnNames.Any(static c => c.IsNullOrWhiteSpace()))
+        if (columnNames.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columnNames));
-        if (parentColumnNames.NullOrEmpty() || parentColumnNames.Any(static c => c.IsNullOrWhiteSpace()))
+        if (parentColumnNames.NullOrAnyNull())
             throw new ArgumentNullException(nameof(parentColumnNames));
+        if (columnNames.Empty() || columnNames.Any(static c => c.IsNullOrWhiteSpace()))
+            throw new ArgumentException("A foreign key must have at least one column, and its column names must not be empty or whitespace.", nameof(columnNames));
+        if (parentColumnNames.Empty() || parentColumnNames.Any(static c => c.IsNullOrWhiteSpace()))
+            throw new ArgumentException("A foreign key must refer to at least one parent column, and its column names must not be empty or whitespace.", nameof(parentColumnNames));
         if (columnNames.Count != parentColumnNames.Count)
             throw new ArgumentException($"The number of source columns ({columnNames.Count}) does not match the number of target columns ({parentColumnNames.Count}).", nameof(parentColumnNames));
 

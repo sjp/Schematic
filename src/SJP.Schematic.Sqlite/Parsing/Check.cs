@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LanguageExt;
 
 namespace SJP.Schematic.Sqlite.Parsing;
@@ -13,7 +13,8 @@ public class Check
     /// </summary>
     /// <param name="constraintName">A parsed constraint name.</param>
     /// <param name="definition">The check definition.</param>
-    /// <exception cref="ArgumentException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace.</exception>
     public Check(Option<string> constraintName, string definition)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);

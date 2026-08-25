@@ -26,11 +26,13 @@ public class PrimaryKey
     /// </summary>
     /// <param name="constraintName">A name for the primary key, if available.</param>
     /// <param name="columns">A collection of columns that comprise the primary key.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty.</exception>
     public PrimaryKey(Option<string> constraintName, IEnumerable<IndexedColumn> columns)
     {
-        if (columns.NullOrEmpty())
-            throw new ArgumentNullException(nameof(columns));
+        ArgumentNullException.ThrowIfNull(columns);
+        if (columns.Empty())
+            throw new ArgumentException("A primary key must have at least one column.", nameof(columns));
 
         Name = constraintName;
         Columns = columns;

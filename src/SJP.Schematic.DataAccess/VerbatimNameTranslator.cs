@@ -13,6 +13,7 @@ public class VerbatimNameTranslator : NameTranslator
     /// </summary>
     /// <param name="objectName">An optionally qualified object name.</param>
     /// <returns><see langword="null" /> if <paramref name="objectName"/> does not contain a schema name or should not be used.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
     public override string? SchemaToNamespace(Identifier objectName)
     {
         ArgumentNullException.ThrowIfNull(objectName);
@@ -27,6 +28,7 @@ public class VerbatimNameTranslator : NameTranslator
     /// </summary>
     /// <param name="tableName">An optionally qualified table name.</param>
     /// <returns>A class name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     public override string TableToClassName(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -39,6 +41,7 @@ public class VerbatimNameTranslator : NameTranslator
     /// </summary>
     /// <param name="viewName">An optionally qualified view name.</param>
     /// <returns>A class name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
     public override string ViewToClassName(Identifier viewName)
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -52,6 +55,8 @@ public class VerbatimNameTranslator : NameTranslator
     /// <param name="className">The name of the class the column is a member of.</param>
     /// <param name="columnName">A column name.</param>
     /// <returns>A property name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="className"/> or <paramref name="columnName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="className"/> or <paramref name="columnName"/> is empty or whitespace.</exception>
     public override string ColumnToPropertyName(string className, string columnName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(className);

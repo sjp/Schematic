@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -34,10 +34,12 @@ public sealed class Indexes
         )
         {
             ArgumentNullException.ThrowIfNull(tableName);
-            if (columnNames.NullOrEmpty())
-                throw new ArgumentNullException(nameof(columnNames));
-            if (columnSorts.NullOrEmpty())
-                throw new ArgumentNullException(nameof(columnSorts));
+            ArgumentNullException.ThrowIfNull(columnNames);
+            if (columnNames.Empty())
+                throw new ArgumentException("An index must have at least one column.", nameof(columnNames));
+            ArgumentNullException.ThrowIfNull(columnSorts);
+            if (columnSorts.Empty())
+                throw new ArgumentException("An index must have at least one column sort.", nameof(columnSorts));
             ArgumentNullException.ThrowIfNull(includedColumnNames);
 
             Name = indexName ?? string.Empty;

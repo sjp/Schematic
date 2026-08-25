@@ -24,6 +24,9 @@ public static partial class StringExtensions
     /// <summary>
     /// Same as <see cref="Pascalize(string)"/> except that the first character is lower case.
     /// </summary>
+    /// <param name="input">The string to be camelized.</param>
+    /// <returns>A camel-cased string.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static string Camelize(this string input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -35,6 +38,9 @@ public static partial class StringExtensions
     /// <summary>
     /// By default, <see cref="Pascalize(string)"/> converts strings to UpperCamelCase also removing underscores.
     /// </summary>
+    /// <param name="input">The string to be pascalized.</param>
+    /// <returns>A pascal-cased string.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static string Pascalize(this string input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -46,6 +52,8 @@ public static partial class StringExtensions
     /// Separates the input words with underscore.
     /// </summary>
     /// <param name="input">The string to be underscored</param>
+    /// <returns>An underscored string.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static string Underscore(this string input)
     {
         ArgumentNullException.ThrowIfNull(input);
@@ -60,6 +68,8 @@ public static partial class StringExtensions
     /// Pluralizes the provided input considering irregular words.
     /// </summary>
     /// <param name="input">Word to be pluralized</param>
+    /// <returns>A pluralized word.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
     public static string Pluralize(this string input)
     {
         ArgumentNullException.ThrowIfNull(input);

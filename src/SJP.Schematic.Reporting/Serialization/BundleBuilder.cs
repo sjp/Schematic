@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
@@ -33,6 +33,8 @@ public sealed class BundleBuilder
     /// Registers a per-type summary payload under <paramref name="key"/> (the file stem, e.g.
     /// <c>tables</c>, <c>main</c>, <c>lint</c>, <c>search</c>).
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="key"/> or <paramref name="json"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="key"/> is empty.</exception>
     public void AddSummary(string key, string json)
     {
         ArgumentException.ThrowIfNullOrEmpty(key);
@@ -44,6 +46,8 @@ public sealed class BundleBuilder
     /// Registers a per-object detail payload under <paramref name="typeKey"/> (e.g. <c>table</c>,
     /// <c>view</c>) keyed by <paramref name="safeKey"/>.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="typeKey"/>, <paramref name="safeKey"/> or <paramref name="json"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="typeKey"/> or <paramref name="safeKey"/> is empty.</exception>
     public void AddDetail(string typeKey, string safeKey, string json)
     {
         ArgumentException.ThrowIfNullOrEmpty(typeKey);
@@ -58,6 +62,7 @@ public sealed class BundleBuilder
     /// Writes the accumulated payloads to <paramref name="bundleJs"/> as a single classic
     /// script that assigns each payload onto <c>window.__schematic</c>.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="bundleJs"/> is <see langword="null" />.</exception>
     public async Task WriteBundleAsync(FileInfo bundleJs, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(bundleJs);

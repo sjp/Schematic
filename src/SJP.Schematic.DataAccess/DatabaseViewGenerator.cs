@@ -18,7 +18,7 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     /// </summary>
     /// <param name="fileSystem">A file system to generate paths for.</param>
     /// <param name="nameTranslator">A name translator.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="fileSystem"/> or <paramref name="nameTranslator"/> is <see langword="null" />.</exception>
     protected DatabaseViewGenerator(IFileSystem fileSystem, INameTranslator nameTranslator)
     {
         FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));

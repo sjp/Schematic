@@ -28,11 +28,8 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// <param name="indexes">The indexes.</param>
     /// <param name="checks">The checks.</param>
     /// <param name="triggers">The triggers.</param>
-    /// <exception cref="ArgumentNullException">
-    /// <paramref name="tableName"/> or <paramref name="columns"/> or <paramref name="uniqueKeys"/> or <paramref name="parentKeys"/> or <paramref name="childKeys"/> or <paramref name="indexes"/> or <paramref name="checks"/> or <paramref name="triggers"/>.
-    /// If a given collection contains a <see langword="null" /> value, an <see cref="ArgumentNullException"/> will also be thrown.
-    /// </exception>
-    /// <exception cref="ArgumentException">When given key with mismatching key types, e.g. primary key or unique keys.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="columns"/>, <paramref name="uniqueKeys"/>, <paramref name="parentKeys"/>, <paramref name="childKeys"/>, <paramref name="indexes"/>, <paramref name="checks"/> or <paramref name="triggers"/> is <see langword="null" />, or one of the given collections contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="primaryKey"/> does not have a primary key type, or <paramref name="uniqueKeys"/> contains a key that does not have a unique key type.</exception>
     public RelationalDatabaseTable(
         Identifier tableName,
         IReadOnlyList<IDatabaseColumn> columns,

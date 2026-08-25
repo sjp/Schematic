@@ -87,12 +87,14 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
     /// <param name="indexName">The name of the index.</param>
     /// <param name="columnNames">The column names present on the index.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />. Also thrown when <paramref name="columnNames"/> is <see langword="null" /> or empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnNames"/> is empty.</exception>
     protected virtual IRuleMessage BuildMessage(Identifier tableName, string? indexName, IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
+        if (columnNames.Empty())
+            throw new ArgumentException("An index must have at least one column.", nameof(columnNames));
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")

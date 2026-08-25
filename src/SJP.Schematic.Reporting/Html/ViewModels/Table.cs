@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using EnumsNET;
@@ -170,8 +170,9 @@ public sealed class Table
         public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns)
             : base(constraintName)
         {
-            if (columns.NullOrEmpty())
-                throw new ArgumentNullException(nameof(columns));
+            ArgumentNullException.ThrowIfNull(columns);
+            if (columns.Empty())
+                throw new ArgumentException("A key must have at least one column.", nameof(columns));
 
             ColumnNames = columns.Join(", ");
         }
@@ -187,8 +188,9 @@ public sealed class Table
         public UniqueKey(string constraintName, IEnumerable<string> columns)
             : base(constraintName)
         {
-            if (columns.NullOrEmpty())
-                throw new ArgumentNullException(nameof(columns));
+            ArgumentNullException.ThrowIfNull(columns);
+            if (columns.Empty())
+                throw new ArgumentException("A key must have at least one column.", nameof(columns));
 
             ColumnNames = columns.Join(", ");
         }
@@ -211,11 +213,13 @@ public sealed class Table
             ReferentialAction updateAction
         ) : base(constraintName)
         {
-            if (columnNames.NullOrEmpty())
-                throw new ArgumentNullException(nameof(columnNames));
+            ArgumentNullException.ThrowIfNull(columnNames);
+            if (columnNames.Empty())
+                throw new ArgumentException("A foreign key must have at least one column.", nameof(columnNames));
             ArgumentNullException.ThrowIfNull(parentTableName);
-            if (parentColumnNames.NullOrEmpty())
-                throw new ArgumentNullException(nameof(parentColumnNames));
+            ArgumentNullException.ThrowIfNull(parentColumnNames);
+            if (parentColumnNames.Empty())
+                throw new ArgumentException("A foreign key must refer to at least one parent column.", nameof(parentColumnNames));
             if (!deleteAction.IsValid())
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())

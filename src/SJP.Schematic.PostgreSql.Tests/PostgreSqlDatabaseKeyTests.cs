@@ -40,13 +40,13 @@ internal static class PostgreSqlDatabaseKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
     }
 
     [Test]

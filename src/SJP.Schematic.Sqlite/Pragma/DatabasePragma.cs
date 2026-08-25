@@ -496,6 +496,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of informative error messages describing integrity failures.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<string>> IntegrityCheckAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -521,6 +523,8 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string IntegrityCheckTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -950,7 +954,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string TableInfoQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -980,6 +984,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Information relevant to the given table or view. Will be <see langword="null" /> if the table or view does not exist.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     public Task<IEnumerable<pragma_table_list>> TableListAsync(Identifier tableName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -993,6 +998,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string TableListTableQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -1025,7 +1031,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     /// <param name="tableName">A table name.</param>
     /// <returns>A SQL query.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">Thrown when the given table name's does not match the current schema.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tableName"/> has a schema that does not match the given database.</exception>
     protected string TableXInfoQuery(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);

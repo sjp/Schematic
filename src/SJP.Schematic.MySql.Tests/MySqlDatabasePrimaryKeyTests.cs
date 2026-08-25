@@ -16,10 +16,10 @@ internal static class MySqlDatabasePrimaryKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentNullException()
+    public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         var columns = Array.Empty<IDatabaseColumn>();
-        Assert.That(() => new MySqlDatabasePrimaryKey(columns), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlDatabasePrimaryKey(columns), Throws.ArgumentException);
     }
 
     [Test]

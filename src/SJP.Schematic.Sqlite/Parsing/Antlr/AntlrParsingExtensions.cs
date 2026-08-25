@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
@@ -15,6 +15,9 @@ internal static class AntlrParsingExtensions
     /// inner whitespace of the source. This is used in preference to <c>GetText()</c>, which
     /// concatenates token text without whitespace and discards comments.
     /// </summary>
+    /// <param name="context">A parse tree node.</param>
+    /// <returns>The original source text spanned by <paramref name="context"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null" />.</exception>
     public static string OriginalText(this ParserRuleContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -27,6 +30,10 @@ internal static class AntlrParsingExtensions
     /// Recovers the exact original source text spanning from an opening terminal to a closing
     /// terminal (inclusive), e.g. the parenthesized body of a <c>CHECK (...)</c> constraint.
     /// </summary>
+    /// <param name="open">The opening terminal.</param>
+    /// <param name="close">The closing terminal.</param>
+    /// <returns>The original source text spanning <paramref name="open"/> to <paramref name="close"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="open"/> or <paramref name="close"/> is <see langword="null" />.</exception>
     public static string OriginalText(ITerminalNode open, ITerminalNode close)
     {
         ArgumentNullException.ThrowIfNull(open);
@@ -40,6 +47,9 @@ internal static class AntlrParsingExtensions
     /// Removes the wrapping quote/bracket characters from a SQLite identifier, if present.
     /// Handles double-quoted, backtick-quoted and bracket-quoted identifiers.
     /// </summary>
+    /// <param name="identifier">An identifier token's text.</param>
+    /// <returns>The bare identifier name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
     public static string UnquoteIdentifier(string identifier)
     {
         ArgumentNullException.ThrowIfNull(identifier);

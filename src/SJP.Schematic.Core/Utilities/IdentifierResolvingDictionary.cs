@@ -66,7 +66,7 @@ public class IdentifierResolvingDictionary<TValue> : IReadOnlyDictionary<Identif
     /// </summary>
     /// <param name="key">The key to locate.</param>
     /// <returns><see langword="true" /> if the read-only dictionary contains an element that can be resolved to by the given <see cref="Identifier"/>; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException">key</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null" />.</exception>
     public bool ContainsKey(Identifier key)
     {
         ArgumentNullException.ThrowIfNull(key);

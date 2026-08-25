@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime;
@@ -17,6 +17,7 @@ internal static class AntlrParsingExtensions
     /// </summary>
     /// <param name="token">A lexer token.</param>
     /// <returns><see langword="true" /> if the token may be used as an identifier; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="token"/> is <see langword="null" />.</exception>
     public static bool IsIdentifier(IToken token)
     {
         ArgumentNullException.ThrowIfNull(token);
@@ -29,6 +30,7 @@ internal static class AntlrParsingExtensions
     /// </summary>
     /// <param name="identifier">An identifier token's text.</param>
     /// <returns>The bare identifier name.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
     public static string UnquoteIdentifier(string identifier)
     {
         ArgumentNullException.ThrowIfNull(identifier);
@@ -44,6 +46,7 @@ internal static class AntlrParsingExtensions
     /// </summary>
     /// <param name="parts">The ordered parts of a qualified name, e.g. <c>schema</c>, <c>table</c>.</param>
     /// <returns>An identifier composed of the (up to four) right-most parts.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="parts"/> is <see langword="null" />.</exception>
     public static Identifier BuildIdentifier(IReadOnlyList<string> parts)
     {
         ArgumentNullException.ThrowIfNull(parts);

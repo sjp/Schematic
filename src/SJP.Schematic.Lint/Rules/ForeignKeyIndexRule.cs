@@ -181,12 +181,14 @@ public class ForeignKeyIndexRule : Rule, ITableRule
     /// <param name="tableName">The name of the table.</param>
     /// <param name="columnNames">The names of the columns in the foreign key.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <see langword="null" />. Also when <paramref name="columnNames"/> is empty.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnNames"/> is empty.</exception>
     protected virtual IRuleMessage BuildMessage(Option<Identifier> foreignKeyName, Identifier tableName, IEnumerable<string> columnNames)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        if (columnNames.NullOrEmpty())
-            throw new ArgumentNullException(nameof(columnNames));
+        ArgumentNullException.ThrowIfNull(columnNames);
+        if (columnNames.Empty())
+            throw new ArgumentException("A foreign key must have at least one column.", nameof(columnNames));
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The table ")

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using SJP.Schematic.Sqlite.Exceptions;
 using SJP.Schematic.Sqlite.Parsing.Antlr;
 
@@ -14,7 +14,8 @@ public class SqliteTriggerParser
     /// </summary>
     /// <param name="definition">The textual definition of the <c>CREATE TRIGGER</c> statement.</param>
     /// <returns>Parsed data for a <c>CREATE TRIGGER</c> definition.</returns>
-    /// <exception cref="ArgumentException"><paramref name="definition"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace.</exception>
     /// <exception cref="SqliteTriggerParsingException">The definition could not be parsed.</exception>
     public ParsedTriggerData Parse(string definition)
     {

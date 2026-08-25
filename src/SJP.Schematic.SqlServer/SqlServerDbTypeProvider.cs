@@ -129,7 +129,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     /// <param name="typeMetadata">Column type metadata.</param>
     /// <returns>A formatted type name, sufficient for printing or use within queries.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException">Thrown when the type name is missing.</exception>
+    /// <exception cref="ArgumentException"><paramref name="typeMetadata"/> does not have a type name.</exception>
     protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
     {
         ArgumentNullException.ThrowIfNull(typeMetadata);

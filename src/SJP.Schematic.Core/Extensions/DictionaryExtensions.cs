@@ -33,7 +33,7 @@ public static class DictionaryExtensions
     /// <param name="source">The source collection of key-value objects.</param>
     /// <param name="comparer">A comparer to use to for determining uniqueness of keys.</param>
     /// <returns>A read-only dictionary that represents a lookup of the key-value pair objects.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="comparer"/> is <see langword="null" />.</exception>
     public static IReadOnlyDictionary<TKey, TValue> ToReadOnlyDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> source, IEqualityComparer<TKey> comparer)
         where TKey : notnull
     {

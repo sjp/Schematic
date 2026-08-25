@@ -19,8 +19,8 @@ public sealed class ParsedTableData
     /// <param name="uniqueKeys">Parsed unique keys.</param>
     /// <param name="parentKeys">Parsed parent keys.</param>
     /// <param name="checks">Parsed check constraints.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="definition"/> is <see langword="null" />, <paramref name="columns"/> is <see langword="null" /> or empty, or <paramref name="uniqueKeys"/>, <paramref name="checks"/> or <paramref name="parentKeys"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="definition"/>, <paramref name="columns"/>, <paramref name="uniqueKeys"/>, <paramref name="checks"/> or <paramref name="parentKeys"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, or <paramref name="columns"/> is empty.</exception>
     public ParsedTableData(
         string definition,
         IReadOnlyCollection<Column> columns,
@@ -31,8 +31,9 @@ public sealed class ParsedTableData
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
-        if (columns.NullOrEmpty())
-            throw new ArgumentNullException(nameof(columns));
+        ArgumentNullException.ThrowIfNull(columns);
+        if (columns.Empty())
+            throw new ArgumentException("A table must have at least one column.", nameof(columns));
 
         Definition = definition;
         Columns = columns;

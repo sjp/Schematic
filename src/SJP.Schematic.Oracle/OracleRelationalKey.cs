@@ -23,12 +23,8 @@ public class OracleRelationalKey : IDatabaseRelationalKey
     /// <param name="parentTableName">The parent table name.</param>
     /// <param name="parentKey">The parent key.</param>
     /// <param name="deleteAction">The delete action.</param>
-    /// <exception cref="ArgumentException">
-    /// <paramref name="deleteAction"/> will throw this exception if given an invalid enum value.
-    /// Alternatively if the child key is not a foreign key this will also be thrown.
-    /// Furthermore, if the parent key is not a unique or primary key, this will also be thrown.
-    /// </exception>
-    /// <exception cref="ArgumentNullException"><paramref name="parentTableName"/> or <paramref name="childTableName"/> or <paramref name="parentKey"/> or <paramref name="childKey"/> is <see langword="null" /></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/> or <paramref name="parentKey"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="deleteAction"/> is not a valid enum, <paramref name="childKey"/> is not a foreign key, or <paramref name="parentKey"/> is not a primary or unique key.</exception>
     public OracleRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction)
     {
         if (!deleteAction.IsValid())

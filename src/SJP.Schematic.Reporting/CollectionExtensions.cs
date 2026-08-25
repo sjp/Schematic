@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +17,7 @@ internal static class CollectionExtensions
     /// Returns the element count as a <see cref="uint"/>. This overload fully enumerates the
     /// sequence; prefer the <see cref="IReadOnlyCollection{T}"/> overload when the count is known.
     /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="collection"/> is <see langword="null" />.</exception>
     public static uint UCount<T>(this IEnumerable<T> collection)
     {
         ArgumentNullException.ThrowIfNull(collection);
