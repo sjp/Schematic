@@ -15,12 +15,30 @@ internal static class NumericPrecisionTests
     }
 
     [Test]
-    public static void Ctor_GivenNegativeScale_ThrowsArgumentException()
+    public static void Ctor_GivenNegativeScale_ThrowsArgumentExceptionMentioningScale()
     {
         const int precision = 12345;
         const int scale = -1;
 
+        Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException.With.Message.Contains("scale"));
+    }
+
+    [Test]
+    public static void Ctor_GivenZeroPrecisionAndPositiveScale_ThrowsArgumentException()
+    {
+        const int precision = 0;
+        const int scale = 1;
+
         Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenScaleLargerThanPrecision_DoesNotThrow()
+    {
+        const int precision = 2;
+        const int scale = 5;
+
+        Assert.That(() => new NumericPrecision(precision, scale), Throws.Nothing);
     }
 
     [Test]

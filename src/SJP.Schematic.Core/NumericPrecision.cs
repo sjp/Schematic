@@ -16,13 +16,16 @@ public readonly struct NumericPrecision : INumericPrecision, IEquatable<NumericP
     /// </summary>
     /// <param name="precision">The precision.</param>
     /// <param name="scale">The scale.</param>
-    /// <exception cref="ArgumentException"><paramref name="precision"/> or <paramref name="scale"/> is negative.</exception>
+    /// <exception cref="ArgumentException"><paramref name="precision"/> or <paramref name="scale"/> is negative. Alternatively <paramref name="precision"/> is zero while <paramref name="scale"/> is positive.</exception>
+    /// <remarks>The scale is permitted to exceed the precision, as some database systems allow this (e.g. Oracle's <c>NUMBER(2, 5)</c>).</remarks>
     public NumericPrecision(int precision, int scale)
     {
         if (precision < 0)
             throw new ArgumentException("The precision must be non-negative.", nameof(precision));
         if (scale < 0)
-            throw new ArgumentException("The precision must be non-negative.", nameof(scale));
+            throw new ArgumentException("The scale must be non-negative.", nameof(scale));
+        if (precision == 0 && scale > 0)
+            throw new ArgumentException("The scale must be zero when the precision is zero.", nameof(scale));
 
         Precision = precision;
         Scale = scale;
