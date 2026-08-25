@@ -34,7 +34,9 @@ public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<
     public TopologicalSortingAlgorithm(IVertexListGraph<TVertex, TEdge> graph, IList<TVertex> vertices)
         : base(graph)
     {
-        SortedVertices = vertices ?? throw new ArgumentNullException(nameof(vertices));
+        ArgumentNullException.ThrowIfNull(vertices);
+
+        _sortedVertices = [.. vertices];
     }
 
     /// <summary>
@@ -42,15 +44,18 @@ public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<
     /// </summary>
     /// <value>The sorted vertices.
     /// </value>
-    public IList<TVertex> SortedVertices { get; }
+    /// <remarks>Reset at the start of every computation, so the results of a computation never accumulate on top of a previous one.</remarks>
+    public IList<TVertex> SortedVertices => _sortedVertices;
 
-    private void FinishVertex(TVertex v) => SortedVertices.Insert(0, v);
+    private void FinishVertex(TVertex v) => _sortedVertices.Add(v);
 
     /// <summary>
     /// Algorithm compute step.
     /// </summary>
     protected override void InternalCompute()
     {
+        _sortedVertices.Clear();
+
         DepthFirstSearchAlgorithm<TVertex, TEdge>? dfs = null;
         try
         {
@@ -62,6 +67,9 @@ public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<
             dfs.FinishVertex += FinishVertex;
 
             dfs.Compute();
+
+            // vertices are appended in the order in which they finish, i.e. dependencies first
+            _sortedVertices.Reverse();
         }
         finally
         {
@@ -69,4 +77,6 @@ public sealed class TopologicalSortingAlgorithm<TVertex, TEdge> : AlgorithmBase<
                 dfs.FinishVertex -= FinishVertex;
         }
     }
+
+    private readonly List<TVertex> _sortedVertices;
 }

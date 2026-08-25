@@ -20,11 +20,13 @@ public class TableRelationshipOrderer
     {
         ArgumentNullException.ThrowIfNull(tables);
 
+        var tableList = tables.ToList();
+
         var graph = new AdjacencyGraph<Identifier, SEquatableEdge<Identifier>>();
-        var tableNames = tables.Select(static t => t.Name).Distinct().ToList();
+        var tableNames = tableList.Select(static t => t.Name).Distinct().ToList();
         graph.AddVertexRange(tableNames);
 
-        var foreignKeys = tables
+        var foreignKeys = tableList
             .SelectMany(static t => t.ParentKeys)
             .Where(static fk => fk.ChildTable != fk.ParentTable)
             .ToList();
@@ -34,7 +36,7 @@ public class TableRelationshipOrderer
         var topologicalSorter = new TopologicalSortingAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
         topologicalSorter.Compute();
 
-        return topologicalSorter.SortedVertices.Distinct().ToList();
+        return [.. topologicalSorter.SortedVertices];
     }
 
     /// <summary>

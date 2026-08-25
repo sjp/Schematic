@@ -26,6 +26,7 @@ public class VersionResolvingDictionary<T> : IVersionedLookup<T>
             throw new ArgumentException("At least one value must be present in the given lookup.", nameof(lookup));
 
         _lookup = lookup;
+        _descendingVersions = [.. lookup.Keys.OrderDescending()];
     }
 
     /// <summary>
@@ -34,25 +35,19 @@ public class VersionResolvingDictionary<T> : IVersionedLookup<T>
     /// <param name="version">A version.</param>
     /// <returns>An object of type <typeparamref name="T" />.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="version"/> is <see langword="null" />.</exception>
+    /// <remarks>The value returned is the one stored against the highest version that does not exceed <paramref name="version"/>. A version lower than every version in the lookup resolves to the value stored against the lowest version.</remarks>
     public T GetValue(Version version)
     {
         ArgumentNullException.ThrowIfNull(version);
 
-        var versionKeys = _lookup.Keys.Order().ToList();
-        var firstVersion = versionKeys[0];
-        if (version <= firstVersion)
-            return _lookup[firstVersion];
-
         // we want to find the version that's *at least* the version
         // but we want to use the highest version possible
-        versionKeys.Reverse();
-
-        var matchingVersion = versionKeys.Find(v => version >= v);
-        if (matchingVersion == null)
-            return _lookup[firstVersion];
+        var matchingVersion = _descendingVersions.Find(v => version >= v)
+            ?? _descendingVersions[^1];
 
         return _lookup[matchingVersion];
     }
 
     private readonly IReadOnlyDictionary<Version, T> _lookup;
+    private readonly List<Version> _descendingVersions;
 }

@@ -26,6 +26,7 @@ public class VersionResolvingFactory<T> : IVersionedLookup<T>
             throw new ArgumentException("At least one value must be present in the given lookup.", nameof(lookup));
 
         _lookup = lookup;
+        _descendingVersions = [.. lookup.Keys.OrderDescending()];
     }
 
     /// <summary>
@@ -34,32 +35,20 @@ public class VersionResolvingFactory<T> : IVersionedLookup<T>
     /// <param name="version">A version.</param>
     /// <returns>An object of type <typeparamref name="T" />.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="version"/> is <see langword="null" />.</exception>
+    /// <remarks>The factory invoked is the one stored against the highest version that does not exceed <paramref name="version"/>. A version lower than every version in the lookup resolves to the factory stored against the lowest version.</remarks>
     public T GetValue(Version version)
     {
         ArgumentNullException.ThrowIfNull(version);
 
-        var versionKeys = _lookup.Keys.Order().ToList();
-        var firstVersion = versionKeys[0];
-        if (version <= firstVersion)
-        {
-            var resultFactory = _lookup[firstVersion];
-            return resultFactory.Invoke();
-        }
-
         // we want to find the version that's *at least* the version
         // but we want to use the highest version possible
-        versionKeys.Reverse();
+        var matchingVersion = _descendingVersions.Find(v => version >= v)
+            ?? _descendingVersions[^1];
 
-        var matchingVersion = versionKeys.Find(v => version >= v);
-        if (matchingVersion == null)
-        {
-            var resultFactory = _lookup[firstVersion];
-            return resultFactory.Invoke();
-        }
-
-        var result = _lookup[matchingVersion];
-        return result.Invoke();
+        var resultFactory = _lookup[matchingVersion];
+        return resultFactory.Invoke();
     }
 
     private readonly IReadOnlyDictionary<Version, Func<T>> _lookup;
+    private readonly List<Version> _descendingVersions;
 }
