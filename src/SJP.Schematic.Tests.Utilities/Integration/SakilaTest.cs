@@ -123,6 +123,6 @@ public abstract class SakilaTest
             IdentifierDefaultsLazy.Value,
             new ConnectionPragma(Config.SchematicConnection));
 
-        return await database.SnapshotAsync().ConfigureAwait(false);
+        return await database.SnapshotAsync();
     });
 }

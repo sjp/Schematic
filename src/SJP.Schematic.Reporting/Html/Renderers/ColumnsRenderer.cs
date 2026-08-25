@@ -32,6 +32,6 @@ internal sealed class ColumnsRenderer : IDataRenderer
         context.Bundle.AddSummary("columns", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "columns.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

@@ -28,6 +28,6 @@ internal sealed class TriggersRenderer : IDataRenderer
         context.Bundle.AddSummary("triggers", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "triggers.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

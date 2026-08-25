@@ -24,6 +24,6 @@ internal sealed class RoutinesRenderer : IDataRenderer
         context.Bundle.AddSummary("routines", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "routines.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

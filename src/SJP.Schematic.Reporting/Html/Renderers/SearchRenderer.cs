@@ -51,6 +51,6 @@ internal sealed class SearchRenderer : IDataRenderer
         context.Bundle.AddSummary("search", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "search.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

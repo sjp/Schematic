@@ -37,7 +37,7 @@ internal static class RenderTaskRunner
             .Select(item => RunOneAsync(item, describe, action, failures, cancellationToken))
             .ToList();
 
-        await Task.WhenAll(tasks).ConfigureAwait(false);
+        await Task.WhenAll(tasks);
 
         ThrowIfAnyFailed(failures);
     }
@@ -51,7 +51,7 @@ internal static class RenderTaskRunner
     {
         try
         {
-            await action(item, cancellationToken).ConfigureAwait(false);
+            await action(item, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

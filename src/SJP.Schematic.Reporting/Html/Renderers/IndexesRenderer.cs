@@ -36,6 +36,6 @@ internal sealed class IndexesRenderer : IDataRenderer
         context.Bundle.AddSummary("indexes", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "indexes.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

@@ -42,6 +42,6 @@ internal sealed class TableRenderer : IDataRenderer
         context.Bundle.AddDetail("table", safeKey, json);
 
         var outputFile = new FileInfo(Path.Combine(tablesDataDirectory.FullName, safeKey + ".json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

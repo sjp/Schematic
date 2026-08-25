@@ -31,7 +31,7 @@ internal sealed class MainRenderer : IDataRenderer
             var checksCount = table.GetCheckLookup().UCount();
             indexesCount += table.GetIndexLookup().UCount();
 
-            await table.PrimaryKey.IfSomeAsync(_ => constraints++).ConfigureAwait(false);
+            await table.PrimaryKey.IfSomeAsync(_ => constraints++);
 
             constraints += uniqueKeyCount;
             constraints += table.ParentKeys.UCount();
@@ -85,6 +85,6 @@ internal sealed class MainRenderer : IDataRenderer
         context.Bundle.AddSummary("main", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "main.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

@@ -45,7 +45,7 @@ public sealed class JsonDataWriter
         if (file.Directory is { Exists: false } directory)
             directory.Create();
 
-        await File.WriteAllTextAsync(file.FullName, json, Utf8NoBom, cancellationToken).ConfigureAwait(false);
+        await File.WriteAllTextAsync(file.FullName, json, Utf8NoBom, cancellationToken);
     }
 }
 

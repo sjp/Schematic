@@ -88,7 +88,7 @@ public sealed class BundleBuilder
             }
         }
 
-        await File.WriteAllTextAsync(bundleJs.FullName, builder.ToString(), Utf8NoBom, cancellationToken).ConfigureAwait(false);
+        await File.WriteAllTextAsync(bundleJs.FullName, builder.ToString(), Utf8NoBom, cancellationToken);
     }
 
     private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);

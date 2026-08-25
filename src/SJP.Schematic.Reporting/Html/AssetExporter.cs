@@ -29,7 +29,7 @@ internal sealed class AssetExporter
         if (!directory.Exists)
             directory.Create();
 
-        await SaveDirectoryAsync("/", directory.FullName, overwrite, cancellationToken).ConfigureAwait(false);
+        await SaveDirectoryAsync("/", directory.FullName, overwrite, cancellationToken);
     }
 
     // Recursively copies the embedded Vite build, preserving its directory structure. The manifest
@@ -55,7 +55,7 @@ internal sealed class AssetExporter
             {
                 var childTargetDirectory = Path.Combine(targetDirectory, entry.Name);
                 Directory.CreateDirectory(childTargetDirectory);
-                await SaveDirectoryAsync(childSourcePath, childTargetDirectory, overwrite, cancellationToken).ConfigureAwait(false);
+                await SaveDirectoryAsync(childSourcePath, childTargetDirectory, overwrite, cancellationToken);
                 continue;
             }
 
@@ -71,7 +71,7 @@ internal sealed class AssetExporter
             // FileMode.Create truncates, so a shorter asset never leaves stale trailing bytes.
             await using var resourceStream = entry.CreateReadStream();
             await using var fileStream = new FileStream(targetFile.FullName, FileMode.Create, FileAccess.Write, FileShare.None);
-            await resourceStream.CopyToAsync(fileStream, cancellationToken).ConfigureAwait(false);
+            await resourceStream.CopyToAsync(fileStream, cancellationToken);
         }
     }
 

@@ -20,7 +20,7 @@ internal static class SqlServerDialectExtensions
     {
         ArgumentNullException.ThrowIfNull(databaseProvider);
 
-        var dbVersion = await databaseProvider.GetDatabaseVersionAsync(cancellationToken).ConfigureAwait(false);
+        var dbVersion = await databaseProvider.GetDatabaseVersionAsync(cancellationToken);
         return dbVersion >= MinJsonDataTypeVersion;
     }
 }

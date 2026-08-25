@@ -156,3 +156,12 @@ csharp_space_between_square_brackets = false
 # Wrapping preferences
 csharp_preserve_single_line_blocks = true
 csharp_preserve_single_line_statements = true
+
+#### Analyzer rules ####
+
+# ConfigureAwait policy: never call it. Schematic targets modern .NET, which has no
+# synchronization context, so ConfigureAwait(false) buys nothing but noise. RCS1090 flags
+# any call that creeps back in; CA2007 (which wants the opposite) stays off.
+roslynator_configure_await = false
+dotnet_diagnostic.RCS1090.severity = warning
+dotnet_diagnostic.CA2007.severity = none

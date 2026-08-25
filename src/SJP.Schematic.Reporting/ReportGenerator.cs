@@ -91,7 +91,7 @@ public class ReportGenerator
         var rendererName = renderer.GetType().Name;
         try
         {
-            await renderer.RenderAsync(data, context, cancellationToken).ConfigureAwait(false);
+            await renderer.RenderAsync(data, context, cancellationToken);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

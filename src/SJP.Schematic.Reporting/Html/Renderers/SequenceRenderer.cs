@@ -38,6 +38,6 @@ internal sealed class SequenceRenderer : IDataRenderer
         context.Bundle.AddDetail("sequence", safeKey, json);
 
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

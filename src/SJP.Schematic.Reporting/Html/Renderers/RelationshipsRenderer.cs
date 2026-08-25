@@ -23,6 +23,6 @@ internal sealed class RelationshipsRenderer : IDataRenderer
 
         var dataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data"));
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, "relationships.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

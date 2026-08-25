@@ -50,6 +50,6 @@ internal sealed class ConstraintsRenderer : IDataRenderer
         context.Bundle.AddSummary("constraints", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "constraints.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }

@@ -24,6 +24,6 @@ internal sealed class SynonymsRenderer : IDataRenderer
         context.Bundle.AddSummary("synonyms", json);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "synonyms.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken).ConfigureAwait(false);
+        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
     }
 }
