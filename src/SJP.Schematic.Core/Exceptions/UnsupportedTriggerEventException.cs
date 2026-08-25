@@ -43,12 +43,19 @@ public class UnsupportedTriggerEventException : SchematicException
     /// <param name="tableName">The name of the table containing the trigger.</param>
     /// <param name="triggerEvent">The trigger event that is not supported.</param>
     public UnsupportedTriggerEventException(Identifier tableName, string triggerEvent)
+        : base(BuildMessage(tableName, triggerEvent))
     {
-        TableName = tableName?.ToString() ?? string.Empty;
+        TableName = tableName.ToString();
         TriggerEvent = triggerEvent;
+    }
 
-        Message = "Found an unsupported trigger event name for a trigger on the table '"
-            + TableName
+    private static string BuildMessage(Identifier tableName, string triggerEvent)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(triggerEvent);
+
+        return "Found an unsupported trigger event name for a trigger on the table '"
+            + tableName
             + "'. Expected one of INSERT, UPDATE, DELETE, got: "
             + triggerEvent;
     }
@@ -64,9 +71,4 @@ public class UnsupportedTriggerEventException : SchematicException
     /// </summary>
     /// <value>The trigger event name.</value>
     public string TriggerEvent { get; } = string.Empty;
-
-    /// <summary>
-    /// A message that describes the unsupported trigger event exception.
-    /// </summary>
-    public override string Message { get; } = string.Empty;
 }

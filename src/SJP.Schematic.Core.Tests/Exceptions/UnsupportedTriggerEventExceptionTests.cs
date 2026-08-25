@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Core.Exceptions;
 
 namespace SJP.Schematic.Core.Tests.Exceptions;
@@ -14,6 +15,41 @@ internal static class UnsupportedTriggerEventExceptionTests
         var ex = new UnsupportedTriggerEventException(name, triggerEvent);
 
         Assert.That(ex.Message, Is.EqualTo(expectedOutput));
+    }
+
+    [Test]
+    public static void Message_GivenMessageOnlyCtor_ReturnsCtorArg()
+    {
+        const string message = "this is a test message";
+        var ex = new UnsupportedTriggerEventException(message);
+
+        Assert.That(ex.Message, Is.EqualTo(message));
+    }
+
+    [Test]
+    public static void Message_GivenMessageAndInnerExceptionCtor_ReturnsCtorArg()
+    {
+        const string message = "this is a test message";
+        var inner = new InvalidOperationException("inner message");
+        var ex = new UnsupportedTriggerEventException(message, inner);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(ex.Message, Is.EqualTo(message));
+            Assert.That(ex.InnerException, Is.SameAs(inner));
+        });
+    }
+
+    [Test]
+    public static void Ctor_GivenNullTableName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => new UnsupportedTriggerEventException((Identifier)null!, "UNKNOWN_EVENT"), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullTriggerEvent_ThrowsArgumentNullException()
+    {
+        Assert.That(() => new UnsupportedTriggerEventException(Identifier.CreateQualifiedIdentifier("TEST_TABLE"), null!), Throws.ArgumentNullException);
     }
 
     [Test]
