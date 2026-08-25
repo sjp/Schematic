@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
@@ -509,6 +510,95 @@ internal static class IdentifierTests
         var isLte = identifier <= otherIdentifier;
 
         Assert.That(isLte, Is.True);
+    }
+
+    [TestCase("a", null, "c", "d", "database")]
+    [TestCase("a", "b", null, "d", "schema")]
+    [TestCase("a", "b", "c", null, "localName")]
+    [TestCase(null, "b", null, "d", "schema")]
+    [TestCase(null, "b", null, null, "schema")]
+    [TestCase(null, "b", "c", null, "localName")]
+    [TestCase(null, null, "c", null, "localName")]
+    [TestCase(null, null, null, null, "localName")]
+    public static void CreateQualifiedIdentifier_GivenMissingComponent_ThrowsExceptionNamingMissingComponent(string serverName, string databaseName, string schemaName, string localName, string expectedParamName)
+    {
+        Assert.That(
+            () => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo(expectedParamName)
+        );
+    }
+
+    [TestCase("a", "    ", "c", "d", "database")]
+    [TestCase("a", "b", "", "d", "schema")]
+    [TestCase("a", "b", "c", "    ", "localName")]
+    [TestCase(null, null, "c", "", "localName")]
+    public static void CreateQualifiedIdentifier_GivenWhiteSpaceComponent_ThrowsArgumentExceptionNamingMissingComponent(string serverName, string databaseName, string schemaName, string localName, string expectedParamName)
+    {
+        Assert.That(
+            () => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName),
+            Throws.ArgumentException
+                .And.Not.InstanceOf<ArgumentNullException>()
+                .And.Property(nameof(ArgumentException.ParamName)).EqualTo(expectedParamName)
+        );
+    }
+
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void CreateQualifiedIdentifier_GivenWhiteSpaceLocalName_ThrowsSameExceptionTypeAsCtor(string localName)
+    {
+        Assert.That(
+            () => Identifier.CreateQualifiedIdentifier(localName),
+            Throws.ArgumentException.And.Not.InstanceOf<ArgumentNullException>()
+        );
+    }
+
+    [Test]
+    public static void CompareTo_GivenNullObject_ReturnsNonZero()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
+
+        var compareResult = ((IComparable)identifier).CompareTo(null);
+
+        Assert.That(compareResult, Is.Not.Zero);
+    }
+
+    [Test]
+    public static void CompareTo_GivenNonIdentifierObject_ThrowsArgumentException()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
+
+        Assert.That(() => ((IComparable)identifier).CompareTo(1), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void CompareTo_GivenEqualIdentifierAsObject_ReturnsZero()
+    {
+        var identifier = new Identifier("name", "name", "name", "test");
+        object otherIdentifier = new Identifier("name", "name", "name", "test");
+
+        var compareResult = ((IComparable)identifier).CompareTo(otherIdentifier);
+
+        Assert.That(compareResult, Is.Zero);
+    }
+
+    [Test]
+    public static void ObjectComparerDefault_GivenIdentifiers_SortsInExpectedOrder()
+    {
+        object[] identifiers =
+        [
+            new Identifier("c"),
+            new Identifier("a"),
+            new Identifier("b"),
+        ];
+
+        Array.Sort(identifiers, Comparer<object>.Default);
+
+        Assert.That(identifiers, Is.EqualTo(new object[]
+        {
+            new Identifier("a"),
+            new Identifier("b"),
+            new Identifier("c"),
+        }));
     }
 
     [TestCase("", "", "", "localName", "LocalName = localName")]

@@ -9,7 +9,7 @@ internal static class RelationalDatabaseLinterTests
 {
     private static IRelationalDatabaseLinter Linter { get; } = new RelationalDatabaseLinter([]);
 
-    private static EmptyRelationalDatabase EmptyDatabase { get; } = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, null));
+    private static EmptyRelationalDatabase EmptyDatabase { get; } = new EmptyRelationalDatabase(IdentifierDefaults.Empty);
 
     [Test]
     public static void Ctor_GivenNullRules_ThrowsArgumentNullException()

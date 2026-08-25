@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
@@ -348,5 +349,63 @@ internal static class IdentifierComparerTests
         var compareResult = comparer.Compare(identifier, otherIdentifier);
 
         Assert.That(compareResult, Is.Not.Zero);
+    }
+
+    [Test]
+    [SetCulture("en-US")]
+    public static void CurrentCulture_WhenCultureChangedAfterFirstAccess_UsesCollationOfNewCulture()
+    {
+        var identifier = new Identifier("z");
+        var otherIdentifier = new Identifier("\u00E4");
+
+        var englishResult = IdentifierComparer.CurrentCulture.Compare(identifier, otherIdentifier);
+
+        var originalCulture = CultureInfo.CurrentCulture;
+        int swedishResult;
+        try
+        {
+            // Swedish sorts 'a-umlaut' after 'z', unlike English where it sorts next to 'a'
+            CultureInfo.CurrentCulture = new CultureInfo("sv-SE");
+            swedishResult = IdentifierComparer.CurrentCulture.Compare(identifier, otherIdentifier);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(englishResult, Is.Positive);
+            Assert.That(swedishResult, Is.Negative);
+        }
+    }
+
+    [Test]
+    [SetCulture("en-US")]
+    public static void CurrentCultureIgnoreCase_WhenCultureChangedAfterFirstAccess_UsesCasingRulesOfNewCulture()
+    {
+        var identifier = new Identifier("i");
+        var otherIdentifier = new Identifier("I");
+
+        var englishResult = IdentifierComparer.CurrentCultureIgnoreCase.Equals(identifier, otherIdentifier);
+
+        var originalCulture = CultureInfo.CurrentCulture;
+        bool turkishResult;
+        try
+        {
+            // Turkish treats dotted and dotless 'i' as distinct letters, so 'i' and 'I' are not case variants
+            CultureInfo.CurrentCulture = new CultureInfo("tr-TR");
+            turkishResult = IdentifierComparer.CurrentCultureIgnoreCase.Equals(identifier, otherIdentifier);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = originalCulture;
+        }
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(englishResult, Is.True);
+            Assert.That(turkishResult, Is.False);
+        }
     }
 }

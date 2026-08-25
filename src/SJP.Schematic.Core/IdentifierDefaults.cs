@@ -1,4 +1,6 @@
-﻿namespace SJP.Schematic.Core;
+﻿using SJP.Schematic.Core.Extensions;
+
+namespace SJP.Schematic.Core;
 
 /// <summary>
 /// Stores default values for <see cref="Identifier"/> instances.
@@ -12,12 +14,18 @@ public class IdentifierDefaults : IIdentifierDefaults
     /// <param name="server">A server name.</param>
     /// <param name="database">A database name.</param>
     /// <param name="schema">A schema name.</param>
+    /// <remarks>Empty and whitespace-only values are stored as <see langword="null" />, i.e. as an absent default.</remarks>
     public IdentifierDefaults(string? server, string? database, string? schema)
     {
-        Server = server;
-        Database = database;
-        Schema = schema;
+        Server = server.IsNullOrWhiteSpace() ? null : server;
+        Database = database.IsNullOrWhiteSpace() ? null : database;
+        Schema = schema.IsNullOrWhiteSpace() ? null : schema;
     }
+
+    /// <summary>
+    /// Defaults where no server, database or schema name is present.
+    /// </summary>
+    public static IdentifierDefaults Empty { get; } = new IdentifierDefaults(null, null, null);
 
     /// <summary>
     /// A server name.

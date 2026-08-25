@@ -136,14 +136,14 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
     /// <summary>
     /// Gets a <see cref="IdentifierComparer"/> object that performs a case-sensitive identifier comparison using the word comparison rules of the current culture.
     /// </summary>
-    /// <value>A <see cref="IdentifierComparer"/> object.</value>
-    public static IdentifierComparer CurrentCulture { get; } = new IdentifierComparer(StringComparer.CurrentCulture);
+    /// <value>A <see cref="IdentifierComparer"/> object. A new comparer is returned for each access, bound to the culture of the calling thread at the time of access.</value>
+    public static IdentifierComparer CurrentCulture => new(StringComparer.CurrentCulture);
 
     /// <summary>
     /// Gets a <see cref="IdentifierComparer"/> object that performs a case-insensitive identifier comparison using the word comparison rules of the current culture.
     /// </summary>
-    /// <value>A <see cref="IdentifierComparer"/> object.</value>
-    public static IdentifierComparer CurrentCultureIgnoreCase { get; } = new IdentifierComparer(StringComparer.CurrentCultureIgnoreCase);
+    /// <value>A <see cref="IdentifierComparer"/> object. A new comparer is returned for each access, bound to the culture of the calling thread at the time of access.</value>
+    public static IdentifierComparer CurrentCultureIgnoreCase => new(StringComparer.CurrentCultureIgnoreCase);
 
     /// <summary>
     /// Gets a <see cref="IdentifierComparer"/> object that performs a case-sensitive identifier comparison.
