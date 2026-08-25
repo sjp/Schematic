@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -51,6 +52,25 @@ create table table_with_self_referencing_columns_1 (
     constraint self_ref_fk_1 foreign key (column_2) references table_with_self_referencing_columns_1 (column_1)
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_1 (column_1, column_2) values (1, 1)", CancellationToken.None);
+
+        // self-referencing foreign key targeting a unique key, not the primary key
+        await DbConnection.ExecuteAsync(@"
+create table table_with_self_referencing_columns_2 (
+    column_1 integer not null primary key autoincrement,
+    column_2 integer not null constraint self_ref_uk_2 unique,
+    column_3 integer,
+    constraint self_ref_fk_2 foreign key (column_3) references table_with_self_referencing_columns_2 (column_2)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_2 (column_1, column_2, column_3) values (1, 100, 100)", CancellationToken.None);
+
+        // no primary key, self-referencing foreign key targeting a unique key
+        await DbConnection.ExecuteAsync(@"
+create table table_with_self_referencing_columns_3 (
+    column_1 integer not null constraint self_ref_uk_3 unique,
+    column_2 integer,
+    constraint self_ref_fk_3 foreign key (column_2) references table_with_self_referencing_columns_3 (column_1)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_3 (column_1, column_2) values (100, 100)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -61,6 +81,8 @@ create table table_with_self_referencing_columns_1 (
         await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2_parent", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_3", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_3", CancellationToken.None);
     }
 
     [Test]
@@ -88,7 +110,7 @@ create table table_with_self_referencing_columns_1 (
     }
 
     [Test]
-    public async Task AnalyseTables_GivenTablesWithNoPrimaryKeys_ProducesNoMessages()
+    public async Task AnalyseTables_GivenTablesWithNoPrimaryKeysAndNoForeignKeys_ProducesNoMessages()
     {
         var rule = new ForeignKeySelfReferenceRule(Connection, RuleLevel.Error);
         var database = GetSqliteDatabase();
@@ -145,6 +167,39 @@ create table table_with_self_referencing_columns_1 (
         var tables = new[]
         {
             await database.GetTable("table_with_self_referencing_columns_1").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenTableWithRowSelfReferencingAUniqueKey_ProducesMessages()
+    {
+        var rule = new ForeignKeySelfReferenceRule(Connection, RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("table_with_self_referencing_columns_2").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+        Assert.That(messages.Single().Message, Does.Contain("unique key"));
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenTableWithoutPrimaryKeyWithRowSelfReferencingAUniqueKey_ProducesMessages()
+    {
+        var rule = new ForeignKeySelfReferenceRule(Connection, RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("table_with_self_referencing_columns_3").UnwrapSomeAsync(),
         };
 
         var messages = await rule.AnalyseTables(tables);

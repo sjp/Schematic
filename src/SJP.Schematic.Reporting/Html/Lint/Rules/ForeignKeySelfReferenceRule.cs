@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -13,19 +13,19 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
     {
     }
 
-    protected override IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey primaryKey, IDatabaseKey foreignKey)
+    protected override IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey targetKey, IDatabaseKey foreignKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        ArgumentNullException.ThrowIfNull(primaryKey);
+        ArgumentNullException.ThrowIfNull(targetKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
-        var primaryKeyColumnNames = primaryKey.Columns
+        var targetKeyColumnNames = targetKey.Columns
             .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
-        var pkNameSuffix = primaryKey.Name.Match(
-            pkName => $"{Dialect.QuoteName(pkName)} ",
+        var targetKeyNameSuffix = targetKey.Name.Match(
+            targetKeyName => $"{Dialect.QuoteName(targetKeyName)} ",
             () => string.Empty
         );
-        var primaryKeyMessage = $"primary key {pkNameSuffix}({primaryKeyColumnNames.Join(", ")})";
+        var targetKeyMessage = $"{GetKeyTypeDescription(targetKey.KeyType)} {targetKeyNameSuffix}({targetKeyColumnNames.Join(", ")})";
 
         var foreignKeyColumnNames = foreignKey.Columns
             .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
@@ -35,7 +35,7 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
         );
         var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
 
-        var messageText = $"The table {tableName.ToVisibleName()} contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
+        var messageText = $"The table {tableName.ToVisibleName()} contains a row where the {foreignKeyMessage} self-references the {targetKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

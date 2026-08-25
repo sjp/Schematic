@@ -10,7 +10,7 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Lint.Rules;
 
 /// <summary>
-/// A linting rule which reports when a table contains a row where the foreign key references the primary key for the same row, ensuring that row cannot be deleted.
+/// A linting rule which reports when a table contains a row where a foreign key references the key it targets in the same row, ensuring that row cannot be deleted.
 /// </summary>
 /// <seealso cref="Rule"/>
 /// <seealso cref="ITableRule"/>
@@ -91,30 +91,26 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(table);
 
-        return table.PrimaryKey.Match(
-            pk => AnalyseTableWithPrimaryKeyAsync(table, pk, cancellationToken),
-            () => Empty.RuleMessages
-        );
+        return AnalyseTableCoreAsync(table, cancellationToken);
     }
 
-    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableWithPrimaryKeyAsync(IRelationalDatabaseTable table, IDatabaseKey primaryKey, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableCoreAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        var matchingForeignKeys = table.ParentKeys
+        var selfReferencingKeys = table.ParentKeys
             .Where(fk => fk.ParentTable == table.Name)
-            .Select(fk => fk.ChildKey)
             .ToList();
 
-        if (matchingForeignKeys.Count == 0)
+        if (selfReferencingKeys.Count == 0)
             return [];
 
         var result = new List<IRuleMessage>();
 
-        foreach (var foreignKey in matchingForeignKeys)
+        foreach (var relationalKey in selfReferencingKeys)
         {
-            var isSelfReferencing = await TableHasSelfReferencingForeignKeyRowsAsync(table, primaryKey, foreignKey, cancellationToken);
+            var isSelfReferencing = await TableHasSelfReferencingForeignKeyRowsAsync(table, relationalKey.ParentKey, relationalKey.ChildKey, cancellationToken);
             if (isSelfReferencing)
             {
-                var message = BuildMessage(table.Name, primaryKey, foreignKey);
+                var message = BuildMessage(table.Name, relationalKey.ParentKey, relationalKey.ChildKey);
                 result.Add(message);
             }
         }
@@ -122,40 +118,40 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
         return result;
     }
 
-    private Task<bool> TableHasSelfReferencingForeignKeyRowsAsync(IRelationalDatabaseTable table, IDatabaseKey primaryKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
+    private Task<bool> TableHasSelfReferencingForeignKeyRowsAsync(IRelationalDatabaseTable table, IDatabaseKey targetKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(primaryKey);
+        ArgumentNullException.ThrowIfNull(targetKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
-        return TableHasSelfReferencingForeignKeyRowsCore(table, primaryKey, foreignKey, cancellationToken);
+        return TableHasSelfReferencingForeignKeyRowsCore(table, targetKey, foreignKey, cancellationToken);
     }
 
-    private async Task<bool> TableHasSelfReferencingForeignKeyRowsCore(IRelationalDatabaseTable table, IDatabaseKey primaryKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
+    private async Task<bool> TableHasSelfReferencingForeignKeyRowsCore(IRelationalDatabaseTable table, IDatabaseKey targetKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
     {
-        var pkColumnNames = primaryKey.Columns.Select(c => c.Name).ToList();
+        var targetColumnNames = targetKey.Columns.Select(c => c.Name).ToList();
         var fkColumnNames = foreignKey.Columns.Select(c => c.Name).ToList();
 
-        var sql = await GetTableMatchingForeignKeyPrimaryKeyQueryCore(
+        var sql = await GetTableMatchingForeignKeyTargetKeyQueryCore(
             table.Name,
-            pkColumnNames,
+            targetColumnNames,
             fkColumnNames
         );
         return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken);
     }
 
-    private async Task<string> GetTableMatchingForeignKeyPrimaryKeyQueryCore(Identifier tableName, IEnumerable<Identifier> pkColumnNames, IEnumerable<Identifier> fkColumnNames)
+    private async Task<string> GetTableMatchingForeignKeyTargetKeyQueryCore(Identifier tableName, IEnumerable<Identifier> targetColumnNames, IEnumerable<Identifier> fkColumnNames)
     {
         var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
-        var quotedPrimaryKeyColumnNames = pkColumnNames.Select(n => Dialect.QuoteIdentifier(n.LocalName)).ToList();
+        var quotedTargetKeyColumnNames = targetColumnNames.Select(n => Dialect.QuoteIdentifier(n.LocalName)).ToList();
         var quotedForeignKeyColumnNames = fkColumnNames.Select(n => Dialect.QuoteIdentifier(n.LocalName)).ToList();
 
-        var equalsClauses = quotedPrimaryKeyColumnNames.Zip(
+        var equalsClauses = quotedTargetKeyColumnNames.Zip(
                 quotedForeignKeyColumnNames,
-                (pkCol, fkCol) =>
+                (targetCol, fkCol) =>
                 {
-                    var nullComparison = "(" + pkCol + " IS NULL AND " + fkCol + " IS NULL)";
-                    var valueComparison = "(" + pkCol + " = " + fkCol + ")";
+                    var nullComparison = "(" + targetCol + " IS NULL AND " + fkCol + " IS NULL)";
+                    var valueComparison = "(" + targetCol + " = " + fkCol + ")";
 
                     return "(" + nullComparison + " OR " + valueComparison + ")";
                 }
@@ -179,22 +175,22 @@ where {whereFilterClauses}
     /// Builds the message used for reporting.
     /// </summary>
     /// <param name="tableName">The name of the table.</param>
-    /// <param name="primaryKey">The primary key for the table.</param>
+    /// <param name="targetKey">The key in the table which the foreign key refers to.</param>
     /// <param name="foreignKey">The self-referencing foreign key.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="primaryKey"/> or <paramref name="foreignKey"/> is <see langword="null" />.</exception>
-    protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey primaryKey, IDatabaseKey foreignKey)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="targetKey"/> or <paramref name="foreignKey"/> is <see langword="null" />.</exception>
+    protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey targetKey, IDatabaseKey foreignKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        ArgumentNullException.ThrowIfNull(primaryKey);
+        ArgumentNullException.ThrowIfNull(targetKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
-        var primaryKeyColumnNames = primaryKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
-        var pkNameSuffix = primaryKey.Name.Match(
-            pkName => Dialect.QuoteName(pkName) + " ",
+        var targetKeyColumnNames = targetKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
+        var targetKeyNameSuffix = targetKey.Name.Match(
+            targetKeyName => Dialect.QuoteName(targetKeyName) + " ",
             () => string.Empty
         );
-        var primaryKeyMessage = $"primary key {pkNameSuffix}({primaryKeyColumnNames.Join(", ")})";
+        var targetKeyMessage = $"{GetKeyTypeDescription(targetKey.KeyType)} {targetKeyNameSuffix}({targetKeyColumnNames.Join(", ")})";
 
         var foreignKeyColumnNames = foreignKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var fkNameSuffix = foreignKey.Name.Match(
@@ -203,8 +199,24 @@ where {whereFilterClauses}
         );
         var foreignKeyMessage = $"foreign key {fkNameSuffix}({foreignKeyColumnNames.Join(", ")})";
 
-        var messageText = $"The table '{tableName}' contains a row where the {foreignKeyMessage} self-references the {primaryKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
+        var messageText = $"The table '{tableName}' contains a row where the {foreignKeyMessage} self-references the {targetKeyMessage}. Consider removing the row by removing the foreign key first, then reintroducing after row removal.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Describes a key in the manner it is referred to in a linting message.
+    /// </summary>
+    /// <param name="keyType">The type of a key.</param>
+    /// <returns>A description of the key type.</returns>
+    protected static string GetKeyTypeDescription(DatabaseKeyType keyType)
+    {
+        return keyType switch
+        {
+            DatabaseKeyType.Primary => "primary key",
+            DatabaseKeyType.Unique => "unique key",
+            DatabaseKeyType.Foreign => "foreign key",
+            _ => "key"
+        };
     }
 
     /// <summary>
@@ -217,7 +229,7 @@ where {whereFilterClauses}
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle => "Table contains a row where a foreign key self-references the primary key of the same row.";
+    protected static string RuleTitle => "Table contains a row where a foreign key self-references the key it targets in the same row.";
 
     private async Task<string> GetFromQuerySuffixAsync()
     {
