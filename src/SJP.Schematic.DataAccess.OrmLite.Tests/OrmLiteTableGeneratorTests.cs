@@ -101,4 +101,110 @@ internal static class OrmLiteTableGeneratorTests
 
         Assert.That(() => generator.Generate([], null, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
     }
+
+    [Test]
+    public static void Generate_GivenForeignKeyToTableInAnotherSchema_GeneratesSchemaQualifiedParentType()
+    {
+        var generator = GetTableGenerator();
+
+        var column = CreateColumn("test_column");
+        var parentKey = CreateRelationalKey(
+            new Identifier("child_schema", "child_table"),
+            new Identifier("parent_schema", "parent_table"),
+            column
+        );
+        var table = new RelationalDatabaseTable(
+            new Identifier("child_schema", "child_table"),
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [parentKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+
+        Assert.That(result, Does.Contain("typeof(parent_schema.parent_table)"));
+    }
+
+    [Test]
+    public static void Generate_GivenForeignKeyToTableInSameSchema_GeneratesSchemaQualifiedParentType()
+    {
+        var generator = GetTableGenerator();
+
+        var column = CreateColumn("test_column");
+        var parentKey = CreateRelationalKey(
+            new Identifier("test_schema", "child_table"),
+            new Identifier("test_schema", "parent_table"),
+            column
+        );
+        var table = new RelationalDatabaseTable(
+            new Identifier("test_schema", "child_table"),
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [parentKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+
+        Assert.That(result, Does.Contain("typeof(test_schema.parent_table)"));
+    }
+
+    [Test]
+    public static void Generate_GivenForeignKeyToTableWithoutSchema_GeneratesUnqualifiedParentType()
+    {
+        var generator = GetTableGenerator();
+
+        var column = CreateColumn("test_column");
+        var parentKey = CreateRelationalKey("child_table", "parent_table", column);
+        var table = new RelationalDatabaseTable(
+            "child_table",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [parentKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+
+        Assert.That(result, Does.Contain("typeof(parent_table)"));
+    }
+
+    private static IDatabaseColumn CreateColumn(Identifier columnName)
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(50)",
+            typeof(string),
+            false,
+            50,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+    }
+
+    private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier parentTableName, IDatabaseColumn childColumn) =>
+        new DatabaseRelationalKey(
+            childTableName,
+            new DatabaseKey(Option<Identifier>.Some("test_child_key"), DatabaseKeyType.Foreign, [childColumn], true),
+            parentTableName,
+            new DatabaseKey(Option<Identifier>.Some("test_parent_key"), DatabaseKeyType.Primary, [childColumn], true),
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
 }

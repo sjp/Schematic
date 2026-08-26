@@ -405,28 +405,28 @@ namespace OrmLiteTestNamespace.Main
         /// <summary>
         /// The <c>test_table_3_fk1</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1")]
+        [ForeignKey(typeof(Main.TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1")]
         [Alias("test_table_3_fk1")]
         public long? TestTable3Fk1 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk2</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnUpdate = "CASCADE")]
+        [ForeignKey(typeof(Main.TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnUpdate = "CASCADE")]
         [Alias("test_table_3_fk2")]
         public long? TestTable3Fk2 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk3</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnDelete = "SET NULL")]
+        [ForeignKey(typeof(Main.TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnDelete = "SET NULL")]
         [Alias("test_table_3_fk3")]
         public long? TestTable3Fk3 { get; set; }
 
         /// <summary>
         /// The <c>test_table_3_fk4</c> column.
         /// </summary>
-        [ForeignKey(typeof(TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnDelete = "CASCADE", OnUpdate = "SET NULL")]
+        [ForeignKey(typeof(Main.TestTable3), ForeignKeyName = "fk_test_table_4_test_table_3_fk1", OnDelete = "CASCADE", OnUpdate = "SET NULL")]
         [Alias("test_table_3_fk4")]
         public long? TestTable3Fk4 { get; set; }
     }

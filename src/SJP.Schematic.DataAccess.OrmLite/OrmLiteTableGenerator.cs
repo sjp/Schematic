@@ -363,11 +363,15 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
                 throw new InvalidOperationException("Could not find parent key for foreign key relationship. Expected to find one for " + column.Name.LocalName + "." + column.Name.LocalName);
 
             var parentTable = relationalKey.ParentTable;
+            var parentSchemaName = NameTranslator.SchemaToNamespace(parentTable);
             var parentClassName = NameTranslator.TableToClassName(parentTable);
+            var qualifiedParentName = !parentSchemaName.IsNullOrWhiteSpace()
+                ? parentSchemaName + "." + parentClassName
+                : parentClassName;
 
             var fkAttributeArgs = new List<AttributeArgumentSyntax>
             {
-                AttributeArgument(TypeOfExpression(ParseTypeName(parentClassName))),
+                AttributeArgument(TypeOfExpression(ParseTypeName(qualifiedParentName))),
             };
 
             relationalKey.ChildKey.Name.IfSome(fkName =>
@@ -530,29 +534,10 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
     protected static bool ColumnIsNonUniqueIndex(IRelationalDatabaseTable table, IDatabaseColumn column)
     {
+        ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(column);
 
-        var indexes = table.Indexes.Where(static i => !i.IsUnique).ToList();
-        if (indexes.Empty())
-            return false;
-
-        foreach (var index in indexes)
-        {
-            var columns = index.Columns;
-            if (columns.Count > 1)
-                continue;
-
-            var indexColumn = columns.First();
-            var dependentColumns = indexColumn.DependentColumns;
-            if (dependentColumns.Count > 1)
-                continue;
-
-            var dependentColumn = dependentColumns[0];
-            if (string.Equals(dependentColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
+        return ColumnIsIndex(table, column, unique: false);
     }
 
     /// <summary>
@@ -567,23 +552,23 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(column);
 
-        var indexes = table.Indexes.Where(static i => i.IsUnique).ToList();
-        if (indexes.Empty())
-            return false;
+        return ColumnIsIndex(table, column, unique: true);
+    }
 
-        foreach (var index in indexes)
+    private static bool ColumnIsIndex(IRelationalDatabaseTable table, IDatabaseColumn column, bool unique)
+    {
+        foreach (var index in table.Indexes.Where(i => i.IsUnique == unique))
         {
             var columns = index.Columns;
-            if (columns.Count > 1)
+            if (columns.Count != 1)
                 continue;
 
-            var indexColumn = columns.First();
-            var dependentColumns = indexColumn.DependentColumns;
-            if (dependentColumns.Count > 1)
+            // ignore expression indexes, which have no single dependent column
+            var dependentColumns = columns.First().DependentColumns;
+            if (dependentColumns.Count != 1)
                 continue;
 
-            var dependentColumn = dependentColumns[0];
-            if (string.Equals(dependentColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
+            if (string.Equals(dependentColumns[0].Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
                 return true;
         }
 
