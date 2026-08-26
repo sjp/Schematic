@@ -1,4 +1,4 @@
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.Tests.Extensions;
@@ -69,9 +69,28 @@ internal static class StringExtensionsTests
         Assert.That(() => StringExtensions.Pluralize(null), Throws.ArgumentNullException);
     }
 
+    [TestCase("", "")]
     [TestCase("test", "tests")]
     [TestCase("Name", "Names")]
     [TestCase("database", "databases")]
+    [TestCase("test_table_1", "test_table_1s")]
+    [TestCase("status", "statuses")]
+    [TestCase("Address", "Addresses")]
+    [TestCase("box", "boxes")]
+    [TestCase("buzz", "buzzes")]
+    [TestCase("batch", "batches")]
+    [TestCase("Dish", "Dishes")]
+    [TestCase("category", "categories")]
+    [TestCase("Country", "Countries")]
+    [TestCase("day", "days")]
+    [TestCase("analysis", "analyses")]
+    [TestCase("Person", "People")]
+    [TestCase("child", "children")]
+    [TestCase("series", "series")]
+    [TestCase("CUSTOMER", "CUSTOMERS")]
+    [TestCase("ADDRESS", "ADDRESSES")]
+    [TestCase("CATEGORY", "CATEGORIES")]
+    [TestCase("PERSON", "PEOPLE")]
     public static void Pluralize(string input, string expectedOuput)
     {
         Assert.That(input.Pluralize(), Is.EqualTo(expectedOuput));
