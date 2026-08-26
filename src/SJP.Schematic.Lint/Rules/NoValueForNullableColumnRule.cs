@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,8 +32,6 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
-
-        _existsQueryExecutor = new ExistsQueryExecutor(connection);
     }
 
     /// <summary>
@@ -95,77 +94,102 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
     private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
-        var nullableColumns = table.Columns.Where(c => c.IsNullable).ToList();
+        var nullableColumns = table.Columns.Where(static c => c.IsNullable).ToArray();
         if (nullableColumns.Empty())
             return [];
 
-        var tableHasRows = await TableHasRowsAsync(table, cancellationToken);
-        if (!tableHasRows)
+        var alwaysNullColumnNamesByBatch = await nullableColumns
+            .Chunk(ProbeBatchSize)
+            .Select(batch => FindAlwaysNullColumnNamesAsync(table, batch, cancellationToken))
+            .ToArray()
+            .WhenAll();
+
+        return alwaysNullColumnNamesByBatch
+            .SelectMany(columnNames => columnNames)
+            .Select(columnName => BuildMessage(table.Name, columnName))
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Determines which columns in a batch hold no non-null values.
+    /// </summary>
+    /// <remarks>
+    /// The whole batch is answered by a single aggregate query, because <c>count(column)</c> ignores nulls,
+    /// so a column whose count is zero never holds a value. <c>count(*)</c> is part of the same query,
+    /// removing the need for a separate probe to determine whether the table has any rows at all.
+    /// </remarks>
+    /// <param name="table">A database table.</param>
+    /// <param name="columns">A batch of nullable columns belonging to <paramref name="table"/>.</param>
+    /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
+    /// <returns>The names of any columns in <paramref name="columns"/> whose values are always null. Always empty for a table without rows.</returns>
+    private async Task<IReadOnlyCollection<string>> FindAlwaysNullColumnNamesAsync(IRelationalDatabaseTable table, IReadOnlyList<IDatabaseColumn> columns, CancellationToken cancellationToken)
+    {
+        var query = BuildValueCountQuery(table, columns);
+
+        // the number of counts returned varies with the size of the batch, so the row is read as an
+        // untyped set of values keyed by alias rather than being mapped onto a fixed result type
+        var counts = (IDictionary<string, object>)await DbConnection.QuerySingleAsync<object>(query, cancellationToken);
+
+        var tableRowCount = GetCount(counts, RowCountAlias);
+        if (tableRowCount == 0)
             return [];
 
-        var result = new List<IRuleMessage>();
-
-        foreach (var nullableColumn in nullableColumns)
-        {
-            var hasValue = await NullableColumnHasValueAsync(table, nullableColumn, cancellationToken);
-            if (hasValue)
-                continue;
-
-            var message = BuildMessage(table.Name, nullableColumn.Name.LocalName);
-            result.Add(message);
-        }
-
-        return result;
+        return columns
+            .Where((_, i) => GetCount(counts, GetColumnCountAlias(i)) == 0)
+            .Select(static c => c.Name.LocalName)
+            .ToArray();
     }
 
     /// <summary>
-    /// Determines whether a table has any rows present.
+    /// Builds a query returning the number of rows in a table, alongside the number of non-null values held by each column in a batch.
     /// </summary>
     /// <param name="table">A database table.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns><see langword="true" /> if the table has any rows; otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected Task<bool> TableHasRowsAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(table);
-
-        return TableHasRowsAsyncCore(table, cancellationToken);
-    }
-
-    private Task<bool> TableHasRowsAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
+    /// <param name="columns">A batch of nullable columns belonging to <paramref name="table"/>.</param>
+    /// <returns>A query returning a single row of counts, one column per alias.</returns>
+    private string BuildValueCountQuery(IRelationalDatabaseTable table, IReadOnlyList<IDatabaseColumn> columns)
     {
         var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName));
-        var filterSql = "select 1 as dummy_col from " + quotedTableName;
 
-        return _existsQueryExecutor.ExistsAsync(filterSql, cancellationToken);
+        var selectList = columns
+            .Select((c, i) => $"count({Dialect.QuoteIdentifier(c.Name.LocalName)}) as {Dialect.QuoteIdentifier(GetColumnCountAlias(i))}")
+            .Prepend($"count(*) as {Dialect.QuoteIdentifier(RowCountAlias)}")
+            .Join(", ");
+
+        return $"select {selectList} from {quotedTableName}";
     }
 
     /// <summary>
-    /// Determines whether a nullable column has any non-null values.
+    /// Retrieves a count returned by <see cref="BuildValueCountQuery(IRelationalDatabaseTable, IReadOnlyList{IDatabaseColumn})"/>.
     /// </summary>
-    /// <param name="table">A database table.</param>
-    /// <param name="column">A column from the table provided by <paramref name="table"/>.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
-    /// <returns><see langword="true" /> if the column has any non-null values; otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="column"/> is <see langword="null" />.</exception>
-    protected Task<bool> NullableColumnHasValueAsync(IRelationalDatabaseTable table, IDatabaseColumn column,
-        CancellationToken cancellationToken)
+    /// <param name="counts">A row of counts, keyed by alias.</param>
+    /// <param name="alias">The alias of the count to retrieve.</param>
+    /// <returns>The count associated with <paramref name="alias"/>.</returns>
+    /// <exception cref="InvalidOperationException">No count was returned for <paramref name="alias"/>.</exception>
+    private static long GetCount(IDictionary<string, object> counts, string alias)
     {
-        ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(column);
+        if (!counts.TryGetValue(alias, out var count) || count == null)
+            throw new InvalidOperationException($"Expected a count aliased as '{alias}' to be returned, but none was present.");
 
-        return NullableColumnHasValueAsyncCore(table, column, cancellationToken);
+        return Convert.ToInt64(count, CultureInfo.InvariantCulture);
     }
 
-    private Task<bool> NullableColumnHasValueAsyncCore(IRelationalDatabaseTable table, IDatabaseColumn column,
-        CancellationToken cancellationToken)
-    {
-        var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(table.Name.Schema, table.Name.LocalName));
-        var quotedColumnName = Dialect.QuoteIdentifier(column.Name.LocalName);
-        var filterSql = $"select 1 as exists_val from {quotedTableName} where {quotedColumnName} is not null";
+    /// <summary>
+    /// Gets the alias used for the count of non-null values held by a column.
+    /// </summary>
+    /// <param name="columnIndex">The index of a column within its batch.</param>
+    /// <returns>An alias, generated rather than derived from the column name so that it is always a valid and unambiguous identifier.</returns>
+    private static string GetColumnCountAlias(int columnIndex) => "c" + columnIndex.ToString(CultureInfo.InvariantCulture);
 
-        return _existsQueryExecutor.ExistsAsync(filterSql, cancellationToken);
-    }
+    /// <summary>
+    /// The alias used for the number of rows present in the table being analysed.
+    /// </summary>
+    private const string RowCountAlias = "rc";
+
+    /// <summary>
+    /// The maximum number of columns counted by a single query. Chosen conservatively to stay well within
+    /// every supported dialect's limits on statement length and select list size.
+    /// </summary>
+    private const int ProbeBatchSize = 64;
 
     /// <summary>
     /// Builds the message used for reporting.
@@ -195,6 +219,4 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// </summary>
     /// <value>The rule title.</value>
     protected static string RuleTitle => "No not-null values exist for a nullable column.";
-
-    private readonly ExistsQueryExecutor _existsQueryExecutor;
 }
