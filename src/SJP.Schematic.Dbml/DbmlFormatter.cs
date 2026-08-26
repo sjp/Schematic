@@ -67,14 +67,15 @@ public class DbmlFormatter : IDbmlFormatter
                 builder.AppendLine(RenderColumnLine(table, column));
         }
 
-        if (table.Indexes.Count > 0)
+        var indexLines = RenderIndexLines(table);
+        if (indexLines.Count > 0)
         {
             builder.AppendLine()
                 .Append(Indent)
                 .AppendLine("Indexes {");
 
-            foreach (var index in table.Indexes)
-                builder.AppendLine(RenderIndexLine(table, index));
+            foreach (var indexLine in indexLines)
+                builder.AppendLine(indexLine);
 
             builder.Append(Indent)
                 .AppendLine("}");
@@ -107,6 +108,63 @@ public class DbmlFormatter : IDbmlFormatter
             : string.Empty;
 
         return Indent + columnName + " " + column.Type.Definition.RemoveQuotingCharacters() + columnOptions;
+    }
+
+    private static List<string> RenderIndexLines(IRelationalDatabaseTable table)
+    {
+        ArgumentNullException.ThrowIfNull(table);
+
+        var compositeKeys = new List<IDatabaseKey>();
+        table.PrimaryKey.Filter(static pk => pk.Columns.Count > 1).IfSome(compositeKeys.Add);
+        var compositePrimaryKeyCount = compositeKeys.Count;
+        compositeKeys.AddRange(table.UniqueKeys.Where(static uk => uk.Columns.Count > 1));
+
+        var result = new List<string>(compositeKeys.Count + table.Indexes.Count);
+
+        for (var i = 0; i < compositeKeys.Count; i++)
+            result.Add(RenderKeyIndexLine(compositeKeys[i], i < compositePrimaryKeyCount ? "pk" : "unique"));
+
+        foreach (var index in table.Indexes)
+        {
+            var isBackingIndex = index.IsUnique
+                && compositeKeys.Exists(key => IsIndexForKey(index, key));
+            if (!isBackingIndex)
+                result.Add(RenderIndexLine(table, index));
+        }
+
+        return result;
+    }
+
+    private static string RenderKeyIndexLine(IDatabaseKey key, string keyOption)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(keyOption);
+
+        var columns = "(" + key.Columns.Select(static c => c.Name.ToVisibleName()).Join(", ") + ")";
+
+        var options = new List<string>();
+        key.Name.IfSome(name => options.Add("name: '" + name.ToVisibleName() + "'"));
+        options.Add(keyOption);
+
+        return Indent + Indent + columns + " "
+            + "[" + options.Join(", ") + "]";
+    }
+
+    private static bool IsIndexForKey(IDatabaseIndex index, IDatabaseKey key)
+    {
+        ArgumentNullException.ThrowIfNull(index);
+        ArgumentNullException.ThrowIfNull(key);
+
+        var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName);
+        return GetIndexColumnNames(index).SequenceEqual(keyColumnNames, StringComparer.Ordinal);
+    }
+
+    private static IEnumerable<string> GetIndexColumnNames(IDatabaseIndex index)
+    {
+        ArgumentNullException.ThrowIfNull(index);
+
+        return index.Columns
+            .Select(static ic => ic.DependentColumns.Select(static dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression);
     }
 
     private static string RenderIndexLine(IRelationalDatabaseTable table, IDatabaseIndex index)
@@ -214,13 +272,7 @@ public class DbmlFormatter : IDbmlFormatter
         if (uniqueIndexes.Count == 0)
             return false;
 
-        return uniqueIndexes.Exists(i =>
-        {
-            var indexColumnExpressions = i.Columns
-                .Select(static ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
-                .ToList();
-            return keyColumnNames.SequenceEqual(indexColumnExpressions, StringComparer.Ordinal);
-        });
+        return uniqueIndexes.Exists(i => keyColumnNames.SequenceEqual(GetIndexColumnNames(i), StringComparer.Ordinal));
     }
 
     private const string Indent = "    ";

@@ -231,6 +231,8 @@ Table main_test_table_1 {
     comment TEXT [null]
 
     Indexes {
+        (test_pk_1, test_pk_2) [name: 'test_table_2_pk', pk]
+        (first_name, middle_name, last_name) [name: 'test_table_2_multi_uk', unique]
         last_name [name: 'ux_test_table_2_last_name', unique]
         (first_name, middle_name) [name: 'ux_test_table_2_first_name_middle_name', unique]
         comment [name: 'ix_test_table_2_comment']
@@ -273,6 +275,10 @@ Ref: main_test_table_9.test_table_9_fk1 - main_test_table_6.test_pk";
     private const string CompositeRelationshipsDbml = @"Table main_test_table_10 {
     test_pk_1 INTEGER [not null]
     test_pk_2 INTEGER [not null]
+
+    Indexes {
+        (test_pk_1, test_pk_2) [name: 'test_table_10_pk', pk]
+    }
 }
 
 Table main_test_table_11 {
@@ -285,6 +291,10 @@ Table main_test_table_12 {
     test_pk INTEGER [not null, increment, primary key]
     test_table_10_fk1 INTEGER [not null]
     test_table_10_fk2 INTEGER [not null]
+
+    Indexes {
+        (test_table_10_fk1, test_table_10_fk2) [name: 'test_table_12_uk1', unique]
+    }
 }
 
 Ref: main_test_table_11.(test_table_10_fk1, test_table_10_fk2) > main_test_table_10.(test_pk_1, test_pk_2)
