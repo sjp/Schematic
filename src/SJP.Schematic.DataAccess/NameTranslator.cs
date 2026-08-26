@@ -55,9 +55,7 @@ public abstract class NameTranslator : INameTranslator
         if (Keywords.Contains(identifier))
             return false;
 
-        var firstChar = identifier[0];
-        var isValidFirstChar = firstChar == '_' || firstChar.IsLetter();
-        if (!isValidFirstChar)
+        if (!IsValidFirstChar(identifier[0]))
             return false;
 
         var restChars = identifier.Skip(1).ToList();
@@ -80,10 +78,8 @@ public abstract class NameTranslator : INameTranslator
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(objectName);
 
-        var firstChar = objectName[0];
-        var isValidFirstChar = firstChar == '_' || firstChar.IsLetter();
-        if (!isValidFirstChar)
-            objectName = firstChar.ToString() + objectName;
+        if (!IsValidFirstChar(objectName[0]))
+            objectName = "_" + objectName;
 
         var chars = objectName
             .Select(static c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
@@ -109,10 +105,8 @@ public abstract class NameTranslator : INameTranslator
         if (string.Equals(columnName, className, StringComparison.Ordinal))
             return columnName + "_";
 
-        var firstChar = columnName[0];
-        var isValidFirstChar = firstChar == '_' || firstChar.IsLetter();
-        if (!isValidFirstChar)
-            columnName = firstChar.ToString() + columnName;
+        if (!IsValidFirstChar(columnName[0]))
+            columnName = "_" + columnName;
 
         var chars = columnName
             .Select(c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
@@ -121,6 +115,8 @@ public abstract class NameTranslator : INameTranslator
 
         return new string(chars.ToArray());
     }
+
+    private static bool IsValidFirstChar(char c) => c == '_' || c.IsLetter();
 
     private const uint ValidPartCategoriesMask =
         // letter character

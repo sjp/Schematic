@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -204,6 +204,98 @@ internal static class SnakeCaseNameTranslatorTests
         const string className = "first_second";
         const string testName = "firstSecond";
         const string expected = "first_second_";
+
+        var result = nameTranslator.ColumnToPropertyName(className, testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void SchemaToNamespace_GivenDigitLeadingSchemaName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+        var testName = new Identifier("1entries", "test");
+        const string expected = "_1entries";
+
+        var result = nameTranslator.SchemaToNamespace(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void SchemaToNamespace_GivenSymbolLeadingSchemaName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+        var testName = new Identifier("$entries", "test");
+        const string expected = "_entries";
+
+        var result = nameTranslator.SchemaToNamespace(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void TableToClassName_GivenDigitLeadingLocalName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+        var testName = new Identifier("1entries");
+        const string expected = "_1entries";
+
+        var result = nameTranslator.TableToClassName(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void TableToClassName_GivenSymbolLeadingLocalName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+        var testName = new Identifier("$entries");
+        const string expected = "_entries";
+
+        var result = nameTranslator.TableToClassName(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ViewToClassName_GivenDigitLeadingLocalName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+        var testName = new Identifier("1entries");
+        const string expected = "_1entries";
+
+        var result = nameTranslator.ViewToClassName(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ViewToClassName_GivenSymbolLeadingLocalName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+        var testName = new Identifier("$entries");
+        const string expected = "_entries";
+
+        var result = nameTranslator.ViewToClassName(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenDigitLeadingColumnName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+
+        const string className = "test";
+        const string testName = "1entries";
+        const string expected = "_1entries";
+
+        var result = nameTranslator.ColumnToPropertyName(className, testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenSymbolLeadingColumnName_ReturnsUnderscorePrefixedText()
+    {
+        var nameTranslator = new SnakeCaseNameTranslator();
+
+        const string className = "test";
+        const string testName = "$entries";
+        const string expected = "_entries";
 
         var result = nameTranslator.ColumnToPropertyName(className, testName);
         Assert.That(result, Is.EqualTo(expected));
