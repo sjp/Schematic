@@ -307,4 +307,159 @@ internal static class ForeignKeyIndexRuleTests
 
         Assert.That(messages, Is.Not.Empty);
     }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithForeignKeyCoveredByPrimaryKey_ProducesNoMessages()
+    {
+        var rule = new ForeignKeyIndexRule(RuleLevel.Error);
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [
+                GetColumn("a"),
+                GetColumn("b"),
+                GetColumn("c"),
+            ],
+            Option<IDatabaseKey>.Some(new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("a"), GetColumn("b")], true)),
+            [],
+            [
+                new DatabaseRelationalKey(
+                    "test",
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("a")], true),
+                    "test_parent",
+                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("a")], true),
+                    ReferentialAction.Cascade,
+                    ReferentialAction.Cascade
+                ),
+            ],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithForeignKeyCoveredByUniqueKey_ProducesNoMessages()
+    {
+        var rule = new ForeignKeyIndexRule(RuleLevel.Error);
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [
+                GetColumn("a"),
+                GetColumn("b"),
+                GetColumn("c"),
+            ],
+            null,
+            [
+                new DatabaseKey(Option<Identifier>.Some("test_uk_1"), DatabaseKeyType.Unique, [GetColumn("b"), GetColumn("c")], true),
+            ],
+            [
+                new DatabaseRelationalKey(
+                    "test",
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    "test_parent",
+                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    ReferentialAction.Cascade,
+                    ReferentialAction.Cascade
+                ),
+            ],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithForeignKeyOnNonLeadingPrimaryKeyColumns_ProducesMessages()
+    {
+        var rule = new ForeignKeyIndexRule(RuleLevel.Error);
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [
+                GetColumn("a"),
+                GetColumn("b"),
+                GetColumn("c"),
+            ],
+            Option<IDatabaseKey>.Some(new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("a"), GetColumn("b")], true)),
+            [],
+            [
+                new DatabaseRelationalKey(
+                    "test",
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    "test_parent",
+                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    ReferentialAction.Cascade,
+                    ReferentialAction.Cascade
+                ),
+            ],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithForeignKeyCoveredOnlyByFilteredIndex_ProducesMessages()
+    {
+        var rule = new ForeignKeyIndexRule(RuleLevel.Error);
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [
+                GetColumn("a"),
+                GetColumn("b"),
+                GetColumn("c"),
+            ],
+            null,
+            [],
+            [
+                new DatabaseRelationalKey(
+                    "test",
+                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    "test_parent",
+                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    ReferentialAction.Cascade,
+                    ReferentialAction.Cascade
+                ),
+            ],
+            [],
+            [
+                new DatabaseIndex(
+                    "test_index_1",
+                    false,
+                    [GetIndexColumn("b")],
+                    [],
+                    true,
+                    Option<string>.Some("([deleted] = 0)")
+                ),
+            ],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
 }

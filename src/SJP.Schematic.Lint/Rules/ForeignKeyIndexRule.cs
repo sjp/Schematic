@@ -59,7 +59,14 @@ public class ForeignKeyIndexRule : Rule, ITableRule
 
         var result = new List<IRuleMessage>();
 
-        var indexes = table.Indexes;
+        // a filtered index only covers the rows matching its filter, so it can't be relied upon for foreign key lookups
+        var indexes = table.Indexes.Where(static i => i.FilterDefinition.IsNone).ToList();
+
+        // schema providers exclude the indexes backing key constraints from the index set, so the constraints are checked separately
+        var keys = new List<IDatabaseKey>();
+        table.PrimaryKey.IfSome(keys.Add);
+        keys.AddRange(table.UniqueKeys);
+
         var foreignKeys = table.ParentKeys.Select(fk => fk.ChildKey).ToList();
 
         foreach (var foreignKey in foreignKeys)
@@ -67,7 +74,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
             var columns = foreignKey.Columns;
 
             var isIndexedKey = indexes.Any(i =>
-                ColumnsHaveIndex(columns, i.Columns) || ColumnsHaveIndexWithIncludedColumns(columns, i.Columns, i.IncludedColumns));
+                ColumnsHaveIndex(columns, i.Columns) || ColumnsHaveIndexWithIncludedColumns(columns, i.Columns, i.IncludedColumns))
+                || keys.Any(k => ColumnsHaveKeyConstraint(columns, k.Columns));
             if (!isIndexedKey)
             {
                 var columnNames = columns.Select(c => c.Name.LocalName).ToList();
@@ -103,6 +111,27 @@ public class ForeignKeyIndexRule : Rule, ITableRule
         var indexColumnNames = dependentColumns.ConvertAll(ic => ic.Name);
 
         return IsPrefixOf(columnNames, indexColumnNames);
+    }
+
+    /// <summary>
+    /// Determines whether a column set is covered by the index backing a key constraint.
+    /// </summary>
+    /// <param name="columns">A set of columns.</param>
+    /// <param name="keyColumns">The columns of a primary or unique key constraint.</param>
+    /// <returns><see langword="true" /> if <paramref name="columns"/> is covered by <paramref name="keyColumns"/>; otherwise <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> or <paramref name="keyColumns"/> is <see langword="null" />.</exception>
+    protected static bool ColumnsHaveKeyConstraint(IEnumerable<IDatabaseColumn> columns, IEnumerable<IDatabaseColumn> keyColumns)
+    {
+        ArgumentNullException.ThrowIfNull(columns);
+        ArgumentNullException.ThrowIfNull(keyColumns);
+
+        var columnNames = columns.Select(static c => c.Name).ToList();
+        var keyColumnNames = keyColumns.Select(static c => c.Name).ToList();
+
+        if (columnNames.Empty() || keyColumnNames.Empty())
+            return false;
+
+        return IsPrefixOf(columnNames, keyColumnNames);
     }
 
     /// <summary>
