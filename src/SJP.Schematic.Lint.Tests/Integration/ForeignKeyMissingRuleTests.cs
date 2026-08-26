@@ -36,11 +36,23 @@ create table NoForeignKeyChildWithoutKey (
     Column1 integer,
     NoForeignKeyParent1Id integer
 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table no_foreign_key_self_reference (
+    column_1 integer not null primary key autoincrement,
+    no_foreign_key_self_reference_id integer
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table no_foreign_key_child_mixed_case (
+    column_1 integer,
+    NOFOREIGNKEYPARENT1_id integer
+)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_mixed_case", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_self_reference", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table no_foreign_key_child_with_key", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table no_foreign_key_child_without_key", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithKey", CancellationToken.None);
@@ -123,6 +135,39 @@ create table NoForeignKeyChildWithoutKey (
         var tables = new[]
         {
             await database.GetTable("NoForeignKeyChildWithoutKey").UnwrapSomeAsync(),
+            await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenTableWithColumnImplyingItsOwnTable_ProducesNoMessages()
+    {
+        var rule = new ForeignKeyMissingRule(RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("no_foreign_key_self_reference").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenTableWithColumnImplyingTableNameInDifferentCase_ProducesMessages()
+    {
+        var rule = new ForeignKeyMissingRule(RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("no_foreign_key_child_mixed_case").UnwrapSomeAsync(),
             await database.GetTable("NoForeignKeyParent1").UnwrapSomeAsync(),
         };
 

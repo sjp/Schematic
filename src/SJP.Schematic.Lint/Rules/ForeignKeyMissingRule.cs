@@ -41,13 +41,13 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(tables);
 
-        var tableNames = tables.Select(t => t.Name).ToList();
+        var tableNames = BuildTableNameLookup(tables.Select(t => t.Name));
         var messages = tables.SelectMany(t => AnalyseTable(t, tableNames)).ToList();
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
-    /// Analyses a database table. Reports messages when columns have numeric suffixes.
+    /// Analyses a database table. Reports messages when a foreign key relationship is implied, but missing a foreign key constraint to enforce it.
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <param name="tableNames">Other table names in the database.</param>
@@ -58,32 +58,63 @@ public class ForeignKeyMissingRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(tableNames);
 
+        return AnalyseTable(table, BuildTableNameLookup(tableNames));
+    }
+
+    /// <summary>
+    /// Analyses a database table. Reports messages when a foreign key relationship is implied, but missing a foreign key constraint to enforce it.
+    /// </summary>
+    /// <param name="table">A database table.</param>
+    /// <param name="tableNames">Other table names in the database, keyed by their local names.</param>
+    /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <see langword="null" />.</exception>
+    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IReadOnlyDictionary<string, Identifier> tableNames)
+    {
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(tableNames);
+
         var result = new List<IRuleMessage>();
 
         var foreignKeyColumnNames = table.ParentKeys
             .Select(fk => fk.ChildKey)
             .SelectMany(fk => fk.Columns)
             .Select(c => c.Name.LocalName)
-            .Distinct(StringComparer.Ordinal)
-            .ToList();
+            .ToHashSet(IdentifierComparer);
 
+        var currentTableName = table.Name.LocalName;
         var columnNames = table.Columns.Select(c => c.Name.LocalName);
 
         foreach (var columnName in columnNames)
         {
             var impliedTable = GetImpliedTableName(columnName);
-            var targetTableName = tableNames.FirstOrDefault(t => string.Equals(impliedTable, t.LocalName, StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(impliedTable, table.Name.LocalName, StringComparison.OrdinalIgnoreCase));
-            if (targetTableName == null)
+            if (IdentifierComparer.Equals(impliedTable, currentTableName))
+                continue;
+
+            if (!tableNames.TryGetValue(impliedTable, out var targetTableName))
                 continue;
 
             // now check whether the column name is already part of an FK
-            if (foreignKeyColumnNames.Contains(columnName, StringComparer.Ordinal))
+            if (foreignKeyColumnNames.Contains(columnName))
                 continue;
 
             var message = BuildMessage(columnName, table.Name, targetTableName);
             result.Add(message);
         }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Builds a lookup of table names, keyed by their local names. Where local names are duplicated, the first name provided is retained.
+    /// </summary>
+    /// <param name="tableNames">A set of table names.</param>
+    /// <returns>A lookup of table names, keyed case-insensitively by their local names.</returns>
+    private static IReadOnlyDictionary<string, Identifier> BuildTableNameLookup(IEnumerable<Identifier> tableNames)
+    {
+        var result = new Dictionary<string, Identifier>(IdentifierComparer);
+
+        foreach (var tableName in tableNames)
+            result.TryAdd(tableName.LocalName, tableName);
 
         return result;
     }
@@ -138,6 +169,8 @@ public class ForeignKeyMissingRule : Rule, ITableRule
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
+
+    private static StringComparer IdentifierComparer { get; } = StringComparer.OrdinalIgnoreCase;
 
     /// <summary>
     /// The rule identifier.
