@@ -107,4 +107,84 @@ internal static class EFCoreTableGeneratorTests
 
         Assert.That(() => generator.Generate([], null, comment), Throws.ArgumentNullException);
     }
+
+    [Test]
+    public static void Generate_GivenParentKeyWithSameNameAsColumnProperty_GeneratesUniquelyNamedNavigationProperty()
+    {
+        var generator = GetTableGenerator();
+
+        // The column name matches the class name, so its property name is suffixed to avoid the clash,
+        // which in turn clashes with the navigation property name for the parent table.
+        var column = CreateColumn("testtable");
+        var parentKey = CreateRelationalKey("test table", "testtable_", column);
+        var table = new RelationalDatabaseTable(
+            "test table",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [parentKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("public string testtable_ { get; set; }"));
+            Assert.That(result, Does.Contain("public virtual testtable_ testtable__1 { get; set; }"));
+        }
+    }
+
+    [Test]
+    public static void Generate_GivenSelfReferencingParentKey_GeneratesNavigationPropertyNotMatchingClassName()
+    {
+        var generator = GetTableGenerator();
+
+        var column = CreateColumn("test_column");
+        var parentKey = CreateRelationalKey("test_table", "test_table", column);
+        var table = new RelationalDatabaseTable(
+            "test_table",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [parentKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+
+        Assert.That(result, Does.Contain("public virtual test_table test_table_1 { get; set; }"));
+    }
+
+    private static IDatabaseColumn CreateColumn(Identifier columnName)
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(50)",
+            typeof(string),
+            false,
+            50,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+    }
+
+    private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier parentTableName, IDatabaseColumn childColumn) =>
+        new DatabaseRelationalKey(
+            childTableName,
+            new DatabaseKey(Option<Identifier>.Some("test_child_key"), DatabaseKeyType.Foreign, [childColumn], true),
+            parentTableName,
+            new DatabaseKey(Option<Identifier>.Some("test_parent_key"), DatabaseKeyType.Primary, [childColumn], true),
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
 }

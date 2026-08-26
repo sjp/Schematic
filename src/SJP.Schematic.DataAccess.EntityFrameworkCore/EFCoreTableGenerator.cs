@@ -107,7 +107,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .Select(c => BuildColumn(c, comment, className))
             .ToList();
 
-        var usedNames = new StringHashSet(table.Columns.Select(c => NameTranslator.ColumnToPropertyName(table.Name.LocalName, c.Name.LocalName)), StringComparer.Ordinal);
+        var usedNames = new StringHashSet(columnProperties.Select(static p => p.Identifier.ValueText), StringComparer.Ordinal) { className };
 
         var parentKeyProperties = table.ParentKeys.Select(fk =>
         {
