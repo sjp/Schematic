@@ -22,7 +22,7 @@ public class SnakeCaseNameTranslator : NameTranslator
             return null;
 
         var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-        return schemaIdentifier?.Underscore();
+        return schemaIdentifier.Underscore();
     }
 
     /// <summary>

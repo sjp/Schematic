@@ -22,7 +22,7 @@ public class PascalCaseNameTranslator : NameTranslator
             return null;
 
         var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-        return schemaIdentifier?.Pascalize();
+        return schemaIdentifier.Pascalize();
     }
 
     /// <summary>

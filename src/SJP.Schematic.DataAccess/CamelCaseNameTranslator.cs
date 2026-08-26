@@ -22,7 +22,7 @@ public class CamelCaseNameTranslator : NameTranslator
             return null;
 
         var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-        return schemaIdentifier?.Camelize();
+        return schemaIdentifier.Camelize();
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class CamelCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(tableName);
 
         var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-        return tableIdentifier.Camelize() ?? string.Empty;
+        return tableIdentifier.Camelize();
     }
 
     /// <summary>
