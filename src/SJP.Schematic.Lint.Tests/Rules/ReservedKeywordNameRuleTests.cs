@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -359,6 +360,394 @@ internal static class ReservedKeywordNameRuleTests
         var messages = await rule.AnalyseRoutines(routines);
 
         Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithRegularIndexName_ProducesNoMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testIndex = new DatabaseIndex(
+            "test_index",
+            false,
+            [new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending)],
+            [],
+            true,
+            Option<string>.None
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            null,
+            [],
+            [],
+            [],
+            [testIndex],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithIndexNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testIndex = new DatabaseIndex(
+            "SELECT",
+            false,
+            [new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending)],
+            [],
+            true,
+            Option<string>.None
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            null,
+            [],
+            [],
+            [],
+            [testIndex],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithPrimaryKeyNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var primaryKey = new DatabaseKey(
+            Option<Identifier>.Some("SELECT"),
+            DatabaseKeyType.Primary,
+            [testColumn],
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            primaryKey,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithUnnamedPrimaryKey_ProducesNoMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var primaryKey = new DatabaseKey(
+            Option<Identifier>.None,
+            DatabaseKeyType.Primary,
+            [testColumn],
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            primaryKey,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithUniqueKeyNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var uniqueKey = new DatabaseKey(
+            Option<Identifier>.Some("SELECT"),
+            DatabaseKeyType.Unique,
+            [testColumn],
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            null,
+            [uniqueKey],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithForeignKeyNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var childKey = new DatabaseKey(
+            Option<Identifier>.Some("SELECT"),
+            DatabaseKeyType.Foreign,
+            [testColumn],
+            true
+        );
+        var parentKey = new DatabaseKey(
+            Option<Identifier>.Some("parent_pk"),
+            DatabaseKeyType.Primary,
+            [testColumn],
+            true
+        );
+        var relationalKey = new DatabaseRelationalKey(
+            "test",
+            childKey,
+            "parent_table",
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            null,
+            [],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithCheckConstraintNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testCheck = new DatabaseCheckConstraint(
+            Option<Identifier>.Some("SELECT"),
+            "test_check_definition",
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [testCheck],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithUnnamedCheckConstraint_ProducesNoMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testCheck = new DatabaseCheckConstraint(
+            Option<Identifier>.None,
+            "test_check_definition",
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [testCheck],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithTriggerNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var testTrigger = new DatabaseTrigger(
+            "SELECT",
+            "test_trigger_definition",
+            TriggerQueryTiming.After,
+            TriggerEvent.Insert,
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [testTrigger]
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTablesWithSchemaNameContainingReservedKeyword_ProducesOneMessageForTheSchema()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var firstTable = new RelationalDatabaseTable(
+            Identifier.CreateQualifiedIdentifier("SELECT", "first_table"),
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var secondTable = new RelationalDatabaseTable(
+            Identifier.CreateQualifiedIdentifier("SELECT", "second_table"),
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { firstTable, secondTable };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewsWithSchemaNameContainingReservedKeyword_ProducesOneMessageForTheSchema()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var firstView = new DatabaseView(Identifier.CreateQualifiedIdentifier("SELECT", "first_view"), "select 1", []);
+        var secondView = new DatabaseView(Identifier.CreateQualifiedIdentifier("SELECT", "second_view"), "select 1", []);
+        var views = new[] { firstView, secondView };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseSequences_GivenSequenceWithSchemaNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var sequence = new DatabaseSequence(
+            Identifier.CreateQualifiedIdentifier("SELECT", "test_sequence"),
+            1,
+            1,
+            1,
+            100,
+            true,
+            10
+        );
+        var sequences = new[] { sequence };
+
+        var messages = await rule.AnalyseSequences(sequences);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseSynonyms_GivenSynonymWithSchemaNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var synonym = new DatabaseSynonym(Identifier.CreateQualifiedIdentifier("SELECT", "test_synonym"), "target");
+        var synonyms = new[] { synonym };
+
+        var messages = await rule.AnalyseSynonyms(synonyms);
+
+        Assert.That(messages, Has.Exactly(1).Items);
+    }
+
+    [Test]
+    public static async Task AnalyseRoutines_GivenRoutineWithSchemaNameContainingReservedKeyword_ProducesMessages()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+
+        var routine = new DatabaseRoutine(Identifier.CreateQualifiedIdentifier("SELECT", "test_routine"), "routine_definition");
+        var routines = new[] { routine };
+
+        var messages = await rule.AnalyseRoutines(routines);
+
+        Assert.That(messages, Has.Exactly(1).Items);
     }
 
     private static IDatabaseDialect CreateFakeDialect() => new FakeDatabaseDialect { ReservedKeywords = ["SELECT"] };

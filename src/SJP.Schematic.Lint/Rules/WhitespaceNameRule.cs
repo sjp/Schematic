@@ -34,7 +34,7 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     }
 
     /// <summary>
-    /// Analyses database tables. Reports messages when tables have whitespace in their names or their related schema's names.
+    /// Analyses database tables. Reports messages when tables, their columns, indexes, named constraints, triggers, or their related schema have whitespace in their names.
     /// </summary>
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -44,12 +44,14 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(tables);
 
-        var messages = tables.SelectMany(AnalyseTable).ToList();
+        var messages = tables.SelectMany(AnalyseTable)
+            .Concat(AnalyseSchemaNames(tables.Select(static t => t.Name)))
+            .ToList();
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
-    /// Analyses database views. Reports messages when views have whitespace in their names or their related schema's names.
+    /// Analyses database views. Reports messages when views, their columns, or their related schema have whitespace in their names.
     /// </summary>
     /// <param name="views">A set of database views.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -59,12 +61,14 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(views);
 
-        var messages = views.SelectMany(AnalyseView).ToList();
+        var messages = views.SelectMany(AnalyseView)
+            .Concat(AnalyseSchemaNames(views.Select(static v => v.Name)))
+            .ToList();
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
-    /// Analyses database sequences. Reports messages when sequences have whitespace in their names.
+    /// Analyses database sequences. Reports messages when sequences, or their related schema have whitespace in their names.
     /// </summary>
     /// <param name="sequences">A set of database sequences.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -74,12 +78,14 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(sequences);
 
-        var messages = sequences.SelectMany(AnalyseSequence).ToList();
+        var messages = sequences.SelectMany(AnalyseSequence)
+            .Concat(AnalyseSchemaNames(sequences.Select(static s => s.Name)))
+            .ToList();
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
-    /// Analyses database synonyms. Reports messages when synonyms have whitespace in their names.
+    /// Analyses database synonyms. Reports messages when synonyms, or their related schema have whitespace in their names.
     /// </summary>
     /// <param name="synonyms">A set of database synonyms.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -89,12 +95,14 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(synonyms);
 
-        var messages = synonyms.SelectMany(AnalyseSynonym).ToList();
+        var messages = synonyms.SelectMany(AnalyseSynonym)
+            .Concat(AnalyseSchemaNames(synonyms.Select(static s => s.Name)))
+            .ToList();
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
-    /// Analyses database routines. Reports messages when routines have whitespace in their names.
+    /// Analyses database routines. Reports messages when routines, or their related schema have whitespace in their names.
     /// </summary>
     /// <param name="routines">A set of database routines.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -104,12 +112,14 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
     {
         ArgumentNullException.ThrowIfNull(routines);
 
-        var messages = routines.SelectMany(AnalyseRoutine).ToList();
+        var messages = routines.SelectMany(AnalyseRoutine)
+            .Concat(AnalyseSchemaNames(routines.Select(static r => r.Name)))
+            .ToList();
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
     }
 
     /// <summary>
-    /// Analyses a database table. Reports messages when a table has whitespace in its name or their related schema's names.
+    /// Analyses a database table. Reports messages when a table, its columns, indexes, named constraints or triggers have whitespace in their names.
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
@@ -137,11 +147,82 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
             result.Add(message);
         }
 
+        var whiteSpaceIndexNames = table.Indexes
+            .Select(static i => i.Name.LocalName)
+            .Where(HasWhiteSpace);
+
+        foreach (var wsIndexName in whiteSpaceIndexNames)
+        {
+            var message = BuildTableIndexMessage(table.Name, wsIndexName);
+            result.Add(message);
+        }
+
+        table.PrimaryKey
+            .Bind(static pk => pk.Name)
+            .Where(static pkName => HasWhiteSpace(pkName.LocalName))
+            .Map(pkName => BuildTablePrimaryKeyMessage(table.Name, pkName.LocalName))
+            .IfSome(result.Add);
+
+        foreach (var uniqueKey in table.UniqueKeys)
+        {
+            uniqueKey.Name
+                .Where(static ukName => HasWhiteSpace(ukName.LocalName))
+                .Map(ukName => BuildTableUniqueKeyMessage(table.Name, ukName.LocalName))
+                .IfSome(result.Add);
+        }
+
+        foreach (var foreignKey in table.ParentKeys.Select(static fk => fk.ChildKey))
+        {
+            foreignKey.Name
+                .Where(static fkName => HasWhiteSpace(fkName.LocalName))
+                .Map(fkName => BuildTableForeignKeyMessage(table.Name, fkName.LocalName))
+                .IfSome(result.Add);
+        }
+
+        foreach (var check in table.Checks)
+        {
+            check.Name
+                .Where(static ckName => HasWhiteSpace(ckName.LocalName))
+                .Map(ckName => BuildTableCheckConstraintMessage(table.Name, ckName.LocalName))
+                .IfSome(result.Add);
+        }
+
+        var whiteSpaceTriggerNames = table.Triggers
+            .Select(static t => t.Name.LocalName)
+            .Where(HasWhiteSpace);
+
+        foreach (var wsTriggerName in whiteSpaceTriggerNames)
+        {
+            var message = BuildTableTriggerMessage(table.Name, wsTriggerName);
+            result.Add(message);
+        }
+
         return result;
     }
 
     /// <summary>
-    /// Analyses a database view. Reports messages when a view has whitespace in its name or related schema.
+    /// Analyses the schemas that a set of object names belong to. Each distinct schema is reported
+    /// at most once, so that a whitespace schema name does not repeat for every object within it.
+    /// </summary>
+    /// <param name="objectNames">The names of the objects being analysed.</param>
+    /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
+    private IEnumerable<IRuleMessage> AnalyseSchemaNames(IEnumerable<Identifier> objectNames)
+    {
+        var seenSchemas = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var objectName in objectNames)
+        {
+            var schemaName = objectName.Schema;
+            if (schemaName == null || !seenSchemas.Add(schemaName))
+                continue;
+
+            if (HasWhiteSpace(schemaName))
+                yield return BuildSchemaMessage(objectName, schemaName);
+        }
+    }
+
+    /// <summary>
+    /// Analyses a database view. Reports messages when a view or its columns have whitespace in their names.
     /// </summary>
     /// <param name="view">A set of database views.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
@@ -280,6 +361,125 @@ public class WhitespaceNameRule : Rule, ITableRule, IViewRule, ISequenceRule, IS
 
         var messageText = $"The table '{tableName}' contains a column '{columnName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a table's index name contains whitespace.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="indexName">The name of the index.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="indexName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="indexName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildTableIndexMessage(Identifier tableName, string indexName)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(indexName);
+
+        var messageText = $"The table '{tableName}' contains an index '{indexName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a table's primary key name contains whitespace.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="primaryKeyName">The name of the primary key.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="primaryKeyName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="primaryKeyName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildTablePrimaryKeyMessage(Identifier tableName, string primaryKeyName)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(primaryKeyName);
+
+        var messageText = $"The table '{tableName}' contains a primary key '{primaryKeyName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a table's unique key name contains whitespace.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="uniqueKeyName">The name of the unique key.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="uniqueKeyName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="uniqueKeyName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildTableUniqueKeyMessage(Identifier tableName, string uniqueKeyName)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(uniqueKeyName);
+
+        var messageText = $"The table '{tableName}' contains a unique key '{uniqueKeyName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a table's foreign key name contains whitespace.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="foreignKeyName">The name of the foreign key.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="foreignKeyName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="foreignKeyName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildTableForeignKeyMessage(Identifier tableName, string foreignKeyName)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(foreignKeyName);
+
+        var messageText = $"The table '{tableName}' contains a foreign key '{foreignKeyName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a table's check constraint name contains whitespace.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="checkName">The name of the check constraint.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="checkName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="checkName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildTableCheckConstraintMessage(Identifier tableName, string checkName)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(checkName);
+
+        var messageText = $"The table '{tableName}' contains a check constraint '{checkName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a table's trigger name contains whitespace.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="triggerName">The name of the trigger.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="triggerName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="triggerName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildTableTriggerMessage(Identifier tableName, string triggerName)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(triggerName);
+
+        var messageText = $"The table '{tableName}' contains a trigger '{triggerName}' which contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
+    }
+
+    /// <summary>
+    /// Builds the message used for reporting when a schema's name contains whitespace.
+    /// </summary>
+    /// <param name="objectName">The name of an object within the schema, used to anchor the message.</param>
+    /// <param name="schemaName">The name of the schema.</param>
+    /// <returns>A formatted linting message.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="objectName"/> or <paramref name="schemaName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is empty or whitespace.</exception>
+    protected virtual IRuleMessage BuildSchemaMessage(Identifier objectName, string schemaName)
+    {
+        ArgumentNullException.ThrowIfNull(objectName);
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
+
+        var messageText = $"The schema '{schemaName}' contains whitespace and requires quoting to be used. Consider renaming to remove any whitespace.";
+        return new RuleMessage(RuleId, RuleTitle, Level, messageText, objectName);
     }
 
     /// <summary>

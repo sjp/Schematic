@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,6 +12,200 @@ namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 [TestFixture]
 internal static class ReservedKeywordNameRuleTests
 {
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithIndexNameContainingReservedKeyword_ProducesMessageWithVisibleTableName()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testIndex = new DatabaseIndex(
+            "SELECT",
+            false,
+            [new DatabaseIndexColumn("test_column", testColumn, IndexColumnOrder.Ascending)],
+            [],
+            true,
+            Option<string>.None
+        );
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            [testColumn],
+            null,
+            [],
+            [],
+            [],
+            [testIndex],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(message.Message, Does.Contain("test_schema.test_table"));
+        Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithPrimaryKeyNameContainingReservedKeyword_ProducesMessageWithVisibleTableName()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("SELECT"), DatabaseKeyType.Primary, [testColumn], true);
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            [testColumn],
+            primaryKey,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(message.Message, Does.Contain("test_schema.test_table"));
+        Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithUniqueKeyNameContainingReservedKeyword_ProducesMessageWithVisibleTableName()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("SELECT"), DatabaseKeyType.Unique, [testColumn], true);
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            [testColumn],
+            null,
+            [uniqueKey],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(message.Message, Does.Contain("test_schema.test_table"));
+        Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithForeignKeyNameContainingReservedKeyword_ProducesMessageWithVisibleTableName()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var childKey = new DatabaseKey(Option<Identifier>.Some("SELECT"), DatabaseKeyType.Foreign, [testColumn], true);
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_pk"), DatabaseKeyType.Primary, [testColumn], true);
+        var relationalKey = new DatabaseRelationalKey(
+            tableName,
+            childKey,
+            "parent_table",
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            [testColumn],
+            null,
+            [],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(message.Message, Does.Contain("test_schema.test_table"));
+        Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithCheckConstraintNameContainingReservedKeyword_ProducesMessageWithVisibleTableName()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var testCheck = new DatabaseCheckConstraint(Option<Identifier>.Some("SELECT"), "test_check_definition", true);
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [testCheck],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(message.Message, Does.Contain("test_schema.test_table"));
+        Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenTableWithTriggerNameContainingReservedKeyword_ProducesMessageWithVisibleTableName()
+    {
+        var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var testTrigger = new DatabaseTrigger(
+            "SELECT",
+            "test_trigger_definition",
+            TriggerQueryTiming.After,
+            TriggerEvent.Insert,
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            [],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [testTrigger]
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(message.Message, Does.Contain("test_schema.test_table"));
+        Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
     private static IDatabaseDialect CreateFakeDialect() => Mock.Of<IDatabaseDialect>(d => d.IsReservedKeyword("SELECT"));
 
     [Test]
