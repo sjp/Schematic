@@ -22,7 +22,7 @@ public class CamelCaseNameTranslator : NameTranslator
             return null;
 
         var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-        return schemaIdentifier.Camelize();
+        return EscapeKeyword(schemaIdentifier.Camelize());
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class CamelCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(tableName);
 
         var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-        return tableIdentifier.Camelize();
+        return EscapeKeyword(tableIdentifier.Camelize());
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class CamelCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(viewName);
 
         var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
-        return viewIdentifier.Camelize();
+        return EscapeKeyword(viewIdentifier.Camelize());
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class CamelCaseNameTranslator : NameTranslator
             ? columnName
             : CreateValidIdentifier(className, columnName);
 
-        var result = columnIdentifier.Camelize();
+        var result = EscapeKeyword(columnIdentifier.Camelize());
         return string.Equals(result, className, StringComparison.Ordinal)
             ? result + "_"
             : result;

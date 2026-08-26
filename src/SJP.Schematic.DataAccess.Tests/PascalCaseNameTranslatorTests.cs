@@ -300,4 +300,63 @@ internal static class PascalCaseNameTranslatorTests
         var result = nameTranslator.ColumnToPropertyName(className, testName);
         Assert.That(result, Is.EqualTo(expected));
     }
+
+    [Test]
+    public static void SchemaToNamespace_GivenKeywordSchemaName_ReturnsEscapedText()
+    {
+        var nameTranslator = new PascalCaseNameTranslator();
+        var testName = new Identifier("class", "test");
+        const string expected = "Class";
+
+        var result = nameTranslator.SchemaToNamespace(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void TableToClassName_GivenKeywordLocalName_ReturnsEscapedText()
+    {
+        var nameTranslator = new PascalCaseNameTranslator();
+        var testName = new Identifier("event");
+        const string expected = "Event";
+
+        var result = nameTranslator.TableToClassName(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ViewToClassName_GivenKeywordLocalName_ReturnsEscapedText()
+    {
+        var nameTranslator = new PascalCaseNameTranslator();
+        var testName = new Identifier("params");
+        const string expected = "Params";
+
+        var result = nameTranslator.ViewToClassName(testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenKeywordColumnName_ReturnsEscapedText()
+    {
+        var nameTranslator = new PascalCaseNameTranslator();
+
+        const string className = "test";
+        const string testName = "class";
+        const string expected = "Class";
+
+        var result = nameTranslator.ColumnToPropertyName(className, testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenColumnNameCasingToAKeyword_ReturnsEscapedText()
+    {
+        var nameTranslator = new PascalCaseNameTranslator();
+
+        const string className = "test";
+        const string testName = "Class";
+        const string expected = "Class";
+
+        var result = nameTranslator.ColumnToPropertyName(className, testName);
+        Assert.That(result, Is.EqualTo(expected));
+    }
 }

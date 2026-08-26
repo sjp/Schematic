@@ -20,7 +20,7 @@ public class VerbatimNameTranslator : NameTranslator
         if (objectName.Schema == null)
             return null;
 
-        return CreateValidIdentifier(objectName.Schema);
+        return EscapeKeyword(CreateValidIdentifier(objectName.Schema));
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ public class VerbatimNameTranslator : NameTranslator
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        return CreateValidIdentifier(tableName.LocalName);
+        return EscapeKeyword(CreateValidIdentifier(tableName.LocalName));
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class VerbatimNameTranslator : NameTranslator
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return CreateValidIdentifier(viewName.LocalName);
+        return EscapeKeyword(CreateValidIdentifier(viewName.LocalName));
     }
 
     /// <summary>
@@ -67,8 +67,9 @@ public class VerbatimNameTranslator : NameTranslator
             ? columnName
             : CreateValidIdentifier(className, columnName);
 
-        return string.Equals(columnIdentifier, className, StringComparison.Ordinal)
-            ? columnIdentifier + "_"
-            : columnIdentifier;
+        var result = EscapeKeyword(columnIdentifier);
+        return string.Equals(result, className, StringComparison.Ordinal)
+            ? result + "_"
+            : result;
     }
 }

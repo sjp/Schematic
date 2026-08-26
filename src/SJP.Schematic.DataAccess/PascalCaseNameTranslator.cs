@@ -22,7 +22,7 @@ public class PascalCaseNameTranslator : NameTranslator
             return null;
 
         var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-        return schemaIdentifier.Pascalize();
+        return EscapeKeyword(schemaIdentifier.Pascalize());
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class PascalCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(tableName);
 
         var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-        return tableIdentifier.Pascalize();
+        return EscapeKeyword(tableIdentifier.Pascalize());
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class PascalCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(viewName);
 
         var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
-        return viewIdentifier.Pascalize();
+        return EscapeKeyword(viewIdentifier.Pascalize());
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class PascalCaseNameTranslator : NameTranslator
             ? columnName
             : CreateValidIdentifier(className, columnName);
 
-        var result = columnIdentifier.Pascalize();
+        var result = EscapeKeyword(columnIdentifier.Pascalize());
         return string.Equals(result, className, StringComparison.Ordinal)
             ? result + "_"
             : result;

@@ -116,6 +116,26 @@ public abstract class NameTranslator : INameTranslator
         return new string(chars.ToArray());
     }
 
+    /// <summary>
+    /// Escapes an identifier when it would otherwise be a C# keyword, by appending an underscore.
+    /// </summary>
+    /// <param name="identifier">An identifier that is valid aside from any keyword collision.</param>
+    /// <returns><paramref name="identifier"/> when it is not a keyword; otherwise an underscore-suffixed form of it.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
+    /// <remarks>
+    /// Must be applied to the final name, i.e. after any casing transformation has been performed.
+    /// A transform such as camel-casing can introduce a keyword collision where the source name had none.
+    /// </remarks>
+    protected static string EscapeKeyword(string identifier)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
+
+        return Keywords.Contains(identifier)
+            ? identifier + "_"
+            : identifier;
+    }
+
     private static bool IsValidFirstChar(char c) => c == '_' || c.IsLetter();
 
     private const uint ValidPartCategoriesMask =
@@ -140,7 +160,7 @@ public abstract class NameTranslator : INameTranslator
         (uint)category < 32 && (ValidPartCategoriesMask & (1u << (int)category)) != 0;
 
     private static readonly FrozenSet<string> Keywords = FrozenSet.Create(
-        StringComparer.OrdinalIgnoreCase,
+        StringComparer.Ordinal,
         [
         "abstract",
         "as",

@@ -22,7 +22,7 @@ public class SnakeCaseNameTranslator : NameTranslator
             return null;
 
         var schemaIdentifier = CreateValidIdentifier(objectName.Schema);
-        return schemaIdentifier.Underscore();
+        return EscapeKeyword(schemaIdentifier.Underscore());
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public class SnakeCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(tableName);
 
         var tableIdentifier = CreateValidIdentifier(tableName.LocalName);
-        return tableIdentifier.Underscore();
+        return EscapeKeyword(tableIdentifier.Underscore());
     }
 
     /// <summary>
@@ -50,7 +50,7 @@ public class SnakeCaseNameTranslator : NameTranslator
         ArgumentNullException.ThrowIfNull(viewName);
 
         var viewIdentifier = CreateValidIdentifier(viewName.LocalName);
-        return viewIdentifier.Underscore();
+        return EscapeKeyword(viewIdentifier.Underscore());
     }
 
     /// <summary>
@@ -71,7 +71,7 @@ public class SnakeCaseNameTranslator : NameTranslator
             ? columnName
             : CreateValidIdentifier(className, columnName);
 
-        var result = columnIdentifier.Underscore();
+        var result = EscapeKeyword(columnIdentifier.Underscore());
         return string.Equals(result, className, StringComparison.Ordinal)
             ? result + "_"
             : result;
