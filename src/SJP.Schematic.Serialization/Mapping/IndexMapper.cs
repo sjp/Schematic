@@ -35,10 +35,12 @@ public class IndexMapper
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var indexColumnMapper = MapperRegistry.GetMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
         var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var optionMapper = MapperRegistry.GetMapper<Option<string>, string?>();
 
         var indexName = identifierMapper.Map(source.Name);
         var indexColumns = indexColumnMapper.MapList(source.Columns);
         var includedColumns = columnMapper.MapList(source.IncludedColumns);
+        var filterDefinition = optionMapper.Map(source.FilterDefinition);
 
         return new Dto.DatabaseIndex
         {
@@ -47,6 +49,7 @@ public class IndexMapper
             IncludedColumns = includedColumns,
             IsEnabled = source.IsEnabled,
             IsUnique = source.IsUnique,
+            FilterDefinition = filterDefinition,
         };
     }
 }
