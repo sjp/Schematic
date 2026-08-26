@@ -31,6 +31,8 @@ internal sealed class ExistsQueryExecutor
     private ExistsQueryExecutor(ISchematicConnection connection)
     {
         Connection = connection;
+
+        _probeLimiter = ProbeConcurrencyLimiter.GetForConnection(connection);
     }
 
     private ISchematicConnection Connection { get; }
@@ -56,12 +58,14 @@ internal sealed class ExistsQueryExecutor
     {
         var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
+        // resolving the suffix is serialised by its own lock and costs at most a handful of queries per
+        // connection, so it stays outside the limiter rather than consuming permits meant for probes
         var suffix = await GetFromQuerySuffixAsync(cancellationToken);
         var query = suffix.IsNullOrWhiteSpace()
             ? sql
             : sql + " from " + suffix;
 
-        return await DbConnection.ExecuteScalarAsync<bool>(query, cancellationToken);
+        return await _probeLimiter.RunAsync(ct => DbConnection.ExecuteScalarAsync<bool>(query, ct), cancellationToken);
     }
 
     // Only one caller probes; the rest wait for its answer and then reuse the cached suffix.
@@ -115,6 +119,8 @@ internal sealed class ExistsQueryExecutor
     private volatile string? _fromQuerySuffix;
 
     private readonly SemaphoreSlim _suffixLock = new(1, 1);
+
+    private readonly ProbeConcurrencyLimiter _probeLimiter;
 
     private static readonly ConditionalWeakTable<ISchematicConnection, ExistsQueryExecutor> Executors = new();
 }

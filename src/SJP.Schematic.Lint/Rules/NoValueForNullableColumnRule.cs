@@ -32,6 +32,8 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
         : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+
+        _probeLimiter = ProbeConcurrencyLimiter.GetForConnection(connection);
     }
 
     /// <summary>
@@ -128,7 +130,7 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
 
         // the number of counts returned varies with the size of the batch, so the row is read as an
         // untyped set of values keyed by alias rather than being mapped onto a fixed result type
-        var counts = (IDictionary<string, object>)await DbConnection.QuerySingleAsync<object>(query, cancellationToken);
+        var counts = (IDictionary<string, object>)await _probeLimiter.RunAsync(ct => DbConnection.QuerySingleAsync<object>(query, ct), cancellationToken);
 
         var tableRowCount = GetCount(counts, RowCountAlias);
         if (tableRowCount == 0)
@@ -219,4 +221,6 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
     /// </summary>
     /// <value>The rule title.</value>
     protected static string RuleTitle => "No not-null values exist for a nullable column.";
+
+    private readonly ProbeConcurrencyLimiter _probeLimiter;
 }
