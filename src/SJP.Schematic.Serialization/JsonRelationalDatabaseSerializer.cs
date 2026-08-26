@@ -11,14 +11,30 @@ namespace SJP.Schematic.Serialization;
 
 public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
 {
-    public async Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default)
+    public Task SerializeAsync(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(database);
+
+        return SerializeAsyncCore(stream, database, cancellationToken);
+    }
+
+    private static async Task SerializeAsyncCore(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken)
     {
         var dbMapper = new RelationalDatabaseMapper();
         var dto = await dbMapper.MapAsync(database, cancellationToken);
         await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken);
     }
 
-    public async Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
+    public Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
+
+        return DeserializeAsyncCore(stream, identifierResolver, cancellationToken);
+    }
+
+    private static async Task<IRelationalDatabase> DeserializeAsyncCore(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
         var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken);
         if (dto == null)

@@ -14,6 +14,37 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 {
     private static IRelationalDatabaseSerializer Serializer { get; } = new JsonRelationalDatabaseSerializer();
 
+    // the guards must be evaluated before the first await, so these assert on the synchronous call
+    [Test]
+    public static void SerializeAsync_GivenNullStream_ThrowsArgumentNullException()
+    {
+        var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
+
+        Assert.That(() => Serializer.SerializeAsync(null, db), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void SerializeAsync_GivenNullDatabase_ThrowsArgumentNullException()
+    {
+        using var stream = new MemoryStream();
+
+        Assert.That(() => Serializer.SerializeAsync(stream, null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void DeserializeAsync_GivenNullStream_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Serializer.DeserializeAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void DeserializeAsync_GivenNullIdentifierResolver_ThrowsArgumentNullException()
+    {
+        using var stream = new MemoryStream();
+
+        Assert.That(() => Serializer.DeserializeAsync(stream, null), Throws.ArgumentNullException);
+    }
+
     [Test]
     public async Task Serialize_WhenInvoked_ExportsWithoutError()
     {

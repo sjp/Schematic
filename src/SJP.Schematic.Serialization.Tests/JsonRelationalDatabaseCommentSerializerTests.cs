@@ -15,6 +15,35 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
 {
     private static IRelationalDatabaseCommentSerializer Serializer { get; } = new JsonRelationalDatabaseCommentSerializer();
 
+    // the guards must be evaluated before the first await, so these assert on the synchronous call
+    [Test]
+    public static void SerializeAsync_GivenNullStream_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Serializer.SerializeAsync(null, SampleComments), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void SerializeAsync_GivenNullDatabaseComments_ThrowsArgumentNullException()
+    {
+        using var stream = new MemoryStream();
+
+        Assert.That(() => Serializer.SerializeAsync(stream, null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void DeserializeAsync_GivenNullStream_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Serializer.DeserializeAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void DeserializeAsync_GivenNullIdentifierResolver_ThrowsArgumentNullException()
+    {
+        using var stream = new MemoryStream();
+
+        Assert.That(() => Serializer.DeserializeAsync(stream, null), Throws.ArgumentNullException);
+    }
+
     [Test]
     public static async Task Serialize_WhenInvoked_ExportsWithoutError()
     {
