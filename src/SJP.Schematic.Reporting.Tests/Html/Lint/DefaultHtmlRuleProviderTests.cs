@@ -4,6 +4,7 @@ using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html.Lint;
+using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint;
 
@@ -51,6 +52,24 @@ internal static class DefaultHtmlRuleProviderTests
             Assert.That(rules, Is.Not.Empty);
             Assert.That(rules, Has.All.Matches<IRule>(static r => r.Level == RuleLevel.Error));
         }
+    }
+
+    [Test]
+    public static void GetRules_GivenValidArguments_ReturnsEveryRuleDefinedInTheRulesNamespace()
+    {
+        var provider = new DefaultHtmlRuleProvider();
+        var mockConnection = CreateMockConnection();
+
+        var provided = provider.GetRules(mockConnection.Object).Select(static r => r.GetType()).ToList();
+        var defined = typeof(WhitespaceNameRule).Assembly
+            .GetTypes()
+            .Where(static t => t.Namespace == typeof(WhitespaceNameRule).Namespace
+                && !t.IsAbstract
+                && t.IsAssignableTo(typeof(IRule)))
+            .ToList();
+
+        // A rule that exists but is never handed out is a rule that silently does nothing.
+        Assert.That(provided, Is.EquivalentTo(defined));
     }
 
     private static Mock<ISchematicConnection> CreateMockConnection()

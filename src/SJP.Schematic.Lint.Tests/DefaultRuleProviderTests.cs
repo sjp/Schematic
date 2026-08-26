@@ -2,6 +2,7 @@
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests;
 
@@ -73,5 +74,22 @@ internal static class DefaultRuleProviderTests
         var rules = RuleProvider.GetRules(connection, RuleLevel.Error);
 
         Assert.That(rules.Select(static r => r.Level), Is.All.EqualTo(RuleLevel.Error));
+    }
+
+    [Test]
+    public static void GetRules_GivenValidInput_ReturnsEveryRuleDefinedInTheRulesNamespace()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+
+        var provided = RuleProvider.GetRules(connection).Select(static r => r.GetType()).ToList();
+        var defined = typeof(WhitespaceNameRule).Assembly
+            .GetTypes()
+            .Where(static t => t.Namespace == typeof(WhitespaceNameRule).Namespace
+                && !t.IsAbstract
+                && t.IsAssignableTo(typeof(IRule)))
+            .ToList();
+
+        // A rule that exists but is never handed out is a rule that silently does nothing.
+        Assert.That(provided, Is.EquivalentTo(defined));
     }
 }

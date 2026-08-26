@@ -51,8 +51,10 @@ public class DefaultRuleProvider : IRuleProvider
         [
             new AutoIncrementColumnNotInKeyRule(level),
             new CandidateKeyMissingRule(level),
+            new CascadeDeleteRule(level),
             new ColumnTypeMismatchAcrossTablesRule(level),
             new ColumnWithNullDefaultValueRule(level),
+            new ColumnWithNumericSuffix(level),
             new DisabledObjectsRule(level),
             new EmptyRoutineDefinitionRule(level),
             new ForeignKeyColumnCollationMismatchRule(level),
@@ -64,6 +66,7 @@ public class DefaultRuleProvider : IRuleProvider
             new ForeignKeySelfReferenceRule(connection, level),
             new ForeignKeySetDefaultReferentialActionRule(level),
             new ForeignKeySetNullReferentialActionRule(level),
+            new InconsistentColumnNamingConventionRule(level),
             new IndexOnLargeTextColumnRule(level),
             new InvalidSequenceConfigurationRule(level),
             new InvalidViewDefinitionRule(connection, level),
