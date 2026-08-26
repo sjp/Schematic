@@ -81,6 +81,30 @@ internal static class EFCoreDbContextBuilderTests
     }
 
     [Test]
+    public static void Generate_GivenSequenceWithNonIntegerValues_ReturnsIntegerConfiguration()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+
+        var sequence = new DatabaseSequence(
+            "test_sequence",
+            decimal.MaxValue,
+            1.5M,
+            Option<decimal>.None,
+            Option<decimal>.None,
+            true,
+            2
+        );
+        var sequences = new[] { sequence };
+
+        var result = dbContextBuilder.Generate(tables, views, sequences);
+
+        Assert.That(result, Does.Contain("""modelBuilder.HasSequence<long>("test_sequence").StartsAt(9223372036854775807L).IncrementsBy(1);"""));
+    }
+
+    [Test]
     public static void Generate_GivenObjectsWithTheSameNameInDifferentSchemas_GeneratesUniquelyNamedDbSets()
     {
         var nameTranslator = new VerbatimNameTranslator();
@@ -123,7 +147,7 @@ namespace test
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasSequence<decimal>("test_sequence").StartsAt(3M).IncrementsBy(20M);
+            modelBuilder.HasSequence<long>("test_sequence").StartsAt(3L).IncrementsBy(20);
         }
     }
 }

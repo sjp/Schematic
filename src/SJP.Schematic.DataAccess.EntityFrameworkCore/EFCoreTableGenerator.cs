@@ -278,7 +278,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 () =>
                 {
                     var foreignKeyNameNode = relationalKey.ChildKey.Name.Match(
-                        name => XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(name.LocalName))),
+                        name => XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(name.LocalName))),
                         static () => XmlText(string.Empty) as XmlNodeSyntax
                     );
 
@@ -287,9 +287,9 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                         XmlText("The" + (hasChildKeyName ? " " : string.Empty)),
                         foreignKeyNameNode,
                         XmlText(" foreign key. Navigates from "),
-                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ChildTable.LocalName))),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(relationalKey.ChildTable.LocalName))),
                         XmlText(" to "),
-                        XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ParentTable.LocalName))),
+                        XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(relationalKey.ParentTable.LocalName))),
                         XmlText("."),
                     ]);
                 }
@@ -302,7 +302,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
 
         var hasChildKeyName = relationalKey.ChildKey.Name.IsSome;
         var foreignKeyNameNode = relationalKey.ChildKey.Name.Match(
-            name => XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(name.LocalName))),
+            name => XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(name.LocalName))),
             static () => XmlText(string.Empty) as XmlNodeSyntax
         );
 
@@ -311,9 +311,9 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             XmlText("The" + (hasChildKeyName ? " " : string.Empty)),
             foreignKeyNameNode,
             XmlText(" child key. Navigates from "),
-            XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ParentTable.LocalName))),
+            XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(relationalKey.ParentTable.LocalName))),
             XmlText(" to "),
-            XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(relationalKey.ChildTable.LocalName))),
+            XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(relationalKey.ChildTable.LocalName))),
             XmlText("."),
         ]);
     }

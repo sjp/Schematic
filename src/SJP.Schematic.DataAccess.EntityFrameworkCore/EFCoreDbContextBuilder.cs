@@ -193,7 +193,7 @@ public class EFCoreDbContextBuilder
         return SyntaxUtilities.BuildCommentTrivia(
         [
             XmlText("Accesses the "),
-            XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(targetName))),
+            XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(targetName))),
             XmlText(" " + objectType + "."),
         ]);
     }
@@ -680,6 +680,8 @@ public class EFCoreDbContextBuilder
             hasSequenceArgs.Add(schemaArg);
         }
 
+        // sequence metadata is decimal-valued, but EF Core's sequence builder is
+        // restricted to long/int values, so the widest usable type is generated
         var hasSequence = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
@@ -689,7 +691,7 @@ public class EFCoreDbContextBuilder
                     .WithTypeArgumentList(
                         TypeArgumentList(
                             SingletonSeparatedList<TypeSyntax>(
-                                PredefinedType(Token(SyntaxKind.DecimalKeyword)))))))
+                                PredefinedType(Token(SyntaxKind.LongKeyword)))))))
             .WithArgumentList(
                 ArgumentList(SeparatedList(hasSequenceArgs)));
 
@@ -698,7 +700,7 @@ public class EFCoreDbContextBuilder
                 Argument(
                     LiteralExpression(
                         SyntaxKind.NumericLiteralExpression,
-                        Literal(sequence.Start)))));
+                        Literal(ToStartsAtValue(sequence.Start))))));
 
         var startsAt = InvocationExpression(
             MemberAccessExpression(
@@ -712,7 +714,7 @@ public class EFCoreDbContextBuilder
                 Argument(
                     LiteralExpression(
                         SyntaxKind.NumericLiteralExpression,
-                        Literal(sequence.Increment)))));
+                        Literal(ToIncrementsByValue(sequence.Increment))))));
 
         return InvocationExpression(
             MemberAccessExpression(
@@ -721,4 +723,10 @@ public class EFCoreDbContextBuilder
                 IdentifierName(nameof(SequenceBuilder.IncrementsBy))))
             .WithArgumentList(incrementsByArgs);
     }
+
+    private static long ToStartsAtValue(decimal start) =>
+        decimal.ToInt64(Math.Clamp(decimal.Truncate(start), long.MinValue, long.MaxValue));
+
+    private static int ToIncrementsByValue(decimal increment) =>
+        decimal.ToInt32(Math.Clamp(decimal.Truncate(increment), int.MinValue, int.MaxValue));
 }

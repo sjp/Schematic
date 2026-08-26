@@ -67,7 +67,7 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
                 () => SyntaxUtilities.BuildCommentTrivia(
                 [
                     XmlText("A mapping class to query the "),
-                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(viewName.LocalName))),
+                    XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(viewName.LocalName))),
                     XmlText(" view."),
                 ])
             );
@@ -91,7 +91,7 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
                 () => SyntaxUtilities.BuildCommentTrivia(
                 [
                     XmlText("The "),
-                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
+                    XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(columnName.LocalName))),
                     XmlText(" column."),
                 ])
             );

@@ -2,9 +2,11 @@
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using SJP.Schematic.Core.Utilities;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.CodeGeneration;
@@ -66,9 +68,12 @@ public static class SyntaxUtilities
         ArgumentNullException.ThrowIfNull(comment);
 
         var commentLines = GetLines(comment);
-        var commentNodes = commentLines.Count > 1
-            ? commentLines.SelectMany(static l => new XmlNodeSyntax[] { XmlParaElement(XmlText(l)), XmlText(XmlNewline) }).ToArray()
-            : [XmlText(XmlTextLiteral(comment), XmlNewline)];
+        XmlNodeSyntax[] commentNodes = commentLines.Count switch
+        {
+            0 => [XmlText(XmlTextLiteral(string.Empty), XmlNewline)],
+            1 => [XmlText(XmlTextLiteral(SanitizeXmlText(commentLines[0])), XmlNewline)],
+            _ => commentLines.SelectMany(static l => new XmlNodeSyntax[] { XmlParaElement(BuildXmlText(l)), XmlText(XmlNewline) }).ToArray()
+        };
         // add a newline after the summary element
         var formattedCommentNodes = new XmlNodeSyntax[] { XmlText(XmlNewline) }.Concat(commentNodes).ToArray();
 
@@ -78,6 +83,20 @@ public static class SyntaxUtilities
                     XmlSummaryElement(formattedCommentNodes))),
             ElasticCarriageReturnLineFeed
         );
+    }
+
+    /// <summary>
+    /// Constructs an XML text node for use within a documentation comment.
+    /// </summary>
+    /// <param name="text">Text to embed within a documentation comment, e.g. a database object name.</param>
+    /// <returns>An XML text node whose contents are safe to embed within a documentation comment.</returns>
+    /// <remarks>Any text sourced from a database should be passed through this method, as it removes characters that would otherwise generate malformed documentation comments.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null" />.</exception>
+    public static XmlTextSyntax BuildXmlText(string text)
+    {
+        ArgumentNullException.ThrowIfNull(text);
+
+        return XmlText(SanitizeXmlText(text));
     }
 
     /// <summary>
@@ -192,7 +211,7 @@ public static class SyntaxUtilities
             : typeSyntax;
     }
 
-    private static IReadOnlyCollection<string> GetLines(string comment)
+    private static IReadOnlyList<string> GetLines(string comment)
     {
         ArgumentNullException.ThrowIfNull(comment);
 
@@ -204,6 +223,58 @@ public static class SyntaxUtilities
         }
 
         return lines;
+    }
+
+    /// <summary>
+    /// Removes characters that cannot be represented within a documentation comment.
+    /// </summary>
+    /// <param name="text">Text to sanitize.</param>
+    /// <returns>The given text, with line breaks collapsed to spaces and characters that are invalid in XML removed.</returns>
+    /// <remarks>
+    /// A line break would place the remainder of the text outside of the leading <c>///</c>, causing it to be parsed as code,
+    /// while a character that is invalid in XML causes Roslyn to reject the text entirely.
+    /// </remarks>
+    private static string SanitizeXmlText(string text)
+    {
+        if (!RequiresSanitization(text))
+            return text;
+
+        var builder = StringBuilderCache.Acquire(text.Length);
+
+        for (var i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (c is '\r' or '\n')
+            {
+                // treat CRLF as one line break rather than two
+                if (c == '\r' && i + 1 < text.Length && text[i + 1] == '\n')
+                    i++;
+                builder.Append(' ');
+            }
+            else if (i + 1 < text.Length && char.IsSurrogatePair(c, text[i + 1]))
+            {
+                builder.Append(c).Append(text[i + 1]);
+                i++;
+            }
+            else if (XmlConvert.IsXmlChar(c))
+            {
+                builder.Append(c);
+            }
+        }
+
+        return builder.GetStringAndRelease();
+    }
+
+    private static bool RequiresSanitization(string text)
+    {
+        foreach (var c in text)
+        {
+            // surrogates are only valid when paired, which is determined while sanitizing
+            if (c is '\r' or '\n' || char.IsSurrogate(c) || !XmlConvert.IsXmlChar(c))
+                return true;
+        }
+
+        return false;
     }
 
     private static readonly SyntaxToken XmlNewline = XmlTextNewLine(Environment.NewLine);
