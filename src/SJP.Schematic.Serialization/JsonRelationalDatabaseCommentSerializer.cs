@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -22,9 +21,8 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
 
     private static async Task SerializeAsyncCore(Stream stream, IRelationalDatabaseCommentProvider databaseComments, CancellationToken cancellationToken)
     {
-        var dbCommentMapper = new DatabaseCommentProviderMapper();
-        var dto = await dbCommentMapper.MapAsync(databaseComments, cancellationToken);
-        await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken);
+        var dto = await _mapper.MapAsync(databaseComments, cancellationToken);
+        await JsonSerializer.SerializeAsync(stream, dto, JsonSerializerSettings.Default, cancellationToken);
     }
 
     public Task<IRelationalDatabaseCommentProvider> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
@@ -37,26 +35,12 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
 
     private static async Task<IRelationalDatabaseCommentProvider> DeserializeAsyncCore(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
-        var dto = await JsonSerializer.DeserializeAsync<Dto.Comments.DatabaseCommentProvider>(stream, _settings.Value, cancellationToken);
+        var dto = await JsonSerializer.DeserializeAsync<Dto.Comments.DatabaseCommentProvider>(stream, JsonSerializerSettings.Default, cancellationToken);
         if (dto == null)
             throw new InvalidOperationException("Unable to parse the given JSON as a database comment definition.");
 
-        var mapper = new DatabaseCommentProviderMapper();
-        return mapper.Map(dto, identifierResolver);
+        return _mapper.Map(dto, identifierResolver);
     }
 
-    private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);
-
-    private static JsonSerializerOptions LoadSettings()
-    {
-        var settings = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            RespectNullableAnnotations = true,
-        };
-        settings.Converters.Add(new JsonStringEnumConverter());
-
-        return settings;
-    }
+    private static readonly DatabaseCommentProviderMapper _mapper = new();
 }

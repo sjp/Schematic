@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
@@ -65,33 +64,16 @@ public class DatabaseCommentProviderMapper
         var synonymCommentMapper = MapperRegistry.GetMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>();
         var routineCommentMapper = MapperRegistry.GetMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>();
 
-        var dtoTableComments = tableComments
-            .Select(t => tableCommentMapper.Map<IRelationalDatabaseTableComments, DatabaseTableComments>(t))
-            .ToList();
-        var dtoViewComments = viewComments
-            .Select(v => viewCommentMapper.Map<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(v))
-            .ToList();
-        var dtoSequenceComments = sequenceComments
-            .Select(s => sequenceCommentMapper.Map<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(s))
-            .ToList();
-        var dtoSynonymComments = synonymComments
-            .Select(s => synonymCommentMapper.Map<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>(s))
-            .ToList();
-        var dtoRoutineComments = routineComments
-            .Select(r => routineCommentMapper.Map<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(r))
-            .ToList();
-
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
-        var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);
 
         return new DatabaseCommentProvider
         {
-            IdentifierDefaults = dtoIdentifierDefaults,
-            TableComments = dtoTableComments,
-            ViewComments = dtoViewComments,
-            SequenceComments = dtoSequenceComments,
-            SynonymComments = dtoSynonymComments,
-            RoutineComments = dtoRoutineComments,
+            IdentifierDefaults = identifierDefaultsMapper.Map(source.IdentifierDefaults),
+            TableComments = tableCommentMapper.MapList(tableComments),
+            ViewComments = viewCommentMapper.MapList(viewComments),
+            SequenceComments = sequenceCommentMapper.MapList(sequenceComments),
+            SynonymComments = synonymCommentMapper.MapList(synonymComments),
+            RoutineComments = routineCommentMapper.MapList(routineComments),
         };
     }
 }

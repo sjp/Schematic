@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -21,9 +20,8 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
 
     private static async Task SerializeAsyncCore(Stream stream, IRelationalDatabase database, CancellationToken cancellationToken)
     {
-        var dbMapper = new RelationalDatabaseMapper();
-        var dto = await dbMapper.MapAsync(database, cancellationToken);
-        await JsonSerializer.SerializeAsync(stream, dto, _settings.Value, cancellationToken);
+        var dto = await _mapper.MapAsync(database, cancellationToken);
+        await JsonSerializer.SerializeAsync(stream, dto, JsonSerializerSettings.Default, cancellationToken);
     }
 
     public Task<IRelationalDatabase> DeserializeAsync(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken = default)
@@ -36,26 +34,12 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
 
     private static async Task<IRelationalDatabase> DeserializeAsyncCore(Stream stream, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
-        var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, _settings.Value, cancellationToken);
+        var dto = await JsonSerializer.DeserializeAsync<Dto.RelationalDatabase>(stream, JsonSerializerSettings.Default, cancellationToken);
         if (dto == null)
             throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
 
-        var mapper = new RelationalDatabaseMapper();
-        return mapper.Map(dto, identifierResolver);
+        return _mapper.Map(dto, identifierResolver);
     }
 
-    private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);
-
-    private static JsonSerializerOptions LoadSettings()
-    {
-        var settings = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-            RespectNullableAnnotations = true,
-        };
-        settings.Converters.Add(new JsonStringEnumConverter());
-
-        return settings;
-    }
+    private static readonly RelationalDatabaseMapper _mapper = new();
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
@@ -63,23 +62,16 @@ public class RelationalDatabaseMapper
             source.GetAllRoutines(cancellationToken)
         ).WhenAll();
 
-        var dtoTables = tables.Select(t => tableMapper.Map<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(t)).ToList();
-        var dtoViews = views.Select(v => viewMapper.Map<IDatabaseView, Dto.DatabaseView>(v)).ToList();
-        var dtoSequences = sequences.Select(s => sequenceMapper.Map<IDatabaseSequence, Dto.DatabaseSequence>(s)).ToList();
-        var dtoSynonyms = synonyms.Select(s => synonymMapper.Map<IDatabaseSynonym, Dto.DatabaseSynonym>(s)).ToList();
-        var dtoRoutines = routines.Select(r => routineMapper.Map<IDatabaseRoutine, Dto.DatabaseRoutine>(r)).ToList();
-
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
-        var dtoIdentifierDefaults = identifierDefaultsMapper.Map<IIdentifierDefaults, Dto.IdentifierDefaults>(source.IdentifierDefaults);
 
         return new Dto.RelationalDatabase
         {
-            IdentifierDefaults = dtoIdentifierDefaults,
-            Tables = dtoTables,
-            Views = dtoViews,
-            Sequences = dtoSequences,
-            Synonyms = dtoSynonyms,
-            Routines = dtoRoutines,
+            IdentifierDefaults = identifierDefaultsMapper.Map(source.IdentifierDefaults),
+            Tables = tableMapper.MapList(tables),
+            Views = viewMapper.MapList(views),
+            Sequences = sequenceMapper.MapList(sequences),
+            Synonyms = synonymMapper.MapList(synonyms),
+            Routines = routineMapper.MapList(routines),
         };
     }
 }
