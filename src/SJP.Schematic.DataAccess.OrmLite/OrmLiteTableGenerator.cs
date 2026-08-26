@@ -360,7 +360,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
         {
             var relationalKey = ColumnRelationalKey(table, column);
             if (relationalKey == null)
-                throw new InvalidOperationException("Could not find parent key for foreign key relationship. Expected to find one for " + column.Name.LocalName + "." + column.Name.LocalName);
+                throw new InvalidOperationException("Could not find parent key for foreign key relationship. Expected to find one for " + table.Name.LocalName + "." + column.Name.LocalName);
 
             var parentTable = relationalKey.ParentTable;
             var parentSchemaName = NameTranslator.SchemaToNamespace(parentTable);
