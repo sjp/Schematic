@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
@@ -126,6 +127,31 @@ public abstract class DataAccessGenerator : IDataAccessGenerator
         }
 
         return project.ToString(SaveOptions.None);
+    }
+
+    /// <summary>
+    /// Determines the NuGet package version of the package that a given assembly was published in.
+    /// </summary>
+    /// <param name="assembly">An assembly provided by a NuGet package.</param>
+    /// <returns>The version of the package that <paramref name="assembly"/> was published in, without any SemVer build metadata.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="assembly"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException">A package version could not be determined for <paramref name="assembly"/>.</exception>
+    protected static string GetPackageVersion(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        // read from assembly metadata rather than the file on disk, as an assembly
+        // has no location when published as part of a single file application
+        var informationalVersion = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? string.Empty;
+
+        // informational versions routinely carry build metadata, e.g. '9.0.0+abc123', which is unwanted noise in a package reference
+        var metadataSeparatorIndex = informationalVersion.IndexOf('+', StringComparison.Ordinal);
+        var packageVersion = (metadataSeparatorIndex >= 0 ? informationalVersion[..metadataSeparatorIndex] : informationalVersion).Trim();
+
+        if (packageVersion.Length == 0)
+            throw new ArgumentException($"Unable to determine the package version for the assembly '{assembly.GetName().Name}'.", nameof(assembly));
+
+        return packageVersion;
     }
 
     /// <summary>

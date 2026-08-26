@@ -1,7 +1,9 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -129,6 +131,32 @@ internal static class OrmLiteDataAccessGeneratorTests
         var projectPath = Path.Combine(tempDir.DirectoryPath, "DataAccessGeneratorTest.vbproj");
 
         Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static async Task GenerateAsync_WhenInvoked_WritesPackageVersionWithoutBuildMetadata()
+    {
+        var mockFs = new MockFileSystem();
+        var database = CreateDatabase("test_table", "test_view");
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new VerbatimNameTranslator();
+        var generator = new OrmLiteDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
+
+        await generator.GenerateAsync(projectPath, "test");
+
+        var projectText = await mockFs.File.ReadAllTextAsync(projectPath);
+        var version = XDocument.Parse(projectText)
+            .Descendants("PackageReference")
+            .Single(static e => e.Attribute("Include")?.Value == "ServiceStack.OrmLite")
+            .Attribute("Version")?.Value;
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(version, Is.Not.Null.And.Not.Empty);
+            Assert.That(version, Does.Not.Contain("+"));
+        });
     }
 
     private static IRelationalDatabase CreateDatabase(Identifier tableName, Identifier viewName)

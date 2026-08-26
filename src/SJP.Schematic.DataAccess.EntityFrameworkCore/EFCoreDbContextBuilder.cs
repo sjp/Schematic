@@ -6,7 +6,6 @@ using LanguageExt;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SJP.Schematic.Core;
@@ -56,7 +55,7 @@ public class EFCoreDbContextBuilder
     /// <summary>
     /// The name used for the generated <see cref="DbContext"/> class when no other name is provided.
     /// </summary>
-    /// <remarks>Deliberately not <c>AppContext</c>, which would collide with <see cref="System.AppContext"/> in the generated code.</remarks>
+    /// <remarks>Deliberately not <c>AppContext</c>, which would collide with <see cref="AppContext"/> in the generated code.</remarks>
     public const string DefaultContextClassName = "DatabaseContext";
 
     /// <summary>
@@ -102,8 +101,7 @@ public class EFCoreDbContextBuilder
                         .WithMembers(
                             SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
-        using var workspace = new AdhocWorkspace();
-        return Formatter.Format(document, workspace).ToFullString();
+        return SyntaxUtilities.FormatSyntaxTree(document);
     }
 
     private const string SystemNamespace = nameof(System);

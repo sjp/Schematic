@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -38,13 +37,5 @@ public class OrmLiteDataAccessGenerator : DataAccessGenerator
     /// <inheritdoc />
     protected override string ProjectDefinition => ProjectDefinitionXml;
 
-    private static readonly string ProjectDefinitionXml = BuildProjectDefinition(("ServiceStack.OrmLite", GetOrmLiteVersionString()));
-
-    private static string GetOrmLiteVersionString()
-    {
-        var ormliteAssembly = typeof(ServiceStack.OrmLite.OrmLiteConfig).Assembly;
-        var productVersion = FileVersionInfo.GetVersionInfo(ormliteAssembly.Location).ProductVersion ?? string.Empty;
-
-        return productVersion.Split('+', 2, StringSplitOptions.RemoveEmptyEntries)[0];
-    }
+    private static readonly string ProjectDefinitionXml = BuildProjectDefinition(("ServiceStack.OrmLite", GetPackageVersion(typeof(ServiceStack.OrmLite.OrmLiteConfig).Assembly)));
 }

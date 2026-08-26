@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Frozen;
 using System.Globalization;
-using System.Linq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.DataAccess;
 
@@ -58,13 +58,13 @@ public abstract class NameTranslator : INameTranslator
         if (!IsValidFirstChar(identifier[0]))
             return false;
 
-        var restChars = identifier.Skip(1).ToList();
-        if (restChars.Empty())
-            return true;
+        for (var i = 1; i < identifier.Length; i++)
+        {
+            if (!IsValidPartCategory(identifier[i].GetUnicodeCategory()))
+                return false;
+        }
 
-        return restChars
-            .Select(static c => c.GetUnicodeCategory())
-            .All(IsValidPartCategory);
+        return true;
     }
 
     /// <summary>
@@ -78,15 +78,10 @@ public abstract class NameTranslator : INameTranslator
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(objectName);
 
-        if (!IsValidFirstChar(objectName[0]))
-            objectName = "_" + objectName;
-
-        var chars = objectName
-            .Select(static c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-            .Where(static cc => IsValidPartCategory(cc.CharCategory))
-            .Select(static cc => cc.NameChar);
-
-        return new string(chars.ToArray());
+        // an underscore is itself a valid part character, so prefixing before or after filtering is equivalent
+        return IsValidFirstChar(objectName[0])
+            ? RemoveInvalidPartChars(objectName)
+            : "_" + RemoveInvalidPartChars(objectName);
     }
 
     /// <summary>
@@ -105,15 +100,43 @@ public abstract class NameTranslator : INameTranslator
         if (string.Equals(columnName, className, StringComparison.Ordinal))
             return columnName + "_";
 
-        if (!IsValidFirstChar(columnName[0]))
-            columnName = "_" + columnName;
+        return IsValidFirstChar(columnName[0])
+            ? RemoveInvalidPartChars(columnName)
+            : "_" + RemoveInvalidPartChars(columnName);
+    }
 
-        var chars = columnName
-            .Select(c => new { NameChar = c, CharCategory = c.GetUnicodeCategory() })
-            .Where(cc => IsValidPartCategory(cc.CharCategory))
-            .Select(cc => cc.NameChar);
+    /// <summary>
+    /// Removes any character from a name that is not valid within an identifier.
+    /// </summary>
+    /// <param name="name">A name.</param>
+    /// <returns><paramref name="name"/> when every character is valid; otherwise a copy with the invalid characters removed.</returns>
+    private static string RemoveInvalidPartChars(string name)
+    {
+        var firstInvalidIndex = -1;
+        for (var i = 0; i < name.Length; i++)
+        {
+            if (!IsValidPartCategory(name[i].GetUnicodeCategory()))
+            {
+                firstInvalidIndex = i;
+                break;
+            }
+        }
 
-        return new string(chars.ToArray());
+        // the common case is a name that needs no filtering at all
+        if (firstInvalidIndex < 0)
+            return name;
+
+        var builder = StringBuilderCache.Acquire(name.Length);
+        builder.Append(name.AsSpan(0, firstInvalidIndex));
+
+        for (var i = firstInvalidIndex + 1; i < name.Length; i++)
+        {
+            var c = name[i];
+            if (IsValidPartCategory(c.GetUnicodeCategory()))
+                builder.Append(c);
+        }
+
+        return builder.GetStringAndRelease();
     }
 
     /// <summary>

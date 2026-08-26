@@ -6,7 +6,6 @@ using LanguageExt;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 using ServiceStack.DataAnnotations;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
@@ -86,8 +85,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
                         .WithMembers(
                             SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
-        using var workspace = new AdhocWorkspace();
-        return Formatter.Format(document, workspace).ToFullString();
+        return SyntaxUtilities.FormatSyntaxTree(document);
     }
 
     private RecordDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)

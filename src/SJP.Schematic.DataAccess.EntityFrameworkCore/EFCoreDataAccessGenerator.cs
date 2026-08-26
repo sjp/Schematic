@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,11 +62,5 @@ public class EFCoreDataAccessGenerator : DataAccessGenerator
     /// <inheritdoc />
     protected override string ProjectDefinition => ProjectDefinitionXml;
 
-    private static readonly string ProjectDefinitionXml = BuildProjectDefinition(("Microsoft.EntityFrameworkCore.Relational", GetEfCoreVersionString()));
-
-    private static string GetEfCoreVersionString()
-    {
-        var efCoreAssembly = typeof(Microsoft.EntityFrameworkCore.DbContext).Assembly;
-        return FileVersionInfo.GetVersionInfo(efCoreAssembly.Location).ProductVersion ?? string.Empty;
-    }
+    private static readonly string ProjectDefinitionXml = BuildProjectDefinition(("Microsoft.EntityFrameworkCore.Relational", GetPackageVersion(typeof(Microsoft.EntityFrameworkCore.DbContext).Assembly)));
 }

@@ -5,7 +5,6 @@ using LanguageExt;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -82,8 +81,7 @@ public class PocoViewGenerator : DatabaseViewGenerator
                         .WithMembers(
                             SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
-        using var workspace = new AdhocWorkspace();
-        return Formatter.Format(document, workspace).ToFullString();
+        return SyntaxUtilities.FormatSyntaxTree(document);
     }
 
     private RecordDeclarationSyntax BuildClass(IDatabaseView view, Option<IDatabaseViewComments> comment)

@@ -6,6 +6,7 @@ using System.Xml;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 using SJP.Schematic.Core.Utilities;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -210,6 +211,29 @@ public static class SyntaxUtilities
             ? NullableType(typeSyntax)
             : typeSyntax;
     }
+
+    /// <summary>
+    /// Formats a generated syntax tree using the default C# formatting conventions.
+    /// </summary>
+    /// <param name="node">The root node of a generated syntax tree.</param>
+    /// <returns>The formatted source code that <paramref name="node"/> represents.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="node"/> is <see langword="null" />.</exception>
+    public static string FormatSyntaxTree(SyntaxNode node)
+    {
+        ArgumentNullException.ThrowIfNull(node);
+
+        return Formatter.Format(node, FormattingWorkspace).ToFullString();
+    }
+
+    /// <summary>
+    /// A workspace used solely as a carrier for the formatting options and services that <see cref="Formatter"/> requires.
+    /// </summary>
+    /// <remarks>
+    /// Constructing a workspace resolves the MEF host services, which is expensive enough that generating a
+    /// database's worth of source files is dominated by it when a workspace is created for each file.
+    /// Formatting only reads from the workspace, so one instance can be shared for the lifetime of the process.
+    /// </remarks>
+    private static readonly AdhocWorkspace FormattingWorkspace = new();
 
     private static IReadOnlyList<string> GetLines(string comment)
     {
