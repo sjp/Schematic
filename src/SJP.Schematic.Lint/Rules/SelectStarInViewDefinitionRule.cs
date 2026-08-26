@@ -15,7 +15,13 @@ namespace SJP.Schematic.Lint.Rules;
 /// <seealso cref="IViewRule"/>
 public partial class SelectStarInViewDefinitionRule : Rule, IViewRule
 {
-    [GeneratedRegex(@"\bselect\b(?:\s+distinct)?(?:\s+top\s+\d+(?:\s+percent)?)?\s+(?:[\w""\[\]]+\.)?\*", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    // Matches a wildcard either at the start of a select list (after any DISTINCT/ALL quantifier
+    // and TOP clause) or following a comma later in the list. Requiring the '*' to be preceded by
+    // whitespace, a comma, or a 'qualifier.' keeps aggregates such as count(*) from matching.
+    [GeneratedRegex(
+        @"\bselect\b(?:\s+(?:distinct|all))?(?:(?:\s+top\s+\d+|\s+top\s*\(\s*\d+\s*\))(?:\s+percent)?)?\s+(?:[\w""\[\]]+\.)*\*|,\s*(?:[\w""\[\]]+\.)*\*",
+        RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
+        matchTimeoutMilliseconds: 100)]
     private static partial Regex SelectStarRegex();
 
     /// <summary>

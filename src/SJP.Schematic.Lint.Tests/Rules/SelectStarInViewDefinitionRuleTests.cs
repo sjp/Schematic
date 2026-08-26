@@ -63,4 +63,112 @@ internal static class SelectStarInViewDefinitionRuleTests
 
         Assert.That(messages, Is.Not.Empty);
     }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewSelectingQualifiedStarMidSelectList_ProducesMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT a.id, b.* FROM a INNER JOIN b ON a.id = b.a_id");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewSelectingMultiPartQualifiedStar_ProducesMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT [source_db].[dbo].[source_table].* FROM [source_db].[dbo].[source_table]");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewSelectingBareStarMidSelectList_ProducesMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT id, * FROM source_table");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewSelectingStarWithParenthesisedTop_ProducesMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT TOP (10) * FROM source_table");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewSelectingStarWithAllQuantifier_ProducesMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT ALL * FROM source_table");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewUsingCountStar_ProducesNoMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT COUNT(*) AS record_count FROM source_table");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewUsingCountStarAfterAnotherColumn_ProducesNoMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT id, COUNT(*) AS record_count FROM source_table GROUP BY id");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewUsingSumStar_ProducesNoMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT sum(*) AS total FROM source_table");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseViews_GivenViewWithExplicitColumnsFromMultipleTables_ProducesNoMessages()
+    {
+        var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
+        var view = CreateView("SELECT a.id, b.name, a.value * b.multiplier FROM a INNER JOIN b ON a.id = b.a_id");
+        var views = new[] { view };
+
+        var messages = await rule.AnalyseViews(views);
+
+        Assert.That(messages, Is.Empty);
+    }
 }
