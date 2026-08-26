@@ -138,29 +138,30 @@ public class DbmlFormatter : IDbmlFormatter
 
         foreach (var relationalKey in table.ParentKeys)
         {
-            var lines = new List<string>();
-
             var isChildKeyUnique = IsChildKeyUnique(table, relationalKey.ChildKey);
             var relationalOperator = isChildKeyUnique ? "-" : ">";
 
             var parentTableName = relationalKey.ParentTable.ToVisibleName();
 
-            var columnPairs = relationalKey.ChildKey.Columns.Zip(relationalKey.ParentKey.Columns);
-            foreach (var columnPair in columnPairs)
-            {
-                var childColumn = columnPair.Item1.Name.ToVisibleName();
-                var parentColumn = columnPair.Item2.Name.ToVisibleName();
+            var childRef = childTableName + "." + RenderKeyColumns(relationalKey.ChildKey);
+            var parentRef = parentTableName + "." + RenderKeyColumns(relationalKey.ParentKey);
 
-                var childRef = childTableName + "." + childColumn;
-                var parentRef = parentTableName + "." + parentColumn;
-
-                var result = "Ref: " + childRef + " " + relationalOperator + " " + parentRef;
-                lines.Add(result);
-            }
-
-            foreach (var line in lines)
-                builder.AppendLine(line);
+            builder.Append("Ref: ")
+                .Append(childRef)
+                .Append(' ')
+                .Append(relationalOperator)
+                .Append(' ')
+                .AppendLine(parentRef);
         }
+    }
+
+    private static string RenderKeyColumns(IDatabaseKey key)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        return key.Columns.Count > 1
+            ? "(" + key.Columns.Select(static c => c.Name.ToVisibleName()).Join(", ") + ")"
+            : key.Columns.Single().Name.ToVisibleName();
     }
 
     private static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)

@@ -104,6 +104,27 @@ create table test_table_9 (
     constraint fk_test_table_9_test_table_6_fk1 foreign key (test_table_9_fk1) references test_table_6 (test_pk)
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create unique index ux_test_table_9_fk1 on test_table_9 (test_table_9_fk1)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table test_table_10 (
+    test_pk_1 integer not null,
+    test_pk_2 integer not null,
+    constraint test_table_10_pk primary key (test_pk_1, test_pk_2)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table test_table_11 (
+    test_pk integer not null primary key autoincrement,
+    test_table_10_fk1 integer not null,
+    test_table_10_fk2 integer not null,
+    constraint fk_test_table_11_test_table_10 foreign key (test_table_10_fk1, test_table_10_fk2) references test_table_10 (test_pk_1, test_pk_2)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table test_table_12 (
+    test_pk integer not null primary key autoincrement,
+    test_table_10_fk1 integer not null,
+    test_table_10_fk2 integer not null,
+    constraint fk_test_table_12_test_table_10 foreign key (test_table_10_fk1, test_table_10_fk2) references test_table_10 (test_pk_1, test_pk_2),
+    constraint test_table_12_uk1 unique (test_table_10_fk1, test_table_10_fk2)
+)", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -118,6 +139,9 @@ create table test_table_9 (
         await DbConnection.ExecuteAsync("drop table test_table_8", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table test_table_9", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table test_table_6", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_11", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_12", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_10", CancellationToken.None);
     }
 
     [Test]
@@ -167,6 +191,21 @@ create table test_table_9 (
         var result = Formatter.RenderTables(tables);
 
         Assert.That(result, Is.EqualTo(MultipleRelationshipsDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public async Task RenderTables_GivenTablesWithCompositeRelationalKeys_GeneratesExpectedDbml()
+    {
+        var tables = new[]
+        {
+            await GetTable("test_table_10"),
+            await GetTable("test_table_11"),
+            await GetTable("test_table_12"),
+        };
+
+        var result = Formatter.RenderTables(tables);
+
+        Assert.That(result, Is.EqualTo(CompositeRelationshipsDbml).IgnoreLineEndingFormat);
     }
 
     private const string TestTable1Dbml = """
@@ -230,4 +269,24 @@ Table main_test_table_9 {
 Ref: main_test_table_7.test_table_6_fk1 > main_test_table_6.test_pk
 Ref: main_test_table_8.test_table_8_fk1 - main_test_table_6.test_pk
 Ref: main_test_table_9.test_table_9_fk1 - main_test_table_6.test_pk";
+
+    private const string CompositeRelationshipsDbml = @"Table main_test_table_10 {
+    test_pk_1 INTEGER [not null]
+    test_pk_2 INTEGER [not null]
+}
+
+Table main_test_table_11 {
+    test_pk INTEGER [not null, increment, primary key]
+    test_table_10_fk1 INTEGER [not null]
+    test_table_10_fk2 INTEGER [not null]
+}
+
+Table main_test_table_12 {
+    test_pk INTEGER [not null, increment, primary key]
+    test_table_10_fk1 INTEGER [not null]
+    test_table_10_fk2 INTEGER [not null]
+}
+
+Ref: main_test_table_11.(test_table_10_fk1, test_table_10_fk2) > main_test_table_10.(test_pk_1, test_pk_2)
+Ref: main_test_table_12.(test_table_10_fk1, test_table_10_fk2) - main_test_table_10.(test_pk_1, test_pk_2)";
 }
