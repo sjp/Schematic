@@ -355,13 +355,9 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
             attributes.Add(defaultAttribute);
         });
 
-        var isForeignKey = ColumnIsForeignKey(table, column);
-        if (isForeignKey)
+        var relationalKey = ColumnRelationalKey(table, column);
+        if (relationalKey != null)
         {
-            var relationalKey = ColumnRelationalKey(table, column);
-            if (relationalKey == null)
-                throw new InvalidOperationException("Could not find parent key for foreign key relationship. Expected to find one for " + table.Name.LocalName + "." + column.Name.LocalName);
-
             var parentTable = relationalKey.ParentTable;
             var parentSchemaName = NameTranslator.SchemaToNamespace(parentTable);
             var parentClassName = NameTranslator.TableToClassName(parentTable);
@@ -471,25 +467,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(column);
 
-        var foreignKeys = table.ParentKeys;
-        if (foreignKeys.Empty())
-            return false;
-
-        foreach (var foreignKey in foreignKeys)
-        {
-            if (foreignKey.ParentKey.KeyType != DatabaseKeyType.Primary)
-                continue; // ormlite only supports FK to primary key
-
-            var childColumns = foreignKey.ChildKey.Columns;
-            if (childColumns.Count > 1)
-                continue;
-
-            var childColumn = childColumns.First();
-            if (string.Equals(childColumn.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal))
-                return true;
-        }
-
-        return false;
+        return ColumnRelationalKey(table, column) != null;
     }
 
     /// <summary>
