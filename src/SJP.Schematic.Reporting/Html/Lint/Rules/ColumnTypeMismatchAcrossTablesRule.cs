@@ -14,17 +14,29 @@ internal sealed class ColumnTypeMismatchAcrossTablesRule : Schematic.Lint.Rules.
     {
     }
 
-    protected override IRuleMessage BuildMessage(string columnName, IReadOnlyCollection<Identifier> tableNames)
+    protected override IRuleMessage BuildMessage(string columnName, IReadOnlyCollection<(string TypeDefinition, IReadOnlyCollection<Identifier> TableNames)> typeGroups)
     {
         ArgumentNullException.ThrowIfNull(columnName);
-        ArgumentNullException.ThrowIfNull(tableNames);
+        ArgumentNullException.ThrowIfNull(typeGroups);
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The column '")
             .Append(columnName)
-            .Append("' is declared with differing types across the following tables: ")
-            .AppendJoin(", ", tableNames.Select(static t => t.ToVisibleName()))
-            .Append(". Consider using a consistent type to avoid implicit conversions and join errors.");
+            .Append("' is declared with differing types across tables: ");
+
+        var firstGroup = true;
+        foreach (var (typeDefinition, tableNames) in typeGroups)
+        {
+            if (!firstGroup)
+                builder.Append("; ");
+            firstGroup = false;
+
+            builder.Append(typeDefinition)
+                .Append(" in ")
+                .AppendJoin(", ", tableNames.Select(static t => t.ToVisibleName()));
+        }
+
+        builder.Append(". Consider using a consistent type to avoid implicit conversions and join errors.");
 
         var messageText = builder.GetStringAndRelease();
 

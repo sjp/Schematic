@@ -60,9 +60,29 @@ internal static class ColumnTypeMismatchAcrossTablesRuleTests
 
         Assert.That(messages, Is.Not.Empty);
         var message = messages.Single();
-        Assert.That(message.Message, Does.Contain("test_schema.first_table"));
-        Assert.That(message.Message, Does.Contain("test_schema.second_table"));
+        Assert.That(message.Message, Does.Contain("integer in test_schema.first_table"));
+        Assert.That(message.Message, Does.Contain("bigint in test_schema.second_table"));
         Assert.That(message.Message, Does.Not.Contain("LocalName ="));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenSameNamedColumnWithDifferentTypes_NamesEachTypeAndItsTables()
+    {
+        var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
+        var tables = new[]
+        {
+            CreateTable("beta", CreateColumn("created_at", "datetime2(7)")),
+            CreateTable("alpha", CreateColumn("created_at", "datetime2(7)")),
+            CreateTable("gamma", CreateColumn("created_at", "datetime")),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        var message = messages.Single();
+        Assert.That(
+            message.Message,
+            Is.EqualTo("The column 'created_at' is declared with differing types across tables: datetime2(7) in alpha, beta; datetime in gamma. Consider using a consistent type to avoid implicit conversions and join errors.")
+        );
     }
 
     [Test]

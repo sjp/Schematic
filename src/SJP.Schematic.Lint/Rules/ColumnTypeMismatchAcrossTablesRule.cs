@@ -48,20 +48,22 @@ public class ColumnTypeMismatchAcrossTablesRule : Rule, ITableRule
         var messages = new List<IRuleMessage>();
         foreach (var columnGroup in columnsByName)
         {
-            var distinctTypes = columnGroup
-                .Select(static tc => tc.Column.Type.Definition)
-                .Distinct(StringComparer.Ordinal)
+            // Ordered so that the largest group of agreeing tables reads first and any outlier reads
+            // last. Ties and table names are ordered so that repeated runs produce identical messages.
+            var typeGroups = columnGroup
+                .GroupBy(static tc => tc.Column.Type.Definition, StringComparer.Ordinal)
+                .Select(static g => (
+                    TypeDefinition: g.Key,
+                    TableNames: (IReadOnlyCollection<Identifier>)g.Select(static tc => tc.Table).Distinct().Order().ToList()
+                ))
+                .OrderByDescending(static g => g.TableNames.Count)
+                .ThenBy(static g => g.TypeDefinition, StringComparer.Ordinal)
                 .ToList();
 
-            if (distinctTypes.Count <= 1)
+            if (typeGroups.Count <= 1)
                 continue;
 
-            var tableNames = columnGroup
-                .Select(static tc => tc.Table)
-                .Distinct()
-                .ToList();
-
-            messages.Add(BuildMessage(columnGroup.Key, tableNames));
+            messages.Add(BuildMessage(columnGroup.Key, typeGroups));
         }
 
         return Task.FromResult<IReadOnlyCollection<IRuleMessage>>(messages);
@@ -71,20 +73,32 @@ public class ColumnTypeMismatchAcrossTablesRule : Rule, ITableRule
     /// Builds the message used for reporting.
     /// </summary>
     /// <param name="columnName">The name of the column shared across tables.</param>
-    /// <param name="tableNames">The tables that declare the column with differing types.</param>
+    /// <param name="typeGroups">Each distinct type declared for the column, paired with the tables that declare it.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="tableNames"/> is <see langword="null" />.</exception>
-    protected virtual IRuleMessage BuildMessage(string columnName, IReadOnlyCollection<Identifier> tableNames)
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="typeGroups"/> is <see langword="null" />.</exception>
+    protected virtual IRuleMessage BuildMessage(string columnName, IReadOnlyCollection<(string TypeDefinition, IReadOnlyCollection<Identifier> TableNames)> typeGroups)
     {
         ArgumentNullException.ThrowIfNull(columnName);
-        ArgumentNullException.ThrowIfNull(tableNames);
+        ArgumentNullException.ThrowIfNull(typeGroups);
 
         var builder = StringBuilderCache.Acquire();
         builder.Append("The column '")
             .Append(columnName)
-            .Append("' is declared with differing types across the following tables: ")
-            .AppendJoin(", ", tableNames.Select(static t => t.ToString()))
-            .Append(". Consider using a consistent type to avoid implicit conversions and join errors.");
+            .Append("' is declared with differing types across tables: ");
+
+        var firstGroup = true;
+        foreach (var (typeDefinition, tableNames) in typeGroups)
+        {
+            if (!firstGroup)
+                builder.Append("; ");
+            firstGroup = false;
+
+            builder.Append(typeDefinition)
+                .Append(" in ")
+                .AppendJoin(", ", tableNames.Select(static t => t.ToString()));
+        }
+
+        builder.Append(". Consider using a consistent type to avoid implicit conversions and join errors.");
 
         var messageText = builder.GetStringAndRelease();
 
