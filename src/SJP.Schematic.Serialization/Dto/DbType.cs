@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized column data type.
 /// </summary>
-public class DbType
+public sealed record DbType
 {
     /// <summary>
     /// The name of the data type.

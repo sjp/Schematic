@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized database table.
 /// </summary>
-public class RelationalDatabaseTable
+public sealed record RelationalDatabaseTable
 {
     /// <summary>
     /// The name of the table.

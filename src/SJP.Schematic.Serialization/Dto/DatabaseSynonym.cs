@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized database synonym, i.e. an alias for another object.
 /// </summary>
-public class DatabaseSynonym
+public sealed record DatabaseSynonym
 {
     /// <summary>
     /// The name of the synonym.

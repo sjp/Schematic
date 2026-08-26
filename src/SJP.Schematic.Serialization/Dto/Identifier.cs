@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized database object name, qualified by as much of a server, database and schema as is known.
 /// </summary>
-public class Identifier
+public sealed record Identifier
 {
     /// <summary>
     /// The server the object belongs to, if known.

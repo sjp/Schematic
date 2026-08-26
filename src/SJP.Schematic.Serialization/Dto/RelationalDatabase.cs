@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized database definition.
 /// </summary>
-public class RelationalDatabase
+public sealed record RelationalDatabase
 {
     /// <summary>
     /// The default values applied to the database's identifiers when they are not otherwise qualified.

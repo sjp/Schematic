@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto.Comments;
 /// <summary>
 /// The serialized comments attached to a database's objects.
 /// </summary>
-public class DatabaseCommentProvider
+public sealed record DatabaseCommentProvider
 {
     /// <summary>
     /// The default values applied to the database's identifiers when they are not otherwise qualified.

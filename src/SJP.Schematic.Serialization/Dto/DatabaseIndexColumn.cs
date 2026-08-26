@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized column within a database index.
 /// </summary>
-public class DatabaseIndexColumn
+public sealed record DatabaseIndexColumn
 {
     /// <summary>
     /// The ordering applied to the column.

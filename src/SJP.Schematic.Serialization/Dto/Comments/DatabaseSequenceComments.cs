@@ -3,7 +3,7 @@
 /// <summary>
 /// The serialized comments attached to a database sequence.
 /// </summary>
-public class DatabaseSequenceComments
+public sealed record DatabaseSequenceComments
 {
     /// <summary>
     /// The name of the sequence the comments are attached to.

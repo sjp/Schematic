@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized database routine, e.g. a stored procedure or a function.
 /// </summary>
-public class DatabaseRoutine
+public sealed record DatabaseRoutine
 {
     /// <summary>
     /// The name of the routine.

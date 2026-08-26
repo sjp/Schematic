@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized database trigger.
 /// </summary>
-public class DatabaseTrigger
+public sealed record DatabaseTrigger
 {
     /// <summary>
     /// The name of the trigger.

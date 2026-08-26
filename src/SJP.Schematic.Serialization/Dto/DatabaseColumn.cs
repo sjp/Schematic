@@ -25,7 +25,7 @@
 /// providers rather than a defect, but a consumer that relies on reference identity will see it.
 /// </para>
 /// </remarks>
-public class DatabaseColumn
+public sealed record DatabaseColumn
 {
     /// <summary>
     /// The name of the column.

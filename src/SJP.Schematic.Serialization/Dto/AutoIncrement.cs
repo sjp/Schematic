@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized auto-incrementing sequence attached to a column.
 /// </summary>
-public class AutoIncrement
+public sealed record AutoIncrement
 {
     /// <summary>
     /// The value the sequence starts at.

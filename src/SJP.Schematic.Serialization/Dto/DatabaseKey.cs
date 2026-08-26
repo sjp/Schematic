@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized key constraint.
 /// </summary>
-public class DatabaseKey
+public sealed record DatabaseKey
 {
     /// <summary>
     /// The name of the key constraint, if available.

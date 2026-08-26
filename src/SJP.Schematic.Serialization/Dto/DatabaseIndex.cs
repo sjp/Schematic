@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized database index.
 /// </summary>
-public class DatabaseIndex
+public sealed record DatabaseIndex
 {
     /// <summary>
     /// The name of the index.

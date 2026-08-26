@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized foreign key relationship between two tables.
 /// </summary>
-public class DatabaseRelationalKey
+public sealed record DatabaseRelationalKey
 {
     /// <summary>
     /// The name of the table that holds the foreign key.

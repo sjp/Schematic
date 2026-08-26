@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized numeric precision.
 /// </summary>
-public class NumericPrecision
+public sealed record NumericPrecision
 {
     /// <summary>
     /// The total number of digits that can be stored.

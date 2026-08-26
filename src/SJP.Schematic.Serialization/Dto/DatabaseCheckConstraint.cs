@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized check constraint.
 /// </summary>
-public class DatabaseCheckConstraint
+public sealed record DatabaseCheckConstraint
 {
     /// <summary>
     /// The name of the check constraint, if available.

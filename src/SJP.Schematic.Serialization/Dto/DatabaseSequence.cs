@@ -3,7 +3,7 @@
 /// <summary>
 /// A serialized database sequence.
 /// </summary>
-public class DatabaseSequence
+public sealed record DatabaseSequence
 {
     /// <summary>
     /// The name of the sequence.

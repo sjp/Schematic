@@ -3,7 +3,7 @@
 /// <summary>
 /// The serialized comments attached to a database synonym.
 /// </summary>
-public class DatabaseSynonymComments
+public sealed record DatabaseSynonymComments
 {
     /// <summary>
     /// The name of the synonym the comments are attached to.

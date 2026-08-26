@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto.Comments;
 /// <summary>
 /// The serialized comments attached to a database view and to its columns.
 /// </summary>
-public class DatabaseViewComments
+public sealed record DatabaseViewComments
 {
     /// <summary>
     /// The name of the view the comments are attached to.

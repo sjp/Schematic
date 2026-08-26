@@ -3,7 +3,7 @@
 /// <summary>
 /// The serialized comments attached to a database routine.
 /// </summary>
-public class DatabaseRoutineComments
+public sealed record DatabaseRoutineComments
 {
     /// <summary>
     /// The name of the routine the comments are attached to.

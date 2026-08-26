@@ -5,7 +5,7 @@ namespace SJP.Schematic.Serialization.Dto;
 /// <summary>
 /// A serialized database view.
 /// </summary>
-public class DatabaseView
+public sealed record DatabaseView
 {
     /// <summary>
     /// The name of the view.

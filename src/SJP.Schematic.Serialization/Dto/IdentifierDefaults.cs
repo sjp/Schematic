@@ -3,7 +3,7 @@
 /// <summary>
 /// The serialized default values applied to a database's identifiers when they are not otherwise qualified.
 /// </summary>
-public class IdentifierDefaults
+public sealed record IdentifierDefaults
 {
     /// <summary>
     /// The default server name.

@@ -9,7 +9,7 @@ namespace SJP.Schematic.Serialization.Dto.Comments;
 /// The nested lookups are keyed by a name that is local to the table, e.g. a column name rather than a
 /// qualified one. A <see langword="null"/> value means the object exists but carries no comment.
 /// </remarks>
-public class DatabaseTableComments
+public sealed record DatabaseTableComments
 {
     /// <summary>
     /// The name of the table the comments are attached to.
