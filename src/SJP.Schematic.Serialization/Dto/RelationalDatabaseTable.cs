@@ -6,7 +6,7 @@ public class RelationalDatabaseTable
 {
     public required Identifier TableName { get; init; }
 
-    public required DatabaseKey? PrimaryKey { get; init; }
+    public DatabaseKey? PrimaryKey { get; init; }
 
     public required IEnumerable<DatabaseColumn> Columns { get; init; }
 

@@ -526,6 +526,71 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenTableWithoutPrimaryKeyRoundTripped_PreservesMissingPrimaryKey()
+    {
+        var db = CreatePrimaryKeyDatabase(hasPrimaryKey: false);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+
+        Assert.That(tables.Single().PrimaryKey.IsNone, Is.True);
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenTableWithPrimaryKeyRoundTripped_PreservesPrimaryKey()
+    {
+        var db = CreatePrimaryKeyDatabase(hasPrimaryKey: true);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var primaryKey = tables.Single().PrimaryKey.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(primaryKey.Name.UnwrapSome().LocalName, Is.EqualTo("test_primary_key"));
+            Assert.That(primaryKey.Columns.Single().Name.LocalName, Is.EqualTo("first_name"));
+        }
+    }
+
+    [Test]
+    public static async Task Serialize_WhenTableHasNoPrimaryKey_OmitsPrimaryKey()
+    {
+        var db = CreatePrimaryKeyDatabase(hasPrimaryKey: false);
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        Assert.That(json, Does.Not.Contain("PrimaryKey"));
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenTableWithoutPrimaryKeyRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreatePrimaryKeyDatabase(hasPrimaryKey: false);
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        }
+    }
+
+    [Test]
     public static async Task DeserializeAsync_GivenWellFormedTableDefinition_ParsesWithoutError()
     {
         var json = CreateTableDatabaseJson(ValidTableNameJson, ValidColumnsJson, ValidChecksJson);
@@ -776,19 +841,10 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
         var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
 
-        // a primary key is present because a table without one cannot currently be round-tripped,
-        // see issues/serialization-missing-primary-key-round-trip.md
-        var primaryKey = new DatabaseKey(
-            Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
-            [firstNameColumn],
-            true
-        );
-
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<IDatabaseKey>.None,
             [],
             [],
             [],
@@ -831,19 +887,57 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             new DatabaseComputedColumn("test_computed_column", columnType, true, Option<string>.None, definition),
         };
 
-        // a primary key is present because a table without one cannot currently be round-tripped,
-        // see issues/serialization-missing-primary-key-round-trip.md
-        var primaryKey = new DatabaseKey(
-            Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
-            [firstNameColumn],
-            true
-        );
-
         var table = new RelationalDatabaseTable(
             "test_table_name",
             columns,
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    private static IRelationalDatabase CreatePrimaryKeyDatabase(bool hasPrimaryKey)
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            typeof(string),
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+
+        var primaryKey = hasPrimaryKey
+            ? Option<IDatabaseKey>.Some(new DatabaseKey(
+                Option<Identifier>.Some("test_primary_key"),
+                DatabaseKeyType.Primary,
+                [firstNameColumn],
+                true
+            ))
+            : Option<IDatabaseKey>.None;
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [firstNameColumn],
+            primaryKey,
             [],
             [],
             [],
@@ -887,19 +981,10 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             filterDefinition
         );
 
-        // a primary key is present because a table without one cannot currently be round-tripped,
-        // see issues/serialization-missing-primary-key-round-trip.md
-        var primaryKey = new DatabaseKey(
-            Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
-            [firstNameColumn],
-            true
-        );
-
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<IDatabaseKey>.None,
             [],
             [],
             [],
