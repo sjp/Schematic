@@ -35,6 +35,72 @@ internal static class DbmlFormatterTests
     }
 
     [Test]
+    public static void RenderTables_GivenNullableColumn_RendersNullOption()
+    {
+        var columns = new List<IDatabaseColumn>
+        {
+            CreateColumn("first_name", "text", Option<string>.None, true, Option<IAutoIncrement>.None),
+            CreateColumn("last_name", "text"),
+        };
+        var table = CreateTable(columns, Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        Assert.That(result, Is.EqualTo(NullableColumnDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenAutoIncrementPrimaryKeyColumnWithDefault_RendersAllColumnOptions()
+    {
+        var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
+        var column = CreateColumn("id", "text", Option<string>.Some("0"), false, autoIncrement);
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, [column], true);
+        var table = CreateTable([column], primaryKey, [], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        Assert.That(result, Is.EqualTo(AutoIncrementColumnDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenSingleColumnUniqueKey_RendersUniqueColumnOptionWithoutIndexEntry()
+    {
+        var columns = CreateColumns("first_name", "last_name");
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, [columns[0]], true);
+        var table = CreateTable(columns, Option<IDatabaseKey>.None, [uniqueKey], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        Assert.That(result, Is.EqualTo(SingleColumnUniqueKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenColumnInSingleColumnPrimaryAndUniqueKeys_RendersOnlyPrimaryKeyOption()
+    {
+        var columns = CreateColumns("id");
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, columns, true);
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, columns, true);
+        var table = CreateTable(columns, primaryKey, [uniqueKey], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        Assert.That(result, Is.EqualTo(PrimaryAndUniqueKeyColumnDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenTableWithCompositePrimaryAndUniqueKeys_RendersPrimaryKeyBeforeUniqueKey()
+    {
+        var columns = CreateColumns("first_name", "last_name", "comment");
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, columns.Take(2).ToList(), true);
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, columns.Skip(1).ToList(), true);
+        var table = CreateTable(columns, primaryKey, [uniqueKey], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        Assert.That(result, Is.EqualTo(CompositePrimaryAndUniqueKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
     public static void RenderTables_GivenTableWithCompositePrimaryKey_RendersPrimaryKeyAsIndex()
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
@@ -522,6 +588,15 @@ internal static class DbmlFormatterTests
         => CreateColumn(columnName, typeDefinition, Option<string>.None);
 
     private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition, Option<string> defaultValue)
+        => CreateColumn(columnName, typeDefinition, defaultValue, false, Option<IAutoIncrement>.None);
+
+    private static IDatabaseColumn CreateColumn(
+        Identifier columnName,
+        string typeDefinition,
+        Option<string> defaultValue,
+        bool isNullable,
+        Option<IAutoIncrement> autoIncrement
+    )
     {
         var columnType = new ColumnDataType(
             "text",
@@ -537,9 +612,9 @@ internal static class DbmlFormatterTests
         return new DatabaseColumn(
             columnName,
             columnType,
-            false,
+            isNullable,
             defaultValue,
-            Option<IAutoIncrement>.None
+            autoIncrement
         );
     }
 
@@ -557,6 +632,45 @@ internal static class DbmlFormatterTests
         IReadOnlyCollection<IDatabaseKey> uniqueKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes
     ) => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, [], [], indexes, [], []);
+
+    private const string NullableColumnDbml = """
+Table test_table {
+    first_name text [null]
+    last_name text [not null]
+}
+""";
+
+    private const string AutoIncrementColumnDbml = """
+Table test_table {
+    id text [not null, increment, primary key, default: 0]
+}
+""";
+
+    private const string SingleColumnUniqueKeyDbml = """
+Table test_table {
+    first_name text [not null, unique]
+    last_name text [not null]
+}
+""";
+
+    private const string PrimaryAndUniqueKeyColumnDbml = """
+Table test_table {
+    id text [not null, primary key]
+}
+""";
+
+    private const string CompositePrimaryAndUniqueKeyDbml = """
+Table test_table {
+    first_name text [not null]
+    last_name text [not null]
+    comment text [not null]
+
+    Indexes {
+        (first_name, last_name) [name: 'test_table_pk', pk]
+        (last_name, comment) [name: 'test_table_uk', unique]
+    }
+}
+""";
 
     private const string CompositePrimaryKeyDbml = """
 Table test_table {
