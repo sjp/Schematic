@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -103,6 +104,83 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
         }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenRoundTripped_PreservesCommentLookupComparer()
+    {
+        var comments = SampleComments;
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, comments);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedComments = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        var importedTableComments = await importedComments.GetAllTableComments();
+        var columnComments = importedTableComments.First().ColumnComments as Dictionary<Identifier, Option<string>>;
+
+        Assert.That(columnComments?.Comparer, Is.SameAs(IdentifierComparer.Ordinal));
+    }
+
+    [Test]
+    public static async Task SerializeAsync_WhenTableCommentLookupContainsQualifiedKey_ThrowsArgumentException()
+    {
+        var comments = new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [
+                new RelationalDatabaseTableComments(
+                    "test_table_1",
+                    Option<string>.None,
+                    Option<string>.None,
+                    new Dictionary<Identifier, Option<string>>
+                    {
+                        [Identifier.CreateQualifiedIdentifier("main", "table_column_1")] = Option<string>.Some("table column comment"),
+                    },
+                    new Dictionary<Identifier, Option<string>>(),
+                    new Dictionary<Identifier, Option<string>>(),
+                    new Dictionary<Identifier, Option<string>>(),
+                    new Dictionary<Identifier, Option<string>>(),
+                    new Dictionary<Identifier, Option<string>>()
+                ),
+            ],
+            [],
+            [],
+            [],
+            []
+        );
+
+        await using var jsonOutputStream = new MemoryStream();
+
+        await Assert.ThatAsync(() => Serializer.SerializeAsync(jsonOutputStream, comments), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static async Task SerializeAsync_WhenViewCommentLookupContainsQualifiedKey_ThrowsArgumentException()
+    {
+        var comments = new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [
+                new DatabaseViewComments(
+                    "test_view_1",
+                    Option<string>.None,
+                    new Dictionary<Identifier, Option<string>>
+                    {
+                        [Identifier.CreateQualifiedIdentifier("main", "view_column_1")] = Option<string>.Some("view column comment"),
+                    }
+                ),
+            ],
+            [],
+            [],
+            []
+        );
+
+        await using var jsonOutputStream = new MemoryStream();
+
+        await Assert.ThatAsync(() => Serializer.SerializeAsync(jsonOutputStream, comments), Throws.ArgumentException);
     }
 
     private static IRelationalDatabaseCommentProvider SampleComments { get; } =
