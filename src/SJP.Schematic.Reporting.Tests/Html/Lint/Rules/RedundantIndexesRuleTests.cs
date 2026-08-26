@@ -1,6 +1,7 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -25,6 +26,8 @@ internal static class RedundantIndexesRuleTests
         index.Setup(c => c.Name).Returns(indexName);
         index.Setup(c => c.Columns).Returns(indexColumns);
         index.Setup(c => c.IncludedColumns).Returns(includedColumns);
+        index.Setup(c => c.IsUnique).Returns(false);
+        index.Setup(c => c.FilterDefinition).Returns(Option<string>.None);
 
         return index.Object;
     }

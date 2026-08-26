@@ -35,6 +35,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// Analyses database tables.
     /// Reports messages when tables contain redundant indexes, where the index column set is a prefix of another index.
     /// Additionally, this requires both column sort ordering to be equivalent and the included columns (if present) to be a subset also.
+    /// A unique index is only redundant against a unique index covering the same key columns, and a filtered index only against an identically filtered index.
     /// </summary>
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -52,6 +53,7 @@ public class RedundantIndexesRule : Rule, ITableRule
     /// Analyses a database table.
     /// Reports messages when the table contains redundant indexes, where the index column set is a prefix of another index.
     /// Additionally, this requires both column sort ordering to be equivalent and the included columns (if present) to be a subset also.
+    /// A unique index is only redundant against a unique index covering the same key columns, and a filtered index only against an identically filtered index.
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
@@ -62,13 +64,18 @@ public class RedundantIndexesRule : Rule, ITableRule
 
         var result = new List<IRuleMessage>();
 
-        var indexes = table.Indexes;
-        foreach (var index in indexes)
+        var indexes = table.Indexes.ToList();
+        for (var i = 0; i < indexes.Count; i++)
         {
-            var otherIndexes = indexes.Where(i => i.Name != index.Name);
-            foreach (var otherIndex in otherIndexes)
+            var index = indexes[i];
+            for (var j = 0; j < indexes.Count; j++)
             {
-                if (!IsIndexRedundant(index, otherIndex))
+                var otherIndex = indexes[j];
+                if (index.Name == otherIndex.Name || !IsIndexRedundant(index, otherIndex))
+                    continue;
+
+                // equivalent indexes are redundant against each other, so only report the pair once
+                if (j < i && IsIndexRedundant(otherIndex, index))
                     continue;
 
                 var message = BuildMessage(
@@ -96,6 +103,20 @@ public class RedundantIndexesRule : Rule, ITableRule
 
         // can't be redundant if we have more columns
         if (index.Columns.Count > otherIndex.Columns.Count)
+            return false;
+
+        // a unique index enforces a constraint that a non-unique index does not, and a wider
+        // unique index enforces a weaker one, so uniqueness is only preserved by another
+        // unique index covering exactly the same key columns
+        if (index.IsUnique && (!otherIndex.IsUnique || index.Columns.Count != otherIndex.Columns.Count))
+            return false;
+
+        // a filtered index only covers the rows matching its filter, so it neither implies nor is
+        // implied by an index with a different filter, or with no filter at all
+        var filtersEquivalent = index.FilterDefinition.Match(
+            filter => otherIndex.FilterDefinition.Match(otherFilter => string.Equals(filter, otherFilter, StringComparison.Ordinal), static () => false),
+            () => otherIndex.FilterDefinition.IsNone);
+        if (!filtersEquivalent)
             return false;
 
         var indexColumns = index.Columns;

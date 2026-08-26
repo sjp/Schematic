@@ -18,6 +18,12 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
         await DbConnection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table valid_table_4 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create unique index ix_valid_table_4_1 on valid_table_4 ( column_2 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_4_2 on valid_table_4 ( column_2, column_3 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table valid_table_5 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_5_1 on valid_table_5 ( column_2 ) where column_3 > 0", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_5_2 on valid_table_5 ( column_2, column_3 )", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -26,6 +32,8 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
         await DbConnection.ExecuteAsync("drop table valid_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table valid_table_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table valid_table_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table valid_table_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table valid_table_5", CancellationToken.None);
     }
 
     [Test]
@@ -88,5 +96,37 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
         var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenTablesWithUniqueIndexPrefixOfNonUniqueIndex_ProducesNoMessages()
+    {
+        var rule = new RedundantIndexesRule(RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("valid_table_4").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenTablesWithFilteredIndexPrefixOfUnfilteredIndex_ProducesNoMessages()
+    {
+        var rule = new RedundantIndexesRule(RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("valid_table_5").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
     }
 }
