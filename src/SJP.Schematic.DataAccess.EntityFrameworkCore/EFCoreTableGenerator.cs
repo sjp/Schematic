@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Globalization;
 using System.IO.Abstractions;
 using System.Linq;
 using LanguageExt;
@@ -47,22 +46,6 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     /// </summary>
     /// <value>A string representing a namespace.</value>
     protected string Namespace { get; }
-
-    private static string GenerateUniqueName(StringHashSet existingNames, string propertyName)
-    {
-        var candidateName = propertyName;
-        var suffix = 1;
-        while (!existingNames.Add(candidateName))
-        {
-            candidateName = propertyName + "_" + suffix.ToString(CultureInfo.InvariantCulture);
-            suffix++;
-
-            if (suffix > 10000)
-                throw new InvalidOperationException("Unable to generate a valid candidate column name.");
-        }
-
-        return candidateName;
-    }
 
     /// <summary>
     /// Generates source code that enables interoperability with a given database table for Entity Framework Core.
@@ -129,14 +112,14 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         var parentKeyProperties = table.ParentKeys.Select(fk =>
         {
             var candidatePropertyName = NameTranslator.TableToClassName(fk.ParentTable);
-            var propertyName = GenerateUniqueName(usedNames, candidatePropertyName);
+            var propertyName = UniqueNameGenerator.GenerateUniqueName(usedNames, candidatePropertyName);
 
             return BuildParentKey(tables, fk, comment, className, propertyName);
         });
         var childKeyProperties = table.ChildKeys.Select(ck =>
         {
             var candidatePropertyName = NameTranslator.TableToClassName(ck.ChildTable).Pluralize();
-            var propertyName = GenerateUniqueName(usedNames, candidatePropertyName);
+            var propertyName = UniqueNameGenerator.GenerateUniqueName(usedNames, candidatePropertyName);
 
             return BuildChildKey(tables, ck, className, propertyName);
         });

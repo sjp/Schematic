@@ -77,10 +77,10 @@ create table exists_probe_table_1 (
         await noRowsRule.AnalyseTables(tables);
         var queryCountAfterSharingRule = connectionFactory.QueryCount;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(queryCountAfterProbingRule, Is.EqualTo(2));
             Assert.That(queryCountAfterSharingRule - queryCountAfterProbingRule, Is.EqualTo(1));
-        });
+        }
     }
 }

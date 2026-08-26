@@ -14,6 +14,7 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using StringHashSet = System.Collections.Generic.HashSet<string>;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore;
 
@@ -112,8 +113,11 @@ public class EFCoreDbContextBuilder
                 SimpleBaseType(
                     IdentifierName(nameof(DbContext)))));
 
-        var tableDbSets = tables.Select(BuildTableDbSet).ToList();
-        var viewDbSets = views.Select(BuildViewDbSet).ToList();
+        // DbSet properties are not namespace qualified, so objects sharing a local name in
+        // different schemas would otherwise declare the same property twice on the context.
+        var setNames = new StringHashSet(StringComparer.Ordinal);
+        var tableDbSets = tables.Select(t => BuildTableDbSet(t, setNames)).ToList();
+        var viewDbSets = views.Select(v => BuildViewDbSet(v, setNames)).ToList();
         var modelBuilderMethod = BuildOnModelCreatingMethod(tables, views, sequences);
         var members = tableDbSets
             .Concat(viewDbSets)
@@ -126,7 +130,7 @@ public class EFCoreDbContextBuilder
             .WithMembers(List(members));
     }
 
-    private PropertyDeclarationSyntax BuildTableDbSet(IRelationalDatabaseTable table)
+    private PropertyDeclarationSyntax BuildTableDbSet(IRelationalDatabaseTable table, StringHashSet setNames)
     {
         ArgumentNullException.ThrowIfNull(table);
 
@@ -135,7 +139,7 @@ public class EFCoreDbContextBuilder
         var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
             ? schemaNamespace + "." + className
             : className;
-        var setName = className.Pluralize();
+        var setName = UniqueNameGenerator.GenerateUniqueName(setNames, className.Pluralize());
         var qualifiedTableName = !table.Name.Schema.IsNullOrWhiteSpace()
             ? table.Name.Schema + "." + table.Name.LocalName
             : table.Name.LocalName;
@@ -143,7 +147,7 @@ public class EFCoreDbContextBuilder
         return BuildDbSetProperty(qualifiedClassName, setName, qualifiedTableName, "table");
     }
 
-    private PropertyDeclarationSyntax BuildViewDbSet(IDatabaseView view)
+    private PropertyDeclarationSyntax BuildViewDbSet(IDatabaseView view, StringHashSet setNames)
     {
         ArgumentNullException.ThrowIfNull(view);
 
@@ -152,7 +156,7 @@ public class EFCoreDbContextBuilder
         var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
             ? schemaNamespace + "." + className
             : className;
-        var setName = className.Pluralize();
+        var setName = UniqueNameGenerator.GenerateUniqueName(setNames, className.Pluralize());
         var qualifiedViewName = !view.Name.Schema.IsNullOrWhiteSpace()
             ? view.Name.Schema + "." + view.Name.LocalName
             : view.Name.LocalName;

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -79,6 +79,35 @@ internal static class EFCoreDbContextBuilderTests
 
         Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).IgnoreLineEndingFormat);
     }
+
+    [Test]
+    public static void Generate_GivenObjectsWithTheSameNameInDifferentSchemas_GeneratesUniquelyNamedDbSets()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+        var tables = new[]
+        {
+            CreateTable(Identifier.CreateQualifiedIdentifier("first", "test_object")),
+            CreateTable(Identifier.CreateQualifiedIdentifier("second", "test_object")),
+        };
+        var views = new[]
+        {
+            new DatabaseView(Identifier.CreateQualifiedIdentifier("third", "test_object"), "select 1 as dummy", []),
+        };
+        var sequences = Array.Empty<IDatabaseSequence>();
+
+        var result = dbContextBuilder.Generate(tables, views, sequences);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("DbSet<first.test_object> test_objects"));
+            Assert.That(result, Does.Contain("DbSet<second.test_object> test_objects_1"));
+            Assert.That(result, Does.Contain("DbSet<third.test_object> test_objects_2"));
+        }
+    }
+
+    private static IRelationalDatabaseTable CreateTable(Identifier tableName) =>
+        new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
 
     private const string ExpectedSequenceTestResult = """
 using System;

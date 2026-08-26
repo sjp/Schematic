@@ -18,6 +18,8 @@ namespace SJP.Schematic.DataAccess;
 /// <seealso cref="IDataAccessGenerator" />
 public abstract class DataAccessGenerator : IDataAccessGenerator
 {
+    private readonly UniqueNameTranslator _nameTranslator;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DataAccessGenerator"/> class.
     /// </summary>
@@ -32,10 +34,12 @@ public abstract class DataAccessGenerator : IDataAccessGenerator
         IRelationalDatabaseCommentProvider commentProvider,
         INameTranslator nameTranslator)
     {
+        ArgumentNullException.ThrowIfNull(nameTranslator);
+
         FileSystem = fileSystem ?? throw new ArgumentNullException(nameof(fileSystem));
         Database = database ?? throw new ArgumentNullException(nameof(database));
         CommentProvider = commentProvider ?? throw new ArgumentNullException(nameof(commentProvider));
-        NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
+        _nameTranslator = new UniqueNameTranslator(nameTranslator);
     }
 
     /// <summary>
@@ -60,7 +64,11 @@ public abstract class DataAccessGenerator : IDataAccessGenerator
     /// Gets the name translator.
     /// </summary>
     /// <value>The name translator.</value>
-    protected INameTranslator NameTranslator { get; }
+    /// <remarks>
+    /// Decorates the translator that was provided, so that database objects whose names translate to the same class name
+    /// are given distinct names instead of overwriting one another.
+    /// </remarks>
+    protected INameTranslator NameTranslator => _nameTranslator;
 
     /// <summary>
     /// The contents of the C# project file that the generated source files belong to.
@@ -175,6 +183,8 @@ public abstract class DataAccessGenerator : IDataAccessGenerator
             Database.GetAllViews(cancellationToken),
             CommentProvider.GetAllViewComments(cancellationToken)
         ).WhenAll();
+
+        _nameTranslator.ReserveClassNames(tables.Select(static t => t.Name), views.Select(static v => v.Name));
 
         var tableCommentsLookup = new Dictionary<Identifier, IRelationalDatabaseTableComments>();
         foreach (var comment in tableComments)

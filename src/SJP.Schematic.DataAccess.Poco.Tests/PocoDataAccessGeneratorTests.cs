@@ -1,6 +1,8 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -88,7 +90,7 @@ internal static class PocoDataAccessGeneratorTests
     public static async Task GenerateAsync_GivenStaleFilesFromPreviousRun_RemovesStaleFilesAndKeepsCurrentFiles()
     {
         var mockFs = new MockFileSystem();
-        var database = CreateDatabase("current_table", "current_view");
+        var database = CreateDatabase(["current_table"], ["current_view"]);
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new VerbatimNameTranslator();
         var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
@@ -105,13 +107,13 @@ internal static class PocoDataAccessGeneratorTests
         var currentTablePath = Path.Combine(tempDir.DirectoryPath, "Tables", "current_table.cs");
         var currentViewPath = Path.Combine(tempDir.DirectoryPath, "Views", "current_view.cs");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.File.Exists(staleTablePath), Is.False);
             Assert.That(mockFs.File.Exists(staleViewPath), Is.False);
             Assert.That(mockFs.File.Exists(currentTablePath), Is.True);
             Assert.That(mockFs.File.Exists(currentViewPath), Is.True);
-        });
+        }
     }
 
     [Test]
@@ -128,16 +130,103 @@ internal static class PocoDataAccessGeneratorTests
         Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.ArgumentException);
     }
 
-    private static IRelationalDatabase CreateDatabase(Identifier tableName, Identifier viewName)
+    [Test]
+    public static async Task GenerateAsync_GivenTablesTranslatingToTheSameClassName_GeneratesDistinctlyNamedFiles()
     {
-        var table = new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
-        var view = new DatabaseView(viewName, "select 1 as dummy", []);
+        var mockFs = new MockFileSystem();
+        var database = CreateDatabase(["first second", "firstsecond"], []);
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new VerbatimNameTranslator();
+        var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
+
+        await generator.GenerateAsync(projectPath, "test");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(mockFs.File.Exists(Path.Combine(tempDir.DirectoryPath, "Tables", "firstsecond.cs")), Is.True);
+            Assert.That(mockFs.File.Exists(Path.Combine(tempDir.DirectoryPath, "Tables", "firstsecond_1.cs")), Is.True);
+        }
+    }
+
+    [Test]
+    public static async Task GenerateAsync_GivenTableAndViewTranslatingToTheSameClassName_GeneratesDistinctlyNamedClasses()
+    {
+        var mockFs = new MockFileSystem();
+        var database = CreateDatabase(["shared_name"], ["shared_name"]);
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new VerbatimNameTranslator();
+        var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
+
+        await generator.GenerateAsync(projectPath, "test");
+
+        var tablePath = Path.Combine(tempDir.DirectoryPath, "Tables", "shared_name.cs");
+        var viewPath = Path.Combine(tempDir.DirectoryPath, "Views", "shared_name_1.cs");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(mockFs.File.ReadAllText(tablePath), Does.Contain("record shared_name"));
+            Assert.That(mockFs.File.ReadAllText(viewPath), Does.Contain("record shared_name_1"));
+        }
+    }
+
+    [Test]
+    public static async Task GenerateAsync_GivenTablesTranslatingToClassNamesDifferingOnlyByCase_GeneratesDistinctlyNamedFiles()
+    {
+        var mockFs = new MockFileSystem();
+        var database = CreateDatabase(["test_table", "TEST_TABLE"], []);
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new VerbatimNameTranslator();
+        var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
+
+        await generator.GenerateAsync(projectPath, "test");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(mockFs.File.Exists(Path.Combine(tempDir.DirectoryPath, "Tables", "test_table.cs")), Is.True);
+            Assert.That(mockFs.File.Exists(Path.Combine(tempDir.DirectoryPath, "Tables", "TEST_TABLE_1.cs")), Is.True);
+        }
+    }
+
+    [Test]
+    public static async Task GenerateAsync_GivenTablesWithTheSameNameInDifferentSchemas_GeneratesBothTables()
+    {
+        var mockFs = new MockFileSystem();
+        var database = CreateDatabase([Identifier.CreateQualifiedIdentifier("first", "test_table"), Identifier.CreateQualifiedIdentifier("second", "test_table")], []);
+        var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var nameTranslator = new VerbatimNameTranslator();
+        var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
+        using var tempDir = new TemporaryDirectory();
+        var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
+
+        await generator.GenerateAsync(projectPath, "test");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(mockFs.File.Exists(Path.Combine(tempDir.DirectoryPath, "Tables", "first", "test_table.cs")), Is.True);
+            Assert.That(mockFs.File.Exists(Path.Combine(tempDir.DirectoryPath, "Tables", "second", "test_table.cs")), Is.True);
+        }
+    }
+
+    private static IRelationalDatabase CreateDatabase(IEnumerable<Identifier> tableNames, IEnumerable<Identifier> viewNames)
+    {
+        var tables = tableNames
+            .Select(static tableName => new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []))
+            .ToList<IRelationalDatabaseTable>();
+        var views = viewNames
+            .Select(static viewName => new DatabaseView(viewName, "select 1 as dummy", []))
+            .ToList<IDatabaseView>();
 
         return new RelationalDatabase(
             IdentifierDefaults,
             new VerbatimIdentifierResolutionStrategy(),
-            [table],
-            [view],
+            tables,
+            views,
             [],
             [],
             []
