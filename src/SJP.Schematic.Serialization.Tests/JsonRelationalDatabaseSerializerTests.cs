@@ -61,6 +61,39 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task DeserializeAsync_WhenJsonContainsIdentifierResolver_IgnoresProperty()
+    {
+        const string json = """
+            {
+                "IdentifierResolver": { "SomeProperty": "some value" },
+                "IdentifierDefaults": { "Schema": "main" },
+                "Tables": [],
+                "Views": [],
+                "Sequences": [],
+                "Synonyms": [],
+                "Routines": []
+            }
+            """;
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+        var importedDb = await Serializer.DeserializeAsync(stream, new VerbatimIdentifierResolutionStrategy());
+
+        Assert.That(importedDb.IdentifierDefaults.Schema, Is.EqualTo("main"));
+    }
+
+    [Test]
+    public static async Task SerializeAsync_WhenInvoked_DoesNotWriteIdentifierResolver()
+    {
+        var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        Assert.That(json, Does.Not.Contain("IdentifierResolver"));
+    }
+
+    [Test]
     public async Task SerializeDeserialize_WhenEmptyDatabaseRoundTripped_ExportsAndParsesWithoutError()
     {
         var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));

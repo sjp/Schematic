@@ -209,7 +209,7 @@ create table test_table_12 (
     }
 
     private const string TestTable1Dbml = """
-Table main_test_table_1 {
+Table main.test_table_1 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
     test_nullable_int INTEGER [null]
@@ -222,7 +222,7 @@ Table main_test_table_1 {
 }
 """;
 
-    private const string TestTable2Dbml = @"Table main_test_table_2 {
+    private const string TestTable2Dbml = @"Table main.test_table_2 {
     test_pk_1 INTEGER [not null]
     test_pk_2 INTEGER [not null]
     first_name TEXT [not null]
@@ -240,26 +240,26 @@ Table main_test_table_1 {
     }
 }";
 
-    private const string TestTable5Dbml = @"Table main_test_table_5 {
+    private const string TestTable5Dbml = @"Table main.test_table_5 {
     test_column_1 INTEGER [null]
 }";
 
-    private const string MultipleRelationshipsDbml = @"Table main_test_table_6 {
+    private const string MultipleRelationshipsDbml = @"Table main.test_table_6 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
 }
 
-Table main_test_table_7 {
+Table main.test_table_7 {
     test_pk INTEGER [not null, increment, primary key]
     test_table_6_fk1 INTEGER [not null]
 }
 
-Table main_test_table_8 {
+Table main.test_table_8 {
     test_pk INTEGER [not null, increment, primary key]
     test_table_8_fk1 INTEGER [not null, unique]
 }
 
-Table main_test_table_9 {
+Table main.test_table_9 {
     test_pk INTEGER [not null, increment, primary key]
     test_table_9_fk1 INTEGER [not null]
 
@@ -268,11 +268,11 @@ Table main_test_table_9 {
     }
 }
 
-Ref: main_test_table_7.test_table_6_fk1 > main_test_table_6.test_pk
-Ref: main_test_table_8.test_table_8_fk1 - main_test_table_6.test_pk
-Ref: main_test_table_9.test_table_9_fk1 - main_test_table_6.test_pk";
+Ref: main.test_table_7.test_table_6_fk1 > main.test_table_6.test_pk
+Ref: main.test_table_8.test_table_8_fk1 - main.test_table_6.test_pk
+Ref: main.test_table_9.test_table_9_fk1 - main.test_table_6.test_pk";
 
-    private const string CompositeRelationshipsDbml = @"Table main_test_table_10 {
+    private const string CompositeRelationshipsDbml = @"Table main.test_table_10 {
     test_pk_1 INTEGER [not null]
     test_pk_2 INTEGER [not null]
 
@@ -281,13 +281,13 @@ Ref: main_test_table_9.test_table_9_fk1 - main_test_table_6.test_pk";
     }
 }
 
-Table main_test_table_11 {
+Table main.test_table_11 {
     test_pk INTEGER [not null, increment, primary key]
     test_table_10_fk1 INTEGER [not null]
     test_table_10_fk2 INTEGER [not null]
 }
 
-Table main_test_table_12 {
+Table main.test_table_12 {
     test_pk INTEGER [not null, increment, primary key]
     test_table_10_fk1 INTEGER [not null]
     test_table_10_fk2 INTEGER [not null]
@@ -297,6 +297,6 @@ Table main_test_table_12 {
     }
 }
 
-Ref: main_test_table_11.(test_table_10_fk1, test_table_10_fk2) > main_test_table_10.(test_pk_1, test_pk_2)
-Ref: main_test_table_12.(test_table_10_fk1, test_table_10_fk2) - main_test_table_10.(test_pk_1, test_pk_2)";
+Ref: main.test_table_11.(test_table_10_fk1, test_table_10_fk2) > main.test_table_10.(test_pk_1, test_pk_2)
+Ref: main.test_table_12.(test_table_10_fk1, test_table_10_fk2) - main.test_table_10.(test_pk_1, test_pk_2)";
 }

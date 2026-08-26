@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using LanguageExt;
@@ -42,6 +43,74 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
         using var stream = new MemoryStream();
 
         Assert.That(() => Serializer.DeserializeAsync(stream, null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenIdentifierDefaultsMissing_ThrowsJsonException()
+    {
+        const string json = """
+            {
+                "TableComments": [],
+                "ViewComments": [],
+                "SequenceComments": [],
+                "SynonymComments": [],
+                "RoutineComments": []
+            }
+            """;
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+        Assert.That(
+            () => Serializer.DeserializeAsync(stream, new VerbatimIdentifierResolutionStrategy()),
+            Throws.TypeOf<JsonException>()
+        );
+    }
+
+    [Test]
+    public static async Task DeserializeAsync_WhenJsonContainsIdentifierResolver_IgnoresPropertyAndUsesGivenResolver()
+    {
+        const string json = """
+            {
+                "IdentifierResolver": { "SomeProperty": "some value" },
+                "IdentifierDefaults": { "Schema": "main" },
+                "TableComments": [
+                    {
+                        "TableName": { "LocalName": "test_table_1" },
+                        "Comment": "a table comment",
+                        "ColumnComments": {},
+                        "CheckComments": {},
+                        "UniqueKeyComments": {},
+                        "ForeignKeyComments": {},
+                        "IndexComments": {},
+                        "TriggerComments": {}
+                    }
+                ],
+                "ViewComments": [],
+                "SequenceComments": [],
+                "SynonymComments": [],
+                "RoutineComments": []
+            }
+            """;
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+
+        var importedComments = await Serializer.DeserializeAsync(stream, new AliasingIdentifierResolutionStrategy("aliased_table", "test_table_1"));
+        var aliasedCommentsPresent = await importedComments.GetTableComments("aliased_table").IsSome;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(importedComments.IdentifierDefaults.Schema, Is.EqualTo("main"));
+            Assert.That(aliasedCommentsPresent, Is.True);
+        }
+    }
+
+    [Test]
+    public static async Task SerializeAsync_WhenInvoked_DoesNotWriteIdentifierResolver()
+    {
+        var comments = SampleComments;
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, comments);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        Assert.That(json, Does.Not.Contain("IdentifierResolver"));
     }
 
     [Test]
@@ -210,6 +279,19 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
         await using var jsonOutputStream = new MemoryStream();
 
         await Assert.ThatAsync(() => Serializer.SerializeAsync(jsonOutputStream, comments), Throws.ArgumentException);
+    }
+
+    /// <summary>
+    /// Resolves a single alias to a target name, so that a test can tell which resolver a provider was built with.
+    /// </summary>
+    private sealed class AliasingIdentifierResolutionStrategy(Identifier alias, Identifier target) : IIdentifierResolutionStrategy
+    {
+        public IEnumerable<Identifier> GetResolutionOrder(Identifier identifier)
+        {
+            yield return identifier;
+            if (IdentifierComparer.Ordinal.Equals(identifier, alias))
+                yield return target;
+        }
     }
 
     private static IRelationalDatabaseCommentProvider SampleComments { get; } =

@@ -91,7 +91,7 @@ public class DbmlFormatter : IDbmlFormatter
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(column);
 
-        var columnName = column.Name.ToDbmlName();
+        var columnName = column.Name.ToDbmlLocalName();
 
         var options = new List<string> { column.IsNullable ? "null" : "not null" };
 
@@ -144,7 +144,7 @@ public class DbmlFormatter : IDbmlFormatter
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(keyOption);
 
-        var columns = "(" + key.Columns.Select(static c => c.Name.ToDbmlName()).Join(", ") + ")";
+        var columns = "(" + key.Columns.Select(static c => c.Name.ToDbmlLocalName()).Join(", ") + ")";
 
         var options = new List<string>();
         key.Name.IfSome(name => options.Add("name: " + name.ToVisibleName().ToDbmlStringLiteral()));
@@ -197,7 +197,7 @@ public class DbmlFormatter : IDbmlFormatter
             var columnName = indexColumn.DependentColumns[0].Name;
             var expression = indexColumn.Expression.RemoveEnclosingQuotingCharacters();
             if (string.Equals(expression, columnName.LocalName, StringComparison.Ordinal))
-                return columnName.ToDbmlName();
+                return columnName.ToDbmlLocalName();
         }
 
         return indexColumn.Expression.ToDbmlExpression();
@@ -250,8 +250,8 @@ public class DbmlFormatter : IDbmlFormatter
         ArgumentNullException.ThrowIfNull(key);
 
         return key.Columns.Count > 1
-            ? "(" + key.Columns.Select(static c => c.Name.ToDbmlName()).Join(", ") + ")"
-            : key.Columns.Single().Name.ToDbmlName();
+            ? "(" + key.Columns.Select(static c => c.Name.ToDbmlLocalName()).Join(", ") + ")"
+            : key.Columns.Single().Name.ToDbmlLocalName();
     }
 
     private static bool ColumnIsPrimaryKey(IRelationalDatabaseTable table, IDatabaseColumn column)

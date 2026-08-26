@@ -1,10 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Dto;
 
 public class RelationalDatabase
 {
+    /// <summary>
+    /// Runtime-only state used to pass the caller's resolver to the mapper. Never (de)serialized.
+    /// </summary>
+    [JsonIgnore]
     public IIdentifierResolutionStrategy? IdentifierResolver { get; set; }
 
     public required IdentifierDefaults IdentifierDefaults { get; init; }

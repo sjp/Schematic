@@ -382,7 +382,7 @@ internal static class DbmlFormatterTests
     }
 
     [Test]
-    public static void RenderTables_GivenParentTableNameFlatteningToRenderedTableName_DoesNotRenderRef()
+    public static void RenderTables_GivenSchemaQualifiedParentTableOutsideRenderedSet_DoesNotRenderRef()
     {
         var columns = CreateColumns("order_id");
         var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
@@ -403,7 +403,71 @@ internal static class DbmlFormatterTests
 
         var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
 
-        Assert.That(result, Is.EqualTo(FlattenedParentNameForeignKeyDbml).IgnoreLineEndingFormat);
+        Assert.That(result, Is.EqualTo(UnrenderedSchemaQualifiedParentDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenSchemaQualifiedTableNames_RendersSchemaQualifiedDbmlNames()
+    {
+        var parentColumns = CreateColumns("Order ID");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("orders_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentTableName = Identifier.CreateQualifiedIdentifier("sales", "orders");
+        var parentTable = CreateTable(parentTableName, parentColumns, parentKey, [], []);
+
+        var childColumns = CreateColumns("Order ID");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("lines_fk"), DatabaseKeyType.Foreign, childColumns, true);
+        var childTableName = Identifier.CreateQualifiedIdentifier("archive schema", "order lines");
+        var relationalKey = new DatabaseRelationalKey(
+            childTableName,
+            childKey,
+            parentTableName,
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+        var childTable = new RelationalDatabaseTable(childTableName, childColumns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(SchemaQualifiedNamesDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenTableNamesSharingAFlattenedForm_RendersDistinctTablesAndRefs()
+    {
+        var parentColumns = CreateColumns("order_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_table_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentTableName = Identifier.CreateQualifiedIdentifier("a_b", "c");
+        var parentTable = CreateTable(parentTableName, parentColumns, parentKey, [], []);
+
+        var childColumns = CreateColumns("order_id");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, childColumns, true);
+        var childTableName = Identifier.CreateQualifiedIdentifier("a", "b_c");
+        var relationalKey = new DatabaseRelationalKey(
+            childTableName,
+            childKey,
+            parentTableName,
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+        var childTable = new RelationalDatabaseTable(childTableName, childColumns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(CollidingFlattenedNamesDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenTableNamesQualifiedBeyondSchema_FoldsLeadingPartsIntoSchemaName()
+    {
+        var columns = CreateColumns("order_id");
+        var firstTable = CreateTable(Identifier.CreateQualifiedIdentifier("live", "sales", "orders"), columns, Option<IDatabaseKey>.None, [], []);
+        var secondTable = CreateTable(Identifier.CreateQualifiedIdentifier("remote_server", "backup", "sales", "orders"), CreateColumns("order_id"), Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([firstTable, secondTable]);
+
+        Assert.That(result, Is.EqualTo(FullyQualifiedNamesDbml).IgnoreLineEndingFormat);
     }
 
     private static (IRelationalDatabaseTable ParentTable, IDatabaseRelationalKey RelationalKey) CreateParentTableWithRelationalKey(IDatabaseKey childKey)
@@ -679,12 +743,46 @@ Table child_table {
 Ref: child_table.order_id > parent_table.order_id
 """;
 
-    private const string FlattenedParentNameForeignKeyDbml = """
-Table a_b_c {
+    private const string UnrenderedSchemaQualifiedParentDbml = """
+Table a_b.c {
     order_id text [not null, primary key]
 }
 
-Table a_child_table {
+Table a.child_table {
+    order_id text [not null]
+}
+""";
+
+    private const string SchemaQualifiedNamesDbml = """
+Table sales.orders {
+    "Order ID" text [not null, primary key]
+}
+
+Table "archive schema"."order lines" {
+    "Order ID" text [not null]
+}
+
+Ref: "archive schema"."order lines"."Order ID" > sales.orders."Order ID"
+""";
+
+    private const string CollidingFlattenedNamesDbml = """
+Table a_b.c {
+    order_id text [not null, primary key]
+}
+
+Table a.b_c {
+    order_id text [not null]
+}
+
+Ref: a.b_c.order_id > a_b.c.order_id
+""";
+
+    private const string FullyQualifiedNamesDbml = """
+Table "live.sales".orders {
+    order_id text [not null]
+}
+
+Table "remote_server.backup.sales".orders {
     order_id text [not null]
 }
 """;

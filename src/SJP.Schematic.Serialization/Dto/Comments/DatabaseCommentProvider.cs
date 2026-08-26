@@ -1,12 +1,17 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Dto.Comments;
 
 public class DatabaseCommentProvider
 {
-    public IdentifierDefaults IdentifierDefaults { get; set; } = default!;
+    public required IdentifierDefaults IdentifierDefaults { get; init; }
 
+    /// <summary>
+    /// Runtime-only state used to pass the caller's resolver to the mapper. Never (de)serialized.
+    /// </summary>
+    [JsonIgnore]
     public IIdentifierResolutionStrategy? IdentifierResolver { get; set; }
 
     public required IEnumerable<DatabaseTableComments> TableComments { get; init; }
