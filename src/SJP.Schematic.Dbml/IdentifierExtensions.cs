@@ -10,16 +10,23 @@ internal static class IdentifierExtensions
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
+        var localName = identifier.LocalName.RemoveEnclosingQuotingCharacters();
+        if (identifier.Schema == null)
+            return localName;
+
         var builder = StringBuilderCache.Acquire();
 
-        if (identifier.Schema != null)
-        {
-            builder.Append(identifier.Schema);
-            builder.Append('_');
-        }
+        builder.Append(identifier.Schema.RemoveEnclosingQuotingCharacters())
+            .Append('_')
+            .Append(localName);
 
-        builder.Append(identifier.LocalName);
+        return builder.GetStringAndRelease();
+    }
 
-        return builder.GetStringAndRelease().RemoveQuotingCharacters();
+    public static string ToDbmlName(this Identifier identifier)
+    {
+        ArgumentNullException.ThrowIfNull(identifier);
+
+        return identifier.ToVisibleName().ToDbmlIdentifier();
     }
 }
