@@ -256,7 +256,7 @@ Table main_test_table_7 {
 
 Table main_test_table_8 {
     test_pk INTEGER [not null, increment, primary key]
-    test_table_8_fk1 INTEGER [not null, unique key]
+    test_table_8_fk1 INTEGER [not null, unique]
 }
 
 Table main_test_table_9 {

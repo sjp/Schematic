@@ -99,7 +99,7 @@ public class DbmlFormatter : IDbmlFormatter
         if (ColumnIsPrimaryKey(table, column))
             options.Add("primary key");
         else if (ColumnIsUniqueKey(table, column))
-            options.Add("unique key");
+            options.Add("unique");
 
         column.DefaultValue.IfSome(def => options.Add("default: " + def.ToDbmlDefaultValue()));
 
