@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using FluentAssertions;
 using LanguageExt;
@@ -458,6 +459,151 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
         }
+    }
+
+    [Test]
+    public static async Task DeserializeAsync_GivenWellFormedTableDefinition_ParsesWithoutError()
+    {
+        var json = CreateTableDatabaseJson(ValidTableNameJson, ValidColumnsJson, ValidChecksJson);
+
+        var importedDb = await DeserializeJsonAsync(json);
+        var tables = await importedDb.GetAllTables();
+
+        Assert.That(tables.Single().Name.LocalName, Is.EqualTo("test_table_name"));
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenColumnTypeMissing_ThrowsJsonExceptionNamingProperty()
+    {
+        const string columnsJson = """
+            [ { "ColumnName": { "LocalName": "test_column_name" }, "IsNullable": false } ]
+            """;
+        var json = CreateTableDatabaseJson(ValidTableNameJson, columnsJson, ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.TypeOf<JsonException>().With.Message.Contains("'Type'")
+        );
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenCheckDefinitionMissing_ThrowsJsonExceptionNamingProperty()
+    {
+        const string checksJson = """
+            [ { "CheckName": { "LocalName": "test_check_name" }, "IsEnabled": true } ]
+            """;
+        var json = CreateTableDatabaseJson(ValidTableNameJson, ValidColumnsJson, checksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.TypeOf<JsonException>().With.Message.Contains("'Definition'")
+        );
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenTableNameNull_ThrowsJsonExceptionNamingPropertyPath()
+    {
+        var json = CreateTableDatabaseJson("null", ValidColumnsJson, ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.TypeOf<JsonException>()
+                .With.Message.Contains("'TableName'")
+                .And.Message.Contains("$.Tables[0].TableName")
+        );
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenIdentifierHasNoComponents_ThrowsJsonExceptionNamingProperty()
+    {
+        var json = CreateTableDatabaseJson("{ }", ValidColumnsJson, ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.TypeOf<JsonException>().With.Message.Contains("'LocalName'")
+        );
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenClrTypeNameUnresolvable_ThrowsExceptionNamingTypeName()
+    {
+        const string columnsJson = """
+            [
+                {
+                    "ColumnName": { "LocalName": "test_column_name" },
+                    "IsNullable": false,
+                    "Type": {
+                        "TypeName": { "LocalName": "test_type_name" },
+                        "DataType": "String",
+                        "Definition": "varchar(100)",
+                        "IsFixedLength": false,
+                        "MaxLength": 100,
+                        "ClrTypeName": "Some.Unresolvable.Type"
+                    }
+                }
+            ]
+            """;
+        var json = CreateTableDatabaseJson(ValidTableNameJson, columnsJson, ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.InvalidOperationException
+                .With.Message.Contains("Some.Unresolvable.Type")
+                .And.Message.Contains("test_type_name")
+        );
+    }
+
+    private const string ValidTableNameJson = """{ "Schema": "main", "LocalName": "test_table_name" }""";
+
+    private const string ValidColumnsJson = """
+        [
+            {
+                "ColumnName": { "LocalName": "test_column_name" },
+                "IsNullable": false,
+                "Type": {
+                    "TypeName": { "LocalName": "varchar" },
+                    "DataType": "String",
+                    "Definition": "varchar(100)",
+                    "IsFixedLength": false,
+                    "MaxLength": 100,
+                    "ClrTypeName": "System.String"
+                }
+            }
+        ]
+        """;
+
+    private const string ValidChecksJson = """
+        [ { "CheckName": { "LocalName": "test_check_name" }, "Definition": "test_column_name IS NOT NULL", "IsEnabled": true } ]
+        """;
+
+    // each malformed-JSON test starts from a document that is complete apart from the one member under test
+    private static string CreateTableDatabaseJson(string tableNameJson, string columnsJson, string checksJson) => $$"""
+        {
+            "IdentifierDefaults": { "Schema": "main" },
+            "Tables": [
+                {
+                    "TableName": {{tableNameJson}},
+                    "PrimaryKey": null,
+                    "Columns": {{columnsJson}},
+                    "Checks": {{checksJson}},
+                    "Indexes": [],
+                    "UniqueKeys": [],
+                    "ParentKeys": [],
+                    "ChildKeys": [],
+                    "Triggers": []
+                }
+            ],
+            "Views": [],
+            "Sequences": [],
+            "Synonyms": [],
+            "Routines": []
+        }
+        """;
+
+    private static async Task<IRelationalDatabase> DeserializeJsonAsync(string json)
+    {
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        return await Serializer.DeserializeAsync(stream, new VerbatimIdentifierResolutionStrategy());
     }
 
     private static async Task<IRelationalDatabase> RoundTripAsync(IRelationalDatabase database)

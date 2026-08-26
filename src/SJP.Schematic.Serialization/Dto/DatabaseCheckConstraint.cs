@@ -4,7 +4,7 @@ public class DatabaseCheckConstraint
 {
     public Identifier? CheckName { get; init; }
 
-    public string? Definition { get; init; }
+    public required string Definition { get; init; }
 
     public required bool IsEnabled { get; init; }
 }

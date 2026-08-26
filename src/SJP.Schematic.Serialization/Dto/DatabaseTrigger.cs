@@ -2,9 +2,9 @@
 
 public class DatabaseTrigger
 {
-    public Identifier? TriggerName { get; init; }
+    public required Identifier TriggerName { get; init; }
 
-    public string? Definition { get; init; }
+    public required string Definition { get; init; }
 
     public required Core.TriggerQueryTiming QueryTiming { get; init; }
 

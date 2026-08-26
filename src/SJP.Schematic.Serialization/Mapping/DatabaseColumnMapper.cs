@@ -18,8 +18,8 @@ public class DatabaseColumnMapper
         if (source.IsComputed)
         {
             return new DatabaseComputedColumn(
-                identifierMapper.Map(source.ColumnName!),
-                dbTypeMapper.Map(source.Type!),
+                identifierMapper.Map(source.ColumnName),
+                dbTypeMapper.Map(source.Type),
                 source.IsNullable,
                 optionalMapper.Map(source.DefaultValue),
                 optionalMapper.Map(source.Definition)
@@ -29,8 +29,8 @@ public class DatabaseColumnMapper
         var autoIncrMapper = MapperRegistry.GetMapper<Dto.AutoIncrement?, Option<IAutoIncrement>>();
 
         return new DatabaseColumn(
-            identifierMapper.Map(source.ColumnName!),
-            dbTypeMapper.Map(source.Type!),
+            identifierMapper.Map(source.ColumnName),
+            dbTypeMapper.Map(source.Type),
             source.IsNullable,
             optionalMapper.Map(source.DefaultValue),
             autoIncrMapper.Map(source.AutoIncrement)

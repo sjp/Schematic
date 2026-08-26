@@ -8,5 +8,5 @@ public class Identifier
 
     public string? Schema { get; init; }
 
-    public string? LocalName { get; init; }
+    public required string LocalName { get; init; }
 }

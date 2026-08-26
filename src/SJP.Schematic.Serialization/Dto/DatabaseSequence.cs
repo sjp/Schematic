@@ -2,7 +2,7 @@
 
 public class DatabaseSequence
 {
-    public Identifier? SequenceName { get; init; }
+    public required Identifier SequenceName { get; init; }
 
     public required int Cache { get; init; }
 

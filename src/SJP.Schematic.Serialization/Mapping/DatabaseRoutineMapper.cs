@@ -12,8 +12,8 @@ public class DatabaseRoutineMapper
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
 
         return new DatabaseRoutine(
-            identifierMapper.Map(source.RoutineName!),
-            source.Definition!
+            identifierMapper.Map(source.RoutineName),
+            source.Definition
         );
     }
 

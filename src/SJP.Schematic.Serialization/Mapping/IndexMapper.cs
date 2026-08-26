@@ -10,7 +10,7 @@ public class IndexMapper
 {
     public IDatabaseIndex Map(Dto.DatabaseIndex source)
     {
-        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Identifier>();
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var indexColumnMapper = MapperRegistry.GetMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>();
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
         var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();

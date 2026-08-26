@@ -12,8 +12,8 @@ public class DatabaseTriggerMapper
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
 
         return new DatabaseTrigger(
-            identifierMapper.Map(source.TriggerName!),
-            source.Definition!,
+            identifierMapper.Map(source.TriggerName),
+            source.Definition,
             source.QueryTiming,
             source.TriggerEvent,
             source.IsEnabled

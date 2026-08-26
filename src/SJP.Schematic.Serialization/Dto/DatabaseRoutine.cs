@@ -2,7 +2,7 @@
 
 public class DatabaseRoutine
 {
-    public Identifier? RoutineName { get; init; }
+    public required Identifier RoutineName { get; init; }
 
-    public string? Definition { get; init; }
+    public required string Definition { get; init; }
 }

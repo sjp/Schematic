@@ -20,7 +20,7 @@ public class RelationalDatabaseTableMapper
         var triggerMapper = MapperRegistry.GetMapper<Dto.DatabaseTrigger, IDatabaseTrigger>();
 
         return new RelationalDatabaseTable(
-            identifierMapper.Map<Dto.Identifier, Identifier>(source.TableName!),
+            identifierMapper.Map<Dto.Identifier, Identifier>(source.TableName),
             columnMapper.MapList(source.Columns),
             optionalKeyMapper.Map(source.PrimaryKey),
             keyMapper.MapList(source.UniqueKeys),

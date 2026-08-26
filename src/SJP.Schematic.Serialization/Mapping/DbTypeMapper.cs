@@ -15,11 +15,15 @@ public class DbTypeMapper
         var numericPrecisionMapper = MapperRegistry.GetMapper<Dto.NumericPrecision?, Option<INumericPrecision>>();
         var collationMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
 
+        var clrTypeName = source.ClrTypeName ?? "System.Object";
+        var clrType = Type.GetType(clrTypeName)
+            ?? throw new InvalidOperationException($"Unable to resolve the CLR type '{clrTypeName}' given for the column type '{source.TypeName.LocalName}'.");
+
         return new ColumnDataType(
-            identifierMapper.Map(source.TypeName!),
+            identifierMapper.Map(source.TypeName),
             source.DataType,
-            source.Definition!,
-            Type.GetType(source.ClrTypeName ?? "System.Object")!,
+            source.Definition,
+            clrType,
             source.IsFixedLength,
             source.MaxLength,
             numericPrecisionMapper.Map(source.NumericPrecision),

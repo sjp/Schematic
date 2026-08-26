@@ -53,6 +53,7 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
         {
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
+            RespectNullableAnnotations = true,
         };
         settings.Converters.Add(new JsonStringEnumConverter());
 

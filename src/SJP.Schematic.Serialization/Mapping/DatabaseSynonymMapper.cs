@@ -20,7 +20,7 @@ public class DatabaseSynonymMapper
 
     public IDatabaseSynonym Map(Dto.DatabaseSynonym source)
     {
-        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Identifier>();
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
 
         return new DatabaseSynonym(
             identifierMapper.Map(source.SynonymName),

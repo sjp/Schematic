@@ -49,6 +49,6 @@ public class DatabaseKeyMapper
     {
         return source == null
             ? Option<IDatabaseKey>.None
-            : Option<IDatabaseKey>.Some(Map(source!));
+            : Option<IDatabaseKey>.Some(Map(source));
     }
 }

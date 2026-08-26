@@ -14,7 +14,7 @@ public class DatabaseSequenceMapper
         var decimalMapper = MapperRegistry.GetMapper<decimal?, Option<decimal>>();
 
         return new DatabaseSequence(
-            identifierMapper.Map(source.SequenceName!),
+            identifierMapper.Map(source.SequenceName),
             source.Start,
             source.Increment,
             decimalMapper.Map(source.MinValue),

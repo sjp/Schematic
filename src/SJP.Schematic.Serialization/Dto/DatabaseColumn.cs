@@ -2,7 +2,7 @@
 
 public class DatabaseColumn
 {
-    public Identifier? ColumnName { get; init; }
+    public required Identifier ColumnName { get; init; }
 
     public required bool IsNullable { get; init; }
 
@@ -10,7 +10,7 @@ public class DatabaseColumn
 
     public string? DefaultValue { get; init; }
 
-    public required DbType? Type { get; init; }
+    public required DbType Type { get; init; }
 
     public AutoIncrement? AutoIncrement { get; init; }
 

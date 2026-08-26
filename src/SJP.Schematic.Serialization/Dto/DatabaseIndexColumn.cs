@@ -8,5 +8,5 @@ public class DatabaseIndexColumn
 
     public required IEnumerable<DatabaseColumn> DependentColumns { get; init; }
 
-    public required string? Expression { get; init; }
+    public required string Expression { get; init; }
 }

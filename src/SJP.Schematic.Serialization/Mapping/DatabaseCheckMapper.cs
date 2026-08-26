@@ -13,7 +13,7 @@ public class DatabaseCheckMapper
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
         return new DatabaseCheckConstraint(
             identifierMapper.Map(source.CheckName),
-            source.Definition!,
+            source.Definition,
             source.IsEnabled
         );
     }

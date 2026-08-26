@@ -13,10 +13,10 @@ public class DatabaseRelationalKeyMapper
         var databaseKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
 
         return new DatabaseRelationalKey(
-            identifierMapper.Map(source.ChildTable!),
-            databaseKeyMapper.Map(source.ChildKey!),
-            identifierMapper.Map(source.ParentTable!),
-            databaseKeyMapper.Map(source.ParentKey!),
+            identifierMapper.Map(source.ChildTable),
+            databaseKeyMapper.Map(source.ChildKey),
+            identifierMapper.Map(source.ParentTable),
+            databaseKeyMapper.Map(source.ParentKey),
             source.DeleteAction,
             source.UpdateAction
         );

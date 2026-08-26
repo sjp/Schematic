@@ -12,7 +12,7 @@ public class DatabaseIndexColumnMapper
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
 
         return new DatabaseIndexColumn(
-            source.Expression!,
+            source.Expression,
             columnMapper.MapList(source.DependentColumns),
             source.Order
         );
@@ -24,7 +24,7 @@ public class DatabaseIndexColumnMapper
 
         return new Dto.DatabaseIndexColumn
         {
-            Expression = source.Expression!,
+            Expression = source.Expression,
             DependentColumns = columnMapper.MapList(source.DependentColumns),
             Order = source.Order,
         };

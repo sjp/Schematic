@@ -2,11 +2,11 @@
 
 public class DbType
 {
-    public Identifier? TypeName { get; init; }
+    public required Identifier TypeName { get; init; }
 
     public required Core.DataType DataType { get; init; }
 
-    public string? Definition { get; init; }
+    public required string Definition { get; init; }
 
     public required bool IsFixedLength { get; init; }
 

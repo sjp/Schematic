@@ -4,7 +4,7 @@ namespace SJP.Schematic.Serialization.Dto;
 
 public class DatabaseIndex
 {
-    public Identifier? IndexName { get; init; }
+    public required Identifier IndexName { get; init; }
 
     public required IEnumerable<DatabaseIndexColumn> Columns { get; init; }
 
