@@ -171,6 +171,27 @@ public static class SyntaxUtilities
         [nameof(String)] = PredefinedType(Token(SyntaxKind.StringKeyword)),
     }.ToFrozenDictionary(StringComparer.Ordinal);
 
+    /// <summary>
+    /// Constructs the type definition used to declare a value of a given CLR type, preferring the built-in C# type alias where one exists.
+    /// </summary>
+    /// <param name="clrType">A CLR type.</param>
+    /// <param name="isNullable">Whether the value being declared is nullable.</param>
+    /// <returns>A type definition for use with Roslyn.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="clrType"/> is <see langword="null" />.</exception>
+    public static TypeSyntax BuildTypeSyntax(Type clrType, bool isNullable)
+    {
+        ArgumentNullException.ThrowIfNull(clrType);
+
+        var typeSyntax = string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal)
+            && TypeSyntaxMap.TryGetValue(clrType.Name, out var predefinedType)
+            ? predefinedType
+            : ParseTypeName(clrType.FullName!);
+
+        return isNullable
+            ? NullableType(typeSyntax)
+            : typeSyntax;
+    }
+
     private static IReadOnlyCollection<string> GetLines(string comment)
     {
         ArgumentNullException.ThrowIfNull(comment);

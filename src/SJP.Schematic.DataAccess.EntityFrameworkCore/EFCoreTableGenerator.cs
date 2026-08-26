@@ -92,7 +92,6 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 "System.ComponentModel.DataAnnotations",
                 "System.ComponentModel.DataAnnotations.Schema",
             ], StringComparer.Ordinal)
-            .Distinct(StringComparer.Ordinal)
             .OrderNamespaces()
             .ToList();
 
@@ -157,18 +156,8 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         ArgumentNullException.ThrowIfNull(column);
         ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
-        var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
-
-        var columnTypeSyntax = column.IsNullable
-            ? NullableType(ParseTypeName(clrType.FullName!))
-            : ParseTypeName(clrType.FullName!);
-        if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
-        {
-            columnTypeSyntax = column.IsNullable
-                ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
-                : SyntaxUtilities.TypeSyntaxMap[clrType.Name];
-        }
+        var columnTypeSyntax = SyntaxUtilities.BuildTypeSyntax(column.Type.ClrType, column.IsNullable);
 
         var baseProperty = PropertyDeclaration(
             columnTypeSyntax,
@@ -288,40 +277,6 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                 .WithLeadingTrivia(BuildChildKeyComment(relationalKey));
         }
-    }
-
-    private static SyntaxTriviaList BuildTableComment(Identifier tableName, Option<IRelationalDatabaseTableComments> comment)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        return comment
-            .Bind(static c => c.Comment)
-            .Match(
-                SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(
-                [
-                    XmlText("A mapping class to query the "),
-                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
-                    XmlText(" table."),
-                ])
-            );
-    }
-
-    private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IRelationalDatabaseTableComments> comment)
-    {
-        ArgumentNullException.ThrowIfNull(columnName);
-
-        return comment
-            .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
-            .Match(
-                SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(
-                [
-                    XmlText("The "),
-                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
-                    XmlText(" column."),
-                ])
-            );
     }
 
     private static SyntaxTriviaList BuildForeignKeyComment(IDatabaseRelationalKey relationalKey, Option<IRelationalDatabaseTableComments> comment)

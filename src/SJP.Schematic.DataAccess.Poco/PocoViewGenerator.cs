@@ -108,18 +108,8 @@ public class PocoViewGenerator : DatabaseViewGenerator
         ArgumentNullException.ThrowIfNull(column);
         ArgumentException.ThrowIfNullOrWhiteSpace(className);
 
-        var clrType = column.Type.ClrType;
         var propertyName = NameTranslator.ColumnToPropertyName(className, column.Name.LocalName);
-
-        var columnTypeSyntax = column.IsNullable
-            ? NullableType(ParseTypeName(clrType.FullName!))
-            : ParseTypeName(clrType.FullName!);
-        if (string.Equals(clrType.Namespace, nameof(System), StringComparison.Ordinal) && SyntaxUtilities.TypeSyntaxMap.ContainsKey(clrType.Name))
-        {
-            columnTypeSyntax = column.IsNullable
-                ? NullableType(SyntaxUtilities.TypeSyntaxMap[clrType.Name])
-                : SyntaxUtilities.TypeSyntaxMap[clrType.Name];
-        }
+        var columnTypeSyntax = SyntaxUtilities.BuildTypeSyntax(column.Type.ClrType, column.IsNullable);
 
         var baseProperty = PropertyDeclaration(
             columnTypeSyntax,
@@ -138,39 +128,5 @@ public class PocoViewGenerator : DatabaseViewGenerator
         return columnSyntax
             .WithInitializer(SyntaxUtilities.NotNullDefault)
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
-    }
-
-    private static SyntaxTriviaList BuildViewComment(Identifier viewName, Option<IDatabaseViewComments> comment)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return comment
-            .Bind(static c => c.Comment)
-            .Match(
-                SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(
-                [
-                    XmlText("A mapping class to query the "),
-                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(viewName.LocalName))),
-                    XmlText(" view."),
-                ])
-            );
-    }
-
-    private static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IDatabaseViewComments> comment)
-    {
-        ArgumentNullException.ThrowIfNull(columnName);
-
-        return comment
-            .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
-            .Match(
-                SyntaxUtilities.BuildCommentTrivia,
-                () => SyntaxUtilities.BuildCommentTrivia(
-                [
-                    XmlText("The "),
-                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
-                    XmlText(" column."),
-                ])
-            );
     }
 }

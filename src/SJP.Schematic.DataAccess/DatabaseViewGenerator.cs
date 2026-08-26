@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using LanguageExt;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.DataAccess.CodeGeneration;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess;
 
@@ -44,6 +48,54 @@ public abstract class DatabaseViewGenerator : IDatabaseViewGenerator
     /// <param name="comment">Comment information for the given view.</param>
     /// <returns>A string containing source code to interact with the view.</returns>
     public abstract string Generate(IDatabaseView view, Option<IDatabaseViewComments> comment);
+
+    /// <summary>
+    /// Constructs the documentation comment for a generated view class, describing the view when no comment is available.
+    /// </summary>
+    /// <param name="viewName">The name of the view.</param>
+    /// <param name="comment">Comment information for the given view.</param>
+    /// <returns>Syntax nodes that represent the comment.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected static SyntaxTriviaList BuildViewComment(Identifier viewName, Option<IDatabaseViewComments> comment)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return comment
+            .Bind(static c => c.Comment)
+            .Match(
+                SyntaxUtilities.BuildCommentTrivia,
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
+                    XmlText("A mapping class to query the "),
+                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(viewName.LocalName))),
+                    XmlText(" view."),
+                ])
+            );
+    }
+
+    /// <summary>
+    /// Constructs the documentation comment for a generated view column property, describing the column when no comment is available.
+    /// </summary>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="comment">Comment information for the view that the column belongs to.</param>
+    /// <returns>Syntax nodes that represent the comment.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
+    protected static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IDatabaseViewComments> comment)
+    {
+        ArgumentNullException.ThrowIfNull(columnName);
+
+        return comment
+            .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
+            .Match(
+                SyntaxUtilities.BuildCommentTrivia,
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
+                    XmlText("The "),
+                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
+                    XmlText(" column."),
+                ])
+            );
+    }
 
     /// <summary>
     /// Gets the file path that the source code should be generated to.

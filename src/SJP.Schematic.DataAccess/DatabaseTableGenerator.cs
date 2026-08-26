@@ -2,8 +2,12 @@
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using LanguageExt;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
+using SJP.Schematic.DataAccess.CodeGeneration;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess;
 
@@ -45,6 +49,54 @@ public abstract class DatabaseTableGenerator : IDatabaseTableGenerator
     /// <param name="comment">Comment information for the given table.</param>
     /// <returns>A string containing source code to interact with the table.</returns>
     public abstract string Generate(IReadOnlyCollection<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment);
+
+    /// <summary>
+    /// Constructs the documentation comment for a generated table class, describing the table when no comment is available.
+    /// </summary>
+    /// <param name="tableName">The name of the table.</param>
+    /// <param name="comment">Comment information for the given table.</param>
+    /// <returns>Syntax nodes that represent the comment.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    protected static SyntaxTriviaList BuildTableComment(Identifier tableName, Option<IRelationalDatabaseTableComments> comment)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+
+        return comment
+            .Bind(static c => c.Comment)
+            .Match(
+                SyntaxUtilities.BuildCommentTrivia,
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
+                    XmlText("A mapping class to query the "),
+                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(tableName.LocalName))),
+                    XmlText(" table."),
+                ])
+            );
+    }
+
+    /// <summary>
+    /// Constructs the documentation comment for a generated table column property, describing the column when no comment is available.
+    /// </summary>
+    /// <param name="columnName">The name of the column.</param>
+    /// <param name="comment">Comment information for the table that the column belongs to.</param>
+    /// <returns>Syntax nodes that represent the comment.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
+    protected static SyntaxTriviaList BuildColumnComment(Identifier columnName, Option<IRelationalDatabaseTableComments> comment)
+    {
+        ArgumentNullException.ThrowIfNull(columnName);
+
+        return comment
+            .Bind(c => c.ColumnComments.TryGetValue(columnName, out var cc) ? cc : Option<string>.None)
+            .Match(
+                SyntaxUtilities.BuildCommentTrivia,
+                () => SyntaxUtilities.BuildCommentTrivia(
+                [
+                    XmlText("The "),
+                    XmlElement("c", SingletonList<XmlNodeSyntax>(XmlText(columnName.LocalName))),
+                    XmlText(" column."),
+                ])
+            );
+    }
 
     /// <summary>
     /// Gets the file path that the source code should be generated to.
