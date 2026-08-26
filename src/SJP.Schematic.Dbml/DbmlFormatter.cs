@@ -19,12 +19,13 @@ public class DbmlFormatter : IDbmlFormatter
     /// </summary>
     /// <param name="tables">A collection of database tables.</param>
     /// <returns>A string, in DBML format.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="tables"/> is <see langword="null" /> or has <see langword="null" /> values.</exception>
     public string RenderTables(IReadOnlyCollection<IRelationalDatabaseTable> tables)
     {
-        ArgumentNullException.ThrowIfNull(tables);
+        if (tables.NullOrAnyNull())
+            throw new ArgumentNullException(nameof(tables));
 
-        if (!tables.Any())
+        if (tables.Count == 0)
             return string.Empty;
 
         var builder = StringBuilderCache.Acquire();
@@ -42,12 +43,20 @@ public class DbmlFormatter : IDbmlFormatter
 
         var renderedTableNames = new HashSet<Identifier>(tables.Select(static t => t.Name), IdentifierComparer.Ordinal);
 
-        var anyForeignKeys = tables.Any(t => GetRenderableParentKeys(t, renderedTableNames).Count > 0);
-        if (anyForeignKeys)
+        var hasFirstForeignKey = false;
+        foreach (var table in tables)
         {
-            builder.AppendLine();
-            foreach (var table in tables)
-                RenderForeignKeys(builder, table, renderedTableNames);
+            var parentKeys = GetRenderableParentKeys(table, renderedTableNames);
+            if (parentKeys.Count == 0)
+                continue;
+
+            if (!hasFirstForeignKey)
+            {
+                builder.AppendLine();
+                hasFirstForeignKey = true;
+            }
+
+            RenderForeignKeys(builder, table, parentKeys);
         }
 
         return builder.GetStringAndRelease().TrimEnd();
@@ -63,59 +72,45 @@ public class DbmlFormatter : IDbmlFormatter
             .Append(tableName)
             .AppendLine(" {");
 
-        if (table.Columns.Count > 0)
-        {
-            foreach (var column in table.Columns)
-                builder.AppendLine(RenderColumnLine(table, column));
-        }
+        foreach (var column in table.Columns)
+            RenderColumnLine(builder, table, column);
 
-        var indexLines = RenderIndexLines(table);
-        if (indexLines.Count > 0)
-        {
-            builder.AppendLine()
-                .Append(Indent)
-                .AppendLine("Indexes {");
-
-            foreach (var indexLine in indexLines)
-                builder.AppendLine(indexLine);
-
-            builder.Append(Indent)
-                .AppendLine("}");
-        }
+        RenderIndexes(builder, table);
 
         builder.AppendLine("}");
     }
 
-    private static string RenderColumnLine(IRelationalDatabaseTable table, IDatabaseColumn column)
+    private static void RenderColumnLine(StringBuilder builder, IRelationalDatabaseTable table, IDatabaseColumn column)
     {
+        ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(column);
 
-        var columnName = column.Name.ToDbmlLocalName();
-
-        var options = new List<string> { column.IsNullable ? "null" : "not null" };
-
-        if (column.AutoIncrement.IsSome)
-            options.Add("increment");
-
-        if (ColumnIsPrimaryKey(table, column))
-            options.Add("primary key");
-        else if (ColumnIsUniqueKey(table, column))
-            options.Add("unique");
-
-        column.DefaultValue.IfSome(def => options.Add("default: " + def.ToDbmlDefaultValue()));
-
-        var columnOptions = options.Count > 0
-            ? " [" + options.Join(", ") + "]"
-            : string.Empty;
-
         var typeName = column.Type.Definition.RemoveEnclosingQuotingCharacters().ToDbmlTypeName();
 
-        return Indent + columnName + " " + typeName + columnOptions;
+        builder.Append(Indent)
+            .Append(column.Name.ToDbmlLocalName())
+            .Append(' ')
+            .Append(typeName)
+            .Append(" [")
+            .Append(column.IsNullable ? "null" : "not null");
+
+        if (column.AutoIncrement.IsSome)
+            builder.Append(", increment");
+
+        if (ColumnIsPrimaryKey(table, column))
+            builder.Append(", primary key");
+        else if (ColumnIsUniqueKey(table, column))
+            builder.Append(", unique");
+
+        column.DefaultValue.IfSome(def => builder.Append(", default: ").Append(def.ToDbmlDefaultValue()));
+
+        builder.AppendLine("]");
     }
 
-    private static List<string> RenderIndexLines(IRelationalDatabaseTable table)
+    private static void RenderIndexes(StringBuilder builder, IRelationalDatabaseTable table)
     {
+        ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(table);
 
         var compositeKeys = new List<IDatabaseKey>();
@@ -123,35 +118,43 @@ public class DbmlFormatter : IDbmlFormatter
         var compositePrimaryKeyCount = compositeKeys.Count;
         compositeKeys.AddRange(table.UniqueKeys.Where(static uk => uk.Columns.Count > 1));
 
-        var result = new List<string>(compositeKeys.Count + table.Indexes.Count);
+        var renderableIndexes = table.Indexes
+            .Where(index => !index.IsUnique || !compositeKeys.Exists(key => IsIndexForKey(index, key)))
+            .ToList();
+
+        if (compositeKeys.Count == 0 && renderableIndexes.Count == 0)
+            return;
+
+        builder.AppendLine()
+            .Append(Indent)
+            .AppendLine("Indexes {");
 
         for (var i = 0; i < compositeKeys.Count; i++)
-            result.Add(RenderKeyIndexLine(compositeKeys[i], i < compositePrimaryKeyCount ? "pk" : "unique"));
+            RenderKeyIndexLine(builder, compositeKeys[i], i < compositePrimaryKeyCount ? "pk" : "unique");
 
-        foreach (var index in table.Indexes)
-        {
-            var isBackingIndex = index.IsUnique
-                && compositeKeys.Exists(key => IsIndexForKey(index, key));
-            if (!isBackingIndex)
-                result.Add(RenderIndexLine(table, index));
-        }
+        foreach (var index in renderableIndexes)
+            RenderIndexLine(builder, index);
 
-        return result;
+        builder.Append(Indent)
+            .AppendLine("}");
     }
 
-    private static string RenderKeyIndexLine(IDatabaseKey key, string keyOption)
+    private static void RenderKeyIndexLine(StringBuilder builder, IDatabaseKey key, string keyOption)
     {
+        ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(key);
         ArgumentNullException.ThrowIfNull(keyOption);
 
-        var columns = "(" + key.Columns.Select(static c => c.Name.ToDbmlLocalName()).Join(", ") + ")";
+        builder.Append(Indent)
+            .Append(Indent)
+            .Append('(')
+            .Append(key.Columns.Select(static c => c.Name.ToDbmlLocalName()).Join(", "))
+            .Append(") [");
 
-        var options = new List<string>();
-        key.Name.IfSome(name => options.Add("name: " + name.ToVisibleName().ToDbmlStringLiteral()));
-        options.Add(keyOption);
+        key.Name.IfSome(name => builder.Append("name: ").Append(name.ToVisibleName().ToDbmlStringLiteral()).Append(", "));
 
-        return Indent + Indent + columns + " "
-            + "[" + options.Join(", ") + "]";
+        builder.Append(keyOption)
+            .AppendLine("]");
     }
 
     private static bool IsIndexForKey(IDatabaseIndex index, IDatabaseKey key)
@@ -171,21 +174,32 @@ public class DbmlFormatter : IDbmlFormatter
             .Select(static ic => ic.Expression.RemoveEnclosingQuotingCharacters());
     }
 
-    private static string RenderIndexLine(IRelationalDatabaseTable table, IDatabaseIndex index)
+    private static void RenderIndexLine(StringBuilder builder, IDatabaseIndex index)
     {
-        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(index);
 
-        var columns = index.Columns.Count > 1
-            ? "(" + index.Columns.Select(RenderIndexColumn).Join(", ") + ")"
-            : RenderIndexColumn(index.Columns.Single());
+        builder.Append(Indent)
+            .Append(Indent);
 
-        var options = new List<string> { "name: " + index.Name.ToVisibleName().ToDbmlStringLiteral() };
+        if (index.Columns.Count > 1)
+        {
+            builder.Append('(')
+                .Append(index.Columns.Select(RenderIndexColumn).Join(", "))
+                .Append(')');
+        }
+        else
+        {
+            builder.Append(RenderIndexColumn(index.Columns.Single()));
+        }
+
+        builder.Append(" [name: ")
+            .Append(index.Name.ToVisibleName().ToDbmlStringLiteral());
+
         if (index.IsUnique)
-            options.Add("unique");
+            builder.Append(", unique");
 
-        return Indent + Indent + columns + " "
-            + "[" + options.Join(", ") + "]";
+        builder.AppendLine("]");
     }
 
     private static string RenderIndexColumn(IDatabaseIndexColumn indexColumn)
@@ -213,15 +227,11 @@ public class DbmlFormatter : IDbmlFormatter
             .ToList();
     }
 
-    private static void RenderForeignKeys(StringBuilder builder, IRelationalDatabaseTable table, IReadOnlySet<Identifier> renderedTableNames)
+    private static void RenderForeignKeys(StringBuilder builder, IRelationalDatabaseTable table, IEnumerable<IDatabaseRelationalKey> parentKeys)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(renderedTableNames);
-
-        var parentKeys = GetRenderableParentKeys(table, renderedTableNames);
-        if (parentKeys.Count == 0)
-            return;
+        ArgumentNullException.ThrowIfNull(parentKeys);
 
         var childTableName = table.Name.ToDbmlName();
         var uniqueColumnSets = GetUniqueColumnSets(table);
@@ -229,19 +239,18 @@ public class DbmlFormatter : IDbmlFormatter
         foreach (var relationalKey in parentKeys)
         {
             var isChildKeyUnique = IsChildKeyUnique(uniqueColumnSets, relationalKey.ChildKey);
-            var relationalOperator = isChildKeyUnique ? "-" : ">";
-
-            var parentTableName = relationalKey.ParentTable.ToDbmlName();
-
-            var childRef = childTableName + "." + RenderKeyColumns(relationalKey.ChildKey);
-            var parentRef = parentTableName + "." + RenderKeyColumns(relationalKey.ParentKey);
+            var relationalOperator = isChildKeyUnique ? '-' : '>';
 
             builder.Append("Ref: ")
-                .Append(childRef)
+                .Append(childTableName)
+                .Append('.')
+                .Append(RenderKeyColumns(relationalKey.ChildKey))
                 .Append(' ')
                 .Append(relationalOperator)
                 .Append(' ')
-                .AppendLine(parentRef);
+                .Append(relationalKey.ParentTable.ToDbmlName())
+                .Append('.')
+                .AppendLine(RenderKeyColumns(relationalKey.ParentKey));
         }
     }
 
@@ -262,7 +271,7 @@ public class DbmlFormatter : IDbmlFormatter
         return table.PrimaryKey
             .Match(
                 pk => pk.Columns.Count == 1
-                    && string.Equals(pk.Columns.Single().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal),
+                    && string.Equals(pk.Columns.First().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal),
                 static () => false
             );
     }
@@ -275,7 +284,7 @@ public class DbmlFormatter : IDbmlFormatter
         return table.UniqueKeys
             .Any(
                 uk => uk.Columns.Count == 1
-                    && string.Equals(uk.Columns.Single().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal));
+                    && string.Equals(uk.Columns.First().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal));
     }
 
     private static List<HashSet<string>> GetUniqueColumnSets(IRelationalDatabaseTable table)

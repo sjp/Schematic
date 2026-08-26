@@ -222,7 +222,8 @@ Table main.test_table_1 {
 }
 """;
 
-    private const string TestTable2Dbml = @"Table main.test_table_2 {
+    private const string TestTable2Dbml = """
+Table main.test_table_2 {
     test_pk_1 INTEGER [not null]
     test_pk_2 INTEGER [not null]
     first_name TEXT [not null]
@@ -238,13 +239,17 @@ Table main.test_table_1 {
         comment [name: 'ix_test_table_2_comment']
         (first_name, last_name) [name: 'ix_test_table_2_first_name']
     }
-}";
+}
+""";
 
-    private const string TestTable5Dbml = @"Table main.test_table_5 {
+    private const string TestTable5Dbml = """
+Table main.test_table_5 {
     test_column_1 INTEGER [null]
-}";
+}
+""";
 
-    private const string MultipleRelationshipsDbml = @"Table main.test_table_6 {
+    private const string MultipleRelationshipsDbml = """
+Table main.test_table_6 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
 }
@@ -270,9 +275,11 @@ Table main.test_table_9 {
 
 Ref: main.test_table_7.test_table_6_fk1 > main.test_table_6.test_pk
 Ref: main.test_table_8.test_table_8_fk1 - main.test_table_6.test_pk
-Ref: main.test_table_9.test_table_9_fk1 - main.test_table_6.test_pk";
+Ref: main.test_table_9.test_table_9_fk1 - main.test_table_6.test_pk
+""";
 
-    private const string CompositeRelationshipsDbml = @"Table main.test_table_10 {
+    private const string CompositeRelationshipsDbml = """
+Table main.test_table_10 {
     test_pk_1 INTEGER [not null]
     test_pk_2 INTEGER [not null]
 
@@ -298,5 +305,6 @@ Table main.test_table_12 {
 }
 
 Ref: main.test_table_11.(test_table_10_fk1, test_table_10_fk2) > main.test_table_10.(test_pk_1, test_pk_2)
-Ref: main.test_table_12.(test_table_10_fk1, test_table_10_fk2) - main.test_table_10.(test_pk_1, test_pk_2)";
+Ref: main.test_table_12.(test_table_10_fk1, test_table_10_fk2) - main.test_table_10.(test_pk_1, test_pk_2)
+""";
 }

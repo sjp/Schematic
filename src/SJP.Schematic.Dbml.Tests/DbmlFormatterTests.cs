@@ -16,6 +16,14 @@ internal static class DbmlFormatterTests
     }
 
     [Test]
+    public static void RenderTables_GivenTablesWithNullValue_ThrowsArgumentNullException()
+    {
+        var tables = new IRelationalDatabaseTable[] { null };
+
+        Assert.That(() => new DbmlFormatter().RenderTables(tables), Throws.ArgumentNullException);
+    }
+
+    [Test]
     public static void RenderTables_GivenEmptyTables_ReturnsEmptyString()
     {
         var formatter = new DbmlFormatter();
