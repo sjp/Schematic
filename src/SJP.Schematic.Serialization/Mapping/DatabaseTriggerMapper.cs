@@ -3,10 +3,18 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a database trigger between its core and serialized representations.
+/// </summary>
 public class DatabaseTriggerMapper
     : IImmutableMapper<Dto.DatabaseTrigger, IDatabaseTrigger>
     , IImmutableMapper<IDatabaseTrigger, Dto.DatabaseTrigger>
 {
+    /// <summary>
+    /// Maps a serialized trigger to its core representation.
+    /// </summary>
+    /// <param name="source">A serialized trigger.</param>
+    /// <returns>A trigger.</returns>
     public IDatabaseTrigger Map(Dto.DatabaseTrigger source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -20,6 +28,11 @@ public class DatabaseTriggerMapper
         );
     }
 
+    /// <summary>
+    /// Maps a trigger to its serialized representation.
+    /// </summary>
+    /// <param name="source">A trigger.</param>
+    /// <returns>A serialized trigger.</returns>
     public Dto.DatabaseTrigger Map(IDatabaseTrigger source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();

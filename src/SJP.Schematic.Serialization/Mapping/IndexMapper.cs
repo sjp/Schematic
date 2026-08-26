@@ -4,10 +4,18 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a database index between its core and serialized representations.
+/// </summary>
 public class IndexMapper
     : IImmutableMapper<Dto.DatabaseIndex, IDatabaseIndex>
     , IImmutableMapper<IDatabaseIndex, Dto.DatabaseIndex>
 {
+    /// <summary>
+    /// Maps a serialized index to its core representation.
+    /// </summary>
+    /// <param name="source">A serialized index.</param>
+    /// <returns>An index.</returns>
     public IDatabaseIndex Map(Dto.DatabaseIndex source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -30,6 +38,11 @@ public class IndexMapper
         );
     }
 
+    /// <summary>
+    /// Maps an index to its serialized representation.
+    /// </summary>
+    /// <param name="source">An index.</param>
+    /// <returns>A serialized index.</returns>
     public Dto.DatabaseIndex Map(IDatabaseIndex source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();

@@ -5,10 +5,19 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a column data type between its core and serialized representations.
+/// </summary>
 public class DbTypeMapper
     : IImmutableMapper<Dto.DbType, IDbType>
     , IImmutableMapper<IDbType, Dto.DbType>
 {
+    /// <summary>
+    /// Maps a serialized column data type to its core representation.
+    /// </summary>
+    /// <param name="source">A serialized column data type.</param>
+    /// <returns>A column data type. Its CLR type is <see cref="object"/> when the serialized type does not name one.</returns>
+    /// <exception cref="InvalidOperationException">The serialized type names a CLR type that no loaded assembly declares.</exception>
     public IDbType Map(Dto.DbType source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -33,6 +42,11 @@ public class DbTypeMapper
         );
     }
 
+    /// <summary>
+    /// Maps a column data type to its serialized representation.
+    /// </summary>
+    /// <param name="source">A column data type.</param>
+    /// <returns>A serialized column data type. Its CLR type is named without any assembly information.</returns>
     public Dto.DbType Map(IDbType source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();

@@ -3,10 +3,18 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a foreign key relationship between its core and serialized representations.
+/// </summary>
 public class DatabaseRelationalKeyMapper
     : IImmutableMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>
     , IImmutableMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>
 {
+    /// <summary>
+    /// Maps a serialized foreign key relationship to its core representation.
+    /// </summary>
+    /// <param name="source">A serialized foreign key relationship.</param>
+    /// <returns>A foreign key relationship.</returns>
     public IDatabaseRelationalKey Map(Dto.DatabaseRelationalKey source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -22,6 +30,11 @@ public class DatabaseRelationalKeyMapper
         );
     }
 
+    /// <summary>
+    /// Maps a foreign key relationship to its serialized representation.
+    /// </summary>
+    /// <param name="source">A foreign key relationship.</param>
+    /// <returns>A serialized foreign key relationship.</returns>
     public Dto.DatabaseRelationalKey Map(IDatabaseRelationalKey source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();

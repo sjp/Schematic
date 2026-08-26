@@ -5,10 +5,18 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
+/// <summary>
+/// Maps the comments attached to a synonym between their core and serialized representations.
+/// </summary>
 public class DatabaseSynonymCommentsMapper
     : IImmutableMapper<Dto.Comments.DatabaseSynonymComments, IDatabaseSynonymComments>
     , IImmutableMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>
 {
+    /// <summary>
+    /// Maps serialized synonym comments to their core representation.
+    /// </summary>
+    /// <param name="source">Serialized synonym comments.</param>
+    /// <returns>Synonym comments.</returns>
     public IDatabaseSynonymComments Map(Dto.Comments.DatabaseSynonymComments source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -20,6 +28,11 @@ public class DatabaseSynonymCommentsMapper
         );
     }
 
+    /// <summary>
+    /// Maps synonym comments to their serialized representation.
+    /// </summary>
+    /// <param name="source">Synonym comments.</param>
+    /// <returns>Serialized synonym comments.</returns>
     public Dto.Comments.DatabaseSynonymComments Map(IDatabaseSynonymComments source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();

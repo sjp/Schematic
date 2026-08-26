@@ -7,6 +7,9 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a database definition between its core and serialized representations.
+/// </summary>
 public class RelationalDatabaseMapper
     : IAsyncImmutableMapper<IRelationalDatabase, Dto.RelationalDatabase>
 {
@@ -40,6 +43,12 @@ public class RelationalDatabaseMapper
         );
     }
 
+    /// <summary>
+    /// Maps a database to a serialized database definition.
+    /// </summary>
+    /// <param name="source">A database.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A serialized database definition.</returns>
     public async Task<Dto.RelationalDatabase> MapAsync(IRelationalDatabase source, CancellationToken cancellationToken)
     {
         var tableMapper = MapperRegistry.GetMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>();

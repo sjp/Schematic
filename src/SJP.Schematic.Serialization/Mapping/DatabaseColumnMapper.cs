@@ -4,11 +4,19 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a column between its core and serialized representations.
+/// </summary>
 public class DatabaseColumnMapper
     : IImmutableMapper<Dto.DatabaseColumn, IDatabaseColumn>
     , IImmutableMapper<IDatabaseColumn, Dto.DatabaseColumn>
     , IImmutableMapper<IDatabaseComputedColumn, Dto.DatabaseColumn>
 {
+    /// <summary>
+    /// Maps a serialized column to its core representation.
+    /// </summary>
+    /// <param name="source">A serialized column.</param>
+    /// <returns>A column. A computed column is returned when the serialized column is marked as computed.</returns>
     public IDatabaseColumn Map(Dto.DatabaseColumn source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -37,6 +45,11 @@ public class DatabaseColumnMapper
         );
     }
 
+    /// <summary>
+    /// Maps a column to its serialized representation.
+    /// </summary>
+    /// <param name="source">A column.</param>
+    /// <returns>A serialized column. A computed column is dispatched on its runtime type so that its definition is preserved.</returns>
     public Dto.DatabaseColumn Map(IDatabaseColumn source)
     {
         // overload resolution is static, so computed columns must be routed at runtime
@@ -60,6 +73,11 @@ public class DatabaseColumnMapper
         };
     }
 
+    /// <summary>
+    /// Maps a computed column to its serialized representation.
+    /// </summary>
+    /// <param name="source">A computed column.</param>
+    /// <returns>A serialized column.</returns>
     public Dto.DatabaseColumn Map(IDatabaseComputedColumn source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();

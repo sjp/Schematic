@@ -9,6 +9,9 @@ using SJP.Schematic.Serialization.Dto.Comments;
 
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
+/// <summary>
+/// Maps the comments attached to a database's objects between their core and serialized representations.
+/// </summary>
 public class DatabaseCommentProviderMapper
     : IAsyncImmutableMapper<IRelationalDatabaseCommentProvider, DatabaseCommentProvider>
 {
@@ -42,6 +45,13 @@ public class DatabaseCommentProviderMapper
         );
     }
 
+    /// <summary>
+    /// Maps a database comment provider to a serialized comment definition.
+    /// </summary>
+    /// <param name="source">A database comment provider.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A serialized comment definition.</returns>
+    /// <exception cref="ArgumentException">A comment lookup on one of the provider's objects is keyed by a qualified name.</exception>
     public async Task<DatabaseCommentProvider> MapAsync(IRelationalDatabaseCommentProvider source, CancellationToken cancellationToken)
     {
         var (

@@ -4,10 +4,18 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
+/// <summary>
+/// Maps a database table between its core and serialized representations.
+/// </summary>
 public class RelationalDatabaseTableMapper
     : IImmutableMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>
     , IImmutableMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>
 {
+    /// <summary>
+    /// Maps a serialized table to its core representation.
+    /// </summary>
+    /// <param name="source">A serialized table.</param>
+    /// <returns>A table.</returns>
     public IRelationalDatabaseTable Map(Dto.RelationalDatabaseTable source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
@@ -32,6 +40,11 @@ public class RelationalDatabaseTableMapper
         );
     }
 
+    /// <summary>
+    /// Maps a table to its serialized representation.
+    /// </summary>
+    /// <param name="source">A table.</param>
+    /// <returns>A serialized table.</returns>
     public Dto.RelationalDatabaseTable Map(IRelationalDatabaseTable source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
