@@ -166,7 +166,7 @@ public class DbmlFormatter : IDbmlFormatter
         ArgumentNullException.ThrowIfNull(index);
 
         return index.Columns
-            .Select(static ic => ic.DependentColumns.Select(static dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression);
+            .Select(static ic => ic.Expression.RemoveEnclosingQuotingCharacters());
     }
 
     private static string RenderIndexLine(IRelationalDatabaseTable table, IDatabaseIndex index)
@@ -210,10 +210,11 @@ public class DbmlFormatter : IDbmlFormatter
             return;
 
         var childTableName = table.Name.ToDbmlName();
+        var uniqueColumnSets = GetUniqueColumnSets(table);
 
         foreach (var relationalKey in table.ParentKeys)
         {
-            var isChildKeyUnique = IsChildKeyUnique(table, relationalKey.ChildKey);
+            var isChildKeyUnique = IsChildKeyUnique(uniqueColumnSets, relationalKey.ChildKey);
             var relationalOperator = isChildKeyUnique ? "-" : ">";
 
             var parentTableName = relationalKey.ParentTable.ToDbmlName();
@@ -263,33 +264,38 @@ public class DbmlFormatter : IDbmlFormatter
                     && string.Equals(uk.Columns.Single().Name.LocalName, column.Name.LocalName, StringComparison.Ordinal));
     }
 
-    private static bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
+    private static List<HashSet<string>> GetUniqueColumnSets(IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
+
+        var result = new List<HashSet<string>>(1 + table.UniqueKeys.Count + table.Indexes.Count);
+
+        table.PrimaryKey.IfSome(pk => result.Add(GetKeyColumnNames(pk)));
+        foreach (var uniqueKey in table.UniqueKeys)
+            result.Add(GetKeyColumnNames(uniqueKey));
+        foreach (var index in table.Indexes.Where(static i => i.IsUnique))
+            result.Add(GetIndexColumnNames(index).ToHashSet(StringComparer.Ordinal));
+
+        result.RemoveAll(static columnNames => columnNames.Count == 0);
+
+        return result;
+    }
+
+    private static HashSet<string> GetKeyColumnNames(IDatabaseKey key)
+    {
         ArgumentNullException.ThrowIfNull(key);
 
-        var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName).ToList();
-        var matchesPkColumns = table.PrimaryKey.Match(pk =>
-        {
-            var pkColumnNames = pk.Columns.Select(static c => c.Name.LocalName).ToList();
-            return keyColumnNames.SequenceEqual(pkColumnNames, StringComparer.Ordinal);
-        }, static () => false);
-        if (matchesPkColumns)
-            return true;
+        return key.Columns.Select(static c => c.Name.LocalName).ToHashSet(StringComparer.Ordinal);
+    }
 
-        var matchesUkColumns = table.UniqueKeys.Any(uk =>
-        {
-            var ukColumnNames = uk.Columns.Select(static c => c.Name.LocalName).ToList();
-            return keyColumnNames.SequenceEqual(ukColumnNames, StringComparer.Ordinal);
-        });
-        if (matchesUkColumns)
-            return true;
+    private static bool IsChildKeyUnique(IEnumerable<HashSet<string>> uniqueColumnSets, IDatabaseKey key)
+    {
+        ArgumentNullException.ThrowIfNull(uniqueColumnSets);
+        ArgumentNullException.ThrowIfNull(key);
 
-        var uniqueIndexes = table.Indexes.Where(static i => i.IsUnique).ToList();
-        if (uniqueIndexes.Count == 0)
-            return false;
+        var keyColumnNames = GetKeyColumnNames(key);
 
-        return uniqueIndexes.Exists(i => keyColumnNames.SequenceEqual(GetIndexColumnNames(i), StringComparer.Ordinal));
+        return uniqueColumnSets.Any(keyColumnNames.IsSupersetOf);
     }
 
     private const string Indent = "    ";

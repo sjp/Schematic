@@ -228,6 +228,109 @@ internal static class DbmlFormatterTests
         Assert.That(result, Is.EqualTo(QuotedForeignKeyDbml).IgnoreLineEndingFormat);
     }
 
+    [Test]
+    public static void RenderTables_GivenChildKeyMatchingQuotedUniqueIndexExpression_RendersOneToOneRelationship()
+    {
+        var columns = CreateColumns("order_id");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
+        var uniqueIndex = new DatabaseIndex(
+            "ix_child_table_order_id",
+            true,
+            [new ExpressionIndexColumn("\"order_id\"")],
+            [],
+            true,
+            Option<string>.None
+        );
+        var childTable = CreateChildTable(columns, relationalKey, [], [uniqueIndex]);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(QuotedUniqueIndexExpressionForeignKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenChildKeyContainingUniqueKeyColumns_RendersOneToOneRelationship()
+    {
+        var columns = CreateColumns("first_name", "last_name", "comment");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("child_table_uk"), DatabaseKeyType.Unique, columns.Take(2).ToList(), true);
+        var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
+        var childTable = CreateChildTable(columns, relationalKey, [uniqueKey], []);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(UniqueKeySubsetForeignKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenChildKeyMatchingUniqueKeyInDifferentColumnOrder_RendersOneToOneRelationship()
+    {
+        var columns = CreateColumns("first_name", "last_name");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, [columns[1], columns[0]], true);
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("child_table_uk"), DatabaseKeyType.Unique, columns, true);
+        var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
+        var childTable = CreateChildTable(columns, relationalKey, [uniqueKey], []);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(ReorderedUniqueKeyForeignKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenChildKeyMatchingFunctionalUniqueIndexColumns_RendersManyToOneRelationship()
+    {
+        var columns = CreateColumns("email");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var uniqueIndex = new DatabaseIndex(
+            "ix_child_table_email",
+            true,
+            [new DatabaseIndexColumn("lower(email)", columns[0], IndexColumnOrder.Ascending)],
+            [],
+            true,
+            Option<string>.None
+        );
+        var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
+        var childTable = CreateChildTable(columns, relationalKey, [], [uniqueIndex]);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(FunctionalUniqueIndexForeignKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    private static (IRelationalDatabaseTable ParentTable, IDatabaseRelationalKey RelationalKey) CreateParentTableWithRelationalKey(IDatabaseKey childKey)
+    {
+        var parentColumns = CreateColumns(childKey.Columns.Select(static c => c.Name.LocalName).ToArray());
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_table_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentTable = CreateTable("parent_table", parentColumns, parentKey, [], []);
+        var relationalKey = new DatabaseRelationalKey(
+            "child_table",
+            childKey,
+            "parent_table",
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+
+        return (parentTable, relationalKey);
+    }
+
+    private static IRelationalDatabaseTable CreateChildTable(
+        IReadOnlyList<IDatabaseColumn> columns,
+        IDatabaseRelationalKey relationalKey,
+        IReadOnlyCollection<IDatabaseKey> uniqueKeys,
+        IReadOnlyCollection<IDatabaseIndex> indexes
+    ) => new RelationalDatabaseTable("child_table", columns, Option<IDatabaseKey>.None, uniqueKeys, [relationalKey], [], indexes, [], []);
+
+    private sealed class ExpressionIndexColumn(string expression) : IDatabaseIndexColumn
+    {
+        public string Expression { get; } = expression;
+
+        public IReadOnlyList<IDatabaseColumn> DependentColumns { get; } = [];
+
+        public IndexColumnOrder Order { get; } = IndexColumnOrder.Ascending;
+    }
+
     private static List<IDatabaseColumn> CreateColumns(params string[] columnNames)
     {
         return columnNames
@@ -361,6 +464,84 @@ Table test_table {
     }
 }
 """";
+
+    private const string QuotedUniqueIndexExpressionForeignKeyDbml = """
+Table parent_table {
+    order_id text [not null, primary key]
+}
+
+Table child_table {
+    order_id text [not null]
+
+    Indexes {
+        `"order_id"` [name: 'ix_child_table_order_id', unique]
+    }
+}
+
+Ref: child_table.order_id - parent_table.order_id
+""";
+
+    private const string UniqueKeySubsetForeignKeyDbml = """
+Table parent_table {
+    first_name text [not null]
+    last_name text [not null]
+    comment text [not null]
+
+    Indexes {
+        (first_name, last_name, comment) [name: 'parent_table_pk', pk]
+    }
+}
+
+Table child_table {
+    first_name text [not null]
+    last_name text [not null]
+    comment text [not null]
+
+    Indexes {
+        (first_name, last_name) [name: 'child_table_uk', unique]
+    }
+}
+
+Ref: child_table.(first_name, last_name, comment) - parent_table.(first_name, last_name, comment)
+""";
+
+    private const string ReorderedUniqueKeyForeignKeyDbml = """
+Table parent_table {
+    last_name text [not null]
+    first_name text [not null]
+
+    Indexes {
+        (last_name, first_name) [name: 'parent_table_pk', pk]
+    }
+}
+
+Table child_table {
+    first_name text [not null]
+    last_name text [not null]
+
+    Indexes {
+        (first_name, last_name) [name: 'child_table_uk', unique]
+    }
+}
+
+Ref: child_table.(last_name, first_name) - parent_table.(last_name, first_name)
+""";
+
+    private const string FunctionalUniqueIndexForeignKeyDbml = """
+Table parent_table {
+    email text [not null, primary key]
+}
+
+Table child_table {
+    email text [not null]
+
+    Indexes {
+        `lower(email)` [name: 'ix_child_table_email', unique]
+    }
+}
+
+Ref: child_table.email > parent_table.email
+""";
 
     private const string QuotedForeignKeyDbml = """
 Table "Order Details" {
