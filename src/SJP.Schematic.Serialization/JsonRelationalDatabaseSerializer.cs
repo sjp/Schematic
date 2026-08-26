@@ -40,10 +40,8 @@ public class JsonRelationalDatabaseSerializer : IRelationalDatabaseSerializer
         if (dto == null)
             throw new InvalidOperationException("Unable to parse the given JSON as a database definition.");
 
-        dto.IdentifierResolver = identifierResolver;
-
         var mapper = new RelationalDatabaseMapper();
-        return mapper.Map(dto);
+        return mapper.Map(dto, identifierResolver);
     }
 
     private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);

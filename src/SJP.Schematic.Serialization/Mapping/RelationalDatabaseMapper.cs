@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
@@ -8,11 +9,20 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Serialization.Mapping;
 
 public class RelationalDatabaseMapper
-    : IImmutableMapper<Dto.RelationalDatabase, IRelationalDatabase>
-    , IAsyncImmutableMapper<IRelationalDatabase, Dto.RelationalDatabase>
+    : IAsyncImmutableMapper<IRelationalDatabase, Dto.RelationalDatabase>
 {
-    public IRelationalDatabase Map(Dto.RelationalDatabase source)
+    /// <summary>
+    /// Maps a serialized database definition to a database.
+    /// </summary>
+    /// <param name="source">A serialized database definition.</param>
+    /// <param name="identifierResolver">An identifier resolver used by the resulting database to look up objects.</param>
+    /// <returns>A database.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    public IRelationalDatabase Map(Dto.RelationalDatabase source, IIdentifierResolutionStrategy identifierResolver)
     {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
+
         var identifierDefaultsMapper = MapperRegistry.GetMapper<Dto.IdentifierDefaults, IIdentifierDefaults>();
         var tableMapper = MapperRegistry.GetMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>();
         var viewMapper = MapperRegistry.GetMapper<Dto.DatabaseView, IDatabaseView>();
@@ -22,7 +32,7 @@ public class RelationalDatabaseMapper
 
         return new RelationalDatabase(
             identifierDefaultsMapper.Map(source.IdentifierDefaults),
-            source.IdentifierResolver ?? new VerbatimIdentifierResolutionStrategy(),
+            identifierResolver,
             tableMapper.MapList(source.Tables),
             viewMapper.MapList(source.Views),
             sequenceMapper.MapList(source.Sequences),

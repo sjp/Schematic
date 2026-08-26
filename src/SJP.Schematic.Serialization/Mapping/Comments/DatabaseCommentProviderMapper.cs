@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
@@ -10,11 +11,20 @@ using SJP.Schematic.Serialization.Dto.Comments;
 namespace SJP.Schematic.Serialization.Mapping.Comments;
 
 public class DatabaseCommentProviderMapper
-    : IImmutableMapper<DatabaseCommentProvider, IRelationalDatabaseCommentProvider>
-    , IAsyncImmutableMapper<IRelationalDatabaseCommentProvider, DatabaseCommentProvider>
+    : IAsyncImmutableMapper<IRelationalDatabaseCommentProvider, DatabaseCommentProvider>
 {
-    public IRelationalDatabaseCommentProvider Map(DatabaseCommentProvider source)
+    /// <summary>
+    /// Maps a serialized comment definition to a database comment provider.
+    /// </summary>
+    /// <param name="source">A serialized comment definition.</param>
+    /// <param name="identifierResolver">An identifier resolver used by the resulting provider to look up objects.</param>
+    /// <returns>A database comment provider.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="identifierResolver"/> is <c>null</c>.</exception>
+    public IRelationalDatabaseCommentProvider Map(DatabaseCommentProvider source, IIdentifierResolutionStrategy identifierResolver)
     {
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(identifierResolver);
+
         var identifierDefaultsMapper = MapperRegistry.GetMapper<Dto.IdentifierDefaults, IIdentifierDefaults>();
         var tableCommentsMapper = MapperRegistry.GetMapper<DatabaseTableComments, IRelationalDatabaseTableComments>();
         var viewCommentsMapper = MapperRegistry.GetMapper<Dto.Comments.DatabaseViewComments, IDatabaseViewComments>();
@@ -24,7 +34,7 @@ public class DatabaseCommentProviderMapper
 
         return new RelationalDatabaseCommentProvider(
             identifierDefaultsMapper.Map(source.IdentifierDefaults),
-            source.IdentifierResolver ?? new VerbatimIdentifierResolutionStrategy(),
+            identifierResolver,
             tableCommentsMapper.MapList(source.TableComments),
             viewCommentsMapper.MapList(source.ViewComments),
             sequenceCommentsMapper.MapList(source.SequenceComments),

@@ -83,14 +83,10 @@ internal static class MapperRegistry
         RegisterMapper<decimal?, Option<decimal>>(mappers, () => new OptionMapper());
         RegisterMapper<Option<decimal>, decimal?>(mappers, () => new OptionMapper());
 
-        RegisterMapper(mappers, () => new RelationalDatabaseMapper());
-
         RegisterMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>(mappers, () => new RelationalDatabaseTableMapper());
         RegisterMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(mappers, () => new RelationalDatabaseTableMapper());
 
         // Comments
-        RegisterMapper(mappers, () => new DatabaseCommentProviderMapper());
-
         RegisterMapper<Dto.Comments.DatabaseRoutineComments, IDatabaseRoutineComments>(mappers, () => new DatabaseRoutineCommentsMapper());
         RegisterMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(mappers, () => new DatabaseRoutineCommentsMapper());
 

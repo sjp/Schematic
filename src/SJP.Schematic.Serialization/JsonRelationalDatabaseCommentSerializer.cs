@@ -41,10 +41,8 @@ public class JsonRelationalDatabaseCommentSerializer : IRelationalDatabaseCommen
         if (dto == null)
             throw new InvalidOperationException("Unable to parse the given JSON as a database comment definition.");
 
-        dto.IdentifierResolver = identifierResolver;
-
         var mapper = new DatabaseCommentProviderMapper();
-        return mapper.Map(dto);
+        return mapper.Map(dto, identifierResolver);
     }
 
     private static readonly Lazy<JsonSerializerOptions> _settings = new(LoadSettings);
