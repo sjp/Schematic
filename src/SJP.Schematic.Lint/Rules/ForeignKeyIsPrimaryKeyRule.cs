@@ -10,7 +10,8 @@ using SJP.Schematic.Core.Utilities;
 namespace SJP.Schematic.Lint.Rules;
 
 /// <summary>
-/// A linting rule which reports when a foreign key is also a primary key for a table.
+/// A linting rule which reports when a self-referencing foreign key constrains exactly the same set of
+/// columns as the key it targets. Such a relationship can only ever match a row to itself, so it enforces nothing.
 /// </summary>
 /// <seealso cref="Rule"/>
 /// <seealso cref="ITableRule"/>
@@ -18,7 +19,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
 {
     /// <summary>
     /// The reporting level this rule uses unless a caller overrides it: warning, because
-    /// a key that references its own table's primary key is self-referential by mistake.
+    /// a self-referencing key over the target key's own columns is almost always a mistake.
     /// </summary>
     public const RuleLevel DefaultLevel = RuleLevel.Warning;
 
@@ -32,7 +33,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     }
 
     /// <summary>
-    /// Analyses database tables. Reports messages when a foreign key is also the primary key for a table.
+    /// Analyses database tables. Reports messages when a self-referencing foreign key contains the same set of columns as the key it targets.
     /// </summary>
     /// <param name="tables">A set of database tables.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
@@ -47,7 +48,7 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     }
 
     /// <summary>
-    /// Analyses a database table. Reports messages when a foreign key is also the primary key for a table.
+    /// Analyses a database table. Reports messages when a self-referencing foreign key contains the same set of columns as the key it targets.
     /// </summary>
     /// <param name="table">A database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
@@ -121,5 +122,5 @@ public class ForeignKeyIsPrimaryKeyRule : Rule, ITableRule
     /// Gets the rule title.
     /// </summary>
     /// <value>The rule title.</value>
-    protected static string RuleTitle => "Foreign key relationships contains the same columns as the target key.";
+    protected static string RuleTitle => "Foreign key contains the same columns as the target key.";
 }

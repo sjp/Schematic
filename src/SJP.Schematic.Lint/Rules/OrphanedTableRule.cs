@@ -8,7 +8,7 @@ using SJP.Schematic.Core;
 namespace SJP.Schematic.Lint.Rules;
 
 /// <summary>
-/// A linting rule which reports when a table is orphaned has is related to no other tables.
+/// A linting rule which reports when a table is orphaned, i.e. it is related to no other tables.
 /// </summary>
 /// <seealso cref="Rule"/>
 /// <seealso cref="ITableRule"/>

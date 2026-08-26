@@ -55,7 +55,7 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
             new CascadeDeleteRule(level),
             new ColumnTypeMismatchAcrossTablesRule(level),
             new ColumnWithNullDefaultValueRule(level),
-            new ColumnWithNumericSuffix(level),
+            new ColumnWithNumericSuffixRule(level),
             new DisabledObjectsRule(level),
             new EmptyRoutineDefinitionRule(level),
             new ForeignKeyColumnCollationMismatchRule(level),

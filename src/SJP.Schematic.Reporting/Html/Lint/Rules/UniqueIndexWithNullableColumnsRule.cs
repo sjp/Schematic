@@ -39,7 +39,8 @@ internal sealed class UniqueIndexWithNullableColumnsRule : Schematic.Lint.Rules.
             : " which contains a nullable column: ";
         builder.Append(pluralText);
 
-        builder.AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"));
+        builder.AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"))
+            .Append('.');
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);

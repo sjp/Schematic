@@ -7,26 +7,26 @@ using SJP.Schematic.Lint.Rules;
 namespace SJP.Schematic.Lint.Tests.Rules;
 
 [TestFixture]
-internal static class ColumnWithNumericSuffixTests
+internal static class ColumnWithNumericSuffixRuleTests
 {
     [Test]
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new ColumnWithNumericSuffix(level), Throws.ArgumentException);
+        Assert.That(() => new ColumnWithNumericSuffixRule(level), Throws.ArgumentException);
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
-        var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
+        var rule = new ColumnWithNumericSuffixRule(RuleLevel.Error);
         Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
     }
 
     [Test]
     public static async Task AnalyseTables_GivenTableWithoutColumnsContainingNumericSuffix_ProducesNoMessages()
     {
-        var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
+        var rule = new ColumnWithNumericSuffixRule(RuleLevel.Error);
 
         var testColumn = new DatabaseColumn(
             "test_column",
@@ -57,7 +57,7 @@ internal static class ColumnWithNumericSuffixTests
     [Test]
     public static async Task AnalyseTables_GivenTableWithColumnsContainingNumericSuffix_ProducesMessages()
     {
-        var rule = new ColumnWithNumericSuffix(RuleLevel.Error);
+        var rule = new ColumnWithNumericSuffixRule(RuleLevel.Error);
 
         var testColumn = new DatabaseColumn(
             "test_column_1",

@@ -90,14 +90,14 @@ public class DisabledObjectsRule : Rule, ITableRule
         var disabledIndexes = table.Indexes.Where(ix => !ix.IsEnabled);
         foreach (var index in disabledIndexes)
         {
-            var ruleMessage = BuildDisabledIndexMessage(table.Name, index.Name?.LocalName);
+            var ruleMessage = BuildDisabledIndexMessage(table.Name, index.Name.LocalName);
             result.Add(ruleMessage);
         }
 
-        var disabledTriggers = table.Triggers.Where(uk => !uk.IsEnabled);
+        var disabledTriggers = table.Triggers.Where(t => !t.IsEnabled);
         foreach (var trigger in disabledTriggers)
         {
-            var ruleMessage = BuildDisabledTriggerMessage(table.Name, trigger.Name?.LocalName);
+            var ruleMessage = BuildDisabledTriggerMessage(table.Name, trigger.Name.LocalName);
             result.Add(ruleMessage);
         }
 

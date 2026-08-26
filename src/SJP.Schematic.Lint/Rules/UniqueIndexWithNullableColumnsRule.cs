@@ -73,7 +73,7 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
                 continue;
 
             var columnNames = nullableColumns.ConvertAll(c => c.Name.LocalName);
-            var message = BuildMessage(table.Name, index.Name?.LocalName, columnNames);
+            var message = BuildMessage(table.Name, index.Name.LocalName, columnNames);
             result.Add(message);
         }
 
@@ -112,7 +112,8 @@ public class UniqueIndexWithNullableColumnsRule : Rule, ITableRule
             ? "which contains nullable columns: "
             : "which contains a nullable column: ";
         builder.Append(pluralText)
-            .AppendJoin(", ", columnNames);
+            .AppendJoin(", ", columnNames)
+            .Append('.');
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);

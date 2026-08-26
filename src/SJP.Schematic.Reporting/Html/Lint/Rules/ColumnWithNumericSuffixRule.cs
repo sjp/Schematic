@@ -4,9 +4,9 @@ using SJP.Schematic.Lint;
 
 namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
-internal sealed class ColumnWithNumericSuffix : Schematic.Lint.Rules.ColumnWithNumericSuffix
+internal sealed class ColumnWithNumericSuffixRule : Schematic.Lint.Rules.ColumnWithNumericSuffixRule
 {
-    public ColumnWithNumericSuffix(RuleLevel? level = null)
+    public ColumnWithNumericSuffixRule(RuleLevel? level = null)
         : base(level)
     {
     }

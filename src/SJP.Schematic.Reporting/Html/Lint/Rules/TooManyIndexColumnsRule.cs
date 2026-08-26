@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -16,7 +17,7 @@ internal sealed class TooManyIndexColumnsRule : Schematic.Lint.Rules.TooManyInde
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(indexName);
 
-        var messageText = $"The table {tableName.ToVisibleName()} has an index '{indexName.LocalName}' with {columnCount.ToString()} columns, which exceeds the configured limit of {ColumnLimit.ToString()}. Consider whether such a wide index is necessary.";
+        var messageText = $"The table {tableName.ToVisibleName()} has an index '{indexName.LocalName}' with {columnCount.ToString(CultureInfo.InvariantCulture)} columns, which exceeds the configured limit of {ColumnLimit.ToString(CultureInfo.InvariantCulture)}. Consider whether such a wide index is necessary.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 }

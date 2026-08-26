@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -93,7 +94,7 @@ public class TooManyIndexColumnsRule : Rule, ITableRule
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(indexName);
 
-        var messageText = $"The table {tableName} has an index '{indexName.LocalName}' with {columnCount.ToString()} columns, which exceeds the configured limit of {ColumnLimit.ToString()}. Consider whether such a wide index is necessary.";
+        var messageText = $"The table {tableName} has an index '{indexName.LocalName}' with {columnCount.ToString(CultureInfo.InvariantCulture)} columns, which exceeds the configured limit of {ColumnLimit.ToString(CultureInfo.InvariantCulture)}. Consider whether such a wide index is necessary.";
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
     }
 

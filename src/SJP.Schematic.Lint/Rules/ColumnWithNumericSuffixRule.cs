@@ -14,7 +14,7 @@ namespace SJP.Schematic.Lint.Rules;
 /// </summary>
 /// <seealso cref="Rule" />
 /// <seealso cref="ITableRule" />
-public partial class ColumnWithNumericSuffix : Rule, ITableRule
+public partial class ColumnWithNumericSuffixRule : Rule, ITableRule
 {
     /// <summary>
     /// The reporting level this rule uses unless a caller overrides it: information, because
@@ -23,10 +23,10 @@ public partial class ColumnWithNumericSuffix : Rule, ITableRule
     public const RuleLevel DefaultLevel = RuleLevel.Information;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ColumnWithNumericSuffix"/> class.
+    /// Initializes a new instance of the <see cref="ColumnWithNumericSuffixRule"/> class.
     /// </summary>
     /// <param name="level">The reporting level, or <see langword="null" /> to use <see cref="DefaultLevel"/>.</param>
-    public ColumnWithNumericSuffix(RuleLevel? level = null)
+    public ColumnWithNumericSuffixRule(RuleLevel? level = null)
         : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
     }

@@ -238,7 +238,8 @@ public class ForeignKeyIndexRule : Rule, ITableRule
             builder.Append('s');
 
         builder.Append(' ')
-            .AppendJoin(", ", columnNames);
+            .AppendJoin(", ", columnNames)
+            .Append('.');
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);

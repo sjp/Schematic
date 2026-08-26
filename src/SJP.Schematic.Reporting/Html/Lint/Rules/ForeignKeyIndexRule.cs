@@ -42,7 +42,8 @@ internal sealed class ForeignKeyIndexRule : Schematic.Lint.Rules.ForeignKeyIndex
             builder.Append('s');
 
         builder.Append(' ')
-            .AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"));
+            .AppendJoin(", ", columnNames.Select(static columnName => $"'{columnName}'"))
+            .Append('.');
 
         var messageText = builder.GetStringAndRelease();
         return new RuleMessage(RuleId, RuleTitle, Level, messageText, tableName);
