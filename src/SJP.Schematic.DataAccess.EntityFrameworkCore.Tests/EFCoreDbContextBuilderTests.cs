@@ -130,8 +130,199 @@ internal static class EFCoreDbContextBuilderTests
         }
     }
 
+    [Test]
+    public static void Generate_GivenTwoForeignKeysToTheSameParent_ConfiguresDistinctNavigationProperties()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var parentColumn = CreateColumn("address_id");
+        var billingColumn = CreateColumn("billing_address_id");
+        var shippingColumn = CreateColumn("shipping_address_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var billingRelationalKey = CreateRelationalKey("order", "billing_fk", billingColumn, "address", parentKey);
+        var shippingRelationalKey = CreateRelationalKey("order", "shipping_fk", shippingColumn, "address", parentKey);
+
+        var addressTable = new RelationalDatabaseTable(
+            "address",
+            [parentColumn],
+            Option<IDatabaseKey>.Some(parentKey),
+            [],
+            [],
+            [billingRelationalKey, shippingRelationalKey],
+            [],
+            [],
+            []
+        );
+        var orderTable = new RelationalDatabaseTable(
+            "order",
+            [billingColumn, shippingColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [billingRelationalKey, shippingRelationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([addressTable, orderTable], [], []);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("""HasOne(t => t.address).WithMany(t => t!.orders).HasForeignKey(t => t.billing_address_id)"""));
+            Assert.That(result, Does.Contain("""HasOne(t => t.address_1).WithMany(t => t!.orders_1).HasForeignKey(t => t.shipping_address_id)"""));
+        }
+    }
+
+    [Test]
+    public static void Generate_GivenColumnNamedAfterParentTable_ConfiguresUniquelyNamedNavigationProperty()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        // the child's column property name is the same as the parent's class name, so the navigation is suffixed
+        var childColumn = CreateColumn("address");
+        var parentColumn = CreateColumn("address_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
+
+        var addressTable = new RelationalDatabaseTable(
+            "address",
+            [parentColumn],
+            Option<IDatabaseKey>.Some(parentKey),
+            [],
+            [],
+            [relationalKey],
+            [],
+            [],
+            []
+        );
+        var orderTable = new RelationalDatabaseTable(
+            "order",
+            [childColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([addressTable, orderTable], [], []);
+
+        Assert.That(result, Does.Contain("""HasOne(t => t.address_1).WithMany(t => t!.orders).HasForeignKey(t => t.address)"""));
+    }
+
+    [Test]
+    public static void Generate_GivenUniqueChildKey_ConfiguresOneToOneRelationship()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var childColumn = CreateColumn("address_id");
+        var parentColumn = CreateColumn("address_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var childUniqueKey = new DatabaseKey(Option<Identifier>.Some("order_uk"), DatabaseKeyType.Unique, [childColumn], true);
+        var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
+
+        var addressTable = new RelationalDatabaseTable(
+            "address",
+            [parentColumn],
+            Option<IDatabaseKey>.Some(parentKey),
+            [],
+            [],
+            [relationalKey],
+            [],
+            [],
+            []
+        );
+        var orderTable = new RelationalDatabaseTable(
+            "order",
+            [childColumn],
+            Option<IDatabaseKey>.None,
+            [childUniqueKey],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([addressTable, orderTable], [], []);
+
+        Assert.That(result, Does.Contain("""HasOne(t => t.address).WithOne(t => t!.orders).HasForeignKey<order>(t => t.address_id).HasPrincipalKey<address>(t => t!.address_id)"""));
+    }
+
+    [Test]
+    public static void Generate_GivenParentColumnNamedAfterParentTable_TranslatesPrincipalKeyWithParentClassName()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        // the parent's column property name is suffixed because it matches the parent's class name
+        var childColumn = CreateColumn("address_id");
+        var parentColumn = CreateColumn("address");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
+
+        var addressTable = new RelationalDatabaseTable(
+            "address",
+            [parentColumn],
+            Option<IDatabaseKey>.Some(parentKey),
+            [],
+            [],
+            [relationalKey],
+            [],
+            [],
+            []
+        );
+        var orderTable = new RelationalDatabaseTable(
+            "order",
+            [childColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([addressTable, orderTable], [], []);
+
+        Assert.That(result, Does.Contain("""HasForeignKey(t => t.address_id).HasPrincipalKey(t => t!.address_)"""));
+    }
+
     private static IRelationalDatabaseTable CreateTable(Identifier tableName) =>
         new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
+
+    private static IDatabaseColumn CreateColumn(Identifier columnName)
+    {
+        var columnType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(long),
+            false,
+            -1,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+    }
+
+    private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier childKeyName, IDatabaseColumn childColumn, Identifier parentTableName, IDatabaseKey parentKey) =>
+        new DatabaseRelationalKey(
+            childTableName,
+            new DatabaseKey(Option<Identifier>.Some(childKeyName), DatabaseKeyType.Foreign, [childColumn], true),
+            parentTableName,
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
 
     private const string ExpectedSequenceTestResult = """
 using System;

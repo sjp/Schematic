@@ -113,12 +113,14 @@ public class EFCoreDbContextBuilder
                 SimpleBaseType(
                     IdentifierName(nameof(DbContext)))));
 
+        var tablesList = tables.ToList();
+
         // DbSet properties are not namespace qualified, so objects sharing a local name in
         // different schemas would otherwise declare the same property twice on the context.
         var setNames = new StringHashSet(StringComparer.Ordinal);
-        var tableDbSets = tables.Select(t => BuildTableDbSet(t, setNames)).ToList();
+        var tableDbSets = tablesList.Select(t => BuildTableDbSet(t, setNames)).ToList();
         var viewDbSets = views.Select(v => BuildViewDbSet(v, setNames)).ToList();
-        var modelBuilderMethod = BuildOnModelCreatingMethod(tables, views, sequences);
+        var modelBuilderMethod = BuildOnModelCreatingMethod(tablesList, views, sequences);
         var members = tableDbSets
             .Concat(viewDbSets)
             .Concat(new MemberDeclarationSyntax[] { modelBuilderMethod })
@@ -204,7 +206,8 @@ public class EFCoreDbContextBuilder
         ArgumentNullException.ThrowIfNull(views);
         ArgumentNullException.ThrowIfNull(sequences);
 
-        var tableConfigs = tables.SelectMany(BuildTableConfiguration);
+        var navigationResolver = new EFCoreNavigationResolver(NameTranslator, tables);
+        var tableConfigs = tables.SelectMany(t => BuildTableConfiguration(t, navigationResolver));
         var viewConfigs = views.Select(BuildViewConfiguration);
         var sequenceConfigs = sequences.Select(BuildSequenceConfiguration);
         var expressions = tableConfigs
@@ -227,9 +230,10 @@ public class EFCoreDbContextBuilder
             .WithLeadingTrivia(OnModelCreateComment);
     }
 
-    private IEnumerable<InvocationExpressionSyntax> BuildTableConfiguration(IRelationalDatabaseTable table)
+    private IEnumerable<InvocationExpressionSyntax> BuildTableConfiguration(IRelationalDatabaseTable table, EFCoreNavigationResolver navigationResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(navigationResolver);
 
         var columnExprs = table.Columns
             .Where(static c => c.IsComputed || c.DefaultValue.IsSome)
@@ -241,7 +245,8 @@ public class EFCoreDbContextBuilder
             );
         var uniqueKeyExprs = table.UniqueKeys.Select(uk => BuildTableUniqueKeyForBuilder(table, uk));
         var indexExprs = table.Indexes.Select(i => BuildTableIndexForBuilder(table, i));
-        var foreignKeyExprs = table.ParentKeys.Select(fk => BuildTableChildKeyForBuilder(table, fk));
+        var foreignKeyExprs = table.ParentKeys
+            .Select((fk, i) => BuildTableChildKeyForBuilder(table, fk, navigationResolver.ResolveRelationship(table, i)));
 
         return columnExprs
             .Concat(primaryKeyExpr)
@@ -455,20 +460,23 @@ public class EFCoreDbContextBuilder
         return ukBuilder;
     }
 
-    private InvocationExpressionSyntax BuildTableChildKeyForBuilder(IRelationalDatabaseTable table, IDatabaseRelationalKey relationalKey)
+    private InvocationExpressionSyntax BuildTableChildKeyForBuilder(IRelationalDatabaseTable table, IDatabaseRelationalKey relationalKey, RelationshipNavigations navigations)
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(relationalKey);
+        ArgumentNullException.ThrowIfNull(navigations);
 
         var schemaNamespace = NameTranslator.SchemaToNamespace(table.Name);
         var className = NameTranslator.TableToClassName(table.Name);
         var qualifiedClassName = !schemaNamespace.IsNullOrWhiteSpace()
             ? schemaNamespace + "." + className
             : className;
-        var childSetName = className.Pluralize();
 
-        var childKey = relationalKey.ChildKey;
-        var parentPropertyName = NameTranslator.TableToClassName(relationalKey.ParentTable);
+        var parentSchemaNamespace = NameTranslator.SchemaToNamespace(relationalKey.ParentTable);
+        var parentClassName = NameTranslator.TableToClassName(relationalKey.ParentTable);
+        var qualifiedParentClassName = !parentSchemaNamespace.IsNullOrWhiteSpace()
+            ? parentSchemaNamespace + "." + parentClassName
+            : parentClassName;
 
         var entity = GetEntityBuilder(qualifiedClassName);
         var parentKeyBuilder = InvocationExpression(
@@ -486,13 +494,18 @@ public class EFCoreDbContextBuilder
                                 MemberAccessExpression(
                                     SyntaxKind.SimpleMemberAccessExpression,
                                     IdentifierName(EntityLambdaParameterName),
-                                    IdentifierName(parentPropertyName)))))));
+                                    IdentifierName(navigations.DependentPropertyName)))))));
+
+        // a child key constrained to be unique is generated as a single reference on the parent, not a collection
+        var inverseMethodName = navigations.IsOneToOne
+            ? nameof(ReferenceNavigationBuilder.WithOne)
+            : nameof(ReferenceNavigationBuilder.WithMany);
 
         parentKeyBuilder = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 parentKeyBuilder,
-                IdentifierName(nameof(ReferenceNavigationBuilder.WithMany))))
+                IdentifierName(inverseMethodName)))
             .WithArgumentList(
                 ArgumentList(
                     SingletonSeparatedList(
@@ -505,29 +518,30 @@ public class EFCoreDbContextBuilder
                                     PostfixUnaryExpression(
                                         SyntaxKind.SuppressNullableWarningExpression,
                                         IdentifierName(EntityLambdaParameterName)),
-                                    IdentifierName(childSetName)))))));
+                                    IdentifierName(navigations.PrincipalPropertyName)))))));
+
+        // one-to-one relationships are symmetric, so the dependent and principal entities must be named explicitly
+        parentKeyBuilder = InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                parentKeyBuilder,
+                BuildKeyMethodName(nameof(ReferenceCollectionBuilder.HasForeignKey), navigations.IsOneToOne ? qualifiedClassName : null)))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            GenerateColumnSet(className, relationalKey.ChildKey.Columns, false)))));
 
         parentKeyBuilder = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 parentKeyBuilder,
-                IdentifierName(nameof(ReferenceCollectionBuilder.HasForeignKey))))
+                BuildKeyMethodName(nameof(ReferenceCollectionBuilder.HasPrincipalKey), navigations.IsOneToOne ? qualifiedParentClassName : null)))
             .WithArgumentList(
                 ArgumentList(
                     SingletonSeparatedList(
                         Argument(
-                            GenerateColumnSet(className, childKey.Columns, false)))));
-
-        parentKeyBuilder = InvocationExpression(
-            MemberAccessExpression(
-                SyntaxKind.SimpleMemberAccessExpression,
-                parentKeyBuilder,
-                IdentifierName(nameof(ReferenceCollectionBuilder.HasPrincipalKey))))
-            .WithArgumentList(
-                ArgumentList(
-                    SingletonSeparatedList(
-                        Argument(
-                            GenerateColumnSet(className, relationalKey.ParentKey.Columns, true)))));
+                            GenerateColumnSet(parentClassName, relationalKey.ParentKey.Columns, true)))));
 
         relationalKey.ChildKey.Name.IfSome(childKeyName =>
         {
@@ -547,6 +561,15 @@ public class EFCoreDbContextBuilder
 
         return parentKeyBuilder;
     }
+
+    private static SimpleNameSyntax BuildKeyMethodName(string methodName, string? qualifiedEntityName) =>
+        qualifiedEntityName == null
+            ? IdentifierName(methodName)
+            : GenericName(
+                Identifier(methodName),
+                TypeArgumentList(
+                    SingletonSeparatedList(
+                        ParseTypeName(qualifiedEntityName))));
 
     private SimpleLambdaExpressionSyntax GenerateColumnSet(string className, IEnumerable<IDatabaseColumn> columns, bool suppressNullable)
     {

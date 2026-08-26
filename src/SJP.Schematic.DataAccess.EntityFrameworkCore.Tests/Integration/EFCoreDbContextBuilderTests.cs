@@ -150,9 +150,9 @@ namespace EFCoreTestNamespace
             modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable4>().HasKey(t => t.TestPk);
             modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk4).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk3).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk2).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
-            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk1).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3_1).WithMany(t => t!.TestTable4s_1).HasForeignKey(t => t.TestTable3Fk3).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3_2).WithMany(t => t!.TestTable4s_2).HasForeignKey(t => t.TestTable3Fk2).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
+            modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3_3).WithMany(t => t!.TestTable4s_3).HasForeignKey(t => t.TestTable3Fk1).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
         }
     }
 }
