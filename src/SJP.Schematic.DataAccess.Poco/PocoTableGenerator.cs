@@ -28,7 +28,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
     /// <param name="fileSystem">A file system.</param>
     /// <param name="nameTranslator">The name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="fileSystem"/>, <paramref name="nameTranslator"/>, or <paramref name="baseNamespace"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="baseNamespace"/> is empty or whitespace.</exception>
     public PocoTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)

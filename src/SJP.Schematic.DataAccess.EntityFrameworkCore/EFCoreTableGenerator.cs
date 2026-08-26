@@ -15,7 +15,6 @@ using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.DataAccess.CodeGeneration;
 using SJP.Schematic.DataAccess.Extensions;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using StringHashSet = System.Collections.Generic.HashSet<string>;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore;
 
@@ -31,7 +30,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     /// <param name="fileSystem">A file system.</param>
     /// <param name="nameTranslator">The name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="baseNamespace"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="fileSystem"/>, <paramref name="nameTranslator"/>, or <paramref name="baseNamespace"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="baseNamespace"/> is empty or whitespace.</exception>
     public EFCoreTableGenerator(IFileSystem fileSystem, INameTranslator nameTranslator, string baseNamespace)
         : base(fileSystem, nameTranslator)
@@ -83,7 +82,8 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .Select(UsingDirective)
             .ToList();
         var namespaceDeclaration = NamespaceDeclaration(ParseName(tableNamespace));
-        var classDeclaration = BuildClass(tables, table, comment);
+        var navigationResolver = new EFCoreNavigationResolver(NameTranslator, tables);
+        var classDeclaration = BuildClass(navigationResolver, table, comment);
 
         var document = CompilationUnit()
             .WithUsings(List(usingStatements))
@@ -97,32 +97,21 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         return Formatter.Format(document, workspace).ToFullString();
     }
 
-    private RecordDeclarationSyntax BuildClass(IEnumerable<IRelationalDatabaseTable> tables, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
+    private RecordDeclarationSyntax BuildClass(EFCoreNavigationResolver navigationResolver, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
     {
-        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(navigationResolver);
         ArgumentNullException.ThrowIfNull(table);
 
         var className = NameTranslator.TableToClassName(table.Name);
+        var navigations = navigationResolver.GetNavigations(table);
+
         var columnProperties = table.Columns
             .Select(c => BuildColumn(c, comment, className))
             .ToList();
-
-        var usedNames = new StringHashSet(columnProperties.Select(static p => p.Identifier.ValueText), StringComparer.Ordinal) { className };
-
-        var parentKeyProperties = table.ParentKeys.Select(fk =>
-        {
-            var candidatePropertyName = NameTranslator.TableToClassName(fk.ParentTable);
-            var propertyName = UniqueNameGenerator.GenerateUniqueName(usedNames, candidatePropertyName);
-
-            return BuildParentKey(tables, fk, comment, className, propertyName);
-        });
-        var childKeyProperties = table.ChildKeys.Select(ck =>
-        {
-            var candidatePropertyName = NameTranslator.TableToClassName(ck.ChildTable).Pluralize();
-            var propertyName = UniqueNameGenerator.GenerateUniqueName(usedNames, candidatePropertyName);
-
-            return BuildChildKey(tables, ck, className, propertyName);
-        });
+        var parentKeyProperties = table.ParentKeys
+            .Select((fk, i) => BuildParentKey(fk, comment, navigations.ParentKeyPropertyNames[i]));
+        var childKeyProperties = table.ChildKeys
+            .Select((ck, i) => BuildChildKey(navigationResolver, ck, navigations.ChildKeyPropertyNames[i]));
         var properties = columnProperties.Concat(parentKeyProperties).Concat(childKeyProperties);
 
         return RecordDeclaration(Token(SyntaxKind.RecordKeyword), className)
@@ -162,11 +151,9 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
     }
 
-    private PropertyDeclarationSyntax BuildParentKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, Option<IRelationalDatabaseTableComments> comment, string className, string propertyName)
+    private PropertyDeclarationSyntax BuildParentKey(IDatabaseRelationalKey relationalKey, Option<IRelationalDatabaseTableComments> comment, string propertyName)
     {
-        ArgumentNullException.ThrowIfNull(tables);
         ArgumentNullException.ThrowIfNull(relationalKey);
-        ArgumentException.ThrowIfNullOrWhiteSpace(className);
         ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var parentTable = relationalKey.ParentTable;
@@ -201,11 +188,10 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
     }
 
-    private PropertyDeclarationSyntax BuildChildKey(IEnumerable<IRelationalDatabaseTable> tables, IDatabaseRelationalKey relationalKey, string className, string propertyName)
+    private PropertyDeclarationSyntax BuildChildKey(EFCoreNavigationResolver navigationResolver, IDatabaseRelationalKey relationalKey, string propertyName)
     {
-        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(navigationResolver);
         ArgumentNullException.ThrowIfNull(relationalKey);
-        ArgumentException.ThrowIfNullOrWhiteSpace(className);
         ArgumentException.ThrowIfNullOrWhiteSpace(propertyName);
 
         var childTableName = relationalKey.ChildTable;
@@ -216,8 +202,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             ? childSchemaName + "." + childClassName
             : childClassName;
 
-        var childTable = tables.FirstOrDefault(t => t.Name == relationalKey.ChildTable);
-        var childKeyIsUnique = childTable != null && IsChildKeyUnique(childTable, relationalKey.ChildKey);
+        var childKeyIsUnique = navigationResolver.IsChildKeyUnique(relationalKey);
 
         if (childKeyIsUnique)
         {
@@ -436,44 +421,5 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         attributes.Add(columnAttribute);
 
         return attributes;
-    }
-
-    private static bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
-    {
-        ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(key);
-
-        var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName).ToList();
-        var matchesPkColumns = table.PrimaryKey
-            .Match(
-                pk =>
-                {
-                    var pkColumnNames = pk.Columns.Select(static c => c.Name.LocalName).ToList();
-                    return keyColumnNames.SequenceEqual(pkColumnNames, StringComparer.Ordinal);
-                },
-                static () => false
-            );
-        if (matchesPkColumns)
-            return true;
-
-        var matchesUkColumns = table.UniqueKeys.Any(uk =>
-        {
-            var ukColumnNames = uk.Columns.Select(static c => c.Name.LocalName).ToList();
-            return keyColumnNames.SequenceEqual(ukColumnNames, StringComparer.Ordinal);
-        });
-        if (matchesUkColumns)
-            return true;
-
-        var uniqueIndexes = table.Indexes.Where(static i => i.IsUnique).ToList();
-        if (uniqueIndexes.Count == 0)
-            return false;
-
-        return uniqueIndexes.Exists(i =>
-        {
-            var indexColumnExpressions = i.Columns
-                .Select(ic => ic.DependentColumns.Select(dc => dc.Name.LocalName).FirstOrDefault() ?? ic.Expression)
-                .ToList();
-            return keyColumnNames.SequenceEqual(indexColumnExpressions, StringComparer.Ordinal);
-        });
     }
 }
