@@ -287,7 +287,7 @@ public class EFCoreDbContextBuilder
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     property,
-                    IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))))
+                    IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))))
                 .WithArgumentList(
                     ArgumentList(
                         SingletonSeparatedList(

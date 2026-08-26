@@ -134,8 +134,8 @@ namespace EFCoreTestNamespace
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestDatetime).HasDefaultValue("CURRENT_TIMESTAMP");
-            modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestStringWithDefault).HasDefaultValue("'test'");
+            modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestDatetime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable1>().HasKey(t => t.TestPk);
             modelBuilder.Entity<Main.TestTable2>().HasKey(t => new { t.TestPk1, t.TestPk2 }).HasName("test_table_2_pk");
             modelBuilder.Entity<Main.TestTable2>().HasAlternateKey(t => new { t.FirstName, t.MiddleName, t.LastName }).HasName("test_table_2_multi_uk");
@@ -143,11 +143,11 @@ namespace EFCoreTestNamespace
             modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.MiddleName }).IsUnique().HasDatabaseName("ux_test_table_2_first_name_middle_name");
             modelBuilder.Entity<Main.TestTable2>().HasIndex(t => t.Comment).HasDatabaseName("ix_test_table_2_comment");
             modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.LastName }).HasDatabaseName("ix_test_table_2_first_name");
-            modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestDatetime).HasDefaultValue("CURRENT_TIMESTAMP");
-            modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestStringWithDefault).HasDefaultValue("'test'");
+            modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestDatetime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable3>().HasKey(t => t.TestPk);
-            modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestDatetime).HasDefaultValue("CURRENT_TIMESTAMP");
-            modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestStringWithDefault).HasDefaultValue("'test'");
+            modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestDatetime).HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable4>().HasKey(t => t.TestPk);
             modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk4).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
             modelBuilder.Entity<Main.TestTable4>().HasOne(t => t.TestTable3).WithMany(t => t!.TestTable4s).HasForeignKey(t => t.TestTable3Fk3).HasPrincipalKey(t => t!.TestPk).HasConstraintName("fk_test_table_4_test_table_3_fk1");
