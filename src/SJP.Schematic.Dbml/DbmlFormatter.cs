@@ -101,7 +101,7 @@ public class DbmlFormatter : IDbmlFormatter
         else if (ColumnIsUniqueKey(table, column))
             options.Add("unique key");
 
-        column.DefaultValue.IfSome(def => options.Add("default: \"" + def.Replace("\"", "\\\"", StringComparison.Ordinal) + "\""));
+        column.DefaultValue.IfSome(def => options.Add("default: " + def.ToDbmlDefaultValue()));
 
         var columnOptions = options.Count > 0
             ? " [" + options.Join(", ") + "]"

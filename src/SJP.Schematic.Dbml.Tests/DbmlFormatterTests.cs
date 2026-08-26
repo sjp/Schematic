@@ -154,6 +154,41 @@ internal static class DbmlFormatterTests
         Assert.That(result, Is.EqualTo(QuotedTypeNamesDbml).IgnoreLineEndingFormat);
     }
 
+    [TestCase("0", "0")]
+    [TestCase("-1", "-1")]
+    [TestCase("12.50", "12.50")]
+    [TestCase("1.5e-3", "1.5e-3")]
+    [TestCase("(0)", "0")]
+    [TestCase("((42))", "42")]
+    [TestCase("NULL", "null")]
+    [TestCase("True", "true")]
+    [TestCase("false", "false")]
+    [TestCase("'test'", "'test'")]
+    [TestCase("N'test'", "'test'")]
+    [TestCase("('test')", "'test'")]
+    [TestCase("''", "''")]
+    [TestCase("   ", "''")]
+    [TestCase("'o''brien'", @"'o\'brien'")]
+    [TestCase(@"'a\b'", @"'a\\b'")]
+    [TestCase("\'a \"b\" c\'", "'a \"b\" c'")]
+    [TestCase("CURRENT_TIMESTAMP", "`CURRENT_TIMESTAMP`")]
+    [TestCase("now()", "`now()`")]
+    [TestCase("(getdate())", "`getdate()`")]
+    [TestCase("'a' || 'b'", "`'a' || 'b'`")]
+    [TestCase("(a) + (b)", "`(a) + (b)`")]
+    [TestCase("(', ')", "', '")]
+    [TestCase("`quoted`", "'`quoted`'")]
+    public static void RenderTables_GivenColumnWithDefaultValue_RendersClassifiedDefault(string defaultValue, string expectedDefault)
+    {
+        var column = CreateColumn("test_column", "text", Option<string>.Some(defaultValue));
+        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        var expected = "Table test_table {\n    test_column text [not null, default: " + expectedDefault + "]\n}";
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
+    }
+
     [Test]
     public static void RenderTables_GivenExpressionIndexColumns_RendersExpressionsInBackticks()
     {
@@ -339,6 +374,9 @@ internal static class DbmlFormatterTests
     }
 
     private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition)
+        => CreateColumn(columnName, typeDefinition, Option<string>.None);
+
+    private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition, Option<string> defaultValue)
     {
         var columnType = new ColumnDataType(
             "text",
@@ -351,7 +389,13 @@ internal static class DbmlFormatterTests
             Option<Identifier>.None
         );
 
-        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        return new DatabaseColumn(
+            columnName,
+            columnType,
+            false,
+            defaultValue,
+            Option<IAutoIncrement>.None
+        );
     }
 
     private static IRelationalDatabaseTable CreateTable(

@@ -216,9 +216,9 @@ Table main_test_table_1 {
     test_numeric NUMERIC [not null]
     test_nullable_numeric NUMERIC [null]
     test_blob BLOB [not null]
-    test_datetime NUMERIC [null, default: "CURRENT_TIMESTAMP"]
+    test_datetime NUMERIC [null, default: `CURRENT_TIMESTAMP`]
     test_string TEXT [null]
-    test_string_with_default TEXT [null, default: "'test'"]
+    test_string_with_default TEXT [null, default: 'test']
 }
 """;
 

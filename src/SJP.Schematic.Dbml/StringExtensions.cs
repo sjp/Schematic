@@ -60,6 +60,125 @@ internal static partial class StringExtensions
         return "`" + input + "`";
     }
 
+    public static string ToDbmlDefaultValue(this string input)
+    {
+        ArgumentNullException.ThrowIfNull(input);
+
+        var value = RemoveEnclosingParentheses(input.Trim());
+        if (value.Length == 0)
+            return "''";
+
+        if (IsDbmlKeyword(value))
+            return value.ToLowerInvariant();
+
+        if (NumericLiteralRegex().IsMatch(value))
+            return value;
+
+        if (TryGetSqlStringLiteral(value, out var literal))
+            return literal.ToDbmlStringLiteral();
+
+        // an expression is delimited by backticks, so one that contains a backtick
+        // can only be preserved as a string
+        return value.Contains('`', StringComparison.Ordinal)
+            ? value.ToDbmlStringLiteral()
+            : value.ToDbmlExpression();
+    }
+
+    private static bool IsDbmlKeyword(string input)
+    {
+        return string.Equals(input, "null", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(input, "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(input, "false", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string RemoveEnclosingParentheses(string input)
+    {
+        var result = input;
+
+        while (result.Length > 1 && result[0] == '(' && result[^1] == ')' && IsEnclosedByOuterParentheses(result))
+            result = result[1..^1].Trim();
+
+        return result;
+    }
+
+    private static bool IsEnclosedByOuterParentheses(string input)
+    {
+        var depth = 0;
+        var inStringLiteral = false;
+
+        for (var i = 0; i < input.Length; i++)
+        {
+            var c = input[i];
+            if (inStringLiteral)
+            {
+                if (c == '\'')
+                    inStringLiteral = false;
+                continue;
+            }
+
+            switch (c)
+            {
+                case '\'':
+                    inStringLiteral = true;
+                    break;
+                case '(':
+                    depth++;
+                    break;
+                case ')':
+                    depth--;
+                    if (depth == 0 && i < input.Length - 1)
+                        return false;
+                    break;
+            }
+        }
+
+        return depth == 0;
+    }
+
+    private static bool TryGetSqlStringLiteral(string input, out string value)
+    {
+        value = string.Empty;
+
+        // national character literals (e.g. N'test') carry the same text
+        var literal = input.Length > 2 && (input[0] == 'N' || input[0] == 'n') && input[1] == '\''
+            ? input[1..]
+            : input;
+
+        if (literal.Length < 2 || literal[0] != '\'' || literal[^1] != '\'')
+            return false;
+
+        var builder = StringBuilderCache.Acquire(literal.Length);
+        var isSingleLiteral = true;
+
+        for (var i = 1; i < literal.Length - 1; i++)
+        {
+            var c = literal[i];
+            if (c != '\'')
+            {
+                builder.Append(c);
+                continue;
+            }
+
+            // an embedded quote must be doubled, anything else means the literal
+            // terminated early and the input is a larger expression
+            if (i == literal.Length - 2 || literal[i + 1] != '\'')
+            {
+                isSingleLiteral = false;
+                break;
+            }
+
+            builder.Append('\'');
+            i++;
+        }
+
+        var result = builder.GetStringAndRelease();
+        if (!isSingleLiteral)
+            return false;
+
+        value = result;
+        return true;
+    }
+
     private static string Escape(string input, char quoteChar)
     {
         // fast path
@@ -83,4 +202,7 @@ internal static partial class StringExtensions
 
     [GeneratedRegex(@"^[A-Za-z_][A-Za-z0-9_]*(\([A-Za-z0-9_, ]*\))?$", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
     private static partial Regex SafeTypeNameRegex();
+
+    [GeneratedRegex(@"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$", RegexOptions.Compiled, matchTimeoutMilliseconds: 100)]
+    private static partial Regex NumericLiteralRegex();
 }
