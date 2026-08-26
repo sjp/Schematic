@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -527,6 +527,59 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     [Test]
     public static void DeserializeAsync_WhenClrTypeNameUnresolvable_ThrowsExceptionNamingTypeName()
     {
+        var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("Some.Unresolvable.Type"), ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.InvalidOperationException
+                .With.Message.Contains("Some.Unresolvable.Type")
+                .And.Message.Contains("test_type_name")
+        );
+    }
+
+    [Test]
+    public static void DeserializeAsync_WhenClrTypeNameMalformed_ThrowsExceptionNamingTypeName()
+    {
+        var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("a, b, c, d, e"), ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.InvalidOperationException
+                .With.Message.Contains("a, b, c, d, e")
+                .And.Message.Contains("test_type_name")
+        );
+    }
+
+    // assemblies are never loaded on demand, so a document cannot name one to have it located and loaded
+    [Test]
+    public static void DeserializeAsync_WhenClrTypeNameQualifiedByUnloadedAssembly_ThrowsExceptionNamingTypeName()
+    {
+        var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("System.String, Not.A.Loaded.Assembly"), ValidChecksJson);
+
+        Assert.That(
+            async () => await DeserializeJsonAsync(json),
+            Throws.InvalidOperationException
+                .With.Message.Contains("System.String, Not.A.Loaded.Assembly")
+                .And.Message.Contains("test_type_name")
+        );
+    }
+
+    [Test]
+    public static async Task DeserializeAsync_WhenClrTypeNameQualifiedByLoadedAssembly_ResolvesClrType()
+    {
+        const string clrTypeName = "SJP.Schematic.Core.Identifier, SJP.Schematic.Core";
+        var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson(clrTypeName), ValidChecksJson);
+
+        var importedDb = await DeserializeJsonAsync(json);
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        Assert.That(column.Type.ClrType, Is.EqualTo(typeof(Identifier)));
+    }
+
+    [Test]
+    public static async Task DeserializeAsync_WhenClrTypeNameAbsent_DefaultsToObjectClrType()
+    {
         const string columnsJson = """
             [
                 {
@@ -537,21 +590,50 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
                         "DataType": "String",
                         "Definition": "varchar(100)",
                         "IsFixedLength": false,
-                        "MaxLength": 100,
-                        "ClrTypeName": "Some.Unresolvable.Type"
+                        "MaxLength": 100
                     }
                 }
             ]
             """;
         var json = CreateTableDatabaseJson(ValidTableNameJson, columnsJson, ValidChecksJson);
 
-        Assert.That(
-            async () => await DeserializeJsonAsync(json),
-            Throws.InvalidOperationException
-                .With.Message.Contains("Some.Unresolvable.Type")
-                .And.Message.Contains("test_type_name")
-        );
+        var importedDb = await DeserializeJsonAsync(json);
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        Assert.That(column.Type.ClrType, Is.EqualTo(typeof(object)));
     }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenClrTypeOutsideCoreLibraryRoundTripped_PreservesClrType()
+    {
+        var db = CreateColumnClrTypeDatabase(typeof(ColumnClrType));
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        Assert.That(column.Type.ClrType, Is.EqualTo(typeof(ColumnClrType)));
+    }
+
+    // the CLR type name is the member under test, so it is the only part of the column that varies
+    private static string CreateClrTypeNameColumnsJson(string clrTypeName) => $$"""
+        [
+            {
+                "ColumnName": { "LocalName": "test_column_name" },
+                "IsNullable": false,
+                "Type": {
+                    "TypeName": { "LocalName": "test_type_name" },
+                    "DataType": "String",
+                    "Definition": "varchar(100)",
+                    "IsFixedLength": false,
+                    "MaxLength": 100,
+                    "ClrTypeName": "{{clrTypeName}}"
+                }
+            }
+        ]
+        """;
 
     private const string ValidTableNameJson = """{ "Schema": "main", "LocalName": "test_table_name" }""";
 
@@ -614,6 +696,56 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         jsonOutputStream.Seek(0, SeekOrigin.Begin);
         return await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
     }
+
+    private static IRelationalDatabase CreateColumnClrTypeDatabase(Type clrType)
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            clrType,
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+
+        // a primary key is present because a table without one cannot currently be round-tripped,
+        // see issues/serialization-missing-primary-key-round-trip.md
+        var primaryKey = new DatabaseKey(
+            Option<Identifier>.Some("test_primary_key"),
+            DatabaseKeyType.Primary,
+            [firstNameColumn],
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [firstNameColumn],
+            Option<IDatabaseKey>.Some(primaryKey),
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    // a CLR type declared outside the core library, and outside every assembly the serializer references
+    private sealed class ColumnClrType;
 
     private static IRelationalDatabase CreateComputedColumnDatabase(Option<string> definition)
     {

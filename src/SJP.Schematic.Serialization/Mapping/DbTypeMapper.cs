@@ -15,9 +15,11 @@ public class DbTypeMapper
         var numericPrecisionMapper = MapperRegistry.GetMapper<Dto.NumericPrecision?, Option<INumericPrecision>>();
         var collationMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
 
-        var clrTypeName = source.ClrTypeName ?? "System.Object";
-        var clrType = Type.GetType(clrTypeName)
-            ?? throw new InvalidOperationException($"Unable to resolve the CLR type '{clrTypeName}' given for the column type '{source.TypeName.LocalName}'.");
+        // an absent name means the source database did not know a CLR type for the column
+        var clrType = string.IsNullOrWhiteSpace(source.ClrTypeName)
+            ? typeof(object)
+            : ClrTypeResolver.Resolve(source.ClrTypeName)
+                ?? throw new InvalidOperationException($"Unable to resolve the CLR type '{source.ClrTypeName}' given for the column type '{source.TypeName.LocalName}'. Types are only resolved from assemblies that are already loaded.");
 
         return new ColumnDataType(
             identifierMapper.Map(source.TypeName),
@@ -42,6 +44,8 @@ public class DbTypeMapper
             TypeName = identifierMapper.Map(source.TypeName),
             DataType = source.DataType,
             Definition = source.Definition,
+            // deliberately not an assembly-qualified name, which would pin an assembly version in the
+            // document; resolution searches loaded assemblies for the name instead
             ClrTypeName = source.ClrType.ToString(),
             IsFixedLength = source.IsFixedLength,
             MaxLength = source.MaxLength,
