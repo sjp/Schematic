@@ -39,6 +39,11 @@ public class DatabaseColumnMapper
 
     public Dto.DatabaseColumn Map(IDatabaseColumn source)
     {
+        // overload resolution is static, so computed columns must be routed at runtime
+        // otherwise their definitions are silently dropped when serializing a column collection
+        if (source is IDatabaseComputedColumn computedColumn)
+            return Map(computedColumn);
+
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var dbTypeMapper = MapperRegistry.GetMapper<IDbType, Dto.DbType>();
         var optionalMapper = MapperRegistry.GetMapper<Option<string>, string?>();
@@ -51,6 +56,7 @@ public class DatabaseColumnMapper
             IsNullable = source.IsNullable,
             DefaultValue = optionalMapper.Map(source.DefaultValue),
             AutoIncrement = autoIncrMapper.Map(source.AutoIncrement),
+            IsComputed = source.IsComputed,
         };
     }
 

@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Tests.Utilities.Integration;
 
 namespace SJP.Schematic.Serialization.Tests;
@@ -394,5 +397,127 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Assert.That(reExportedJson, Is.Not.Empty);
             Assert.That(reExportedJson, Is.EqualTo(json));
         }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenComputedColumnWithDefinitionRoundTripped_PreservesComputedDefinition()
+    {
+        const string definition = "([first_name] + ' ' + [last_name])";
+        var db = CreateComputedColumnDatabase(Option<string>.Some(definition));
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single(c => c.Name.LocalName == "test_computed_column");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.IsComputed, Is.True);
+            Assert.That(column, Is.InstanceOf<IDatabaseComputedColumn>());
+            Assert.That(((IDatabaseComputedColumn)column).Definition.UnwrapSome(), Is.EqualTo(definition));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenComputedColumnWithoutDefinitionRoundTripped_PreservesMissingDefinition()
+    {
+        var db = CreateComputedColumnDatabase(Option<string>.None);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single(c => c.Name.LocalName == "test_computed_column");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.IsComputed, Is.True);
+            Assert.That(column, Is.InstanceOf<IDatabaseComputedColumn>());
+            Assert.That(((IDatabaseComputedColumn)column).Definition.IsNone, Is.True);
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenComputedColumnRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateComputedColumnDatabase(Option<string>.Some("([first_name] + ' ' + [last_name])"));
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        }
+    }
+
+    private static async Task<IRelationalDatabase> RoundTripAsync(IRelationalDatabase database)
+    {
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, database);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        return await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+    }
+
+    private static IRelationalDatabase CreateComputedColumnDatabase(Option<string> definition)
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            typeof(string),
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var columns = new List<IDatabaseColumn>
+        {
+            firstNameColumn,
+            new DatabaseComputedColumn("test_computed_column", columnType, true, Option<string>.None, definition),
+        };
+
+        // a primary key is present because a table without one cannot currently be round-tripped,
+        // see issues/serialization-missing-primary-key-round-trip.md
+        var primaryKey = new DatabaseKey(
+            Option<Identifier>.Some("test_primary_key"),
+            DatabaseKeyType.Primary,
+            [firstNameColumn],
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            columns,
+            Option<IDatabaseKey>.Some(primaryKey),
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
     }
 }
