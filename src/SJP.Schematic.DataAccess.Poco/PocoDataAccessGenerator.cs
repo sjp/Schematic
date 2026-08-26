@@ -115,6 +115,8 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
         foreach (var comment in viewComments)
             viewCommentsLookup[comment.ViewName] = comment;
 
+        var generatedFilePaths = new List<string>();
+
         foreach (var table in tables)
         {
             var tableComment = tableCommentsLookup.TryGetValue(table.Name, out var c)
@@ -131,6 +133,7 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
                 tablePath.Delete();
 
             await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken);
+            generatedFilePaths.Add(tablePath.FullName);
         }
 
         foreach (var view in views)
@@ -149,7 +152,10 @@ public class PocoDataAccessGenerator : IDataAccessGenerator
                 viewPath.Delete();
 
             await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken);
+            generatedFilePaths.Add(viewPath.FullName);
         }
+
+        ProjectFileCleaner.RemoveStaleFiles(projectFileInfo.Directory!, generatedFilePaths);
     }
 
     private static string ProjectDefinition { get; } =

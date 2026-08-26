@@ -120,6 +120,8 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
         foreach (var comment in viewComments)
             viewCommentsLookup[comment.ViewName] = comment;
 
+        var generatedFilePaths = new List<string>();
+
         foreach (var table in tables)
         {
             var tableComment = tableCommentsLookup.TryGetValue(table.Name, out var comments)
@@ -136,6 +138,7 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
                 tablePath.Delete();
 
             await FileSystem.File.WriteAllTextAsync(tablePath.FullName, tableClass, cancellationToken);
+            generatedFilePaths.Add(tablePath.FullName);
         }
 
         foreach (var view in views)
@@ -154,12 +157,16 @@ public class EFCoreDataAccessGenerator : IDataAccessGenerator
                 viewPath.Delete();
 
             await FileSystem.File.WriteAllTextAsync(viewPath.FullName, viewClass, cancellationToken);
+            generatedFilePaths.Add(viewPath.FullName);
         }
 
         var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
         var dbContextPath = FileSystem.Path.Combine(projectFileInfo.Directory!.FullName, "AppContext.cs");
 
         await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken);
+        generatedFilePaths.Add(dbContextPath);
+
+        ProjectFileCleaner.RemoveStaleFiles(projectFileInfo.Directory!, generatedFilePaths);
     }
 
     private static string ProjectDefinition { get; } =
