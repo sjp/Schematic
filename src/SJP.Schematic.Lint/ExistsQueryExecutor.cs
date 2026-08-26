@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -14,15 +14,23 @@ namespace SJP.Schematic.Lint;
 internal sealed class ExistsQueryExecutor
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="ExistsQueryExecutor"/> class.
+    /// Retrieves the executor associated with a connection, creating one when needed. Executors are
+    /// shared so that the <c>FROM</c> suffix is discovered once per connection, rather than once per
+    /// rule that needs it.
     /// </summary>
     /// <param name="connection">A database connection, qualified with a dialect.</param>
+    /// <returns>An executor bound to <paramref name="connection"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public ExistsQueryExecutor(ISchematicConnection connection)
+    public static ExistsQueryExecutor GetForConnection(ISchematicConnection connection)
     {
-        Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+        ArgumentNullException.ThrowIfNull(connection);
 
-        _fromQuerySuffixAsync = new AsyncLazy<string>(GetFromQuerySuffixAsync);
+        return Executors.GetValue(connection, static c => new ExistsQueryExecutor(c));
+    }
+
+    private ExistsQueryExecutor(ISchematicConnection connection)
+    {
+        Connection = connection;
     }
 
     private ISchematicConnection Connection { get; }
@@ -48,7 +56,7 @@ internal sealed class ExistsQueryExecutor
     {
         var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
-        var suffix = await _fromQuerySuffixAsync;
+        var suffix = await GetFromQuerySuffixAsync(cancellationToken);
         var query = suffix.IsNullOrWhiteSpace()
             ? sql
             : sql + " from " + suffix;
@@ -56,29 +64,47 @@ internal sealed class ExistsQueryExecutor
         return await DbConnection.ExecuteScalarAsync<bool>(query, cancellationToken);
     }
 
-    private async Task<string> GetFromQuerySuffixAsync()
+    // Only one caller probes; the rest wait for its answer and then reuse the cached suffix.
+    // A failed probe is not cached, so a cancelled lint run does not poison later ones.
+    private async Task<string> GetFromQuerySuffixAsync(CancellationToken cancellationToken)
+    {
+        if (_fromQuerySuffix != null)
+            return _fromQuerySuffix;
+
+        await _suffixLock.WaitAsync(cancellationToken);
+        try
+        {
+            return _fromQuerySuffix ??= await ProbeFromQuerySuffixAsync(cancellationToken);
+        }
+        finally
+        {
+            _suffixLock.Release();
+        }
+    }
+
+    private async Task<string> ProbeFromQuerySuffixAsync(CancellationToken cancellationToken)
     {
         try
         {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, cancellationToken);
             return string.Empty;
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // Deliberately ignoring because we are testing functionality
         }
 
         try
         {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None);
+            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, cancellationToken);
             return "SYS.DUAL";
         }
-        catch
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             // Deliberately ignoring because we are testing functionality
         }
 
-        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None);
+        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, cancellationToken);
         return "DUAL";
     }
 
@@ -86,5 +112,9 @@ internal sealed class ExistsQueryExecutor
     private const string TestQueryFromDual = "select 1 as dummy from DUAL";
     private const string TestQueryFromSysDual = "select 1 as dummy from SYS.DUAL";
 
-    private readonly AsyncLazy<string> _fromQuerySuffixAsync;
+    private volatile string? _fromQuerySuffix;
+
+    private readonly SemaphoreSlim _suffixLock = new(1, 1);
+
+    private static readonly ConditionalWeakTable<ISchematicConnection, ExistsQueryExecutor> Executors = new();
 }

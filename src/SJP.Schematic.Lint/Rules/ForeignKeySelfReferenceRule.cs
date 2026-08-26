@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 
@@ -33,7 +32,7 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
-        _fromQuerySuffixAsync = new AsyncLazy<string>(GetFromQuerySuffixAsync);
+        _existsQueryExecutor = ExistsQueryExecutor.GetForConnection(connection);
     }
 
     /// <summary>
@@ -127,20 +126,20 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
         return TableHasSelfReferencingForeignKeyRowsCore(table, targetKey, foreignKey, cancellationToken);
     }
 
-    private async Task<bool> TableHasSelfReferencingForeignKeyRowsCore(IRelationalDatabaseTable table, IDatabaseKey targetKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
+    private Task<bool> TableHasSelfReferencingForeignKeyRowsCore(IRelationalDatabaseTable table, IDatabaseKey targetKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
     {
         var targetColumnNames = targetKey.Columns.Select(c => c.Name).ToList();
         var fkColumnNames = foreignKey.Columns.Select(c => c.Name).ToList();
 
-        var sql = await GetTableMatchingForeignKeyTargetKeyQueryCore(
+        var filterSql = GetTableMatchingForeignKeyTargetKeyFilterQuery(
             table.Name,
             targetColumnNames,
             fkColumnNames
         );
-        return await DbConnection.ExecuteScalarAsync<bool>(sql, cancellationToken);
+        return _existsQueryExecutor.ExistsAsync(filterSql, cancellationToken);
     }
 
-    private async Task<string> GetTableMatchingForeignKeyTargetKeyQueryCore(Identifier tableName, IEnumerable<Identifier> targetColumnNames, IEnumerable<Identifier> fkColumnNames)
+    private string GetTableMatchingForeignKeyTargetKeyFilterQuery(Identifier tableName, IEnumerable<Identifier> targetColumnNames, IEnumerable<Identifier> fkColumnNames)
     {
         var quotedTableName = Dialect.QuoteName(Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName));
         var quotedTargetKeyColumnNames = targetColumnNames.Select(n => Dialect.QuoteIdentifier(n.LocalName)).ToList();
@@ -158,17 +157,11 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
             ).ToList();
         var whereFilterClauses = equalsClauses.Join(" AND ");
 
-        var filterSql = $@"
+        return $@"
 select 1
 from {quotedTableName}
 where {whereFilterClauses}
 ";
-        var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
-
-        var suffix = await _fromQuerySuffixAsync;
-        return suffix.IsNullOrWhiteSpace()
-            ? sql
-            : sql + " from " + suffix;
     }
 
     /// <summary>
@@ -231,35 +224,5 @@ where {whereFilterClauses}
     /// <value>The rule title.</value>
     protected static string RuleTitle => "Table contains a row where a foreign key self-references the key it targets in the same row.";
 
-    private async Task<string> GetFromQuerySuffixAsync()
-    {
-        try
-        {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, CancellationToken.None);
-            return string.Empty;
-        }
-        catch
-        {
-            // Deliberately ignoring because we are testing functionality
-        }
-
-        try
-        {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, CancellationToken.None);
-            return "SYS.DUAL";
-        }
-        catch
-        {
-            // Deliberately ignoring because we are testing functionality
-        }
-
-        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, CancellationToken.None);
-        return "DUAL";
-    }
-
-    private const string TestQueryNoTable = "select 1 as dummy";
-    private const string TestQueryFromDual = "select 1 as dummy from DUAL";
-    private const string TestQueryFromSysDual = "select 1 as dummy from SYS.DUAL";
-
-    private readonly AsyncLazy<string> _fromQuerySuffixAsync;
+    private readonly ExistsQueryExecutor _existsQueryExecutor;
 }

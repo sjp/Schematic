@@ -32,7 +32,7 @@ public class NoRowsPresentOnTableRule : Rule, ITableRule
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
 
-        _existsQueryExecutor = new ExistsQueryExecutor(connection);
+        _existsQueryExecutor = ExistsQueryExecutor.GetForConnection(connection);
     }
 
     /// <summary>
