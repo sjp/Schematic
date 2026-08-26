@@ -333,6 +333,79 @@ internal static class DbmlFormatterTests
         Assert.That(result, Is.EqualTo(FunctionalUniqueIndexForeignKeyDbml).IgnoreLineEndingFormat);
     }
 
+    [Test]
+    public static void RenderTables_GivenForeignKeyToTableOutsideRenderedSet_DoesNotRenderRef()
+    {
+        var columns = CreateColumns("order_id");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var (_, relationalKey) = CreateParentTableWithRelationalKey(childKey);
+        var childTable = CreateChildTable(columns, relationalKey, [], []);
+
+        var result = new DbmlFormatter().RenderTables([childTable]);
+
+        Assert.That(result, Is.EqualTo(UnrenderedParentForeignKeyDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenForeignKeysInsideAndOutsideRenderedSet_RendersOnlyRefsToRenderedTables()
+    {
+        var columns = CreateColumns("order_id", "customer_id");
+        var renderedChildKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, [columns[0]], true);
+        var (parentTable, renderedRelationalKey) = CreateParentTableWithRelationalKey(renderedChildKey);
+
+        var missingChildKey = new DatabaseKey(Option<Identifier>.Some("child_table_customer_fk"), DatabaseKeyType.Foreign, [columns[1]], true);
+        var missingParentKey = new DatabaseKey(Option<Identifier>.Some("missing_table_pk"), DatabaseKeyType.Primary, CreateColumns("customer_id"), true);
+        var missingRelationalKey = new DatabaseRelationalKey(
+            "child_table",
+            missingChildKey,
+            "missing_table",
+            missingParentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+
+        var childTable = new RelationalDatabaseTable(
+            "child_table",
+            columns,
+            Option<IDatabaseKey>.None,
+            [],
+            [renderedRelationalKey, missingRelationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(PartiallyRenderedForeignKeysDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenParentTableNameFlatteningToRenderedTableName_DoesNotRenderRef()
+    {
+        var columns = CreateColumns("order_id");
+        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var parentColumns = CreateColumns("order_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_table_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentTable = CreateTable(Identifier.CreateQualifiedIdentifier("a_b", "c"), parentColumns, parentKey, [], []);
+
+        var childTableName = Identifier.CreateQualifiedIdentifier("a", "child_table");
+        var relationalKey = new DatabaseRelationalKey(
+            childTableName,
+            childKey,
+            Identifier.CreateQualifiedIdentifier("a", "b_c"),
+            parentKey,
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+        var childTable = new RelationalDatabaseTable(childTableName, columns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+
+        var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
+
+        Assert.That(result, Is.EqualTo(FlattenedParentNameForeignKeyDbml).IgnoreLineEndingFormat);
+    }
+
     private static (IRelationalDatabaseTable ParentTable, IDatabaseRelationalKey RelationalKey) CreateParentTableWithRelationalKey(IDatabaseKey childKey)
     {
         var parentColumns = CreateColumns(childKey.Columns.Select(static c => c.Name.LocalName).ToArray());
@@ -585,6 +658,35 @@ Table child_table {
 }
 
 Ref: child_table.email > parent_table.email
+""";
+
+    private const string UnrenderedParentForeignKeyDbml = """
+Table child_table {
+    order_id text [not null]
+}
+""";
+
+    private const string PartiallyRenderedForeignKeysDbml = """
+Table parent_table {
+    order_id text [not null, primary key]
+}
+
+Table child_table {
+    order_id text [not null]
+    customer_id text [not null]
+}
+
+Ref: child_table.order_id > parent_table.order_id
+""";
+
+    private const string FlattenedParentNameForeignKeyDbml = """
+Table a_b_c {
+    order_id text [not null, primary key]
+}
+
+Table a_child_table {
+    order_id text [not null]
+}
 """;
 
     private const string QuotedForeignKeyDbml = """

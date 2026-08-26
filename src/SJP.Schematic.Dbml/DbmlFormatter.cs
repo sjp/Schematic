@@ -40,12 +40,14 @@ public class DbmlFormatter : IDbmlFormatter
             hasFirstTable = true;
         }
 
-        var anyForeignKeys = tables.Any(t => t.ParentKeys.Count > 0);
+        var renderedTableNames = new HashSet<Identifier>(tables.Select(static t => t.Name), IdentifierComparer.Ordinal);
+
+        var anyForeignKeys = tables.Any(t => GetRenderableParentKeys(t, renderedTableNames).Count > 0);
         if (anyForeignKeys)
         {
             builder.AppendLine();
             foreach (var table in tables)
-                RenderForeignKeys(builder, table);
+                RenderForeignKeys(builder, table, renderedTableNames);
         }
 
         return builder.GetStringAndRelease().TrimEnd();
@@ -201,18 +203,30 @@ public class DbmlFormatter : IDbmlFormatter
         return indexColumn.Expression.ToDbmlExpression();
     }
 
-    private static void RenderForeignKeys(StringBuilder builder, IRelationalDatabaseTable table)
+    private static List<IDatabaseRelationalKey> GetRenderableParentKeys(IRelationalDatabaseTable table, IReadOnlySet<Identifier> renderedTableNames)
+    {
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(renderedTableNames);
+
+        return table.ParentKeys
+            .Where(fk => renderedTableNames.Contains(fk.ParentTable))
+            .ToList();
+    }
+
+    private static void RenderForeignKeys(StringBuilder builder, IRelationalDatabaseTable table, IReadOnlySet<Identifier> renderedTableNames)
     {
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(renderedTableNames);
 
-        if (table.ParentKeys.Count == 0)
+        var parentKeys = GetRenderableParentKeys(table, renderedTableNames);
+        if (parentKeys.Count == 0)
             return;
 
         var childTableName = table.Name.ToDbmlName();
         var uniqueColumnSets = GetUniqueColumnSets(table);
 
-        foreach (var relationalKey in table.ParentKeys)
+        foreach (var relationalKey in parentKeys)
         {
             var isChildKeyUnique = IsChildKeyUnique(uniqueColumnSets, relationalKey.ChildKey);
             var relationalOperator = isChildKeyUnique ? "-" : ">";
