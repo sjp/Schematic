@@ -68,7 +68,7 @@ internal static class MapperRegistry
         RegisterMapper<IIdentifierDefaults, Dto.IdentifierDefaults>(mappers, () => new IdentifierDefaultsMapper());
 
         RegisterMapper<Dto.Identifier?, Option<Identifier>>(mappers, () => new IdentifierMapper());
-        RegisterMapper<Option<Identifier>, Dto.Identifier>(mappers, () => new IdentifierMapper());
+        RegisterMapper<Option<Identifier>, Dto.Identifier?>(mappers, () => new IdentifierMapper());
         RegisterMapper<Identifier, Dto.Identifier>(mappers, () => new IdentifierMapper());
         RegisterMapper<Dto.Identifier, Identifier>(mappers, () => new IdentifierMapper());
 

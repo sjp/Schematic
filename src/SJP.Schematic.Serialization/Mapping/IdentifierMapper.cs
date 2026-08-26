@@ -6,7 +6,7 @@ namespace SJP.Schematic.Serialization.Mapping;
 
 public class IdentifierMapper
     : IImmutableMapper<Dto.Identifier?, Option<Identifier>>
-    , IImmutableMapper<Option<Identifier>, Dto.Identifier>
+    , IImmutableMapper<Option<Identifier>, Dto.Identifier?>
     , IImmutableMapper<Identifier, Dto.Identifier>
     , IImmutableMapper<Dto.Identifier, Identifier>
 {
@@ -17,9 +17,9 @@ public class IdentifierMapper
             : Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(source.Server, source.Database, source.Schema, source.LocalName));
     }
 
-    public Dto.Identifier Map(Option<Identifier> source)
+    public Dto.Identifier? Map(Option<Identifier> source)
     {
-        var result = source.MatchUnsafe(
+        return source.MatchUnsafe(
             static ident => new Dto.Identifier
             {
                 Server = ident.Server,
@@ -27,10 +27,8 @@ public class IdentifierMapper
                 Schema = ident.Schema,
                 LocalName = ident.LocalName,
             },
-            static () => default!
+            static () => (Dto.Identifier?)null
         );
-
-        return result!;
     }
 
     public Dto.Identifier Map(Identifier source)
