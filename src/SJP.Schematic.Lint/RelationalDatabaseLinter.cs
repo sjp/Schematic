@@ -21,7 +21,16 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <exception cref="ArgumentNullException"><paramref name="rules"/> is <see langword="null" />.</exception>
     public RelationalDatabaseLinter(IEnumerable<IRule> rules)
     {
-        Rules = rules ?? throw new ArgumentNullException(nameof(rules));
+        ArgumentNullException.ThrowIfNull(rules);
+
+        var materialisedRules = rules.ToList();
+
+        Rules = materialisedRules;
+        TableRules = materialisedRules.OfType<ITableRule>().ToList();
+        ViewRules = materialisedRules.OfType<IViewRule>().ToList();
+        SequenceRules = materialisedRules.OfType<ISequenceRule>().ToList();
+        SynonymRules = materialisedRules.OfType<ISynonymRule>().ToList();
+        RoutineRules = materialisedRules.OfType<IRoutineRule>().ToList();
     }
 
     /// <summary>
@@ -30,11 +39,11 @@ public class RelationalDatabaseLinter : IRelationalDatabaseLinter
     /// <value>The set of rules used to analyse database objects.</value>
     protected IEnumerable<IRule> Rules { get; }
 
-    private IEnumerable<ITableRule> TableRules => Rules.OfType<ITableRule>();
-    private IEnumerable<IViewRule> ViewRules => Rules.OfType<IViewRule>();
-    private IEnumerable<ISequenceRule> SequenceRules => Rules.OfType<ISequenceRule>();
-    private IEnumerable<ISynonymRule> SynonymRules => Rules.OfType<ISynonymRule>();
-    private IEnumerable<IRoutineRule> RoutineRules => Rules.OfType<IRoutineRule>();
+    private IReadOnlyCollection<ITableRule> TableRules { get; }
+    private IReadOnlyCollection<IViewRule> ViewRules { get; }
+    private IReadOnlyCollection<ISequenceRule> SequenceRules { get; }
+    private IReadOnlyCollection<ISynonymRule> SynonymRules { get; }
+    private IReadOnlyCollection<IRoutineRule> RoutineRules { get; }
 
     /// <summary>
     /// Analyses a relational database.

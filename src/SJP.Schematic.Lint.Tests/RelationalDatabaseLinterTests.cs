@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -99,5 +102,51 @@ internal static class RelationalDatabaseLinterTests
         var messages = await Linter.AnalyseRoutines([]);
 
         Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task Ctor_GivenRulesModifiedAfterConstruction_UsesRulesGivenAtConstruction()
+    {
+        var rules = new List<IRule>();
+        var linter = new RelationalDatabaseLinter(rules);
+        rules.Add(new FakeTableRule());
+
+        var messages = await linter.AnalyseTables([]);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task Ctor_GivenLazilyEvaluatedRules_EnumeratesRulesOnce()
+    {
+        var rules = new EnumerationCountingRules([new FakeTableRule()]);
+        var linter = new RelationalDatabaseLinter(rules);
+
+        await linter.AnalyseDatabase(EmptyDatabase);
+        await linter.AnalyseTables([]);
+
+        Assert.That(rules.EnumerationCount, Is.EqualTo(1));
+    }
+
+    private sealed class EnumerationCountingRules(IEnumerable<IRule> rules) : IEnumerable<IRule>
+    {
+        public int EnumerationCount { get; private set; }
+
+        public IEnumerator<IRule> GetEnumerator()
+        {
+            EnumerationCount++;
+            return rules.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    }
+
+    private sealed class FakeTableRule() : Rule("TEST_TABLE_RULE", "test table rule", RuleLevel.Warning), ITableRule
+    {
+        public Task<IReadOnlyCollection<IRuleMessage>> AnalyseTables(IReadOnlyCollection<IRelationalDatabaseTable> tables, CancellationToken cancellationToken = default)
+        {
+            IReadOnlyCollection<IRuleMessage> messages = [new RuleMessage(Id, Title, Level, "a test message")];
+            return Task.FromResult(messages);
+        }
     }
 }
