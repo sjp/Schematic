@@ -53,7 +53,7 @@ public class EFCoreDataAccessGenerator : DataAccessGenerator
 
         var dbContextGenerator = new EFCoreDbContextBuilder(NameTranslator, baseNamespace);
         var dbContextText = dbContextGenerator.Generate(tables, views, sequences);
-        var dbContextPath = FileSystem.Path.Combine(projectDirectory.FullName, "AppContext.cs");
+        var dbContextPath = FileSystem.Path.Combine(projectDirectory.FullName, dbContextGenerator.ContextClassName + ".cs");
 
         await FileSystem.File.WriteAllTextAsync(dbContextPath, dbContextText, cancellationToken);
 

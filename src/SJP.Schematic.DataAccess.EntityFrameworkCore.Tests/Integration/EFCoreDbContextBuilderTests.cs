@@ -94,20 +94,35 @@ create table test_table_4 (
         var views = await Database.GetAllViews();
         var sequences = await Database.GetAllSequences();
 
-        var expected = TestAppContextOutput;
+        var expected = TestDbContextOutput;
         var result = builder.Generate(tables, views, sequences);
 
         Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
-    private readonly string TestAppContextOutput = """
+    private readonly string TestDbContextOutput = """
 using System;
 using Microsoft.EntityFrameworkCore;
 
 namespace EFCoreTestNamespace
 {
-    public class AppContext : DbContext
+    public class DatabaseContext : DbContext
     {
+        /// <summary>
+        /// Initializes a new instance of the <c>DatabaseContext</c> class.
+        /// </summary>
+        public DatabaseContext()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <c>DatabaseContext</c> class.
+        /// </summary>
+        /// <param name="options">The options to be used by this context.</param>
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+        {
+        }
+
         /// <summary>
         /// Accesses the <c>main.test_table_1</c> table.
         /// </summary>

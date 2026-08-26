@@ -23,6 +23,24 @@ internal static class EFCoreDbContextBuilderTests
         Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
     }
 
+    [TestCase((string)null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void Ctor_GivenNullOrWhiteSpaceContextClassName_ThrowsArgumentException(string className)
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, "test", className), Throws.InstanceOf<ArgumentException>());
+    }
+
+    [Test]
+    public static void ContextClassName_WhenNotProvidedInCtor_IsDefaultContextClassName()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        Assert.That(dbContextBuilder.ContextClassName, Is.EqualTo(EFCoreDbContextBuilder.DefaultContextClassName));
+    }
+
     [Test]
     public static void Generate_GivenNullTables_ThrowsArgumentNullException()
     {
@@ -78,6 +96,20 @@ internal static class EFCoreDbContextBuilderTests
         var result = dbContextBuilder.Generate(tables, views, sequences);
 
         Assert.That(result, Is.EqualTo(ExpectedSequenceTestResult).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void Generate_GivenCustomContextClassName_ReturnsExpectedConfiguration()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test", "MyContext");
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+
+        var result = dbContextBuilder.Generate(tables, views, sequences);
+
+        Assert.That(result, Is.EqualTo(ExpectedCustomClassNameTestResult).IgnoreLineEndingFormat);
     }
 
     [Test]
@@ -330,8 +362,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace test
 {
-    public class AppContext : DbContext
+    public class DatabaseContext : DbContext
     {
+        /// <summary>
+        /// Initializes a new instance of the <c>DatabaseContext</c> class.
+        /// </summary>
+        public DatabaseContext()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <c>DatabaseContext</c> class.
+        /// </summary>
+        /// <param name="options">The options to be used by this context.</param>
+        public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+        {
+        }
+
         /// <summary>
         /// Configure the model that was discovered by convention from the defined entity types.
         /// </summary>
@@ -339,6 +386,40 @@ namespace test
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasSequence<long>("test_sequence").StartsAt(3L).IncrementsBy(20);
+        }
+    }
+}
+""";
+
+    private const string ExpectedCustomClassNameTestResult = """
+using System;
+using Microsoft.EntityFrameworkCore;
+
+namespace test
+{
+    public class MyContext : DbContext
+    {
+        /// <summary>
+        /// Initializes a new instance of the <c>MyContext</c> class.
+        /// </summary>
+        public MyContext()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <c>MyContext</c> class.
+        /// </summary>
+        /// <param name="options">The options to be used by this context.</param>
+        public MyContext(DbContextOptions<MyContext> options) : base(options)
+        {
+        }
+
+        /// <summary>
+        /// Configure the model that was discovered by convention from the defined entity types.
+        /// </summary>
+        /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
         }
     }
 }

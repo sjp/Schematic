@@ -26,14 +26,14 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
         var tablesDir = Path.Combine(tempDir.DirectoryPath, "Tables");
         var viewsDir = Path.Combine(tempDir.DirectoryPath, "Views");
 
-        var expectedAppContextPath = Path.Combine(tempDir.DirectoryPath, "AppContext.cs");
+        var expectedDbContextPath = Path.Combine(tempDir.DirectoryPath, "DatabaseContext.cs");
         var expectedTablePath = Path.Combine(tablesDir, "Main", "Actor.cs");
         var expectedViewPath = Path.Combine(viewsDir, "Main", "CustomerList.cs");
 
         var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
         {
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
-            [expectedAppContextPath] = new MockFileData(Array.Empty<byte>()),
+            [expectedDbContextPath] = new MockFileData(Array.Empty<byte>()),
             [expectedTablePath] = new MockFileData(Array.Empty<byte>()),
             [expectedViewPath] = new MockFileData(Array.Empty<byte>()),
         });
@@ -45,7 +45,7 @@ internal sealed class EfCoreSakilaDataAccessGeneratorTests : SakilaTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.FileExists(projectPath), Is.True);
-            Assert.That(mockFs.FileExists(expectedAppContextPath), Is.True);
+            Assert.That(mockFs.FileExists(expectedDbContextPath), Is.True);
             Assert.That(mockFs.Directory.Exists(tablesDir), Is.True);
             Assert.That(mockFs.Directory.Exists(viewsDir), Is.True);
             Assert.That(mockFs.FileExists(expectedTablePath), Is.True);

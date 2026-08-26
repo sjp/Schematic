@@ -104,7 +104,7 @@ internal static class EFCoreDataAccessGeneratorTests
 
         var currentTablePath = Path.Combine(tempDir.DirectoryPath, "Tables", "current_table.cs");
         var currentViewPath = Path.Combine(tempDir.DirectoryPath, "Views", "current_view.cs");
-        var appContextPath = Path.Combine(tempDir.DirectoryPath, "AppContext.cs");
+        var dbContextPath = Path.Combine(tempDir.DirectoryPath, "DatabaseContext.cs");
 
         using (Assert.EnterMultipleScope())
         {
@@ -112,7 +112,7 @@ internal static class EFCoreDataAccessGeneratorTests
             Assert.That(mockFs.File.Exists(staleViewPath), Is.False);
             Assert.That(mockFs.File.Exists(currentTablePath), Is.True);
             Assert.That(mockFs.File.Exists(currentViewPath), Is.True);
-            Assert.That(mockFs.File.Exists(appContextPath), Is.True);
+            Assert.That(mockFs.File.Exists(dbContextPath), Is.True);
         }
     }
 

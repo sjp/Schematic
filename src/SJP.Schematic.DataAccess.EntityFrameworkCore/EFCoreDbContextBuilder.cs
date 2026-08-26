@@ -24,19 +24,40 @@ namespace SJP.Schematic.DataAccess.EntityFrameworkCore;
 public class EFCoreDbContextBuilder
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EFCoreDbContextBuilder"/> class.
+    /// Initializes a new instance of the <see cref="EFCoreDbContextBuilder"/> class, using <see cref="DefaultContextClassName"/> for the generated class name.
     /// </summary>
     /// <param name="nameTranslator">A name translator.</param>
     /// <param name="baseNamespace">The base namespace.</param>
     /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/> or <paramref name="baseNamespace"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="baseNamespace"/> is empty or whitespace.</exception>
     public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace)
+        : this(nameTranslator, baseNamespace, DefaultContextClassName)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EFCoreDbContextBuilder"/> class.
+    /// </summary>
+    /// <param name="nameTranslator">A name translator.</param>
+    /// <param name="baseNamespace">The base namespace.</param>
+    /// <param name="contextClassName">The name to use for the generated <see cref="DbContext"/> class.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="nameTranslator"/>, <paramref name="baseNamespace"/> or <paramref name="contextClassName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="baseNamespace"/> or <paramref name="contextClassName"/> is empty or whitespace.</exception>
+    public EFCoreDbContextBuilder(INameTranslator nameTranslator, string baseNamespace, string contextClassName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(baseNamespace);
+        ArgumentException.ThrowIfNullOrWhiteSpace(contextClassName);
 
         NameTranslator = nameTranslator ?? throw new ArgumentNullException(nameof(nameTranslator));
         Namespace = baseNamespace;
+        ContextClassName = contextClassName;
     }
+
+    /// <summary>
+    /// The name used for the generated <see cref="DbContext"/> class when no other name is provided.
+    /// </summary>
+    /// <remarks>Deliberately not <c>AppContext</c>, which would collide with <see cref="System.AppContext"/> in the generated code.</remarks>
+    public const string DefaultContextClassName = "DatabaseContext";
 
     /// <summary>
     /// The name translator when translating database object names to C# object names.
@@ -49,6 +70,12 @@ public class EFCoreDbContextBuilder
     /// </summary>
     /// <value>A string representing a namespace.</value>
     protected string Namespace { get; }
+
+    /// <summary>
+    /// The name of the generated <see cref="DbContext"/> class.
+    /// </summary>
+    /// <value>A string representing a class name.</value>
+    public string ContextClassName { get; }
 
     /// <summary>
     /// Generates source code for a <see cref="DbContext"/>.
@@ -85,6 +112,8 @@ public class EFCoreDbContextBuilder
     private const string ModelBuilderParameterName = "modelBuilder";
     private const string ModelBuilderMethodSummaryComment = "Configure the model that was discovered by convention from the defined entity types.";
     private const string ModelBuilderMethodParamComment = "The builder being used to construct the model for this context.";
+    private const string OptionsParameterName = "options";
+    private const string OptionsParameterComment = "The options to be used by this context.";
 
     private static readonly ImmutableArray<string> Namespaces =
     [
@@ -107,7 +136,6 @@ public class EFCoreDbContextBuilder
         ArgumentNullException.ThrowIfNull(views);
         ArgumentNullException.ThrowIfNull(sequences);
 
-        const string className = "AppContext";
         var baseClass = BaseList(
             SingletonSeparatedList<BaseTypeSyntax>(
                 SimpleBaseType(
@@ -121,16 +149,60 @@ public class EFCoreDbContextBuilder
         var tableDbSets = tablesList.Select(t => BuildTableDbSet(t, setNames)).ToList();
         var viewDbSets = views.Select(v => BuildViewDbSet(v, setNames)).ToList();
         var modelBuilderMethod = BuildOnModelCreatingMethod(tablesList, views, sequences);
-        var members = tableDbSets
+        var members = BuildConstructors()
+            .Concat(tableDbSets)
             .Concat(viewDbSets)
             .Concat(new MemberDeclarationSyntax[] { modelBuilderMethod })
             .ToList();
 
-        return ClassDeclaration(className)
+        return ClassDeclaration(ContextClassName)
             .WithBaseList(baseClass)
             .AddModifiers(Token(SyntaxKind.PublicKeyword))
             .WithMembers(List(members));
     }
+
+    private IEnumerable<MemberDeclarationSyntax> BuildConstructors()
+    {
+        var defaultCtor = ConstructorDeclaration(Identifier(ContextClassName))
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+            .WithBody(Block())
+            .WithLeadingTrivia(SyntaxUtilities.BuildCommentTrivia(BuildConstructorSummary()));
+
+        var optionsType = GenericName(
+            Identifier(nameof(DbContextOptions<DbContext>)),
+            TypeArgumentList(
+                SingletonSeparatedList<TypeSyntax>(
+                    IdentifierName(ContextClassName))));
+
+        var optionsCtor = ConstructorDeclaration(Identifier(ContextClassName))
+            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+            .WithParameterList(
+                ParameterList(
+                    SingletonSeparatedList(
+                        Parameter(Identifier(OptionsParameterName))
+                            .WithType(optionsType))))
+            .WithInitializer(
+                ConstructorInitializer(
+                    SyntaxKind.BaseConstructorInitializer,
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                IdentifierName(OptionsParameterName))))))
+            .WithBody(Block())
+            .WithLeadingTrivia(
+                SyntaxUtilities.BuildCommentTriviaWithParams(
+                    BuildConstructorSummary(),
+                    new Dictionary<string, IEnumerable<XmlNodeSyntax>>(StringComparer.Ordinal) { [OptionsParameterName] = [XmlText(OptionsParameterComment)] }));
+
+        return [defaultCtor, optionsCtor];
+    }
+
+    private XmlNodeSyntax[] BuildConstructorSummary() =>
+    [
+        XmlText("Initializes a new instance of the "),
+        XmlElement("c", SingletonList<XmlNodeSyntax>(SyntaxUtilities.BuildXmlText(ContextClassName))),
+        XmlText(" class."),
+    ];
 
     private PropertyDeclarationSyntax BuildTableDbSet(IRelationalDatabaseTable table, StringHashSet setNames)
     {

@@ -47,14 +47,14 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         var tablesDir = Path.Combine(tempDir.DirectoryPath, "Tables");
         var viewsDir = Path.Combine(tempDir.DirectoryPath, "Views");
 
-        var expectedAppContextPath = Path.Combine(tempDir.DirectoryPath, "AppContext.cs");
+        var expectedDbContextPath = Path.Combine(tempDir.DirectoryPath, "DatabaseContext.cs");
         var expectedTable1Path = Path.Combine(tablesDir, "Main", "DalTestTable1.cs");
         var expectedView1Path = Path.Combine(viewsDir, "Main", "DalTestView1.cs");
 
         var mockFs = new MockFileSystem(new Dictionary<string, MockFileData>(StringComparer.Ordinal)
         {
             [tempDir.DirectoryPath + Path.PathSeparator] = new MockDirectoryData(),
-            [expectedAppContextPath] = new MockFileData(Array.Empty<byte>()),
+            [expectedDbContextPath] = new MockFileData(Array.Empty<byte>()),
             [expectedTable1Path] = new MockFileData(Array.Empty<byte>()),
             [expectedView1Path] = new MockFileData(Array.Empty<byte>()),
         });
@@ -66,7 +66,7 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.FileExists(projectPath), Is.True);
-            Assert.That(mockFs.FileExists(expectedAppContextPath), Is.True);
+            Assert.That(mockFs.FileExists(expectedDbContextPath), Is.True);
             Assert.That(mockFs.Directory.Exists(tablesDir), Is.True);
             Assert.That(mockFs.Directory.Exists(viewsDir), Is.True);
             Assert.That(mockFs.FileExists(expectedTable1Path), Is.True);
