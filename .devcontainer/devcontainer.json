@@ -21,5 +21,8 @@
 		"source=claude-code-config,target=/home/vscode/.claude,type=volume"
 	],
 	"remoteUser": "vscode",
-	"postCreateCommand": "sudo chown -R $(id -u):$(id -g) ~/.claude && echo '{\"hasCompletedOnboarding\":true,\"numStartups\":1,\"installMethod\":\"npm\"}' > ~/.claude.json"
+	"containerEnv": {
+		"CLAUDE_CONFIG_DIR": "/home/vscode/.claude"
+	},
+	"postCreateCommand": "bash .devcontainer/post-create.sh"
 }
