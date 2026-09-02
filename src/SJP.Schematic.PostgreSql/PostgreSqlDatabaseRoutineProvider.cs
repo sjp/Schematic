@@ -224,8 +224,13 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private Option<IDbType> GetReturnType(GetRoutineDefinition.Result row)
     {
-        // a procedure returns nothing, and PostgreSQL records that as the pseudo-type 'void'
-        if (row.ReturnTypeName.IsNullOrWhiteSpace() || string.Equals(row.ReturnTypeName, Constants.VoidTypeName, StringComparison.Ordinal))
+        // a procedure returns nothing. PostgreSQL usually records that as the pseudo-type 'void',
+        // but a procedure that declares output parameters instead gets their type in prorettype -
+        // 'record' for several, or the type itself for a single one - which describes the
+        // procedure's output parameters rather than a returned value
+        if (string.Equals(row.RoutineKind, Constants.ProcedureKind, StringComparison.Ordinal)
+            || row.ReturnTypeName.IsNullOrWhiteSpace()
+            || string.Equals(row.ReturnTypeName, Constants.VoidTypeName, StringComparison.Ordinal))
             return Option<IDbType>.None;
 
         return Option<IDbType>.Some(CreateArgumentType(row.ReturnTypeSchema, row.ReturnTypeName));

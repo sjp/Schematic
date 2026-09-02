@@ -30,7 +30,9 @@ internal static class GetRoutineDefinition
         public required string? Language { get; init; }
 
         /// <summary>
-        /// The name of the type the overload returns, unqualified. <c>void</c> for a procedure.
+        /// The name of the type the overload returns, unqualified. <c>void</c> for a procedure,
+        /// unless it declares output parameters, then it describes those instead of a return
+        /// value, and is ignored.
         /// </summary>
         public required string? ReturnTypeName { get; init; }
 
