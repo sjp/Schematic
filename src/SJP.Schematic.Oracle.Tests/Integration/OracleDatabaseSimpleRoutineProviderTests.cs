@@ -27,7 +27,7 @@ create or replace FUNCTION db_test_routine_1
       INTO test_col
       FROM dual;
       RETURN(test_col);
-END db_test_routine_1", CancellationToken.None);
+END db_test_routine_1;", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2
 IS
 BEGIN
@@ -38,6 +38,21 @@ IS
 BEGIN
     second_arg := 'test';
 END;", CancellationToken.None);
+
+        // Oracle creates a subprogram even when it fails to compile, and reports the failure only
+        // as a warning. An invalid subprogram has no rows in ALL_ARGUMENTS, so a typo here would
+        // otherwise surface as an unrelated assertion failure over its signature.
+        var compilationErrors = await DbConnection.QueryAsync<string>(
+            """
+            select NAME || ' (' || LINE || ':' || POSITION || ') ' || TEXT
+            from SYS.USER_ERRORS
+            where NAME in ('DB_TEST_ROUTINE_1', 'DB_TEST_ROUTINE_2', 'DB_TEST_ROUTINE_3')
+            order by NAME, SEQUENCE
+            """,
+            CancellationToken.None
+        );
+        if (compilationErrors.Any())
+            Assert.Fail("Test routines failed to compile:" + Environment.NewLine + compilationErrors.Join(Environment.NewLine));
     }
 
     [OneTimeTearDown]
@@ -232,7 +247,7 @@ END;", CancellationToken.None);
       INTO test_col
       FROM dual;
       RETURN(test_col);
-END db_test_routine_1";
+END db_test_routine_1;";
 
         Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
     }
