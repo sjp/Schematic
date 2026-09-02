@@ -1,4 +1,7 @@
-﻿using NUnit.Framework;
+﻿using LanguageExt;
+using Moq;
+using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -63,5 +66,91 @@ internal static class DatabaseRoutineTests
         var result = routine.ToString();
 
         Assert.That(result, Is.EqualTo(expectedOutput));
+    }
+
+    [Test]
+    public static void Ctor_GivenNameAndDefinitionOnly_DescribesAnUnknownRoutine()
+    {
+        var routine = new DatabaseRoutine("test_routine", "create function test_function...");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routine.RoutineType, Is.EqualTo(RoutineType.Unknown));
+            Assert.That(routine.Language, OptionIs.None);
+            Assert.That(routine.Parameters, Is.Empty);
+            Assert.That(routine.ReturnType, OptionIs.None);
+            Assert.That(routine.Overloads, Is.Empty);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidRoutineType_ThrowsArgumentException()
+    {
+        const RoutineType routineType = (RoutineType)55;
+
+        Assert.That(
+            () => new DatabaseRoutine("test_routine", "create function test_function...", routineType, Option<string>.None, [], Option<IDbType>.None),
+            Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullParameters_ThrowsArgumentNullException()
+    {
+        Assert.That(
+            () => new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, null!, Option<IDbType>.None),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenParametersWithNullElement_ThrowsArgumentNullException()
+    {
+        var parameters = new IDatabaseRoutineParameter[] { null! };
+
+        Assert.That(
+            () => new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, parameters, Option<IDbType>.None),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenOverloadsWithNullElement_ThrowsArgumentNullException()
+    {
+        var overloads = new IDatabaseRoutineOverload[] { null! };
+
+        Assert.That(
+            () => new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, [], Option<IDbType>.None, overloads),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void PropertyGets_WhenGivenFullCtorArgs_MatchCtorArgs()
+    {
+        var returnDbType = Mock.Of<IDbType>();
+        var parameter = new DatabaseRoutineParameter(
+            Option<Identifier>.Some("test_parameter"),
+            Mock.Of<IDbType>(),
+            RoutineParameterDirection.Input,
+            Option<string>.None,
+            1
+        );
+        var overload = new DatabaseRoutineOverload("create function test_function(integer) ...", [parameter], Option<IDbType>.Some(returnDbType));
+
+        var routine = new DatabaseRoutine(
+            "test_routine",
+            "create function test_function...",
+            RoutineType.Function,
+            Option<string>.Some("plpgsql"),
+            [parameter],
+            Option<IDbType>.Some(returnDbType),
+            [overload]
+        );
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routine.RoutineType, Is.EqualTo(RoutineType.Function));
+            Assert.That(routine.Language.UnwrapSome(), Is.EqualTo("plpgsql"));
+            Assert.That(routine.Parameters, Is.EqualTo(new[] { parameter }));
+            Assert.That(routine.ReturnType.UnwrapSome(), Is.EqualTo(returnDbType));
+            Assert.That(routine.Overloads, Is.EqualTo(new[] { overload }));
+        }
     }
 }

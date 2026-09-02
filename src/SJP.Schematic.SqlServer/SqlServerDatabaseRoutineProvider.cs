@@ -41,6 +41,12 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     protected IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
+    /// A type provider used to describe routine parameter and return types.
+    /// </summary>
+    /// <value>A database column type provider.</value>
+    protected IDbTypeProvider TypeProvider { get; } = new SqlServerDbTypeProvider();
+
+    /// <summary>
     /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -125,9 +131,76 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
-        return new DatabaseRoutine(routineName, definition!);
+        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
+        var parameterRows = await Connection.QueryAsync(
+            GetRoutineParameters.Sql,
+            new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+
+        // parameter_id 0 is a scalar function's return value rather than a parameter. A table-valued
+        // function has no such row, so its return type is unavailable rather than absent.
+        var returnType = parameterRows
+            .Where(static row => row.Ordinal == 0)
+            .Select(GetParameterType)
+            .HeadOrNone();
+        var parameters = parameterRows
+            .Where(static row => row.Ordinal > 0)
+            .OrderBy(static row => row.Ordinal)
+            .Select(BuildParameter)
+            .ToList();
+
+        return new DatabaseRoutine(
+            routineName,
+            routineDetail!.Definition,
+            GetRoutineType(routineDetail.RoutineTypeCode),
+            SqlServerRoutineLanguage,
+            parameters,
+            returnType
+        );
     }
+
+    private IDatabaseRoutineParameter BuildParameter(GetRoutineParameters.Result row)
+    {
+        // sys.parameters names a parameter with its leading '@', which is part of the name in T-SQL
+        var parameterName = !row.ParameterName.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ParameterName))
+            : Option<Identifier>.None;
+
+        // an OUTPUT parameter in T-SQL is also readable inside the routine, so it is an in/out parameter
+        var direction = row.IsOutput
+            ? RoutineParameterDirection.InputOutput
+            : RoutineParameterDirection.Input;
+
+        return new DatabaseRoutineParameter(
+            parameterName,
+            GetParameterType(row),
+            direction,
+            !row.DefaultValue.IsNullOrWhiteSpace() ? Option<string>.Some(row.DefaultValue) : Option<string>.None,
+            row.Ordinal
+        );
+    }
+
+    private IDbType GetParameterType(GetRoutineParameters.Result row)
+    {
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+            // sys.parameters records no collation, unlike sys.columns
+            Collation = Option<Identifier>.None,
+            MaxLength = row.MaxLength,
+            NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
+        };
+
+        return TypeProvider.CreateColumnType(typeMetadata);
+    }
+
+    private static RoutineType GetRoutineType(string routineTypeCode) => routineTypeCode switch
+    {
+        Constants.ProcedureTypeCode => RoutineType.Procedure,
+        Constants.ScalarFunctionTypeCode or Constants.InlineTableFunctionTypeCode or Constants.TableFunctionTypeCode => RoutineType.Function,
+        _ => RoutineType.Unknown,
+    };
 
     /// <summary>
     /// Retrieves the definition of a routine.
@@ -136,15 +209,23 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a routine.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
+    protected async Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        return Connection.ExecuteScalarAsync(
+        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
+        return routineDetail?.Definition;
+    }
+
+    private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
+    {
+        var results = await Connection.QueryAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
+
+        return results.FirstOrDefault();
     }
 
     /// <summary>
@@ -159,5 +240,20 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         var schema = routineName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
+    }
+
+    // every routine this provider exposes is read from sys.sql_modules, which only holds T-SQL;
+    // CLR routines live in sys.assembly_modules and are filtered out by the object type predicate
+    private static readonly Option<string> SqlServerRoutineLanguage = Option<string>.Some("SQL");
+
+    private static class Constants
+    {
+        public const string ProcedureTypeCode = "P";
+
+        public const string ScalarFunctionTypeCode = "FN";
+
+        public const string InlineTableFunctionTypeCode = "IF";
+
+        public const string TableFunctionTypeCode = "TF";
     }
 }

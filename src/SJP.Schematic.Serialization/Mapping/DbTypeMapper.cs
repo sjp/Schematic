@@ -11,6 +11,8 @@ namespace SJP.Schematic.Serialization.Mapping;
 public class DbTypeMapper
     : IImmutableMapper<Dto.DbType, IDbType>
     , IImmutableMapper<IDbType, Dto.DbType>
+    , IImmutableMapper<Dto.DbType?, Option<IDbType>>
+    , IImmutableMapper<Option<IDbType>, Dto.DbType?>
 {
     /// <summary>
     /// Maps a serialized column data type to its core representation.
@@ -66,5 +68,24 @@ public class DbTypeMapper
             NumericPrecision = numericPrecisionMapper.Map(source.NumericPrecision),
             Collation = collationMapper.Map(source.Collation),
         };
+    }
+
+    // an explicit implementation because the nullable annotation alone does not distinguish this
+    // overload from the one taking a serialized type that is known to be present
+    Option<IDbType> IImmutableMapper<Dto.DbType?, Option<IDbType>>.Map(Dto.DbType? source)
+    {
+        return source == null
+            ? Option<IDbType>.None
+            : Option<IDbType>.Some(Map(source));
+    }
+
+    /// <summary>
+    /// Maps an optional column data type to its serialized representation.
+    /// </summary>
+    /// <param name="source">A column data type, if one is available.</param>
+    /// <returns>A serialized column data type, or <see langword="null"/> when no type is available.</returns>
+    public Dto.DbType? Map(Option<IDbType> source)
+    {
+        return source.MatchUnsafe(Map, static () => (Dto.DbType?)null);
     }
 }

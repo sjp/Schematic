@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.PostgreSql.Queries;
 
@@ -47,6 +48,12 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <value>An identifier resolver.</value>
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
+
+    /// <summary>
+    /// A type provider used to describe routine parameter and return types.
+    /// </summary>
+    /// <value>A database column type provider.</value>
+    protected IDbTypeProvider TypeProvider { get; } = new PostgreSqlDbTypeProvider();
 
     /// <summary>
     /// Enumerates all database routines.
@@ -153,26 +160,139 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
-        return new DatabaseRoutine(routineName, definition!);
+        var overloadRows = await LoadOverloadRowsAsync(routineName, cancellationToken);
+        var parameterRows = await Connection.QueryAsync(
+            GetRoutineParameters.Sql,
+            new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+
+        var parametersByRoutine = parameterRows
+            .GroupBy(static row => row.RoutineOid)
+            .ToDictionary(
+                static rows => rows.Key,
+                rows => rows.OrderBy(static row => row.Ordinal).Select(BuildParameter).ToList()
+            );
+
+        var overloads = overloadRows
+            .Select(row => new DatabaseRoutineOverload(
+                row.Definition!,
+                parametersByRoutine.TryGetValue(row.RoutineOid, out var parameters)
+                    ? parameters
+                    : [],
+                GetReturnType(row)
+            ))
+            .ToList();
+
+        // the routine's name has already been resolved against pg_proc, so a routine with no
+        // renderable definition means the catalog could not describe one of its overloads
+        if (overloads.Count == 0)
+            throw new SchematicException($"Unable to retrieve a definition for the routine '{routineName}'.");
+
+        var firstOverload = overloads[0];
+        var language = overloadRows[0].Language;
+        var definition = overloads.Count == 1
+            ? firstOverload.Definition
+            : overloads.Select(static o => o.Definition).Join(OverloadDefinitionSeparator);
+
+        return new DatabaseRoutine(
+            routineName,
+            definition,
+            GetRoutineType(overloadRows[0].RoutineKind),
+            !language.IsNullOrWhiteSpace() ? Option<string>.Some(language) : Option<string>.None,
+            firstOverload.Parameters,
+            firstOverload.ReturnType,
+            // a name that carries a single signature is not overloaded, so it reports no overloads
+            overloads.Count > 1 ? overloads : []
+        );
     }
 
+    private IDatabaseRoutineParameter BuildParameter(GetRoutineParameters.Result row)
+    {
+        var parameterName = !row.ParameterName.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ParameterName))
+            : Option<Identifier>.None;
+
+        return new DatabaseRoutineParameter(
+            parameterName,
+            CreateArgumentType(row.TypeSchema, row.TypeName),
+            GetParameterDirection(row.ParameterMode),
+            !row.DefaultValue.IsNullOrWhiteSpace() ? Option<string>.Some(row.DefaultValue) : Option<string>.None,
+            row.Ordinal
+        );
+    }
+
+    private Option<IDbType> GetReturnType(GetRoutineDefinition.Result row)
+    {
+        // a procedure returns nothing, and PostgreSQL records that as the pseudo-type 'void'
+        if (row.ReturnTypeName.IsNullOrWhiteSpace() || string.Equals(row.ReturnTypeName, Constants.VoidTypeName, StringComparison.Ordinal))
+            return Option<IDbType>.None;
+
+        return Option<IDbType>.Some(CreateArgumentType(row.ReturnTypeSchema, row.ReturnTypeName));
+    }
+
+    private IDbType CreateArgumentType(string? typeSchema, string typeName)
+    {
+        // PostgreSQL discards length and precision modifiers on an argument or return type, so
+        // there is no max length or numeric precision to report for one
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(typeSchema, typeName),
+            Collation = Option<Identifier>.None,
+            MaxLength = 0,
+            NumericPrecision = Option<INumericPrecision>.None,
+        };
+
+        return TypeProvider.CreateColumnType(typeMetadata);
+    }
+
+    private static RoutineParameterDirection GetParameterDirection(string parameterMode) => parameterMode switch
+    {
+        Constants.OutParameterMode => RoutineParameterDirection.Output,
+        Constants.InOutParameterMode => RoutineParameterDirection.InputOutput,
+        _ => RoutineParameterDirection.Input,
+    };
+
+    // a window function is still a function, and Schematic does not model windowing separately
+    private static RoutineType GetRoutineType(string routineKind) => routineKind switch
+    {
+        Constants.ProcedureKind => RoutineType.Procedure,
+        Constants.FunctionKind or Constants.WindowFunctionKind => RoutineType.Function,
+        Constants.AggregateKind => RoutineType.Aggregate,
+        _ => RoutineType.Unknown,
+    };
+
     /// <summary>
-    /// Retrieves the definition of a routine.
+    /// Retrieves the definition of a routine. When several overloads share the routine's name,
+    /// their definitions are returned in one string, separated by blank lines.
     /// </summary>
     /// <param name="routineName">A routine name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A string representing the definition of a routine.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
+    protected async Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        return Connection.ExecuteScalarAsync(
+        var overloadRows = await LoadOverloadRowsAsync(routineName, cancellationToken);
+        return overloadRows.Count == 0
+            ? null
+            : overloadRows.Select(static row => row.Definition!).Join(OverloadDefinitionSeparator);
+    }
+
+    private async Task<IReadOnlyList<GetRoutineDefinition.Result>> LoadOverloadRowsAsync(Identifier routineName, CancellationToken cancellationToken)
+    {
+        var results = await Connection.QueryAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
+
+        // an overload whose definition the catalog cannot render is dropped rather than reported
+        // with an empty body, matching what string_agg() used to do with a null definition
+        return results
+            .Where(static row => !row.Definition.IsNullOrWhiteSpace())
+            .ToList();
     }
 
     /// <summary>
@@ -187,5 +307,24 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         var schema = routineName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
+    }
+
+    private const string OverloadDefinitionSeparator = "\n\n";
+
+    private static class Constants
+    {
+        public const string AggregateKind = "a";
+
+        public const string FunctionKind = "f";
+
+        public const string InOutParameterMode = "b";
+
+        public const string OutParameterMode = "o";
+
+        public const string ProcedureKind = "p";
+
+        public const string VoidTypeName = "void";
+
+        public const string WindowFunctionKind = "w";
     }
 }

@@ -33,6 +33,11 @@ IS
 BEGIN
     DBMS_OUTPUT.PUT_LINE('test');
 END;", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_3(first_arg IN NUMBER, second_arg OUT VARCHAR2)
+IS
+BEGIN
+    second_arg := 'test';
+END;", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -40,6 +45,7 @@ END;", CancellationToken.None);
     {
         await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_3", CancellationToken.None);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
@@ -242,5 +248,72 @@ BEGIN
 END;";
 
         Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [TestCase("DB_TEST_ROUTINE_1", RoutineType.Function)]
+    [TestCase("DB_TEST_ROUTINE_2", RoutineType.Procedure)]
+    public async Task RoutineType_GivenRoutine_ReturnsCorrectType(string routineName, RoutineType expectedType)
+    {
+        var routine = await GetRoutineAsync(routineName);
+
+        Assert.That(routine.RoutineType, Is.EqualTo(expectedType));
+    }
+
+    [Test]
+    public async Task Language_GivenRoutine_ReturnsPlSql()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_1");
+
+        Assert.That(routine.Language.UnwrapSome(), Is.EqualTo("PL/SQL"));
+    }
+
+    [Test]
+    public async Task ReturnType_GivenFunction_ReturnsFunctionReturnType()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_1");
+
+        Assert.That(routine.ReturnType.UnwrapSome().TypeName.LocalName, Is.EqualTo("NUMBER"));
+    }
+
+    [Test]
+    public async Task ReturnType_GivenStoredProcedure_ReturnsNone()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_2");
+
+        Assert.That(routine.ReturnType, OptionIs.None);
+    }
+
+    [Test]
+    public async Task Parameters_GivenRoutineWithoutParameters_ReturnsEmpty()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_2");
+
+        Assert.That(routine.Parameters, Is.Empty);
+    }
+
+    [Test]
+    public async Task Parameters_GivenRoutineWithParameters_ReturnsParametersInOrder()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_3");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameters, Has.Count.EqualTo(2));
+            Assert.That(parameters[0].Name.UnwrapSome().LocalName, Is.EqualTo("FIRST_ARG"));
+            Assert.That(parameters[0].Ordinal, Is.EqualTo(1));
+            Assert.That(parameters[0].Direction, Is.EqualTo(RoutineParameterDirection.Input));
+            Assert.That(parameters[1].Name.UnwrapSome().LocalName, Is.EqualTo("SECOND_ARG"));
+            Assert.That(parameters[1].Ordinal, Is.EqualTo(2));
+            Assert.That(parameters[1].Direction, Is.EqualTo(RoutineParameterDirection.Output));
+        }
+    }
+
+    [Test]
+    public async Task Overloads_GivenRoutine_ReturnsEmpty()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_3");
+
+        Assert.That(routine.Overloads, Is.Empty);
     }
 }

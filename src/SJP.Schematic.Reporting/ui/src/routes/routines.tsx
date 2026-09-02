@@ -31,6 +31,14 @@ export function RoutinesPage() {
           </Link>
         ),
       },
+      {
+        accessorKey: "routineType",
+        header: "Kind",
+        cell: ({ getValue }) => {
+          const kind = getValue<RoutineSummary["routineType"]>();
+          return kind === "Unknown" ? null : kind;
+        },
+      },
     ],
     [],
   );

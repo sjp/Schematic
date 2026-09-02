@@ -49,6 +49,12 @@ internal static class MapperRegistry
         RegisterMapper<Dto.DatabaseRoutine, IDatabaseRoutine>(mappers, () => new DatabaseRoutineMapper());
         RegisterMapper<IDatabaseRoutine, Dto.DatabaseRoutine>(mappers, () => new DatabaseRoutineMapper());
 
+        RegisterMapper<Dto.DatabaseRoutineOverload, IDatabaseRoutineOverload>(mappers, () => new DatabaseRoutineOverloadMapper());
+        RegisterMapper<IDatabaseRoutineOverload, Dto.DatabaseRoutineOverload>(mappers, () => new DatabaseRoutineOverloadMapper());
+
+        RegisterMapper<Dto.DatabaseRoutineParameter, IDatabaseRoutineParameter>(mappers, () => new DatabaseRoutineParameterMapper());
+        RegisterMapper<IDatabaseRoutineParameter, Dto.DatabaseRoutineParameter>(mappers, () => new DatabaseRoutineParameterMapper());
+
         RegisterMapper<Dto.DatabaseSequence, IDatabaseSequence>(mappers, () => new DatabaseSequenceMapper());
         RegisterMapper<IDatabaseSequence, Dto.DatabaseSequence>(mappers, () => new DatabaseSequenceMapper());
 
@@ -63,6 +69,8 @@ internal static class MapperRegistry
 
         RegisterMapper<Dto.DbType, IDbType>(mappers, () => new DbTypeMapper());
         RegisterMapper<IDbType, Dto.DbType>(mappers, () => new DbTypeMapper());
+        RegisterMapper<Dto.DbType?, Option<IDbType>>(mappers, () => new DbTypeMapper());
+        RegisterMapper<Option<IDbType>, Dto.DbType?>(mappers, () => new DbTypeMapper());
 
         RegisterMapper<Dto.IdentifierDefaults, IIdentifierDefaults>(mappers, () => new IdentifierDefaultsMapper());
         RegisterMapper<IIdentifierDefaults, Dto.IdentifierDefaults>(mappers, () => new IdentifierDefaultsMapper());

@@ -47,6 +47,12 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     protected IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
+    /// The dialect for the associated database.
+    /// </summary>
+    /// <value>A database dialect.</value>
+    protected IDatabaseDialect Dialect => Connection.Dialect;
+
+    /// <summary>
     /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -139,8 +145,83 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
-        return new DatabaseRoutine(routineName, definition!);
+        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
+        var parameterRows = await DbConnection.QueryAsync(
+            GetRoutineParameters.Sql,
+            new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+
+        // MySQL stores a function's return value alongside its parameters, at ordinal position zero
+        var returnType = parameterRows
+            .Where(static row => row.Ordinal == 0)
+            .Select(GetParameterType)
+            .HeadOrNone();
+        var parameters = parameterRows
+            .Where(static row => row.Ordinal > 0)
+            .OrderBy(static row => row.Ordinal)
+            .Select(BuildParameter)
+            .ToList();
+
+        return new DatabaseRoutine(
+            routineName,
+            routineDetail!.Definition,
+            GetRoutineType(routineDetail.RoutineType),
+            !routineDetail.Language.IsNullOrWhiteSpace() ? Option<string>.Some(routineDetail.Language) : Option<string>.None,
+            parameters,
+            returnType
+        );
+    }
+
+    private IDatabaseRoutineParameter BuildParameter(GetRoutineParameters.Result row)
+    {
+        var parameterName = !row.ParameterName.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ParameterName))
+            : Option<Identifier>.None;
+
+        return new DatabaseRoutineParameter(
+            parameterName,
+            GetParameterType(row),
+            GetParameterDirection(row.ParameterMode),
+            // MySQL routine parameters cannot declare a default
+            Option<string>.None,
+            row.Ordinal
+        );
+    }
+
+    private IDbType GetParameterType(GetRoutineParameters.Result row)
+    {
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
+            Collation = !row.Collation.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                : Option<Identifier>.None,
+            MaxLength = row.CharacterMaxLength,
+            NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
+        };
+
+        return Dialect.TypeProvider.CreateColumnType(typeMetadata);
+    }
+
+    private static RoutineParameterDirection GetParameterDirection(string? parameterMode)
+    {
+        if (string.Equals(parameterMode, Constants.Out, StringComparison.OrdinalIgnoreCase))
+            return RoutineParameterDirection.Output;
+        if (string.Equals(parameterMode, Constants.InOut, StringComparison.OrdinalIgnoreCase))
+            return RoutineParameterDirection.InputOutput;
+
+        return RoutineParameterDirection.Input;
+    }
+
+    private static RoutineType GetRoutineType(string routineType)
+    {
+        if (string.Equals(routineType, Constants.Procedure, StringComparison.OrdinalIgnoreCase))
+            return RoutineType.Procedure;
+        if (string.Equals(routineType, Constants.Function, StringComparison.OrdinalIgnoreCase))
+            return RoutineType.Function;
+
+        return RoutineType.Unknown;
     }
 
     /// <summary>
@@ -150,20 +231,23 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A routine definition.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
+    protected async Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(routineName);
 
-        return LoadDefinitionAsyncCore(routineName, cancellationToken);
+        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
+        return routineDetail?.Definition;
     }
 
-    private Task<string?> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+    private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
     {
-        return DbConnection.ExecuteScalarAsync(
+        var results = await DbConnection.QueryAsync(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
+
+        return results.FirstOrDefault();
     }
 
     /// <summary>
@@ -178,5 +262,16 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         var schema = routineName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
+    }
+
+    private static class Constants
+    {
+        public const string Function = "FUNCTION";
+
+        public const string InOut = "INOUT";
+
+        public const string Out = "OUT";
+
+        public const string Procedure = "PROCEDURE";
     }
 }

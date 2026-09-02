@@ -1,5 +1,6 @@
 using System.IO;
 using System.Threading.Tasks;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.Renderers;
@@ -45,5 +46,54 @@ internal static class RoutineRendererTests
         var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
 
         Assert.That(bundleContent, Does.Contain($"window.__schematic[\"routine\"][\"{routineName.ToSafeKey()}\"]"));
+    }
+
+    [Test]
+    public static async Task RenderAsync_GivenRoutineWithSignature_WritesKindLanguageAndParameters()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var routineName = new Identifier("test_routine");
+        var integerType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(int),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+        var parameter = new DatabaseRoutineParameter(
+            Option<Identifier>.Some("test_parameter"),
+            integerType,
+            RoutineParameterDirection.InputOutput,
+            Option<string>.Some("1"),
+            1
+        );
+        var routine = new DatabaseRoutine(
+            routineName,
+            "select 1",
+            RoutineType.Function,
+            Option<string>.Some("plpgsql"),
+            [parameter],
+            Option<IDbType>.Some(integerType)
+        );
+
+        var renderer = new RoutineRenderer();
+        var data = ReportDataFactory.Create(routines: [routine]);
+        var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
+        await renderer.RenderAsync(data, context);
+
+        var detailFile = Path.Combine(tempDir.DirectoryPath, "data", "routines", routineName.ToSafeKey() + ".json");
+        var detailJson = await File.ReadAllTextAsync(detailFile);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(detailJson, Does.Contain("\"routineType\":\"Function\""));
+            Assert.That(detailJson, Does.Contain("\"language\":\"plpgsql\""));
+            Assert.That(detailJson, Does.Contain("\"parameterName\":\"test_parameter\""));
+            Assert.That(detailJson, Does.Contain("\"direction\":\"InputOutput\""));
+            Assert.That(detailJson, Does.Contain("\"parametersCount\":1"));
+        }
     }
 }

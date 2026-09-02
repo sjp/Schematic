@@ -52,6 +52,12 @@ END", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_4
 AS
 SELECT DB_NAME() AS ThisDB", CancellationToken.None);
+        // P, with parameters
+        await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_5
+    @first int,
+    @second nvarchar(50) OUTPUT
+AS
+SELECT @first", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -61,6 +67,7 @@ SELECT DB_NAME() AS ThisDB", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop function db_test_routine_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop function db_test_routine_3", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop procedure db_test_routine_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_5", CancellationToken.None);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
@@ -290,5 +297,77 @@ AS
 SELECT DB_NAME() AS ThisDB";
 
         Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [TestCase("db_test_routine_1", RoutineType.Function)]
+    [TestCase("db_test_routine_2", RoutineType.Function)]
+    [TestCase("db_test_routine_3", RoutineType.Function)]
+    [TestCase("db_test_routine_4", RoutineType.Procedure)]
+    public async Task RoutineType_GivenRoutine_ReturnsCorrectType(string routineName, RoutineType expectedType)
+    {
+        var routine = await GetRoutineAsync(routineName);
+
+        Assert.That(routine.RoutineType, Is.EqualTo(expectedType));
+    }
+
+    [Test]
+    public async Task Language_GivenRoutine_ReturnsSql()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_1");
+
+        Assert.That(routine.Language.UnwrapSome(), Is.EqualTo("SQL"));
+    }
+
+    [Test]
+    public async Task ReturnType_GivenScalarFunction_ReturnsFunctionReturnType()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_1");
+
+        Assert.That(routine.ReturnType.UnwrapSome().TypeName.LocalName, Is.EqualTo("int"));
+    }
+
+    [Test]
+    public async Task ReturnType_GivenStoredProcedure_ReturnsNone()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_4");
+
+        Assert.That(routine.ReturnType, OptionIs.None);
+    }
+
+    [Test]
+    public async Task Parameters_GivenRoutineWithoutParameters_ReturnsEmpty()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_4");
+
+        Assert.That(routine.Parameters, Is.Empty);
+    }
+
+    [Test]
+    public async Task Parameters_GivenRoutineWithParameters_ReturnsParametersInOrder()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_5");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameters, Has.Count.EqualTo(2));
+            Assert.That(parameters[0].Name.UnwrapSome().LocalName, Is.EqualTo("@first"));
+            Assert.That(parameters[0].Ordinal, Is.EqualTo(1));
+            Assert.That(parameters[0].Type.TypeName.LocalName, Is.EqualTo("int"));
+            Assert.That(parameters[0].Direction, Is.EqualTo(RoutineParameterDirection.Input));
+            Assert.That(parameters[1].Name.UnwrapSome().LocalName, Is.EqualTo("@second"));
+            Assert.That(parameters[1].Ordinal, Is.EqualTo(2));
+            Assert.That(parameters[1].Type.TypeName.LocalName, Is.EqualTo("nvarchar"));
+            // an OUTPUT parameter in T-SQL is readable inside the routine too
+            Assert.That(parameters[1].Direction, Is.EqualTo(RoutineParameterDirection.InputOutput));
+        }
+    }
+
+    [Test]
+    public async Task Overloads_GivenRoutine_ReturnsEmpty()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_5");
+
+        Assert.That(routine.Overloads, Is.Empty);
     }
 }

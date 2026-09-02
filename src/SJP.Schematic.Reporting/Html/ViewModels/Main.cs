@@ -202,16 +202,19 @@ public sealed class Main
     /// </summary>
     public sealed class Routine
     {
-        public Routine(Identifier routineName)
+        public Routine(Identifier routineName, RoutineType routineType)
         {
             ArgumentNullException.ThrowIfNull(routineName);
 
             Name = routineName.ToVisibleName();
             RoutineUrl = UrlRouter.GetRoutineUrl(routineName);
+            RoutineType = routineType.ToString();
         }
 
         public string Name { get; }
 
         public string RoutineUrl { get; }
+
+        public string RoutineType { get; }
     }
 }

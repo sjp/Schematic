@@ -79,6 +79,6 @@ internal sealed class MainModelMapper
     {
         ArgumentNullException.ThrowIfNull(routine);
 
-        return new Main.Routine(routine.Name);
+        return new Main.Routine(routine.Name, routine.RoutineType);
     }
 }

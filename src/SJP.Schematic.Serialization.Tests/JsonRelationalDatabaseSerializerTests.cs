@@ -1004,4 +1004,114 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         );
     }
 
+    [Test]
+    public async Task SerializeDeserialize_WhenRoutineWithSignatureRoundTripped_ExportsAndParsesWithoutError()
+    {
+        var db = GetDatabaseWithOverloadedRoutine();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        db.Should().BeEquivalentTo(importedDb);
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenRoutineWithSignatureRoundTripped_PreservesJsonStructure()
+    {
+        var db = GetDatabaseWithOverloadedRoutine();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reExportedJson, Is.Not.Null);
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        }
+    }
+
+    [Test]
+    public async Task SerializeDeserialize_WhenRoutineWithSignatureRoundTripped_PreservesSignature()
+    {
+        var db = GetDatabaseWithOverloadedRoutine();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        var routine = (await importedDb.GetAllRoutines()).Single();
+        var parameter = routine.Parameters.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routine.RoutineType, Is.EqualTo(RoutineType.Function));
+            Assert.That(routine.Language.UnwrapSome(), Is.EqualTo("plpgsql"));
+            Assert.That(routine.ReturnType.UnwrapSome().TypeName.LocalName, Is.EqualTo("integer"));
+            Assert.That(parameter.Name.UnwrapSome().LocalName, Is.EqualTo("test_parameter"));
+            Assert.That(parameter.Direction, Is.EqualTo(RoutineParameterDirection.InputOutput));
+            Assert.That(parameter.DefaultValue.UnwrapSome(), Is.EqualTo("1"));
+            Assert.That(parameter.Ordinal, Is.EqualTo(1));
+            // the second overload takes no arguments, so it also proves an empty parameter list survives
+            Assert.That(routine.Overloads.Select(static o => o.Parameters.Count), Is.EqualTo(new[] { 1, 0 }));
+        }
+    }
+
+    private static IRelationalDatabase GetDatabaseWithOverloadedRoutine()
+    {
+        var integerType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(int),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+        var parameter = new DatabaseRoutineParameter(
+            Option<Identifier>.Some("test_parameter"),
+            integerType,
+            RoutineParameterDirection.InputOutput,
+            Option<string>.Some("1"),
+            1
+        );
+        var overloads = new IDatabaseRoutineOverload[]
+        {
+            new DatabaseRoutineOverload("create function test_routine_name(integer) ...", [parameter], Option<IDbType>.Some(integerType)),
+            new DatabaseRoutineOverload("create function test_routine_name() ...", [], Option<IDbType>.Some(integerType)),
+        };
+        var routine = new DatabaseRoutine(
+            "test_routine_name",
+            "test_routine_definition",
+            RoutineType.Function,
+            Option<string>.Some("plpgsql"),
+            [parameter],
+            Option<IDbType>.Some(integerType),
+            overloads
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [routine]
+        );
+    }
 }

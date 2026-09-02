@@ -91,4 +91,23 @@ internal static class OracleDatabasePackageTests
 
         Assert.That(result, Is.EqualTo(expectedOutput));
     }
+
+    [Test]
+    public static void RoutineMembers_PropertyGets_DescribeAPackage()
+    {
+        const string packageName = "test_package";
+        const string specification = "spec";
+        var body = Option<string>.Some("body");
+
+        var package = new OracleDatabasePackage(packageName, specification, body);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(package.RoutineType, Is.EqualTo(RoutineType.Package));
+            Assert.That(package.Language.UnwrapSome(), Is.EqualTo("PL/SQL"));
+            Assert.That(package.Parameters, Is.Empty);
+            Assert.That(package.ReturnType, OptionIs.None);
+            Assert.That(package.Overloads, Is.Empty);
+        }
+    }
 }

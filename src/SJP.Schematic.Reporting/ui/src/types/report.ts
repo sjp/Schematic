@@ -196,6 +196,8 @@ export interface RoutineSummary {
   name: string;
   /** Hash route, e.g. `#/routines/<safeKey>`. */
   routineUrl: string;
+  /** The kind of routine, e.g. `Procedure`; `Unknown` when the database records no kind. */
+  routineType: RoutineType;
 }
 
 /** `data/routines.json`. */
@@ -204,11 +206,46 @@ export interface RoutinesSummary {
   allRoutines: RoutineSummary[];
 }
 
+/** The kind of routine a database object represents. */
+export type RoutineType = "Unknown" | "Procedure" | "Function" | "Package" | "Aggregate";
+
+/** How a value flows through a routine parameter. */
+export type RoutineParameterDirection = "Input" | "Output" | "InputOutput";
+
+/** One parameter of a routine's signature. */
+export interface RoutineParameter {
+  /** Omitted from the JSON when the parameter is positional. */
+  parameterName?: string;
+  type: string;
+  direction: RoutineParameterDirection;
+  /** Omitted from the JSON when the parameter has no default. */
+  defaultValue?: string;
+  ordinal: number;
+}
+
+/** One signature of a routine whose name carries more than one. */
+export interface RoutineOverload {
+  definition: string;
+  parameters: RoutineParameter[];
+  /** Omitted from the JSON when the signature returns nothing. */
+  returnType?: string;
+}
+
 /** `data/routines/<safeKey>.json`. */
 export interface RoutineDetail {
   name: string;
   routineUrl: string;
   definition: string;
+  routineType: RoutineType;
+  /** Omitted from the JSON when the database records no language. */
+  language?: string;
+  parameters: RoutineParameter[];
+  parametersCount: number;
+  /** Omitted from the JSON when the routine returns nothing. */
+  returnType?: string;
+  /** Empty unless the routine's name carries more than one signature. */
+  overloads: RoutineOverload[];
+  overloadsCount: number;
 }
 
 /** A row in `data/sequences.json`; also the per-sequence detail (`data/sequences/<safeKey>.json`). */

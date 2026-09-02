@@ -49,6 +49,12 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
+    /// A type provider used to describe routine argument and return types.
+    /// </summary>
+    /// <value>A database column type provider.</value>
+    protected IDbTypeProvider TypeProvider { get; } = new OracleDbTypeProvider();
+
+    /// <summary>
     /// Enumerates all database routines.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -154,7 +160,86 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var definition = await LoadDefinitionAsync(routineName, cancellationToken);
-        return new DatabaseRoutine(routineName, definition);
+        var signatureRows = await Connection.QueryAsync(
+            GetRoutineSignature.Sql,
+            new GetRoutineSignature.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+        var signature = signatureRows.ToList();
+
+        // a function's return value is argument position zero; a routine with no arguments at all
+        // still produces one row, carrying only the routine's type
+        var returnType = signature
+            .Where(static row => row.Position == 0)
+            .Select(GetArgumentType)
+            .HeadOrNone();
+        var parameters = signature
+            .Where(static row => row.Position > 0)
+            .OrderBy(static row => row.Position)
+            .Select(BuildParameter)
+            .ToList();
+
+        return new DatabaseRoutine(
+            routineName,
+            definition,
+            signature.Count > 0 ? GetRoutineType(signature[0].RoutineType) : RoutineType.Unknown,
+            OracleRoutineLanguage,
+            parameters,
+            returnType
+        );
+    }
+
+    private IDatabaseRoutineParameter BuildParameter(GetRoutineSignature.Result row)
+    {
+        var parameterName = !row.ArgumentName.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ArgumentName))
+            : Option<Identifier>.None;
+
+        return new DatabaseRoutineParameter(
+            parameterName,
+            GetArgumentType(row),
+            GetParameterDirection(row.InOut),
+            // ALL_ARGUMENTS.DEFAULT_VALUE is a LONG, which cannot be selected with the rest of the
+            // row, so a defaulted argument is reported without the default's text
+            Option<string>.None,
+            row.Position!.Value
+        );
+    }
+
+    private IDbType GetArgumentType(GetRoutineSignature.Result row)
+    {
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(row.ArgumentTypeSchema, row.ArgumentTypeName),
+            // ALL_ARGUMENTS records a character set, not a collation
+            Collation = Option<Identifier>.None,
+            MaxLength = row.DataLength,
+            NumericPrecision = row.Precision > 0 || row.Scale > 0
+                ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
+                : Option<INumericPrecision>.None,
+        };
+
+        return TypeProvider.CreateColumnType(typeMetadata);
+    }
+
+    private static RoutineParameterDirection GetParameterDirection(string? inOut)
+    {
+        if (string.Equals(inOut, Constants.Out, StringComparison.OrdinalIgnoreCase))
+            return RoutineParameterDirection.Output;
+        if (string.Equals(inOut, Constants.InOut, StringComparison.OrdinalIgnoreCase))
+            return RoutineParameterDirection.InputOutput;
+
+        return RoutineParameterDirection.Input;
+    }
+
+    private static RoutineType GetRoutineType(string routineType)
+    {
+        if (string.Equals(routineType, Constants.Procedure, StringComparison.OrdinalIgnoreCase))
+            return RoutineType.Procedure;
+        if (string.Equals(routineType, Constants.Function, StringComparison.OrdinalIgnoreCase))
+            return RoutineType.Function;
+
+        return RoutineType.Unknown;
     }
 
     /// <summary>
@@ -217,5 +302,21 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
 
         var schema = routineName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
+    }
+
+    // this provider only exposes objects whose source is stored in ALL_SOURCE as a FUNCTION or a
+    // PROCEDURE, and Oracle only holds PL/SQL there - a Java routine reaches SQL through a PL/SQL
+    // call spec, which is what is read here
+    private static readonly Option<string> OracleRoutineLanguage = Option<string>.Some("PL/SQL");
+
+    private static class Constants
+    {
+        public const string Function = "FUNCTION";
+
+        public const string InOut = "IN/OUT";
+
+        public const string Out = "OUT";
+
+        public const string Procedure = "PROCEDURE";
     }
 }
