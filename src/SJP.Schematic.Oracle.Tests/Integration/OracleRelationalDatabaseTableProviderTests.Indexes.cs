@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration;
 
@@ -101,5 +102,27 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithSingleColumnIndex_ReturnsBTreeIndexType()
+    {
+        var table = await GetTableAsync("table_test_table_8");
+        var index = table.Indexes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.BTree));
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithPrimaryKey_DoesNotIncludeItsBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_3");
+
+        Assert.That(table.Indexes, Is.Empty);
     }
 }

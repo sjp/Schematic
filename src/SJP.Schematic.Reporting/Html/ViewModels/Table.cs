@@ -286,7 +286,12 @@ public sealed class Table
             bool isUnique,
             IEnumerable<string> columnNames,
             IEnumerable<IndexColumnOrder> columnSorts,
-            IEnumerable<string> includedColumnNames
+            IEnumerable<string> includedColumnNames,
+            IndexType indexType,
+            Option<string> filterDefinition,
+            bool isEnabled,
+            bool isValid,
+            bool isVisible
         )
         {
             Name = indexName ?? string.Empty;
@@ -297,6 +302,12 @@ public sealed class Table
                 static (c, s) => c + " " + s
             ).Join(", ");
             IncludedColumnsText = includedColumnNames.Join(", ");
+
+            IndexType = IndexTypeNames.GetName(indexType);
+            FilterText = filterDefinition.Match(static filter => filter ?? string.Empty, static () => string.Empty);
+            IsEnabled = isEnabled;
+            IsValid = isValid;
+            IsVisible = isVisible;
         }
 
         public string Name { get; }
@@ -306,6 +317,16 @@ public sealed class Table
         public string ColumnsText { get; }
 
         public string IncludedColumnsText { get; }
+
+        public string IndexType { get; }
+
+        public string FilterText { get; }
+
+        public bool IsEnabled { get; }
+
+        public bool IsValid { get; }
+
+        public bool IsVisible { get; }
 
         private static string SortToString(IndexColumnOrder order)
         {

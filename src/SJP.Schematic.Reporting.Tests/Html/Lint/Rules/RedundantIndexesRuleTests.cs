@@ -28,6 +28,7 @@ internal static class RedundantIndexesRuleTests
         index.Setup(c => c.IncludedColumns).Returns(includedColumns);
         index.Setup(c => c.IsUnique).Returns(false);
         index.Setup(c => c.FilterDefinition).Returns(Option<string>.None);
+        index.Setup(c => c.IndexType).Returns(IndexType.BTree);
 
         return index.Object;
     }

@@ -91,6 +91,13 @@ export interface TableIndex {
   isUnique: boolean;
   columnsText: string;
   includedColumnsText: string;
+  /** Display name of the index structure, e.g. `B-Tree`. Empty when the database reports none. */
+  indexType: string;
+  /** The expression restricting a filtered index to a subset of rows. Empty when unfiltered. */
+  filterText: string;
+  isEnabled: boolean;
+  isValid: boolean;
+  isVisible: boolean;
 }
 
 export interface TableTrigger {
@@ -385,6 +392,13 @@ export interface IndexRow {
   isUnique: boolean;
   columnsText: string;
   includedColumnsText: string;
+  /** Display name of the index structure, e.g. `B-Tree`. Empty when the database reports none. */
+  indexType: string;
+  /** The expression restricting a filtered index to a subset of rows. Empty when unfiltered. */
+  filterText: string;
+  isEnabled: boolean;
+  isValid: boolean;
+  isVisible: boolean;
 }
 
 /** `data/indexes.json`. */

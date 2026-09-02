@@ -87,4 +87,18 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
 
         Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_4"));
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsKeyWithClusteredBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_3");
+        var backingIndex = table.PrimaryKey.UnwrapSome().BackingIndex.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backingIndex.Name.LocalName, Is.EqualTo("pk_test_table_3"));
+            Assert.That(backingIndex.IndexType, Is.EqualTo(IndexType.Clustered));
+            Assert.That(backingIndex.IsUnique, Is.True);
+        }
+    }
 }

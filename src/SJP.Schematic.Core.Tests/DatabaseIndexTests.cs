@@ -218,6 +218,54 @@ internal static class DatabaseIndexTests
     }
 
     [Test]
+    public static void Ctor_GivenInvalidIndexType_ThrowsArgumentException()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        const IndexType indexType = (IndexType)55;
+
+        Assert.That(
+            () => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None, indexType, Option<int>.None, true, true),
+            Throws.ArgumentException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenNoPhysicalProperties_SetsPropertiesToDefaults()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Unknown));
+            Assert.That(index.FillFactor, OptionIs.None);
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenPhysicalProperties_SetsPropertiesToGivenValues()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None, IndexType.Clustered, Option<int>.Some(70), false, false);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Clustered));
+            Assert.That(index.FillFactor, OptionIs.Some);
+            Assert.That(index.FillFactor.UnwrapSome(), Is.EqualTo(70));
+            Assert.That(index.IsValid, Is.False);
+            Assert.That(index.IsVisible, Is.False);
+        }
+    }
+
+    [Test]
     public static void Columns_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
     {
         Identifier indexName = "test_index";

@@ -27,6 +27,21 @@ public class OracleDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
     public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
+        : this(name, keyType, columns, isEnabled, Option<IDatabaseIndex>.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OracleDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">The key constraint name.</param>
+    /// <param name="keyType">Type of the key constraint.</param>
+    /// <param name="columns">A collection of table columns.</param>
+    /// <param name="isEnabled">If true, the constraint is currently enabled.</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
+    public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled, Option<IDatabaseIndex> backingIndex)
     {
         ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrAnyNull())
@@ -40,6 +55,7 @@ public class OracleDatabaseKey : IDatabaseKey
         KeyType = keyType;
         Columns = columns;
         IsEnabled = isEnabled;
+        BackingIndex = backingIndex;
     }
 
     /// <summary>
@@ -65,6 +81,12 @@ public class OracleDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value><see langword="true" /> if this constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
+
+    /// <summary>
+    /// The index that the database uses to enforce the key constraint.
+    /// </summary>
+    /// <value>An index, if the database reports one for the constraint.</value>
+    public Option<IDatabaseIndex> BackingIndex { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

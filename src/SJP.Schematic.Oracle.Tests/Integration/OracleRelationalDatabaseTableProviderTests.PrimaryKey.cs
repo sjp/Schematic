@@ -87,4 +87,17 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("PK_TEST_TABLE_4"));
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsKeyWithBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_3");
+        var backingIndex = table.PrimaryKey.UnwrapSome().BackingIndex.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backingIndex.Name.LocalName, Is.EqualTo("PK_TEST_TABLE_3"));
+            Assert.That(backingIndex.IsUnique, Is.True);
+        }
+    }
 }

@@ -124,6 +124,49 @@ internal static class OracleDatabaseIndexTests
         Assert.That(index.FilterDefinition, OptionIs.None);
     }
 
+    [Test]
+    public static void Ctor_GivenInvalidIndexType_ThrowsArgumentException()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        const IndexType indexType = (IndexType)55;
+
+        Assert.That(() => new OracleDatabaseIndex(indexName, false, columns, indexType, true, true), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNoPhysicalProperties_DefaultsToAnUnknownUsableIndex()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new OracleDatabaseIndex(indexName, false, columns);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Unknown));
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+            Assert.That(index.FillFactor, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenPhysicalProperties_SetsPropertiesToGivenValues()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new OracleDatabaseIndex(indexName, false, columns, IndexType.Bitmap, false, false);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Bitmap));
+            Assert.That(index.IsValid, Is.False);
+            Assert.That(index.IsVisible, Is.False);
+        }
+    }
+
     [TestCase("test_index", "Index: test_index")]
     [TestCase("test_index_other", "Index: test_index_other")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)

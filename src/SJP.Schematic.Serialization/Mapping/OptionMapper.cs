@@ -11,6 +11,8 @@ public class OptionMapper
     , IImmutableMapper<Option<string>, string?>
     , IImmutableMapper<decimal?, Option<decimal>>
     , IImmutableMapper<Option<decimal>, decimal?>
+    , IImmutableMapper<int?, Option<int>>
+    , IImmutableMapper<Option<int>, int?>
 {
     /// <summary>
     /// Maps an optional serialized string to its core representation.
@@ -50,5 +52,25 @@ public class OptionMapper
     public decimal? Map(Option<decimal> source)
     {
         return source.MatchUnsafe(static v => v, (decimal?)null);
+    }
+
+    /// <summary>
+    /// Maps an optional serialized integer to its core representation.
+    /// </summary>
+    /// <param name="source">An integer, or <see langword="null"/> when no value is available.</param>
+    /// <returns>The integer, if a value is available.</returns>
+    public Option<int> Map(int? source)
+    {
+        return !source.HasValue ? Option<int>.None : Option<int>.Some(source.Value);
+    }
+
+    /// <summary>
+    /// Maps an optional integer to its serialized representation.
+    /// </summary>
+    /// <param name="source">An integer, if a value is available.</param>
+    /// <returns>The integer, or <see langword="null"/> when no value is available.</returns>
+    public int? Map(Option<int> source)
+    {
+        return source.MatchUnsafe(static v => v, (int?)null);
     }
 }

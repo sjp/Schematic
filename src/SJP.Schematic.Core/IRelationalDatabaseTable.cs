@@ -30,6 +30,11 @@ public interface IRelationalDatabaseTable : IDatabaseQueryable
     /// <summary>
     /// Indexes defined for the table.
     /// </summary>
+    /// <remarks>
+    /// Only indexes created in their own right are listed. An index that exists solely to enforce a
+    /// primary or unique key constraint is reported by <see cref="IDatabaseKey.BackingIndex"/> on that
+    /// constraint instead, so that a constraint and its index are never counted twice.
+    /// </remarks>
     /// <value>A set of indexes.</value>
     IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
 

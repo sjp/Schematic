@@ -26,4 +26,14 @@ public interface IDatabaseKey : IDatabaseOptional
     /// </summary>
     /// <value>A key constraint type.</value>
     DatabaseKeyType KeyType { get; }
+
+    /// <summary>
+    /// The index that the database uses to enforce the key constraint.
+    /// </summary>
+    /// <remarks>
+    /// Only primary and unique keys are backed by an index, and only when the database exposes it.
+    /// The backing index is not repeated in <see cref="IRelationalDatabaseTable.Indexes"/>.
+    /// </remarks>
+    /// <value>An index, if the database reports one for the constraint.</value>
+    Option<IDatabaseIndex> BackingIndex { get; }
 }

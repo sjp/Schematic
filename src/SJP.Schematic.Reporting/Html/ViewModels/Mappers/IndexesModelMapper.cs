@@ -17,7 +17,12 @@ internal sealed class IndexesModelMapper
             index.IsUnique,
             index.Columns.Select(static c => c.Expression).ToList(),
             index.Columns.Select(static c => c.Order).ToList(),
-            index.IncludedColumns.Select(static c => c.Name.LocalName).ToList()
+            index.IncludedColumns.Select(static c => c.Name.LocalName).ToList(),
+            index.IndexType,
+            index.FilterDefinition,
+            index.IsEnabled,
+            index.IsValid,
+            index.IsVisible
         );
     }
 }

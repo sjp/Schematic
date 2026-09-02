@@ -30,6 +30,11 @@ internal static class GetTableConstraints
         public required string? EnabledStatus { get; init; }
 
         /// <summary>
+        /// The index enforcing the constraint. Only populated for <c>P</c> and <c>U</c> rows.
+        /// </summary>
+        public required string? IndexName { get; init; }
+
+        /// <summary>
         /// The delete rule for a foreign key. Only populated for <c>R</c> rows.
         /// </summary>
         public required string? DeleteAction { get; init; }
@@ -57,6 +62,7 @@ select
     ac.CONSTRAINT_NAME as "{nameof(Result.ConstraintName)}",
     ac.CONSTRAINT_TYPE as "{nameof(Result.ConstraintType)}",
     ac.STATUS as "{nameof(Result.EnabledStatus)}",
+    ac.INDEX_NAME as "{nameof(Result.IndexName)}",
     ac.DELETE_RULE as "{nameof(Result.DeleteAction)}",
     acc.COLUMN_NAME as "{nameof(Result.ColumnName)}",
     acc.POSITION as "{nameof(Result.ColumnPosition)}",

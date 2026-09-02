@@ -201,4 +201,21 @@ internal static class SqliteDatabaseIndexTests
 
         Assert.That(result, Is.EqualTo(expectedResult));
     }
+
+    [Test]
+    public static void PhysicalProperties_PropertyGet_DescribeAUsableBTreeIndex()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new SqliteDatabaseIndex(indexName, false, columns, [], Option<string>.None);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.BTree));
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+            Assert.That(index.FillFactor, OptionIs.None);
+        }
+    }
 }

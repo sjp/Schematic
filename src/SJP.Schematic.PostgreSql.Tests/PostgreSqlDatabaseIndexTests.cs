@@ -194,6 +194,51 @@ internal static class PostgreSqlDatabaseIndexTests
         }
     }
 
+    [Test]
+    public static void Ctor_GivenInvalidIndexType_ThrowsArgumentException()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        const IndexType indexType = (IndexType)55;
+
+        Assert.That(
+            () => new PostgreSqlDatabaseIndex(indexName, false, columns, [], Option<string>.None, indexType, true),
+            Throws.ArgumentException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenNoAccessMethod_DefaultsToAnUnknownValidIndex()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new PostgreSqlDatabaseIndex(indexName, false, columns, Option<string>.None);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Unknown));
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+            Assert.That(index.FillFactor, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenAccessMethod_SetsPropertiesToGivenValues()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new PostgreSqlDatabaseIndex(indexName, false, columns, [], Option<string>.None, IndexType.Gin, false);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Gin));
+            Assert.That(index.IsValid, Is.False);
+        }
+    }
+
     [TestCase("test_index", "Index: test_index")]
     [TestCase("test_index_other", "Index: test_index_other")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)

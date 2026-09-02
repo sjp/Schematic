@@ -40,4 +40,30 @@ public sealed record DatabaseIndex
     /// The expression restricting a filtered index to a subset of rows, if any.
     /// </summary>
     public string? FilterDefinition { get; init; }
+
+    /// <summary>
+    /// The physical structure used to implement the index.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before indexes carried a structure still reads back,
+    /// as an unknown structure.
+    /// </remarks>
+    public Core.IndexType IndexType { get; init; }
+
+    /// <summary>
+    /// The percentage of each index page left free, if the source database reported one.
+    /// </summary>
+    public int? FillFactor { get; init; }
+
+    /// <summary>
+    /// Whether the index is complete and therefore usable by the query planner. Defaults to
+    /// <see langword="true"/> for a document written before indexes carried validity.
+    /// </summary>
+    public bool IsValid { get; init; } = true;
+
+    /// <summary>
+    /// Whether the query planner is permitted to use the index. Defaults to <see langword="true"/>
+    /// for a document written before indexes carried visibility.
+    /// </summary>
+    public bool IsVisible { get; init; } = true;
 }

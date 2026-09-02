@@ -1,4 +1,5 @@
 ﻿using Boxed.Mapping;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
@@ -18,11 +19,16 @@ public class DatabaseIndexColumnMapper
     public IDatabaseIndexColumn Map(Dto.DatabaseIndexColumn source)
     {
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
+        var intOptionMapper = MapperRegistry.GetMapper<int?, Option<int>>();
 
         return new DatabaseIndexColumn(
             source.Expression,
             columnMapper.MapList(source.DependentColumns),
-            source.Order
+            source.Order,
+            source.NullOrder,
+            identifierMapper.Map(source.Collation),
+            intOptionMapper.Map(source.PrefixLength)
         );
     }
 
@@ -34,12 +40,17 @@ public class DatabaseIndexColumnMapper
     public Dto.DatabaseIndexColumn Map(IDatabaseIndexColumn source)
     {
         var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var identifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
+        var intOptionMapper = MapperRegistry.GetMapper<Option<int>, int?>();
 
         return new Dto.DatabaseIndexColumn
         {
             Expression = source.Expression,
             DependentColumns = columnMapper.MapList(source.DependentColumns),
             Order = source.Order,
+            NullOrder = source.NullOrder,
+            Collation = identifierMapper.Map(source.Collation),
+            PrefixLength = intOptionMapper.Map(source.PrefixLength),
         };
     }
 }

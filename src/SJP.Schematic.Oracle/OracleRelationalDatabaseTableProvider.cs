@@ -77,6 +77,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>(LoadColumnsAsync),
         new AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache>(LoadUniqueKeysAsync),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, OracleTableQueryCache>(LoadIndexesAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache>((tableName, _, token) => LoadCheckRowsAsync(tableName, token)),
         new AsyncCache<Identifier, IReadOnlyCollection<GetTableConstraints.Result>, OracleTableQueryCache>((tableName, _, token) => LoadConstraintRowsAsync(tableName, token)),
@@ -209,7 +210,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, queryCache, cancellationToken),
             LoadTriggersAsync(tableName, cancellationToken),
-            LoadIndexesAsync(tableName, queryCache, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
@@ -223,10 +224,42 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             uniqueKeys,
             parentKeys,
             childKeys,
-            indexes,
+            FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
             triggers
         );
+    }
+
+    // An index that exists only to enforce a primary or unique key constraint is reported by that
+    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes.
+    private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
+        IReadOnlyCollection<IDatabaseIndex> indexes,
+        Option<IDatabaseKey> primaryKey,
+        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+    )
+    {
+        var backingIndexNames = uniqueKeys
+            .Concat(primaryKey.ToList())
+            .SelectMany(static key => key.BackingIndex.ToList())
+            .Select(static index => index.Name)
+            .ToHashSet();
+        if (backingIndexNames.Count == 0)
+            return indexes;
+
+        return indexes.Where(index => !backingIndexNames.Contains(index.Name)).ToList();
+    }
+
+    // ALL_CONSTRAINTS.INDEX_NAME names the index enforcing a primary or unique key constraint,
+    // which need not share the constraint's name.
+    private static Option<IDatabaseIndex> GetBackingIndex(IReadOnlyCollection<IDatabaseIndex> indexes, string? indexName)
+    {
+        if (indexName.IsNullOrWhiteSpace())
+            return Option<IDatabaseIndex>.None;
+
+        var backingIndex = indexes.FirstOrDefault(index => index.Name.LocalName == indexName);
+        return backingIndex != null
+            ? Option<IDatabaseIndex>.Some(backingIndex)
+            : Option<IDatabaseIndex>.None;
     }
 
     /// <summary>
@@ -257,7 +290,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus });
+        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus, row.IndexName });
         var firstRow = groupedByName.First();
         var constraintName = firstRow.Key.ConstraintName;
         var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
@@ -270,8 +303,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             columnLookup
         ).ToList();
 
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+        var backingIndex = GetBackingIndex(indexes, firstRow.Key.IndexName);
+
         var primaryKey = constraintName != null
-            ? new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled)
+            ? new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex)
             : (IDatabaseKey?)null;
         return primaryKey != null
             ? Option<IDatabaseKey>.Some(primaryKey)
@@ -302,7 +338,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
-        var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.Uniqueness }).ToList();
+        var indexColumns = queryResult
+            .GroupAsDictionary(static row => new { row.IndexName, row.Uniqueness, row.IndexType, row.Status, row.Visibility })
+            .ToList();
         if (indexColumns.Empty())
             return [];
 
@@ -329,7 +367,13 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 })
                 .ToList();
 
-            var index = new OracleDatabaseIndex(indexName, isUnique, indexCols);
+            var indexType = indexInfo.Key.IndexType != null && IndexTypeMapping.TryGetValue(indexInfo.Key.IndexType, out var mappedIndexType)
+                ? mappedIndexType
+                : IndexType.Unknown;
+            var isValid = !string.Equals(indexInfo.Key.Status, Constants.Unusable, StringComparison.Ordinal);
+            var isVisible = !string.Equals(indexInfo.Key.Visibility, Constants.Invisible, StringComparison.Ordinal);
+
+            var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexType, isValid, isVisible);
             result.Add(index);
         }
 
@@ -366,11 +410,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var groupedByName = uniqueKeyColumns
             .Where(static row => row.ConstraintName != null)
-            .GroupAsDictionary(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus });
+            .GroupAsDictionary(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus, row.IndexName });
         var constraintColumns = groupedByName
             .Select(g => new
             {
                 g.Key.ConstraintName,
+                g.Key.IndexName,
                 Columns = ResolveColumns(
                     g.Value
                         .Where(static row => row.ColumnName != null)
@@ -384,8 +429,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (constraintColumns.Empty())
             return [];
 
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+
         return constraintColumns
-            .ConvertAll(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled));
+            .ConvertAll(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled, GetBackingIndex(indexes, uk.IndexName)));
     }
 
     /// <summary>
@@ -946,6 +993,21 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return result;
     }
 
+    // ALL_INDEXES.INDEX_TYPE values, see the Oracle reference for ALL_INDEXES.
+    private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.Ordinal)
+    {
+        ["NORMAL"] = IndexType.BTree,
+        ["NORMAL/REV"] = IndexType.BTree,
+        ["FUNCTION-BASED NORMAL"] = IndexType.BTree,
+        ["FUNCTION-BASED NORMAL/REV"] = IndexType.BTree,
+        ["BITMAP"] = IndexType.Bitmap,
+        ["FUNCTION-BASED BITMAP"] = IndexType.Bitmap,
+        ["IOT - TOP"] = IndexType.Clustered,
+        ["DOMAIN"] = IndexType.Other,
+        ["CLUSTER"] = IndexType.Other,
+        ["LOB"] = IndexType.Other,
+    };
+
     private static class Constants
     {
         public const string Delete = "DELETE";
@@ -961,6 +1023,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         public const string ForeignKeyType = "R";
 
         public const string Unique = "UNIQUE";
+
+        public const string Unusable = "UNUSABLE";
+
+        public const string Invisible = "INVISIBLE";
 
         public const string Update = "UPDATE";
 
@@ -978,6 +1044,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache> _columns;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> _uniqueKeys;
+        private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, OracleTableQueryCache> _indexes;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> _foreignKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> _checkRows;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<GetTableConstraints.Result>, OracleTableQueryCache> _constraintRows;
@@ -990,16 +1057,18 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="columnLoader">A column cache.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
+        /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="checkRowsLoader">A raw check constraint row cache.</param>
         /// <param name="constraintRowsLoader">A raw primary/unique/foreign key constraint row cache.</param>
         /// <param name="columnLookupLoader">A column lookup cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="checkRowsLoader"/>, <paramref name="constraintRowsLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="checkRowsLoader"/>, <paramref name="constraintRowsLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
         internal OracleTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, OracleTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, OracleTableQueryCache> uniqueKeyLoader,
+            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, OracleTableQueryCache> indexLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache> foreignKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<GetTableChecks.Result>, OracleTableQueryCache> checkRowsLoader,
             AsyncCache<Identifier, IReadOnlyCollection<GetTableConstraints.Result>, OracleTableQueryCache> constraintRowsLoader,
@@ -1010,6 +1079,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
+            _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             _checkRows = checkRowsLoader ?? throw new ArgumentNullException(nameof(checkRowsLoader));
             _constraintRows = constraintRowsLoader ?? throw new ArgumentNullException(nameof(constraintRowsLoader));
@@ -1070,6 +1140,20 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's indexes from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of indexes, including those enforcing key constraints.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyCollection<IDatabaseIndex>> GetIndexesAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _indexes.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>

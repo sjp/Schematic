@@ -526,6 +526,93 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenIndexWithPhysicalPropertiesRoundTripped_PreservesProperties()
+    {
+        var db = CreateDetailedIndexDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var index = tables.Single().Indexes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Gin));
+            Assert.That(index.FillFactor.UnwrapSome(), Is.EqualTo(80));
+            Assert.That(index.IsValid, Is.False);
+            Assert.That(index.IsVisible, Is.False);
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenIndexColumnWithOptionsRoundTripped_PreservesOptions()
+    {
+        var db = CreateDetailedIndexDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var indexColumn = tables.Single().Indexes.Single().Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.NullOrder, Is.EqualTo(IndexColumnNullOrder.NullsFirst));
+            Assert.That(indexColumn.Collation.UnwrapSome().LocalName, Is.EqualTo("en_US"));
+            Assert.That(indexColumn.PrefixLength.UnwrapSome(), Is.EqualTo(12));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenKeyWithBackingIndexRoundTripped_PreservesBackingIndex()
+    {
+        var db = CreateDetailedIndexDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var primaryKey = tables.Single().PrimaryKey.UnwrapSome();
+        var backingIndex = primaryKey.BackingIndex.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backingIndex.Name.LocalName, Is.EqualTo("test_pk_index"));
+            Assert.That(backingIndex.IndexType, Is.EqualTo(IndexType.Clustered));
+            Assert.That(backingIndex.IsUnique, Is.True);
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenKeyWithoutBackingIndexRoundTripped_PreservesMissingBackingIndex()
+    {
+        var db = CreateIndexDatabase(Option<string>.None);
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        Assert.That(json, Does.Not.Contain("BackingIndex"));
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenIndexWithPhysicalPropertiesRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateDetailedIndexDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.That(reExportedJson, Is.EqualTo(json));
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenTableWithoutPrimaryKeyRoundTripped_PreservesMissingPrimaryKey()
     {
         var db = CreatePrimaryKeyDatabase(hasPrimaryKey: false);
@@ -942,6 +1029,87 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    private static IRelationalDatabase CreateDetailedIndexDatabase()
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            typeof(string),
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+
+        var index = new DatabaseIndex(
+            "test_index_name",
+            false,
+            [
+                new DatabaseIndexColumn(
+                    "first_name",
+                    firstNameColumn,
+                    IndexColumnOrder.Descending,
+                    IndexColumnNullOrder.NullsFirst,
+                    Option<Identifier>.Some("en_US"),
+                    Option<int>.Some(12)
+                ),
+            ],
+            [],
+            false,
+            Option<string>.None,
+            IndexType.Gin,
+            Option<int>.Some(80),
+            false,
+            false
+        );
+
+        var backingIndex = new DatabaseIndex(
+            "test_pk_index",
+            true,
+            [new DatabaseIndexColumn("first_name", firstNameColumn, IndexColumnOrder.Ascending)],
+            [],
+            true,
+            Option<string>.None,
+            IndexType.Clustered,
+            Option<int>.None,
+            true,
+            true
+        );
+
+        var primaryKey = new DatabaseKey(
+            Option<Identifier>.Some("test_pk_name"),
+            DatabaseKeyType.Primary,
+            [firstNameColumn],
+            true,
+            Option<IDatabaseIndex>.Some(backingIndex)
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [firstNameColumn],
+            Option<IDatabaseKey>.Some(primaryKey),
+            [],
+            [],
+            [],
+            [index],
             [],
             []
         );

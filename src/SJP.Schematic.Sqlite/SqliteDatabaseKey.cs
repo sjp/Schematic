@@ -27,6 +27,20 @@ public class SqliteDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or has <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
     public SqliteDatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns)
+        : this(name, keyType, columns, Option<IDatabaseIndex>.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqliteDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">The constraint name, if available.</param>
+    /// <param name="keyType">Type of the key constraint.</param>
+    /// <param name="columns">A collection of table columns.</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="columns"/> is <see langword="null" /> or has <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
+    public SqliteDatabaseKey(Option<Identifier> name, DatabaseKeyType keyType, IEnumerable<IDatabaseColumn> columns, Option<IDatabaseIndex> backingIndex)
     {
         if (columns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columns));
@@ -38,6 +52,7 @@ public class SqliteDatabaseKey : IDatabaseKey
         Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName));
         KeyType = keyType;
         Columns = columns.ToList();
+        BackingIndex = backingIndex;
     }
 
     /// <summary>
@@ -63,6 +78,12 @@ public class SqliteDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// The index that the database uses to enforce the key constraint.
+    /// </summary>
+    /// <value>An index, if the database reports one for the constraint.</value>
+    public Option<IDatabaseIndex> BackingIndex { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

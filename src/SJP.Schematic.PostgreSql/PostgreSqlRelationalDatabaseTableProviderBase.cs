@@ -223,10 +223,39 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             uniqueKeys,
             parentKeys,
             childKeys,
-            indexes,
+            FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
             triggers
         );
+    }
+
+    // An index that exists only to enforce a primary or unique key constraint is reported by that
+    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes.
+    private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
+        IReadOnlyCollection<IDatabaseIndex> indexes,
+        Option<IDatabaseKey> primaryKey,
+        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+    )
+    {
+        var backingIndexNames = uniqueKeys
+            .Concat(primaryKey.ToList())
+            .SelectMany(static key => key.BackingIndex.ToList())
+            .Select(static index => index.Name)
+            .ToHashSet();
+        if (backingIndexNames.Count == 0)
+            return indexes;
+
+        return indexes.Where(index => !backingIndexNames.Contains(index.Name)).ToList();
+    }
+
+    // PostgreSQL names the index enforcing a primary or unique key constraint after the constraint
+    // itself, so the two are matched by name.
+    private static Option<IDatabaseIndex> GetBackingIndex(IReadOnlyCollection<IDatabaseIndex> indexes, Identifier constraintName)
+    {
+        var backingIndex = indexes.FirstOrDefault(index => index.Name == constraintName);
+        return backingIndex != null
+            ? Option<IDatabaseIndex>.Some(backingIndex)
+            : Option<IDatabaseIndex>.None;
     }
 
     /// <summary>
@@ -272,7 +301,10 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             columnLookup
         ).ToList();
 
-        var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns);
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+        var backingIndex = GetBackingIndex(indexes, constraintName);
+
+        var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, backingIndex);
         return Option<IDatabaseKey>.Some(primaryKey);
     }
 
@@ -311,6 +343,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 row.IsPrimary,
                 row.FilterDefinition,
                 row.KeyColumnCount,
+                row.IndexMethod,
+                row.IsValid,
             })
             .ToList();
         if (indexColumns.Empty())
@@ -339,6 +373,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 .Select(row => new
                 {
                     row.IsDescending,
+                    row.IsNullsFirst,
+                    row.IndexColumnCollation,
                     Expression = row.IndexColumnExpression,
                     Column = row.IndexColumnExpression != null && columnLookup.TryGetValue(row.IndexColumnExpression, out var indexColumn)
                         ? indexColumn
@@ -347,12 +383,16 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 .Select(row =>
                 {
                     var order = row.IsDescending ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+                    var nullOrder = row.IsNullsFirst ? IndexColumnNullOrder.NullsFirst : IndexColumnNullOrder.NullsLast;
+                    var collation = !row.IndexColumnCollation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.IndexColumnCollation))
+                        : Option<Identifier>.None;
                     var expression = row.Column != null
                         ? Dialect.QuoteName(row.Column.Name)
                         : row.Expression!;
                     return row.Column != null
-                        ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order)
-                        : new PostgreSqlDatabaseIndexColumn(expression, order);
+                        ? new PostgreSqlDatabaseIndexColumn(expression, row.Column, order, nullOrder, collation)
+                        : new PostgreSqlDatabaseIndexColumn(expression, order, nullOrder, collation);
                 })
                 .Take(indexInfo.Key.KeyColumnCount)
                 .ToList();
@@ -364,7 +404,11 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 columnLookup
             ).ToList();
 
-            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, filterDefinition);
+            var indexType = IndexTypeMapping.TryGetValue(indexInfo.Key.IndexMethod, out var mappedIndexType)
+                ? mappedIndexType
+                : IndexType.Other;
+
+            var index = new PostgreSqlDatabaseIndex(indexName, isUnique, indexCols, includedCols, filterDefinition, indexType, indexInfo.Key.IsValid);
             result.Add(index);
         }
 
@@ -417,10 +461,13 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (constraintColumns.Empty())
             return [];
 
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+
         var result = new List<IDatabaseKey>(constraintColumns.Count);
         foreach (var uk in constraintColumns)
         {
-            var uniqueKey = new PostgreSqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
+            var backingIndex = GetBackingIndex(indexes, uk.ConstraintName);
+            var uniqueKey = new PostgreSqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, backingIndex);
             result.Add(uniqueKey);
         }
         return result;
@@ -987,6 +1034,17 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// </summary>
         public const string Always = "ALWAYS";
     }
+
+    // pg_am.amname values for the access methods shipped with PostgreSQL. Anything else, e.g. an
+    // access method provided by an extension, is reported as IndexType.Other.
+    private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["btree"] = IndexType.BTree,
+        ["hash"] = IndexType.Hash,
+        ["gin"] = IndexType.Gin,
+        ["gist"] = IndexType.Gist,
+        ["brin"] = IndexType.Brin,
+    };
 
     /// <summary>
     /// A query cache provider for PostgreSQL tables. Ensures that a given query only occurs at most once for a given query context.

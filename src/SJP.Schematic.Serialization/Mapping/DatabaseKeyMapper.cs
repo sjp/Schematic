@@ -22,12 +22,18 @@ public class DatabaseKeyMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var indexMapper = MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
+
+        var backingIndex = source.BackingIndex != null
+            ? Option<IDatabaseIndex>.Some(indexMapper.Map(source.BackingIndex))
+            : Option<IDatabaseIndex>.None;
 
         return new DatabaseKey(
             identifierMapper.Map(source.Name),
             source.KeyType,
             columnMapper.MapList(source.Columns),
-            source.IsEnabled
+            source.IsEnabled,
+            backingIndex
         );
     }
 
@@ -40,6 +46,7 @@ public class DatabaseKeyMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
         var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var indexMapper = MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
 
         return new Dto.DatabaseKey
         {
@@ -47,6 +54,7 @@ public class DatabaseKeyMapper
             KeyType = source.KeyType,
             Columns = columnMapper.MapList(source.Columns),
             IsEnabled = source.IsEnabled,
+            BackingIndex = source.BackingIndex.MatchUnsafe(indexMapper.Map, (Dto.DatabaseIndex?)null),
         };
     }
 

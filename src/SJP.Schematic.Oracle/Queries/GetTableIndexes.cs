@@ -1,4 +1,4 @@
-using SJP.Schematic.Core.Extensions;
+﻿using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Oracle.Queries;
 
@@ -17,6 +17,21 @@ internal static class GetTableIndexes
 
         public required string? Uniqueness { get; init; }
 
+        /// <summary>
+        /// The index structure, e.g. <c>NORMAL</c>, <c>BITMAP</c> or <c>FUNCTION-BASED NORMAL</c>.
+        /// </summary>
+        public required string? IndexType { get; init; }
+
+        /// <summary>
+        /// The index status, which is <c>UNUSABLE</c> for an index that the optimizer cannot use.
+        /// </summary>
+        public required string? Status { get; init; }
+
+        /// <summary>
+        /// Whether the optimizer is permitted to use the index, i.e. <c>VISIBLE</c> or <c>INVISIBLE</c>.
+        /// </summary>
+        public required string? Visibility { get; init; }
+
         public required string? IsDescending { get; init; }
 
         public required string? ColumnName { get; init; }
@@ -29,6 +44,9 @@ internal static class GetTableIndexes
 select
     ai.INDEX_NAME as "{nameof(Result.IndexName)}",
     ai.UNIQUENESS as "{nameof(Result.Uniqueness)}",
+    ai.INDEX_TYPE as "{nameof(Result.IndexType)}",
+    ai.STATUS as "{nameof(Result.Status)}",
+    ai.VISIBILITY as "{nameof(Result.Visibility)}",
     aic.COLUMN_NAME as "{nameof(Result.ColumnName)}",
     aic.COLUMN_POSITION as "{nameof(Result.ColumnPosition)}",
     aic.DESCEND as "{nameof(Result.IsDescending)}"

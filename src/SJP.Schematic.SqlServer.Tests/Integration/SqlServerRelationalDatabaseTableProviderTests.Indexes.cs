@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration;
@@ -182,5 +183,28 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var index = table.Indexes.Single();
 
         Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("([test_column]>(100))"));
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithNonClusteredIndex_ReturnsBTreeIndexType()
+    {
+        var table = await GetTableAsync("table_test_table_8");
+        var index = table.Indexes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.BTree));
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+            Assert.That(index.FillFactor, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithUniqueConstraint_DoesNotIncludeItsBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_6");
+
+        Assert.That(table.Indexes, Is.Empty);
     }
 }

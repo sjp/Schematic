@@ -87,4 +87,18 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_4"));
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsKeyWithBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_15");
+        var backingIndex = table.PrimaryKey.UnwrapSome().BackingIndex.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backingIndex.Name.LocalName, Is.EqualTo("pk_test_table_15"));
+            Assert.That(backingIndex.IndexType, Is.EqualTo(IndexType.BTree));
+            Assert.That(backingIndex.IsUnique, Is.True);
+        }
+    }
 }

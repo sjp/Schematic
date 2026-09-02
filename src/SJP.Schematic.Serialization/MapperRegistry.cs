@@ -90,6 +90,8 @@ internal static class MapperRegistry
         RegisterMapper<Option<string>, string?>(mappers, () => new OptionMapper());
         RegisterMapper<decimal?, Option<decimal>>(mappers, () => new OptionMapper());
         RegisterMapper<Option<decimal>, decimal?>(mappers, () => new OptionMapper());
+        RegisterMapper<int?, Option<int>>(mappers, () => new OptionMapper());
+        RegisterMapper<Option<int>, int?>(mappers, () => new OptionMapper());
 
         RegisterMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>(mappers, () => new RelationalDatabaseTableMapper());
         RegisterMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(mappers, () => new RelationalDatabaseTableMapper());

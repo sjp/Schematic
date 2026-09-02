@@ -137,6 +137,48 @@ internal static class MySqlDatabaseIndexTests
         Assert.That(index.FilterDefinition, OptionIs.None);
     }
 
+    [Test]
+    public static void Ctor_GivenInvalidIndexType_ThrowsArgumentException()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+        const IndexType indexType = (IndexType)55;
+
+        Assert.That(() => new MySqlDatabaseIndex(indexName, false, columns, indexType, true), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNoPhysicalProperties_DefaultsToAnUnknownVisibleIndex()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new MySqlDatabaseIndex(indexName, false, columns);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.Unknown));
+            Assert.That(index.IsVisible, Is.True);
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.FillFactor, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenPhysicalProperties_SetsPropertiesToGivenValues()
+    {
+        Identifier indexName = "test_index";
+        var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
+
+        var index = new MySqlDatabaseIndex(indexName, false, columns, IndexType.FullText, false);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.FullText));
+            Assert.That(index.IsVisible, Is.False);
+        }
+    }
+
     [TestCase("test_index", "Index: test_index")]
     [TestCase("test_index_other", "Index: test_index_other")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)

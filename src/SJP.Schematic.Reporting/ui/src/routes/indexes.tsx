@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
 import { IconTooltip } from "@/components/IconTooltip";
+import { IndexStatus } from "@/components/IndexStatus";
 import { useSummary } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { IndexRow, IndexesSummary } from "@/types/report";
@@ -41,8 +42,23 @@ export function IndexesPage() {
             </IconTooltip>
           ),
       },
+      {
+        accessorKey: "indexType",
+        header: "Type",
+        cell: ({ getValue }) => getValue<string>() || "—",
+      },
       { accessorKey: "columnsText", header: "Columns" },
       { accessorKey: "includedColumnsText", header: "Included" },
+      {
+        accessorKey: "filterText",
+        header: "Filter",
+        cell: ({ getValue }) => getValue<string>() || "—",
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => <IndexStatus {...row.original} />,
+      },
     ],
     [],
   );

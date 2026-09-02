@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 
 import { DataTable } from "@/components/DataTable";
 import { IconTooltip } from "@/components/IconTooltip";
+import { IndexStatus } from "@/components/IndexStatus";
 import { LintFindings } from "@/components/LintFindings";
 import { RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { Button } from "@/components/ui/button";
@@ -259,8 +260,11 @@ export function TableDetailPage() {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Unique</TableHead>
+                <TableHead>Type</TableHead>
                 <TableHead>Columns</TableHead>
                 <TableHead>Included</TableHead>
+                <TableHead>Filter</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -281,8 +285,13 @@ export function TableDetailPage() {
                       </IconTooltip>
                     )}
                   </TableCell>
+                  <TableCell>{ix.indexType || "—"}</TableCell>
                   <TableCell>{ix.columnsText}</TableCell>
                   <TableCell>{ix.includedColumnsText || "—"}</TableCell>
+                  <TableCell>{ix.filterText || "—"}</TableCell>
+                  <TableCell>
+                    <IndexStatus {...ix} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

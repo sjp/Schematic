@@ -169,6 +169,14 @@ create table if not exists table_test_table_37 (
     constraint pk_test_table_37 primary key (middle_name_child),
     constraint fk_test_table_37 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table if not exists table_test_table_41 (
+    first_name varchar(50) not null,
+    last_name varchar(50) not null,
+    index ix_test_table_41_1 (first_name desc),
+    index ix_test_table_41_2 ((lower(last_name))),
+    index ix_test_table_41_3 (last_name(10))
+)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_34 (
     test_column_1 int,
@@ -262,6 +270,7 @@ end
         "drop table if exists table_test_table_27",
         "drop table if exists table_test_table_28",
         "drop table if exists table_test_table_37",
+        "drop table if exists table_test_table_41",
         "drop table if exists table_test_table_15",
         "drop table if exists table_test_table_33",
         "drop table if exists table_test_table_34",

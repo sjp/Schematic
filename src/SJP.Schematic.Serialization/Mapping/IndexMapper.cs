@@ -22,6 +22,7 @@ public class IndexMapper
         var indexColumnMapper = MapperRegistry.GetMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>();
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
         var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();
+        var intOptionMapper = MapperRegistry.GetMapper<int?, Option<int>>();
 
         var indexName = identifierMapper.Map(source.IndexName);
         var indexColumns = indexColumnMapper.MapList(source.Columns);
@@ -34,7 +35,11 @@ public class IndexMapper
             indexColumns,
             includedColumns,
             source.IsEnabled,
-            filterDefinition
+            filterDefinition,
+            source.IndexType,
+            intOptionMapper.Map(source.FillFactor),
+            source.IsValid,
+            source.IsVisible
         );
     }
 
@@ -49,6 +54,7 @@ public class IndexMapper
         var indexColumnMapper = MapperRegistry.GetMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
         var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
         var optionMapper = MapperRegistry.GetMapper<Option<string>, string?>();
+        var intOptionMapper = MapperRegistry.GetMapper<Option<int>, int?>();
 
         var indexName = identifierMapper.Map(source.Name);
         var indexColumns = indexColumnMapper.MapList(source.Columns);
@@ -63,6 +69,10 @@ public class IndexMapper
             IsEnabled = source.IsEnabled,
             IsUnique = source.IsUnique,
             FilterDefinition = filterDefinition,
+            IndexType = source.IndexType,
+            FillFactor = intOptionMapper.Map(source.FillFactor),
+            IsValid = source.IsValid,
+            IsVisible = source.IsVisible,
         };
     }
 }

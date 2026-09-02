@@ -205,10 +205,41 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             uniqueKeys,
             parentKeys,
             childKeys,
-            indexes,
+            FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
             triggers
         );
+    }
+
+    // An index that exists only to enforce a primary or unique key constraint is reported by that
+    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes. Without
+    // this, every key would also be listed as an index, because information_schema.statistics does
+    // not distinguish the two.
+    private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
+        IReadOnlyCollection<IDatabaseIndex> indexes,
+        Option<IDatabaseKey> primaryKey,
+        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+    )
+    {
+        var backingIndexNames = uniqueKeys
+            .Concat(primaryKey.ToList())
+            .SelectMany(static key => key.BackingIndex.ToList())
+            .Select(static index => index.Name)
+            .ToHashSet();
+        if (backingIndexNames.Count == 0)
+            return indexes;
+
+        return indexes.Where(index => !backingIndexNames.Contains(index.Name)).ToList();
+    }
+
+    // MySQL names the index enforcing a primary or unique key constraint after the constraint itself,
+    // i.e. PRIMARY for a primary key, so the two are matched by name.
+    private static Option<IDatabaseIndex> GetBackingIndex(IReadOnlyCollection<IDatabaseIndex> indexes, Identifier constraintName)
+    {
+        var backingIndex = indexes.FirstOrDefault(index => index.Name == constraintName);
+        return backingIndex != null
+            ? Option<IDatabaseIndex>.Some(backingIndex)
+            : Option<IDatabaseIndex>.None;
     }
 
     /// <summary>
@@ -249,7 +280,10 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             .SelectMany(g => g.Value.ConvertAll(row => columnLookup[row.ColumnName!]))
             .ToList();
 
-        var primaryKey = new MySqlDatabasePrimaryKey(keyColumns);
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+        var backingIndex = GetBackingIndex(indexes, constraintName);
+
+        var primaryKey = new MySqlDatabasePrimaryKey(keyColumns, backingIndex);
         return Option<IDatabaseKey>.Some(primaryKey);
     }
 
@@ -280,7 +314,9 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (queryResult.Empty())
             return [];
 
-        var indexColumns = queryResult.GroupAsDictionary(static row => new { row.IndexName, row.IsNonUnique }).ToList();
+        var indexColumns = queryResult
+            .GroupAsDictionary(static row => new { row.IndexName, row.IsNonUnique, row.IndexType, row.IsVisible })
+            .ToList();
         if (indexColumns.Empty())
             return [];
 
@@ -295,15 +331,39 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
             var indexCols = indexInfo.Value
                 .OrderBy(static row => row.ColumnOrdinal)
-                .Select(row => columnLookup[row.ColumnName])
-                .Select(col =>
+                .Select(row =>
                 {
-                    var expression = Dialect.QuoteName(col.Name);
-                    return new MySqlDatabaseIndexColumn(expression, col);
-                })
-                .ToList();
+                    // 'D' is the only value that means descending, an unsorted index reports null
+                    var order = string.Equals(row.ColumnSort, Constants.DescendingSort, StringComparison.OrdinalIgnoreCase)
+                        ? IndexColumnOrder.Descending
+                        : IndexColumnOrder.Ascending;
 
-            var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols);
+                    // a functional index column is defined by an expression instead of a column
+                    if (row.ColumnName == null || !columnLookup.TryGetValue(row.ColumnName, out var column))
+                    {
+                        return !row.Expression.IsNullOrWhiteSpace()
+                            ? new MySqlDatabaseIndexColumn(row.Expression, order)
+                            : null;
+                    }
+
+                    var prefixLength = row.PrefixLength.HasValue
+                        ? Option<int>.Some(row.PrefixLength.Value)
+                        : Option<int>.None;
+
+                    return new MySqlDatabaseIndexColumn(Dialect.QuoteName(column.Name), column, order, prefixLength);
+                })
+                .Where(static col => col != null)
+                .Select(static col => col!)
+                .ToList();
+            if (indexCols.Empty())
+                continue;
+
+            var indexType = indexInfo.Key.IndexType != null && IndexTypeMapping.TryGetValue(indexInfo.Key.IndexType, out var mappedIndexType)
+                ? mappedIndexType
+                : IndexType.Unknown;
+            var isVisible = !string.Equals(indexInfo.Key.IsVisible, Constants.No, StringComparison.OrdinalIgnoreCase);
+
+            var index = new MySqlDatabaseIndex(indexName, isUnique, indexCols, indexType, isVisible);
             result.Add(index);
         }
 
@@ -350,10 +410,13 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (constraintColumns.Empty())
             return [];
 
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+
         var result = new List<IDatabaseKey>(constraintColumns.Count);
         foreach (var uk in constraintColumns)
         {
-            var uniqueKey = new MySqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns);
+            var backingIndex = GetBackingIndex(indexes, uk.ConstraintName);
+            var uniqueKey = new MySqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, backingIndex);
             result.Add(uniqueKey);
         }
         return result;
@@ -770,11 +833,23 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private readonly AsyncLazy<bool> _supportsChecks;
 
+    // information_schema.statistics.index_type values.
+    private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["BTREE"] = IndexType.BTree,
+        ["HASH"] = IndexType.Hash,
+        ["FULLTEXT"] = IndexType.FullText,
+        ["SPATIAL"] = IndexType.Spatial,
+        ["RTREE"] = IndexType.Spatial,
+    };
+
     private static class Constants
     {
         public const string AutoIncrement = "auto_increment";
 
         public const string Delete = "DELETE";
+
+        public const string DescendingSort = "D";
 
         public const string Insert = "INSERT";
 

@@ -1,7 +1,9 @@
 ﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
@@ -101,6 +103,35 @@ internal static class PostgreSqlDatabaseIndexColumnTests
         var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Descending);
 
         Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Descending));
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidNullOrder_ThrowsArgumentException()
+    {
+        const string expression = "\"test\"";
+        var column = Mock.Of<IDatabaseColumn>();
+        const IndexColumnNullOrder nullOrder = (IndexColumnNullOrder)55;
+
+        Assert.That(
+            () => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending, nullOrder, Option<Identifier>.None),
+            Throws.ArgumentException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenNullOrderAndCollation_SetsPropertiesToGivenValues()
+    {
+        const string expression = "\"test\"";
+        var column = Mock.Of<IDatabaseColumn>();
+
+        var indexColumn = new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending, IndexColumnNullOrder.NullsLast, Option<Identifier>.Some("en_US"));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.NullOrder, Is.EqualTo(IndexColumnNullOrder.NullsLast));
+            Assert.That(indexColumn.Collation.UnwrapSome().LocalName, Is.EqualTo("en_US"));
+            Assert.That(indexColumn.PrefixLength, OptionIs.None);
+        }
     }
 
     [TestCase("test_expression", "Index Column: test_expression")]

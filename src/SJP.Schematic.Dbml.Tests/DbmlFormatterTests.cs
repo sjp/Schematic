@@ -575,6 +575,12 @@ internal static class DbmlFormatterTests
         public IReadOnlyList<IDatabaseColumn> DependentColumns { get; } = [];
 
         public IndexColumnOrder Order { get; } = IndexColumnOrder.Ascending;
+
+        public IndexColumnNullOrder NullOrder { get; } = IndexColumnNullOrder.Default;
+
+        public Option<Identifier> Collation { get; } = Option<Identifier>.None;
+
+        public Option<int> PrefixLength { get; } = Option<int>.None;
     }
 
     private static List<IDatabaseColumn> CreateColumns(params string[] columnNames)

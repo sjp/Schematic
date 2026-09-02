@@ -27,6 +27,21 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
     public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled)
+        : this(name, keyType, columns, isEnabled, Option<IDatabaseIndex>.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlServerDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">A key constraint name.</param>
+    /// <param name="keyType">The key type.</param>
+    /// <param name="columns">The columns comprised by the key.</param>
+    /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
+    public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled, Option<IDatabaseIndex> backingIndex)
     {
         ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrAnyNull())
@@ -40,6 +55,7 @@ public class SqlServerDatabaseKey : IDatabaseKey
         KeyType = keyType;
         Columns = columns;
         IsEnabled = isEnabled;
+        BackingIndex = backingIndex;
     }
 
     /// <summary>
@@ -66,6 +82,12 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value><see langword="true" /> if this key constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
+
+    /// <summary>
+    /// The index that the database uses to enforce the key constraint.
+    /// </summary>
+    /// <value>An index, if the database reports one for the constraint.</value>
+    public Option<IDatabaseIndex> BackingIndex { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

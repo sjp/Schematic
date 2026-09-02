@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 
@@ -19,6 +20,16 @@ public class MySqlDatabasePrimaryKey : MySqlDatabaseKey
     /// <param name="columns">A collection of columns.</param>
     public MySqlDatabasePrimaryKey(IReadOnlyCollection<IDatabaseColumn> columns)
         : base(PrimaryKeyName, DatabaseKeyType.Primary, columns)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MySqlDatabasePrimaryKey"/> class.
+    /// </summary>
+    /// <param name="columns">A collection of columns.</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    public MySqlDatabasePrimaryKey(IReadOnlyCollection<IDatabaseColumn> columns, Option<IDatabaseIndex> backingIndex)
+        : base(PrimaryKeyName, DatabaseKeyType.Primary, columns, backingIndex)
     {
     }
 

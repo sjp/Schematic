@@ -189,10 +189,29 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             uniqueKeys,
             parentKeys,
             childKeys,
-            indexes,
+            FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
             triggers
         );
+    }
+
+    // An index that exists only to enforce a primary or unique key constraint is reported by that
+    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes.
+    private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
+        IReadOnlyCollection<IDatabaseIndex> indexes,
+        Option<IDatabaseKey> primaryKey,
+        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+    )
+    {
+        var backingIndexNames = uniqueKeys
+            .Concat(primaryKey.ToList())
+            .SelectMany(static key => key.BackingIndex.ToList())
+            .Select(static index => index.Name)
+            .ToHashSet();
+        if (backingIndexNames.Count == 0)
+            return indexes;
+
+        return indexes.Where(index => !backingIndexNames.Contains(index.Name)).ToList();
     }
 
     /// <summary>
@@ -237,7 +256,10 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             .SelectMany(g => ResolveColumns(g.Value.Select(static row => (Identifier)row.ColumnName), columnLookup))
             .ToList();
 
-        var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled);
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+        var backingIndex = GetBackingIndex(indexes, constraintName);
+
+        var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex);
         return Option<IDatabaseKey>.Some(primaryKey);
     }
 
@@ -276,6 +298,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 row.IsDisabled,
                 row.IsFiltered,
                 row.FilterDefinition,
+                row.IndexType,
+                row.FillFactor,
             })
             .ToList();
         if (indexColumns.Empty())
@@ -322,7 +346,27 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 ? Option<string>.Some(indexInfo.Key.FilterDefinition)
                 : Option<string>.None;
 
-            var index = new DatabaseIndex(indexName, isUnique, indexCols, includedCols, isEnabled, filterDefinition);
+            var indexType = IndexTypeMapping.TryGetValue(indexInfo.Key.IndexType, out var mappedIndexType)
+                ? mappedIndexType
+                : IndexType.Unknown;
+
+            // a fill factor of zero means that the server default is used, i.e. no fill factor was set
+            var fillFactor = indexInfo.Key.FillFactor > 0
+                ? Option<int>.Some(indexInfo.Key.FillFactor)
+                : Option<int>.None;
+
+            var index = new DatabaseIndex(
+                indexName,
+                isUnique,
+                indexCols,
+                includedCols,
+                isEnabled,
+                filterDefinition,
+                indexType,
+                fillFactor,
+                true, // SQL Server has no notion of an invalid index, only a disabled one
+                true // nor of an invisible index
+            );
             result.Add(index);
         }
 
@@ -370,10 +414,13 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         if (constraintColumns.Empty())
             return [];
 
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
+
         var result = new List<IDatabaseKey>(constraintColumns.Count);
         foreach (var uk in constraintColumns)
         {
-            var uniqueKey = new SqlServerDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled);
+            var backingIndex = GetBackingIndex(indexes, uk.ConstraintName);
+            var uniqueKey = new SqlServerDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled, backingIndex);
             result.Add(uniqueKey);
         }
         return result;
@@ -787,6 +834,16 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         return result;
     }
 
+    // SQL Server names the index enforcing a primary or unique key constraint after the constraint itself,
+    // so the two are matched by name.
+    private static Option<IDatabaseIndex> GetBackingIndex(IReadOnlyCollection<IDatabaseIndex> indexes, Identifier constraintName)
+    {
+        var backingIndex = indexes.FirstOrDefault(index => index.Name == constraintName);
+        return backingIndex != null
+            ? Option<IDatabaseIndex>.Some(backingIndex)
+            : Option<IDatabaseIndex>.None;
+    }
+
     // A foreign key can reference a unique index that has no backing UNIQUE constraint, so the referenced key
     // may not appear in a table's unique keys at all. This looks up such indexes by name so they can still be
     // resolved to a key.
@@ -817,6 +874,18 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     {
         public const string PrimaryKeyType = "PK";
     }
+
+    // sys.indexes.type values, see https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-indexes-transact-sql
+    private static readonly IReadOnlyDictionary<int, IndexType> IndexTypeMapping = new Dictionary<int, IndexType>
+    {
+        [1] = IndexType.Clustered,
+        [2] = IndexType.BTree,
+        [3] = IndexType.Xml,
+        [4] = IndexType.Spatial,
+        [5] = IndexType.ColumnStore,
+        [6] = IndexType.ColumnStore,
+        [7] = IndexType.Hash,
+    };
 
     /// <summary>
     /// A query cache provider for SQL Server tables. Ensures that a given query only occurs at most once for a given query context.

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -128,6 +130,52 @@ internal static class DatabaseIndexColumnTests
         var result = indexColumn.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidNullOrder_ThrowsArgumentException()
+    {
+        const string expression = "lower(test_column)";
+        var column = Mock.Of<IDatabaseColumn>();
+        const IndexColumnNullOrder nullOrder = (IndexColumnNullOrder)55;
+
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending, nullOrder, Option<Identifier>.None, Option<int>.None),
+            Throws.ArgumentException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenNoColumnOptions_SetsPropertiesToDefaults()
+    {
+        const string expression = "lower(test_column)";
+        var column = Mock.Of<IDatabaseColumn>();
+
+        var indexColumn = new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.NullOrder, Is.EqualTo(IndexColumnNullOrder.Default));
+            Assert.That(indexColumn.Collation, OptionIs.None);
+            Assert.That(indexColumn.PrefixLength, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenColumnOptions_SetsPropertiesToGivenValues()
+    {
+        const string expression = "lower(test_column)";
+        var column = Mock.Of<IDatabaseColumn>();
+        var collation = Option<Identifier>.Some("NOCASE");
+
+        var indexColumn = new DatabaseIndexColumn(expression, column, IndexColumnOrder.Descending, IndexColumnNullOrder.NullsFirst, collation, Option<int>.Some(10));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.NullOrder, Is.EqualTo(IndexColumnNullOrder.NullsFirst));
+            Assert.That(indexColumn.Collation.UnwrapSome().LocalName, Is.EqualTo("NOCASE"));
+            Assert.That(indexColumn.PrefixLength.UnwrapSome(), Is.EqualTo(10));
+        }
     }
 
     [Test]

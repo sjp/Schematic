@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration;
@@ -96,6 +97,86 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var index = table.Indexes.Single();
 
         Assert.That(index.IsUnique, Is.True);
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithExpressionIndex_ReturnsIndexWithExpressionColumn()
+    {
+        var table = await GetTableAsync("table_test_table_39");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_39_1");
+        var indexColumn = index.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.Expression, Is.EqualTo("lower(test_column_1)"));
+            Assert.That(indexColumn.DependentColumns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "test_column_1" }));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithMixedColumnAndExpressionIndex_ReturnsColumnsInDefinedOrder()
+    {
+        var table = await GetTableAsync("table_test_table_39");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_39_2");
+        var indexColumns = index.Columns.ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumns, Has.Exactly(2).Items);
+            Assert.That(indexColumns[0].DependentColumns.Single().Name.LocalName, Is.EqualTo("test_column_1"));
+            Assert.That(indexColumns[0].Collation.UnwrapSome().LocalName, Is.EqualTo("NOCASE").IgnoreCase);
+            Assert.That(indexColumns[1].Expression, Is.EqualTo("lower(test_column_2)"));
+            Assert.That(indexColumns[1].Order, Is.EqualTo(IndexColumnOrder.Descending));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithUniqueExpressionIndex_ReturnsUniqueIndexWithExpressionColumn()
+    {
+        var table = await GetTableAsync("table_test_table_39");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_39_3");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IsUnique, Is.True);
+            Assert.That(index.Columns.Single().Expression, Is.EqualTo("upper(test_column_1)"));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithConstraintBackedIndexes_DoesNotIncludeThemInIndexes()
+    {
+        var table = await GetTableAsync("table_test_table_39");
+        var indexNames = table.Indexes.Select(i => i.Name.LocalName).ToList();
+
+        Assert.That(indexNames, Is.EquivalentTo(new[] { "ix_test_table_39_1", "ix_test_table_39_2", "ix_test_table_39_3" }));
+    }
+
+    [Test]
+    public async Task UniqueKeys_WhenGivenTableWithUniqueConstraint_ReturnsKeyWithBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_39");
+        var uniqueKey = table.UniqueKeys.Single();
+        var backingIndex = uniqueKey.BackingIndex.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backingIndex.IsUnique, Is.True);
+            Assert.That(backingIndex.Columns.Single().DependentColumns.Single().Name.LocalName, Is.EqualTo("test_column_2"));
+        }
+    }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithCompositePrimaryKey_ReturnsKeyWithBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_40");
+        var primaryKey = table.PrimaryKey.UnwrapSome();
+        var backingIndex = primaryKey.BackingIndex.UnwrapSome();
+        var indexColumnNames = backingIndex.Columns
+            .Select(c => c.DependentColumns.Single().Name.LocalName)
+            .ToList();
+
+        Assert.That(indexColumnNames, Is.EqualTo(new[] { "test_column_1", "test_column_2" }));
     }
 
     [Test]

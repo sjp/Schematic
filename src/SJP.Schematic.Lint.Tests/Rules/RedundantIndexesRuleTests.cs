@@ -410,7 +410,7 @@ internal sealed class RedundantIndexesRuleTests
         return column.Object;
     }
 
-    private static IDatabaseIndex CreateIndex(string indexName, IReadOnlyCollection<IDatabaseIndexColumn> indexColumns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isUnique = false, string filterDefinition = null)
+    private static IDatabaseIndex CreateIndex(string indexName, IReadOnlyCollection<IDatabaseIndexColumn> indexColumns, IReadOnlyCollection<IDatabaseColumn> includedColumns, bool isUnique = false, string filterDefinition = null, IndexType indexType = IndexType.BTree)
     {
         var index = new Mock<IDatabaseIndex>(MockBehavior.Strict);
         index.Setup(c => c.Name).Returns(indexName);
@@ -418,6 +418,7 @@ internal sealed class RedundantIndexesRuleTests
         index.Setup(c => c.IncludedColumns).Returns(includedColumns);
         index.Setup(c => c.IsUnique).Returns(isUnique);
         index.Setup(c => c.FilterDefinition).Returns(filterDefinition == null ? Option<string>.None : Option<string>.Some(filterDefinition));
+        index.Setup(c => c.IndexType).Returns(indexType);
 
         return index.Object;
     }

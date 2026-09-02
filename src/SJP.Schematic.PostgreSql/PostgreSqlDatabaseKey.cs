@@ -26,6 +26,20 @@ public class PostgreSqlDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
     public PostgreSqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
+        : this(name, keyType, columns, Option<IDatabaseIndex>.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PostgreSqlDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">The key constraint name.</param>
+    /// <param name="keyType">Type of the key constraint.</param>
+    /// <param name="columns">A collection of table columns.</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
+    public PostgreSqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, Option<IDatabaseIndex> backingIndex)
     {
         ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrAnyNull())
@@ -38,6 +52,7 @@ public class PostgreSqlDatabaseKey : IDatabaseKey
         Name = Option<Identifier>.Some(name.LocalName);
         KeyType = keyType;
         Columns = columns;
+        BackingIndex = backingIndex;
     }
 
     /// <summary>
@@ -63,6 +78,12 @@ public class PostgreSqlDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// The index that the database uses to enforce the key constraint.
+    /// </summary>
+    /// <value>An index, if the database reports one for the constraint.</value>
+    public Option<IDatabaseIndex> BackingIndex { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

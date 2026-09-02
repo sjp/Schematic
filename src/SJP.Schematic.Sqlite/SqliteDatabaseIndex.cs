@@ -77,6 +77,30 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     public bool IsEnabled { get; } = true;
 
     /// <summary>
+    /// The physical structure used to implement the index.
+    /// </summary>
+    /// <value>Always <see cref="Core.IndexType.BTree"/>. Every SQLite index is a b-tree.</value>
+    public IndexType IndexType { get; } = IndexType.BTree;
+
+    /// <summary>
+    /// The percentage of each index page left free when the index was built.
+    /// </summary>
+    /// <value>Always 'none'. SQLite has no fill factor.</value>
+    public Option<int> FillFactor { get; } = Option<int>.None;
+
+    /// <summary>
+    /// Indicates whether the index is complete and therefore usable by the query planner.
+    /// </summary>
+    /// <value>Always <see langword="true" />. SQLite does not report incomplete indexes.</value>
+    public bool IsValid { get; } = true;
+
+    /// <summary>
+    /// Indicates whether the query planner is permitted to use the index.
+    /// </summary>
+    /// <value>Always <see langword="true" />. SQLite has no invisible indexes.</value>
+    public bool IsVisible { get; } = true;
+
+    /// <summary>
     /// If the index is filtered to a subset of rows, contains the expression for the subset of rows included in the filtered index.
     /// </summary>
     public Option<string> FilterDefinition { get; }

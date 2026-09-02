@@ -485,7 +485,83 @@ public class EFCoreDbContextBuilder
                                     Literal(index.Name.LocalName))))));
         }
 
+        index.FilterDefinition.IfSome(filterDefinition =>
+        {
+            indexBuilder = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    indexBuilder,
+                    IdentifierName(nameof(RelationalIndexBuilderExtensions.HasFilter))))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal(filterDefinition))))));
+        });
+
+        // The remaining calls are provider-specific extension methods (SqlServerIndexBuilderExtensions,
+        // NpgsqlIndexBuilderExtensions). They are named rather than referenced, because this project
+        // only depends on EF Core's relational package. Only the dialect that owns each concept can
+        // produce the value that triggers it, so a generated context never calls into a provider that
+        // the source database did not come from.
+        if (index.IndexType == IndexType.Clustered)
+        {
+            indexBuilder = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    indexBuilder,
+                    IdentifierName("IsClustered")));
+        }
+
+        index.FillFactor.IfSome(fillFactor =>
+        {
+            indexBuilder = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    indexBuilder,
+                    IdentifierName("HasFillFactor")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                LiteralExpression(
+                                    SyntaxKind.NumericLiteralExpression,
+                                    Literal(fillFactor))))));
+        });
+
+        var accessMethod = GetIndexAccessMethod(index.IndexType);
+        if (accessMethod != null)
+        {
+            indexBuilder = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    indexBuilder,
+                    IdentifierName("HasMethod")))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList(
+                            Argument(
+                                LiteralExpression(
+                                    SyntaxKind.StringLiteralExpression,
+                                    Literal(accessMethod))))));
+        }
+
         return indexBuilder;
+    }
+
+    // The PostgreSQL access method name for an index structure that is not the provider's default,
+    // or null when the structure does not name one.
+    private static string? GetIndexAccessMethod(IndexType indexType)
+    {
+        return indexType switch
+        {
+            IndexType.Gin => "gin",
+            IndexType.Gist => "gist",
+            IndexType.Brin => "brin",
+            _ => null,
+        };
     }
 
     private InvocationExpressionSyntax BuildTableUniqueKeyForBuilder(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)

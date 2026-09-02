@@ -162,6 +162,29 @@ internal static class DatabaseKeyTests
     }
 
     [Test]
+    public static void BackingIndex_WhenNotProvidedInCtor_ReturnsNone()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true);
+
+        Assert.That(key.BackingIndex, OptionIs.None);
+    }
+
+    [Test]
+    public static void BackingIndex_WhenProvidedInCtor_ReturnsGivenIndex()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+        var backingIndex = Mock.Of<IDatabaseIndex>();
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.Some(backingIndex));
+
+        Assert.That(key.BackingIndex.UnwrapSome(), Is.SameAs(backingIndex));
+    }
+
+    [Test]
     public static void Columns_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
     {
         Identifier keyName = "test_key";

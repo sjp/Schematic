@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration;
@@ -176,5 +177,41 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var index = table.Indexes.Single();
 
         Assert.That(index.FilterDefinition.UnwrapSome(), Is.EqualTo("(test_column > 100)"));
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithBtreeIndex_ReturnsBTreeIndexType()
+    {
+        var table = await GetTableAsync("table_test_table_8");
+        var index = table.Indexes.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(index.IndexType, Is.EqualTo(IndexType.BTree));
+            Assert.That(index.IsValid, Is.True);
+            Assert.That(index.IsVisible, Is.True);
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenAscendingIndexColumn_ReturnsNullsLastOrdering()
+    {
+        var table = await GetTableAsync("table_test_table_8");
+        var indexColumn = table.Indexes.Single().Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.NullOrder, Is.EqualTo(IndexColumnNullOrder.NullsLast));
+            Assert.That(indexColumn.Collation, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithKeyConstraints_DoesNotIncludeTheirBackingIndexes()
+    {
+        var table = await GetTableAsync("table_test_table_15");
+        var indexNames = table.Indexes.Select(i => i.Name.LocalName).ToList();
+
+        Assert.That(indexNames, Is.EqualTo(new[] { "ix_test_table_15" }));
     }
 }
