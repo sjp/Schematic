@@ -19,8 +19,8 @@ internal sealed class OracleDatabaseSimpleRoutineProviderTests : OracleTest
     public async Task Init()
     {
         await DbConnection.ExecuteAsync(@"
-create or replace FUNCTION db_test_routine_1()
-   RETURN NUMBER(1)
+create or replace FUNCTION db_test_routine_1
+   RETURN NUMBER
    IS test_col NUMBER(1);
    BEGIN
       SELECT 1 as dummy
@@ -224,8 +224,8 @@ END;", CancellationToken.None);
     public async Task Definition_GivenFunction_ReturnsCorrectDefinition()
     {
         var routine = await GetRoutineAsync("DB_TEST_ROUTINE_1");
-        const string expectedDefinition = @"FUNCTION db_test_routine_1()
-   RETURN NUMBER(1)
+        const string expectedDefinition = @"FUNCTION db_test_routine_1
+   RETURN NUMBER
    IS test_col NUMBER(1);
    BEGIN
       SELECT 1 as dummy
