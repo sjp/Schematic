@@ -96,6 +96,62 @@ internal static class PostgreSqlColumnTypeMetadata
         return metadata;
     }
 
+    /// <summary>
+    /// Determines the length declared by a column's type. Character and bit string types declare a
+    /// maximum length, while the numeric types instead declare a precision.
+    /// </summary>
+    /// <param name="characterMaximumLength">The declared maximum length of a character or bit string type, otherwise zero.</param>
+    /// <param name="numericPrecision">The declared precision of a numeric type, otherwise zero.</param>
+    /// <param name="numericPrecisionRadix">The base <paramref name="numericPrecision"/> is expressed in, otherwise zero.</param>
+    /// <returns>A length in characters for a character type, or in decimal digits for a numeric one.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Any of the arguments is less than zero.</exception>
+    public static int CreateMaxLength(int characterMaximumLength, int numericPrecision, int numericPrecisionRadix)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(characterMaximumLength);
+        ArgumentOutOfRangeException.ThrowIfNegative(numericPrecision);
+        ArgumentOutOfRangeException.ThrowIfNegative(numericPrecisionRadix);
+
+        return characterMaximumLength > 0
+            ? characterMaximumLength
+            : ToDecimalDigits(numericPrecision, numericPrecisionRadix);
+    }
+
+    /// <summary>
+    /// Describes the precision and scale of a numeric column, in decimal digits.
+    /// </summary>
+    /// <param name="numericPrecision">The declared precision of a numeric type, otherwise zero.</param>
+    /// <param name="numericScale">The declared scale of an exact numeric type, otherwise zero.</param>
+    /// <param name="numericPrecisionRadix">The base the precision and scale are expressed in, or zero when the column's type is not numeric.</param>
+    /// <returns>A numeric precision, or <see cref="Option{A}.None"/> when the column's type is not a numeric one.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">Any of the arguments is less than zero.</exception>
+    public static Option<INumericPrecision> CreateNumericPrecision(int numericPrecision, int numericScale, int numericPrecisionRadix)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(numericPrecision);
+        ArgumentOutOfRangeException.ThrowIfNegative(numericScale);
+        ArgumentOutOfRangeException.ThrowIfNegative(numericPrecisionRadix);
+
+        // only a numeric type has a radix, so its absence means there is no precision to report
+        if (numericPrecisionRadix == 0)
+            return Option<INumericPrecision>.None;
+
+        return Option<INumericPrecision>.Some(new NumericPrecision(
+            ToDecimalDigits(numericPrecision, numericPrecisionRadix),
+            ToDecimalDigits(numericScale, numericPrecisionRadix)));
+    }
+
+    // information_schema expresses a numeric type's precision and scale in the base given by
+    // numeric_precision_radix, which is 2 for the floating point types and 10 for numeric and
+    // decimal. A precision of n digits in base b spans values up to b^n - 1, so a binary precision
+    // is reported as the number of decimal digits that range requires, e.g. float8's 53 binary
+    // digits become 16 decimal ones.
+    private static int ToDecimalDigits(int digits, int radix)
+    {
+        if (digits == 0 || radix == 10 || radix < 2)
+            return digits;
+
+        return (int)Math.Ceiling(digits * Math.Log10(radix));
+    }
+
     private static Identifier GetUserTypeName(CatalogTypeInfo source)
     {
         return source.UdtName.IsNullOrWhiteSpace()

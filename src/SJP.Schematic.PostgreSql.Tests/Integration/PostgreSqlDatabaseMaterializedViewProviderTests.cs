@@ -24,6 +24,9 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         await DbConnection.ExecuteAsync("create table matview_view_test_table_1 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create view matview_view_test_view_2 as select table_id as test from matview_view_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("create materialized view matview_view_test_matview_1 as select table_id as test from matview_view_test_table_1", CancellationToken.None);
+
+        await DbConnection.ExecuteAsync("create table matview_view_test_table_2 (test_varchar varchar(50), test_numeric numeric(12, 4), test_float float8)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create materialized view matview_view_test_matview_2 as select test_varchar, test_numeric, test_float from matview_view_test_table_2", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -34,6 +37,9 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         await DbConnection.ExecuteAsync("drop view matview_view_test_view_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop view matview_view_test_view_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop materialized view matview_view_test_matview_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop materialized view matview_view_test_matview_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table matview_view_test_table_2", CancellationToken.None);
+
         await DbConnection.ExecuteAsync("drop table matview_view_test_table_1", CancellationToken.None);
     }
 
@@ -256,5 +262,46 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var view = await GetViewAsync("matview_view_test_matview_1");
 
         Assert.That(view.IsMaterialized, Is.True);
+    }
+
+    [Test]
+    public async Task Columns_WhenViewColumnIsCharacterType_ContainsDeclaredMaxLength()
+    {
+        var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_2");
+        var view = await GetViewAsync(viewName);
+        var column = view.Columns.Single(c => c.Name == "test_varchar");
+
+        Assert.That(column.Type.MaxLength, Is.EqualTo(50));
+    }
+
+    [Test]
+    public async Task Columns_WhenViewColumnIsExactNumericType_ContainsDeclaredPrecisionAndScale()
+    {
+        var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_2");
+        var view = await GetViewAsync(viewName);
+        var column = view.Columns.Single(c => c.Name == "test_numeric");
+        var precision = column.Type.NumericPrecision.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(precision.Precision, Is.EqualTo(12));
+            Assert.That(precision.Scale, Is.EqualTo(4));
+        }
+    }
+
+    // float8 declares 53 binary digits of precision, reported as the 16 decimal digits they span
+    [Test]
+    public async Task Columns_WhenViewColumnIsApproximateNumericType_ContainsPrecisionInDecimalDigits()
+    {
+        var viewName = new Identifier(IdentifierDefaults.Schema, "matview_view_test_matview_2");
+        var view = await GetViewAsync(viewName);
+        var column = view.Columns.Single(c => c.Name == "test_float");
+        var precision = column.Type.NumericPrecision.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.MaxLength, Is.EqualTo(16));
+            Assert.That(precision.Precision, Is.EqualTo(16));
+        }
     }
 }

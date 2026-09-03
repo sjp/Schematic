@@ -700,12 +700,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     !row.CollationName.IsNullOrWhiteSpace()
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
-                    row.CharacterMaximumLength > 0
-                        ? row.CharacterMaximumLength
-                        : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
-                    row.NumericPrecisionRadix > 0
-                        ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
-                        : Option<INumericPrecision>.None);
+                    PostgreSqlColumnTypeMetadata.CreateMaxLength(row.CharacterMaximumLength, row.NumericPrecision, row.NumericPrecisionRadix),
+                    PostgreSqlColumnTypeMetadata.CreateNumericPrecision(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix));
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
@@ -910,48 +906,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     {
         var columns = uniqueIndex.Columns.SelectMany(static ic => ic.DependentColumns).ToList();
         return new PostgreSqlDatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns);
-    }
-
-    /// <summary>
-    /// Creates a numeric precision given a base.
-    /// </summary>
-    /// <param name="precision">The numeric precision.</param>
-    /// <param name="radix">The radix.</param>
-    /// <returns>A numeric precision object.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="radix"/> is less than zero.</exception>
-    protected static int CreatePrecisionFromBase(int precision, int radix)
-    {
-        if (precision <= 0)
-            return 0;
-        ArgumentOutOfRangeException.ThrowIfNegative(radix);
-
-        var newPrecision = Convert.ToInt64(Math.Pow(precision, radix));
-        var newPrecisionStr = newPrecision.ToString(CultureInfo.InvariantCulture);
-
-        return newPrecisionStr.Length;
-    }
-
-    /// <summary>
-    /// Creates a numeric precision with scale, given a base.
-    /// </summary>
-    /// <param name="precision">The numeric precision.</param>
-    /// <param name="scale">The numeric scale.</param>
-    /// <param name="radix">The radix.</param>
-    /// <returns>A numeric precision object.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="precision"/> or <paramref name="scale"/> or <paramref name="radix"/> are less than zero.</exception>
-    protected static INumericPrecision CreatePrecisionWithScaleFromBase(int precision, int scale, int radix)
-    {
-        ArgumentOutOfRangeException.ThrowIfNegative(precision);
-        ArgumentOutOfRangeException.ThrowIfNegative(scale);
-        ArgumentOutOfRangeException.ThrowIfNegative(radix);
-
-        var newPrecision = Convert.ToInt64(Math.Pow(precision, radix));
-        var newPrecisionStr = newPrecision.ToString(CultureInfo.InvariantCulture);
-
-        var newScale = Convert.ToInt64(Math.Pow(scale, radix));
-        var newScaleStr = newScale.ToString(CultureInfo.InvariantCulture);
-
-        return new NumericPrecision(newPrecisionStr.Length, newScaleStr.Length);
     }
 
     /// <summary>

@@ -288,10 +288,8 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
                     !row.CollationName.IsNullOrWhiteSpace()
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
-                    //TODO -- need to fix max length as it's different for char-like objects and numeric
-                    0,
-                    // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    new NumericPrecision(row.NumericPrecision, row.NumericScale));
+                    PostgreSqlColumnTypeMetadata.CreateMaxLength(row.CharacterMaximumLength, row.NumericPrecision, row.NumericPrecisionRadix),
+                    PostgreSqlColumnTypeMetadata.CreateNumericPrecision(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix));
 
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

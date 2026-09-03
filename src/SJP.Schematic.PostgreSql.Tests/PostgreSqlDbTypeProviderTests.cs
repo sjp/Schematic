@@ -239,4 +239,69 @@ internal static class PostgreSqlDbTypeProviderTests
             Assert.That(columnType.DataType, Is.EqualTo(DataType.Integer));
         }
     }
+
+    // a character type declares its length, while a numeric one declares a precision instead
+    [TestCase(50, 0, 0, 50)]
+    [TestCase(0, 10, 10, 10)]
+    [TestCase(0, 0, 0, 0)]
+    public static void CreateMaxLength_GivenCatalogLengths_ReturnsExpectedLength(int characterMaximumLength, int numericPrecision, int numericPrecisionRadix, int expectedLength)
+    {
+        var maxLength = PostgreSqlColumnTypeMetadata.CreateMaxLength(characterMaximumLength, numericPrecision, numericPrecisionRadix);
+
+        Assert.That(maxLength, Is.EqualTo(expectedLength));
+    }
+
+    // float8's 53 binary digits span values up to 2^53 - 1, which needs 16 decimal digits
+    [Test]
+    public static void CreateMaxLength_GivenBinaryPrecision_ReturnsDecimalDigitCount()
+    {
+        var maxLength = PostgreSqlColumnTypeMetadata.CreateMaxLength(0, 53, 2);
+
+        Assert.That(maxLength, Is.EqualTo(16));
+    }
+
+    [Test]
+    public static void CreateMaxLength_GivenNegativeLength_ThrowsArgumentOutOfRangeException()
+    {
+        Assert.That(() => PostgreSqlColumnTypeMetadata.CreateMaxLength(-1, 0, 0), Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
+
+    // only a numeric type has a radix, so its absence means there is no precision to report
+    [Test]
+    public static void CreateNumericPrecision_GivenNonNumericColumn_ReturnsNone()
+    {
+        var precision = PostgreSqlColumnTypeMetadata.CreateNumericPrecision(0, 0, 0);
+
+        Assert.That(precision, OptionIs.None);
+    }
+
+    [Test]
+    public static void CreateNumericPrecision_GivenDecimalPrecision_ReturnsPrecisionAsDeclared()
+    {
+        var precision = PostgreSqlColumnTypeMetadata.CreateNumericPrecision(10, 2, 10).UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(precision.Precision, Is.EqualTo(10));
+            Assert.That(precision.Scale, Is.EqualTo(2));
+        }
+    }
+
+    [Test]
+    public static void CreateNumericPrecision_GivenBinaryPrecision_ReturnsPrecisionInDecimalDigits()
+    {
+        var precision = PostgreSqlColumnTypeMetadata.CreateNumericPrecision(53, 0, 2).UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(precision.Precision, Is.EqualTo(16));
+            Assert.That(precision.Scale, Is.Zero);
+        }
+    }
+
+    [Test]
+    public static void CreateNumericPrecision_GivenNegativePrecision_ThrowsArgumentOutOfRangeException()
+    {
+        Assert.That(() => PostgreSqlColumnTypeMetadata.CreateNumericPrecision(-1, 0, 10), Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
 }
