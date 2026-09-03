@@ -33,7 +33,9 @@ public class DatabaseKeyMapper
             source.KeyType,
             columnMapper.MapList(source.Columns),
             source.IsEnabled,
-            backingIndex
+            backingIndex,
+            source.IsValidated,
+            source.Deferrability
         );
     }
 
@@ -55,6 +57,8 @@ public class DatabaseKeyMapper
             Columns = columnMapper.MapList(source.Columns),
             IsEnabled = source.IsEnabled,
             BackingIndex = source.BackingIndex.MatchUnsafe(indexMapper.Map, (Dto.DatabaseIndex?)null),
+            IsValidated = source.IsValidated,
+            Deferrability = source.Deferrability,
         };
     }
 

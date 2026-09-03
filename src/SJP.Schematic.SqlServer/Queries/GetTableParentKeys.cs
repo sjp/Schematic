@@ -32,6 +32,12 @@ internal static class GetTableParentKeys
         public required int UpdateAction { get; init; }
 
         public required bool IsDisabled { get; init; }
+
+        /// <summary>
+        /// Set when the foreign key was created or re-enabled <c>WITH NOCHECK</c>, i.e. SQL Server has
+        /// not verified the existing rows against it.
+        /// </summary>
+        public required bool IsNotTrusted { get; init; }
     }
 
     internal const string Sql = @$"
@@ -45,7 +51,8 @@ select
     coalesce(kc.type, 'UQ') as [{nameof(Result.ParentKeyType)}],
     fk.delete_referential_action as [{nameof(Result.DeleteAction)}],
     fk.update_referential_action as [{nameof(Result.UpdateAction)}],
-    fk.is_disabled as [{nameof(Result.IsDisabled)}]
+    fk.is_disabled as [{nameof(Result.IsDisabled)}],
+    fk.is_not_trusted as [{nameof(Result.IsNotTrusted)}]
 from sys.tables parent_t
 inner join sys.foreign_keys fk on parent_t.object_id = fk.referenced_object_id
 inner join sys.tables child_t on fk.parent_object_id = child_t.object_id

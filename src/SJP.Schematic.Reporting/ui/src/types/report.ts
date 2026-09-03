@@ -73,6 +73,10 @@ export interface TableColumn {
 export interface KeyConstraint {
   constraintName: string;
   columnNames: string;
+  /** Whether the database has verified the existing rows against the constraint. */
+  isValidated: boolean;
+  /** Display name of the deferrability, e.g. `DEFERRABLE INITIALLY DEFERRED`. Empty when the constraint cannot be deferred. */
+  deferrabilityDescription: string;
 }
 
 export interface ForeignKeyConstraint {
@@ -84,11 +88,21 @@ export interface ForeignKeyConstraint {
   parentColumnNames: string;
   deleteActionDescription: string;
   updateActionDescription: string;
+  /** Whether the database has verified the existing rows against the constraint. */
+  isValidated: boolean;
+  /** Display name of the deferrability, e.g. `DEFERRABLE INITIALLY DEFERRED`. Empty when the constraint cannot be deferred. */
+  deferrabilityDescription: string;
+  /** Display name of the match type, e.g. `MATCH FULL`. Empty for the default behaviour. */
+  matchTypeDescription: string;
 }
 
 export interface CheckConstraint {
   constraintName: string;
   definition: string;
+  /** Whether the database has verified the existing rows against the constraint. */
+  isValidated: boolean;
+  /** Display name of the deferrability, e.g. `DEFERRABLE INITIALLY DEFERRED`. Empty when the constraint cannot be deferred. */
+  deferrabilityDescription: string;
 }
 
 export interface TableIndex {
@@ -351,6 +365,10 @@ interface ConstraintBase {
   /** Hash route to the owning table. */
   tableUrl: string;
   constraintName: string;
+  /** Whether the database has verified the existing rows against the constraint. */
+  isValidated: boolean;
+  /** Display name of the deferrability, e.g. `DEFERRABLE INITIALLY DEFERRED`. Empty when the constraint cannot be deferred. */
+  deferrabilityDescription: string;
 }
 
 export interface PrimaryKeyConstraintRow extends ConstraintBase {
@@ -370,6 +388,8 @@ export interface ForeignKeyRow extends ConstraintBase {
   parentColumnNames: string;
   deleteActionDescription: string;
   updateActionDescription: string;
+  /** Display name of the match type, e.g. `MATCH FULL`. Empty for the default behaviour. */
+  matchTypeDescription: string;
 }
 
 export interface CheckConstraintRow extends ConstraintBase {

@@ -55,6 +55,46 @@ internal static class DatabaseCheckConstraintTests
         Assert.That(check.IsEnabled, Is.False);
     }
 
+    [Test]
+    public static void Ctor_GivenInvalidDeferrability_ThrowsArgumentException()
+    {
+        const ConstraintDeferrability deferrability = (ConstraintDeferrability)55;
+
+        Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true, true, deferrability), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void IsValidated_WhenNotProvidedInCtor_ReturnsTrue()
+    {
+        var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true);
+
+        Assert.That(check.IsValidated, Is.True);
+    }
+
+    [Test]
+    public static void IsValidated_WhenFalseProvidedInCtor_ReturnsFalse()
+    {
+        var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true, false, ConstraintDeferrability.NotDeferrable);
+
+        Assert.That(check.IsValidated, Is.False);
+    }
+
+    [Test]
+    public static void Deferrability_WhenNotProvidedInCtor_ReturnsNotDeferrable()
+    {
+        var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true);
+
+        Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+    }
+
+    [Test]
+    public static void Deferrability_WhenProvidedInCtor_ReturnsGivenValue()
+    {
+        var check = new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true, true, ConstraintDeferrability.DeferrableInitiallyImmediate);
+
+        Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyImmediate));
+    }
+
     [TestCase(null, "Check")]
     [TestCase("test_check", "Check: test_check")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)

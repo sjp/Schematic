@@ -36,7 +36,7 @@ internal static class DefaultHtmlRuleProviderTests
 
         var rules = provider.GetRules(mockConnection.Object, RuleLevel.Warning).ToList();
 
-        Assert.That(rules, Has.Count.EqualTo(39));
+        Assert.That(rules, Has.Count.EqualTo(40));
     }
 
     [Test]

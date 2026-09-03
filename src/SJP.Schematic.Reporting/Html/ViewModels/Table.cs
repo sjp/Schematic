@@ -167,12 +167,21 @@ public sealed class Table
     /// </summary>
     public abstract class TableConstraint
     {
-        protected TableConstraint(string constraintName)
+        protected TableConstraint(string constraintName, bool isValidated, ConstraintDeferrability deferrability)
         {
+            if (!deferrability.IsValid())
+                throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
+
             ConstraintName = constraintName;
+            IsValidated = isValidated;
+            DeferrabilityDescription = ConstraintStateNames.GetDeferrabilityName(deferrability);
         }
 
         public string ConstraintName { get; }
+
+        public bool IsValidated { get; }
+
+        public string DeferrabilityDescription { get; }
     }
 
     /// <summary>
@@ -180,8 +189,8 @@ public sealed class Table
     /// </summary>
     public sealed class PrimaryKeyConstraint : TableConstraint
     {
-        public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns)
-            : base(constraintName)
+        public PrimaryKeyConstraint(string constraintName, IEnumerable<string> columns, bool isValidated, ConstraintDeferrability deferrability)
+            : base(constraintName, isValidated, deferrability)
         {
             ArgumentNullException.ThrowIfNull(columns);
             if (columns.Empty())
@@ -198,8 +207,8 @@ public sealed class Table
     /// </summary>
     public sealed class UniqueKey : TableConstraint
     {
-        public UniqueKey(string constraintName, IEnumerable<string> columns)
-            : base(constraintName)
+        public UniqueKey(string constraintName, IEnumerable<string> columns, bool isValidated, ConstraintDeferrability deferrability)
+            : base(constraintName, isValidated, deferrability)
         {
             ArgumentNullException.ThrowIfNull(columns);
             if (columns.Empty())
@@ -223,8 +232,11 @@ public sealed class Table
             string parentConstraintName,
             IEnumerable<string> parentColumnNames,
             ReferentialAction deleteAction,
-            ReferentialAction updateAction
-        ) : base(constraintName)
+            ReferentialAction updateAction,
+            bool isValidated,
+            ConstraintDeferrability deferrability,
+            ForeignKeyMatchType matchType
+        ) : base(constraintName, isValidated, deferrability)
         {
             ArgumentNullException.ThrowIfNull(columnNames);
             if (columnNames.Empty())
@@ -237,6 +249,8 @@ public sealed class Table
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
+            if (!matchType.IsValid())
+                throw new ArgumentException($"The {nameof(ForeignKeyMatchType)} provided must be a valid enum.", nameof(matchType));
 
             ChildColumnNames = columnNames.Join(", ");
             ParentConstraintName = parentConstraintName;
@@ -246,6 +260,7 @@ public sealed class Table
 
             DeleteActionDescription = GetActionDescription(deleteAction);
             UpdateActionDescription = GetActionDescription(updateAction);
+            MatchTypeDescription = ConstraintStateNames.GetMatchTypeName(matchType);
         }
 
         public string ParentConstraintName { get; }
@@ -261,6 +276,8 @@ public sealed class Table
         public string DeleteActionDescription { get; }
 
         public string UpdateActionDescription { get; }
+
+        public string MatchTypeDescription { get; }
 
         private static string GetActionDescription(ReferentialAction action) => action switch
         {
@@ -278,8 +295,8 @@ public sealed class Table
     /// </summary>
     public sealed class CheckConstraint : TableConstraint
     {
-        public CheckConstraint(string constraintName, string definition)
-            : base(constraintName)
+        public CheckConstraint(string constraintName, string definition, bool isValidated, ConstraintDeferrability deferrability)
+            : base(constraintName, isValidated, deferrability)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 

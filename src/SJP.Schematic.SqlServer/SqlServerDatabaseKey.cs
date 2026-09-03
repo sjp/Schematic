@@ -42,6 +42,22 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
     public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled, Option<IDatabaseIndex> backingIndex)
+        : this(name, keyType, columns, isEnabled, backingIndex, true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlServerDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">A key constraint name.</param>
+    /// <param name="keyType">The key type.</param>
+    /// <param name="columns">The columns comprised by the key.</param>
+    /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <param name="isValidated">Whether SQL Server trusts the constraint, i.e. <c>is_not_trusted</c> is not set.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is an invalid enum value.</exception>
+    public SqlServerDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled, Option<IDatabaseIndex> backingIndex, bool isValidated)
     {
         ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrAnyNull())
@@ -56,6 +72,7 @@ public class SqlServerDatabaseKey : IDatabaseKey
         Columns = columns;
         IsEnabled = isEnabled;
         BackingIndex = backingIndex;
+        IsValidated = isValidated;
     }
 
     /// <summary>
@@ -82,6 +99,19 @@ public class SqlServerDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value><see langword="true" /> if this key constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
+
+    /// <summary>
+    /// Indicates whether SQL Server trusts the key constraint, i.e. the existing rows have been
+    /// verified against it. Only a foreign key created or re-enabled <c>WITH NOCHECK</c> is untrusted.
+    /// </summary>
+    /// <value><see langword="true" /> if the constraint is trusted; otherwise, <see langword="false" />.</value>
+    public bool IsValidated { get; }
+
+    /// <summary>
+    /// Always <see cref="ConstraintDeferrability.NotDeferrable"/>; SQL Server has no deferrable constraints.
+    /// </summary>
+    /// <value><see cref="ConstraintDeferrability.NotDeferrable"/>.</value>
+    public ConstraintDeferrability Deferrability { get; } = ConstraintDeferrability.NotDeferrable;
 
     /// <summary>
     /// The index that the database uses to enforce the key constraint.

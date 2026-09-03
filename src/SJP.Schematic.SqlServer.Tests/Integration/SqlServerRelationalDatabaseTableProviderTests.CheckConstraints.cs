@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration;
@@ -49,5 +50,31 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var check = table.Checks.Single();
 
         Assert.That(check.IsEnabled, Is.False);
+    }
+
+    [Test]
+    public async Task Checks_WhenGivenTableWithEnabledCheck_ReturnsIsValidatedTrue()
+    {
+        var table = await GetTableAsync("table_test_table_14");
+        var check = table.Checks.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.IsValidated, Is.True);
+            Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
+    }
+
+    [Test]
+    public async Task Checks_WhenGivenUntrustedCheck_ReturnsIsValidatedFalse()
+    {
+        var table = await GetTableAsync("untrusted_constraint_child");
+        var check = table.Checks.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.IsEnabled, Is.True);
+            Assert.That(check.IsValidated, Is.False);
+        }
     }
 }

@@ -80,6 +80,19 @@ public class MySqlDatabaseKey : IDatabaseKey
     public bool IsEnabled { get; } = true;
 
     /// <summary>
+    /// Indicates whether the existing rows have been verified against the key constraint. Always
+    /// <see langword="true" />; MySQL has no unvalidated key constraints.
+    /// </summary>
+    /// <value>Always <see langword="true" />.</value>
+    public bool IsValidated { get; } = true;
+
+    /// <summary>
+    /// Always <see cref="ConstraintDeferrability.NotDeferrable"/>; MySQL has no deferrable constraints.
+    /// </summary>
+    /// <value><see cref="ConstraintDeferrability.NotDeferrable"/>.</value>
+    public ConstraintDeferrability Deferrability { get; } = ConstraintDeferrability.NotDeferrable;
+
+    /// <summary>
     /// The index that the database uses to enforce the key constraint.
     /// </summary>
     /// <value>An index, if the database reports one for the constraint.</value>

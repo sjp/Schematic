@@ -51,6 +51,20 @@ public class MySqlCheckConstraint : IDatabaseCheckConstraint
     public bool IsEnabled { get; }
 
     /// <summary>
+    /// Indicates whether the existing rows have been verified against the constraint. Always
+    /// <see langword="true" />; MySQL validates a check constraint's data when it is added, and
+    /// reports an unenforced constraint through <see cref="IsEnabled"/> instead.
+    /// </summary>
+    /// <value>Always <see langword="true" />.</value>
+    public bool IsValidated { get; } = true;
+
+    /// <summary>
+    /// Always <see cref="ConstraintDeferrability.NotDeferrable"/>; MySQL has no deferrable constraints.
+    /// </summary>
+    /// <value><see cref="ConstraintDeferrability.NotDeferrable"/>.</value>
+    public ConstraintDeferrability Deferrability { get; } = ConstraintDeferrability.NotDeferrable;
+
+    /// <summary>
     /// Returns a string that provides a basic string representation of this object.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>

@@ -2,6 +2,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { KeyRound } from "lucide-react";
 import { useMemo } from "react";
 
+import { ConstraintStatus } from "@/components/ConstraintStatus";
 import { DataTable } from "@/components/DataTable";
 import { useSummary } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
@@ -55,6 +56,11 @@ export function ConstraintsPage() {
       },
       { accessorKey: "constraintName", header: "Constraint" },
       { accessorKey: "columnNames", header: "Columns" },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }: { row: { original: T } }) => <ConstraintStatus {...row.original} />,
+      },
     ] as ColumnDef<AppTableFeatures, T>[];
 
   const pkColumns = useMemo(() => keyColumns<PrimaryKeyConstraintRow>(), []);
@@ -79,6 +85,12 @@ export function ConstraintsPage() {
       { accessorKey: "parentColumnNames", header: "Parent Columns" },
       { accessorKey: "deleteActionDescription", header: "On Delete" },
       { accessorKey: "updateActionDescription", header: "On Update" },
+      { accessorKey: "matchTypeDescription", header: "Match" },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => <ConstraintStatus {...row.original} />,
+      },
     ],
     [],
   );
@@ -95,6 +107,11 @@ export function ConstraintsPage() {
         accessorKey: "definition",
         header: "Definition",
         cell: ({ getValue }) => <code className="text-xs">{getValue<string>()}</code>,
+      },
+      {
+        id: "status",
+        header: "Status",
+        cell: ({ row }) => <ConstraintStatus {...row.original} />,
       },
     ],
     [],

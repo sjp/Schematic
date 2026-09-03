@@ -269,6 +269,17 @@ create table table_test_table_45 (
     primary key (test_column desc)
 )", CancellationToken.None);
 
+        await DbConnection.ExecuteAsync(@"
+create table deferrable_fk_parent (
+    test_column integer not null primary key
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table deferrable_fk_child (
+    test_column integer,
+    constraint fk_deferrable_fk_child foreign key (test_column) references deferrable_fk_parent (test_column)
+        match full deferrable initially deferred
+)", CancellationToken.None);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
@@ -356,6 +367,9 @@ end", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_43", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_44", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_45", CancellationToken.None);
+
+        await DbConnection.ExecuteAsync("drop table deferrable_fk_child", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table deferrable_fk_parent", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }

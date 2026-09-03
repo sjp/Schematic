@@ -311,4 +311,19 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenDeferrableMatchFullForeignKey_ReturnsDeclaredConstraintState()
+    {
+        var table = await GetTableAsync("deferrable_fk_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.True);
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Full));
+            Assert.That(foreignKey.SetNullColumns, Is.Empty);
+        }
+    }
 }

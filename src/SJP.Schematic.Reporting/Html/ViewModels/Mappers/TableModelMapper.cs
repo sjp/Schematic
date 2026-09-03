@@ -123,13 +123,17 @@ internal sealed class TableModelMapper
         var renderPrimaryKey = primaryKey
             .Map(pk => new Table.PrimaryKeyConstraint(
                 pk.Name.Match(static name => name.LocalName, static () => string.Empty),
-                pk.Columns.Select(static c => c.Name.LocalName).ToList()
+                pk.Columns.Select(static c => c.Name.LocalName).ToList(),
+                pk.IsValidated,
+                pk.Deferrability
             ));
 
         var renderUniqueKeys = uniqueKeys
             .ConvertAll(uk => new Table.UniqueKey(
                 uk.Name.Match(static name => name.LocalName, static () => string.Empty),
-                uk.Columns.Select(static c => c.Name.LocalName).ToList()
+                uk.Columns.Select(static c => c.Name.LocalName).ToList(),
+                uk.IsValidated,
+                uk.Deferrability
             ));
 
         var renderParentKeys = parentKeys.ConvertAll(pk =>
@@ -140,13 +144,18 @@ internal sealed class TableModelMapper
                 pk.ParentKey.Name.Match(static name => name.LocalName, static () => string.Empty),
                 pk.ParentKey.Columns.Select(static c => c.Name.LocalName).ToList(),
                 pk.DeleteAction,
-                pk.UpdateAction
+                pk.UpdateAction,
+                pk.ChildKey.IsValidated,
+                pk.ChildKey.Deferrability,
+                pk.MatchType
             ));
 
         var renderChecks = checks.ConvertAll(c =>
             new Table.CheckConstraint(
                 c.Name.Match(static name => name.LocalName, static () => string.Empty),
-                c.Definition
+                c.Definition,
+                c.IsValidated,
+                c.Deferrability
             ));
 
         var renderTriggers = triggers.ConvertAll(tr =>

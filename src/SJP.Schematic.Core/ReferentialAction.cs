@@ -7,7 +7,9 @@
 public enum ReferentialAction
 {
     /// <summary>
-    /// Do nothing. That is, just ignore the constraint.
+    /// <para>Do nothing. That is, just ignore the constraint.</para>
+    /// <para>Also reported by dialects that have no clause for the action at all, e.g. Oracle, which
+    /// has no <c>ON UPDATE</c>.</para>
     /// </summary>
     NoAction,
 

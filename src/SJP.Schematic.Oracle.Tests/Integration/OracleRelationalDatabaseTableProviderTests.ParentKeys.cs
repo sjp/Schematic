@@ -251,4 +251,19 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.False);
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenNovalidateForeignKey_ReturnsIsValidatedFalse()
+    {
+        var table = await GetTableAsync("constraint_state_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.False);
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Simple));
+            Assert.That(foreignKey.SetNullColumns, Is.Empty);
+        }
+    }
 }

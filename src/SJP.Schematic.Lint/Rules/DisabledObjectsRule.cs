@@ -12,6 +12,10 @@ namespace SJP.Schematic.Lint.Rules;
 /// <summary>
 /// A linting rule which reports when disabled objects are present on tables in a database.
 /// </summary>
+/// <remarks>
+/// A constraint that is enabled but whose existing rows the database has never verified is reported
+/// by <see cref="UnvalidatedConstraintsRule"/> instead.
+/// </remarks>
 /// <seealso cref="Rule" />
 /// <seealso cref="ITableRule" />
 public class DisabledObjectsRule : Rule, ITableRule

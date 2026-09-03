@@ -17,7 +17,9 @@ internal sealed class ConstraintsModelMapper
         return new Constraints.PrimaryKeyConstraintRow(
             tableName,
             pkConstraintName,
-            columnNames
+            columnNames,
+            primaryKey.IsValidated,
+            primaryKey.Deferrability
         );
     }
 
@@ -32,7 +34,9 @@ internal sealed class ConstraintsModelMapper
         return new Constraints.UniqueKeyRow(
             tableName,
             ukConstraintName,
-            columnNames
+            columnNames,
+            uniqueKey.IsValidated,
+            uniqueKey.Deferrability
         );
     }
 
@@ -53,7 +57,10 @@ internal sealed class ConstraintsModelMapper
             parentKeyName,
             parentColumnNames,
             foreignKey.DeleteAction,
-            foreignKey.UpdateAction
+            foreignKey.UpdateAction,
+            foreignKey.ChildKey.IsValidated,
+            foreignKey.ChildKey.Deferrability,
+            foreignKey.MatchType
         );
     }
 
@@ -67,7 +74,9 @@ internal sealed class ConstraintsModelMapper
         return new Constraints.CheckConstraintRow(
             tableName,
             constraintName,
-            check.Definition
+            check.Definition,
+            check.IsValidated,
+            check.Deferrability
         );
     }
 }

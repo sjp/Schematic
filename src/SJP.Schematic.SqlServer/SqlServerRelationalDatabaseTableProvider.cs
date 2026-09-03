@@ -544,8 +544,9 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
                 var definition = checkRow.Definition;
                 var isEnabled = !checkRow.IsDisabled;
+                var isValidated = !checkRow.IsNotTrusted;
 
-                return new DatabaseCheckConstraint(constraintName, definition, isEnabled);
+                return new DatabaseCheckConstraint(constraintName, definition, isEnabled, isValidated, ConstraintDeferrability.NotDeferrable);
             })
             .ToListAsync(cancellationToken);
     }
@@ -587,6 +588,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             row.DeleteAction,
             row.UpdateAction,
             row.IsDisabled,
+            row.IsNotTrusted,
         }).ToList();
         if (foreignKeys.Empty())
             return [];
@@ -650,7 +652,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     ).ToList();
 
                     var isEnabled = !fkey.Key.IsDisabled;
-                    var childKey = new SqlServerDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
+                    var isValidated = !fkey.Key.IsNotTrusted;
+                    var childKey = new SqlServerDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated);
 
                     var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
                     var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];

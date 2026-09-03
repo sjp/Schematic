@@ -100,4 +100,17 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
             Assert.That(backingIndex.IsUnique, Is.True);
         }
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenDeferrablePrimaryKey_ReturnsDeclaredDeferrability()
+    {
+        var table = await GetTableAsync("constraint_state_parent");
+        var pk = table.PrimaryKey.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pk.IsValidated, Is.True);
+            Assert.That(pk.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+        }
+    }
 }

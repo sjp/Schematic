@@ -98,6 +98,21 @@ internal static class MySqlDatabaseKeyTests
         Assert.That(key.Columns, Is.EqualTo(columns));
     }
 
+    [Test]
+    public static void ConstraintState_PropertyGet_ReportsValidatedAndNotDeferrable()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new MySqlDatabaseKey(keyName, DatabaseKeyType.Primary, columns);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(key.IsValidated, Is.True);
+            Assert.That(key.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
+    }
+
     [TestCase(DatabaseKeyType.Foreign, "test_foreign_key", "Foreign Key: test_foreign_key")]
     [TestCase(DatabaseKeyType.Primary, "test_primary_key", "Primary Key: test_primary_key")]
     [TestCase(DatabaseKeyType.Unique, "test_unique_key", "Unique Key: test_unique_key")]

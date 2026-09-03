@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -180,6 +181,42 @@ internal static class SqliteTableDefinitionBuilder
         if (parentColumns.Count == 0 || parentColumns.Count != childColumns.Count)
             return Option<ForeignKey>.None;
 
-        return Option<ForeignKey>.Some(new ForeignKey(constraintName, childColumns, parentTable, parentColumns));
+        return Option<ForeignKey>.Some(new ForeignKey(
+            constraintName,
+            childColumns,
+            parentTable,
+            parentColumns,
+            GetDeferrability(clause),
+            GetMatchType(clause)
+        ));
+    }
+
+    private static ConstraintDeferrability GetDeferrability(SQLiteParser.Foreign_key_clauseContext clause)
+    {
+        if (clause.DEFERRABLE_() == null || clause.NOT_() != null)
+            return ConstraintDeferrability.NotDeferrable;
+
+        return clause.DEFERRED_() != null
+            ? ConstraintDeferrability.DeferrableInitiallyDeferred
+            : ConstraintDeferrability.DeferrableInitiallyImmediate;
+    }
+
+    // SQLite parses MATCH but ignores it, always behaving as MATCH SIMPLE. The declared value is
+    // still reported so that the model reflects what the DDL says.
+    private static ForeignKeyMatchType GetMatchType(SQLiteParser.Foreign_key_clauseContext clause)
+    {
+        if (clause.MATCH_().Length == 0)
+            return ForeignKeyMatchType.Simple;
+
+        var matchName = clause.name(0)?.GetText();
+        if (matchName == null)
+            return ForeignKeyMatchType.Simple;
+
+        if (string.Equals(matchName, "FULL", StringComparison.OrdinalIgnoreCase))
+            return ForeignKeyMatchType.Full;
+
+        return string.Equals(matchName, "PARTIAL", StringComparison.OrdinalIgnoreCase)
+            ? ForeignKeyMatchType.Partial
+            : ForeignKeyMatchType.Simple;
     }
 }

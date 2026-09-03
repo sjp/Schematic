@@ -40,4 +40,19 @@ public sealed record DatabaseKey
     /// serialized by value.
     /// </remarks>
     public DatabaseIndex? BackingIndex { get; init; }
+
+    /// <summary>
+    /// Whether the existing rows are known to satisfy the key constraint. Defaults to
+    /// <see langword="true"/> for a document written before keys carried a validation state.
+    /// </summary>
+    public bool IsValidated { get; init; } = true;
+
+    /// <summary>
+    /// When the database checks the key constraint.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before keys carried deferrability still reads back,
+    /// as a constraint that cannot be deferred.
+    /// </remarks>
+    public Core.ConstraintDeferrability Deferrability { get; init; }
 }

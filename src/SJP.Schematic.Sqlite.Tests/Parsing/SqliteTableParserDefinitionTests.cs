@@ -116,6 +116,33 @@ internal static class SqliteTableParserDefinitionTests
         }
     }
 
+    [TestCase("create table t (a int, foreign key (a) references p (b))", ConstraintDeferrability.NotDeferrable)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) not deferrable)", ConstraintDeferrability.NotDeferrable)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) not deferrable initially deferred)", ConstraintDeferrability.NotDeferrable)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) deferrable)", ConstraintDeferrability.DeferrableInitiallyImmediate)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) deferrable initially immediate)", ConstraintDeferrability.DeferrableInitiallyImmediate)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) deferrable initially deferred)", ConstraintDeferrability.DeferrableInitiallyDeferred)]
+    public static void Parse_GivenForeignKeyWithDeferrableClause_ReturnsDeclaredDeferrability(string definition, ConstraintDeferrability expected)
+    {
+        var result = Parse(definition);
+
+        var fk = result.ParentKeys.Single();
+        Assert.That(fk.Deferrability, Is.EqualTo(expected));
+    }
+
+    [TestCase("create table t (a int, foreign key (a) references p (b))", ForeignKeyMatchType.Simple)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) match simple)", ForeignKeyMatchType.Simple)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) match partial)", ForeignKeyMatchType.Partial)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) match full)", ForeignKeyMatchType.Full)]
+    [TestCase("create table t (a int, foreign key (a) references p (b) match full on delete cascade)", ForeignKeyMatchType.Full)]
+    public static void Parse_GivenForeignKeyWithMatchClause_ReturnsDeclaredMatchType(string definition, ForeignKeyMatchType expected)
+    {
+        var result = Parse(definition);
+
+        var fk = result.ParentKeys.Single();
+        Assert.That(fk.MatchType, Is.EqualTo(expected));
+    }
+
     [Test]
     public static void Parse_GivenInlineForeignKey_ReturnsForeignKey()
     {

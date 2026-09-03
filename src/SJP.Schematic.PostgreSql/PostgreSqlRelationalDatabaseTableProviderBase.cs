@@ -287,7 +287,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
+        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDeferrable, row.IsInitiallyDeferred });
         var firstRow = groupedByName.First();
         var constraintName = firstRow.Key.ConstraintName;
         if (constraintName == null)
@@ -304,7 +304,9 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
         var backingIndex = GetBackingIndex(indexes, constraintName);
 
-        var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, backingIndex);
+        var deferrability = GetDeferrability(firstRow.Key.IsDeferrable, firstRow.Key.IsInitiallyDeferred);
+
+        var primaryKey = new PostgreSqlDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, backingIndex, true, deferrability);
         return Option<IDatabaseKey>.Some(primaryKey);
     }
 
@@ -444,11 +446,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName });
+        var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDeferrable, row.IsInitiallyDeferred });
         var constraintColumns = groupedByName
             .Select(g => new
             {
                 g.Key.ConstraintName,
+                Deferrability = GetDeferrability(g.Key.IsDeferrable, g.Key.IsInitiallyDeferred),
                 Columns = ResolveColumns(
                     g.Value
                         .Where(static row => row.ColumnName != null)
@@ -467,7 +470,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         foreach (var uk in constraintColumns)
         {
             var backingIndex = GetBackingIndex(indexes, uk.ConstraintName);
-            var uniqueKey = new PostgreSqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, backingIndex);
+            var uniqueKey = new PostgreSqlDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, backingIndex, true, uk.Deferrability);
             result.Add(uniqueKey);
         }
         return result;
@@ -524,7 +527,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         // memoises the child table's foreign-key lookup across grouped child-key rows that share the
         // same child table, instead of rebuilding it (and re-querying the cache) once per row.
-        var childParentKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>(IdentifierComparer.Ordinal);
+        var childParentKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(IdentifierComparer.Ordinal);
 
         var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
 
@@ -552,17 +555,19 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     if (!childParentKeyLookups.TryGetValue(childTableName, out var parentKeyLookup))
                     {
                         var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-                        parentKeyLookup = GetDatabaseKeyLookup(childParentKeys.Select(static fk => fk.ChildKey).ToList());
+                        parentKeyLookup = GetRelationalKeyLookup(childParentKeys);
                         childParentKeyLookups[childTableName] = parentKeyLookup;
                     }
 
                     var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
-                    if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
+                    if (!parentKeyLookup.TryGetValue(childKeyName, out var childRelationalKey))
                         return OptionAsync<IDatabaseRelationalKey>.None;
 
                     var deleteAction = ReferentialActionMapping[groupedChildKey.Key.DeleteAction];
                     var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
-                    var relationalKey = new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction);
+                    // the match type and ON DELETE SET NULL column subset describe the same constraint
+                    // as seen from the child table, so they are taken from the child's own relational key
+                    var relationalKey = new DatabaseRelationalKey(childTableName, childRelationalKey.ChildKey, tableName, parentKey, deleteAction, updateAction, childRelationalKey.MatchType, childRelationalKey.SetNullColumns);
                     return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
                 })
                 .IfSome(result.Add);
@@ -598,7 +603,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
                 var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
 
-                return new PostgreSqlCheckConstraint(constraintName, definition);
+                return new PostgreSqlCheckConstraint(constraintName, definition, checkRow.IsValidated);
             })
             .ToListAsync(cancellationToken);
     }
@@ -639,6 +644,10 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             KeyType = row.ParentKeyType,
             row.DeleteAction,
             row.UpdateAction,
+            row.IsValidated,
+            row.IsDeferrable,
+            row.IsInitiallyDeferred,
+            row.MatchType,
         }).ToList();
         if (foreignKeys.Empty())
             return [];
@@ -704,12 +713,23 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                         columnLookup
                     ).ToList();
 
-                    var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                    var deferrability = GetDeferrability(fkey.Key.IsDeferrable, fkey.Key.IsInitiallyDeferred);
+                    var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, Option<IDatabaseIndex>.None, fkey.Key.IsValidated, deferrability);
 
                     var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
                     var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
+                    var matchType = MatchTypeMapping.TryGetValue(fkey.Key.MatchType, out var mappedMatchType)
+                        ? mappedMatchType
+                        : ForeignKeyMatchType.Simple;
+                    var setNullColumns = ResolveColumns(
+                        fkey.Value
+                            .Where(static row => row.ColumnName != null && row.IsSetNullColumn)
+                            .OrderBy(static row => row.ConstraintColumnId)
+                            .Select(static row => (Identifier)row.ColumnName!),
+                        columnLookup
+                    ).ToList();
 
-                    return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
+                    return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction, matchType, setNullColumns);
                 })
                 .IfSome(result.Add);
         }
@@ -921,6 +941,30 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         }
     }
 
+    private static ConstraintDeferrability GetDeferrability(bool isDeferrable, bool isInitiallyDeferred)
+    {
+        if (!isDeferrable)
+            return ConstraintDeferrability.NotDeferrable;
+
+        return isInitiallyDeferred
+            ? ConstraintDeferrability.DeferrableInitiallyDeferred
+            : ConstraintDeferrability.DeferrableInitiallyImmediate;
+    }
+
+    private static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetRelationalKeyLookup(IReadOnlyCollection<IDatabaseRelationalKey> relationalKeys)
+    {
+        ArgumentNullException.ThrowIfNull(relationalKeys);
+
+        var result = new Dictionary<Identifier, IDatabaseRelationalKey>(relationalKeys.Count);
+
+        foreach (var relationalKey in relationalKeys)
+        {
+            relationalKey.ChildKey.Name.IfSome(name => result[name.LocalName] = relationalKey);
+        }
+
+        return result;
+    }
+
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
@@ -1014,6 +1058,17 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         ["c"] = ReferentialAction.Cascade,
         ["n"] = ReferentialAction.SetNull,
         ["d"] = ReferentialAction.SetDefault,
+    };
+
+    /// <summary>
+    /// A mapping from the foreign key match types as described in PostgreSQL, to a <see cref="ForeignKeyMatchType"/> instance.
+    /// </summary>
+    /// <value>A mapping dictionary.</value>
+    protected IReadOnlyDictionary<string, ForeignKeyMatchType> MatchTypeMapping { get; } = new Dictionary<string, ForeignKeyMatchType>(StringComparer.Ordinal)
+    {
+        ["s"] = ForeignKeyMatchType.Simple,
+        ["p"] = ForeignKeyMatchType.Partial,
+        ["f"] = ForeignKeyMatchType.Full,
     };
 
     /// <summary>

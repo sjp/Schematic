@@ -185,6 +185,60 @@ internal static class DatabaseKeyTests
     }
 
     [Test]
+    public static void Ctor_GivenInvalidDeferrability_ThrowsArgumentException()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+        const ConstraintDeferrability deferrability = (ConstraintDeferrability)55;
+
+        Assert.That(() => new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.None, true, deferrability), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void IsValidated_WhenNotProvidedInCtor_ReturnsTrue()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true);
+
+        Assert.That(key.IsValidated, Is.True);
+    }
+
+    [Test]
+    public static void IsValidated_WhenProvidedInCtor_ReturnsGivenValue()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Foreign, columns, true, Option<IDatabaseIndex>.None, false, ConstraintDeferrability.NotDeferrable);
+
+        Assert.That(key.IsValidated, Is.False);
+    }
+
+    [Test]
+    public static void Deferrability_WhenNotProvidedInCtor_ReturnsNotDeferrable()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true);
+
+        Assert.That(key.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+    }
+
+    [Test]
+    public static void Deferrability_WhenProvidedInCtor_ReturnsGivenValue()
+    {
+        Identifier keyName = "test_key";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var key = new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.None, true, ConstraintDeferrability.DeferrableInitiallyDeferred);
+
+        Assert.That(key.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+    }
+
+    [Test]
     public static void Columns_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
     {
         Identifier keyName = "test_key";

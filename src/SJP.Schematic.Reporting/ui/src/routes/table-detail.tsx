@@ -3,6 +3,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import { Check, Hash, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { ConstraintStatus } from "@/components/ConstraintStatus";
 import { DataTable } from "@/components/DataTable";
 import { IconTooltip } from "@/components/IconTooltip";
 import { IndexStatus } from "@/components/IndexStatus";
@@ -209,8 +210,14 @@ export function TableDetailPage() {
       {data.primaryKeyExists && data.primaryKey && (
         <Section title="Primary Key">
           <SimpleTable
-            head={["Constraint", "Columns"]}
-            rows={[[data.primaryKey.constraintName || "—", data.primaryKey.columnNames]]}
+            head={["Constraint", "Columns", "Status"]}
+            rows={[
+              [
+                data.primaryKey.constraintName || "—",
+                data.primaryKey.columnNames,
+                <ConstraintStatus key="status" {...data.primaryKey} />,
+              ],
+            ]}
           />
         </Section>
       )}
@@ -218,8 +225,12 @@ export function TableDetailPage() {
       {data.uniqueKeysCount > 0 && (
         <Section title="Unique Keys" count={data.uniqueKeysCount}>
           <SimpleTable
-            head={["Constraint", "Columns"]}
-            rows={data.uniqueKeys.map((uk) => [uk.constraintName || "—", uk.columnNames])}
+            head={["Constraint", "Columns", "Status"]}
+            rows={data.uniqueKeys.map((uk) => [
+              uk.constraintName || "—",
+              uk.columnNames,
+              <ConstraintStatus key="status" {...uk} />,
+            ])}
           />
         </Section>
       )}
@@ -235,6 +246,8 @@ export function TableDetailPage() {
                 <TableHead>Parent Columns</TableHead>
                 <TableHead>On Delete</TableHead>
                 <TableHead>On Update</TableHead>
+                <TableHead>Match</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -250,6 +263,10 @@ export function TableDetailPage() {
                   <TableCell>{fk.parentColumnNames}</TableCell>
                   <TableCell>{fk.deleteActionDescription}</TableCell>
                   <TableCell>{fk.updateActionDescription}</TableCell>
+                  <TableCell>{fk.matchTypeDescription || "—"}</TableCell>
+                  <TableCell>
+                    <ConstraintStatus {...fk} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -260,8 +277,12 @@ export function TableDetailPage() {
       {data.checkConstraintsCount > 0 && (
         <Section title="Check Constraints" count={data.checkConstraintsCount}>
           <SimpleTable
-            head={["Constraint", "Definition"]}
-            rows={data.checkConstraints.map((c) => [c.constraintName || "—", c.definition])}
+            head={["Constraint", "Definition", "Status"]}
+            rows={data.checkConstraints.map((c) => [
+              c.constraintName || "—",
+              c.definition,
+              <ConstraintStatus key="status" {...c} />,
+            ])}
           />
         </Section>
       )}
@@ -353,7 +374,13 @@ export function TableDetailPage() {
   );
 }
 
-function SimpleTable({ head, rows }: { head: string[]; rows: (string | number)[][] }) {
+function SimpleTable({
+  head,
+  rows,
+}: {
+  head: string[];
+  rows: (string | number | React.ReactNode)[][];
+}) {
   return (
     <Table>
       <TableHeader>

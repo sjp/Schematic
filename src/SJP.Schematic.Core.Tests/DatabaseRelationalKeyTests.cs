@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System.Collections.Generic;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
@@ -81,6 +82,85 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction updateAction = (ReferentialAction)55;
 
         Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidMatchType_ThrowsArgumentException()
+    {
+        const string childTableName = "child_table";
+        var childKey = Mock.Of<IDatabaseKey>();
+        const string parentTableName = "parent_table";
+        var parentKey = Mock.Of<IDatabaseKey>();
+        const ForeignKeyMatchType matchType = (ForeignKeyMatchType)55;
+
+        Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, ReferentialAction.NoAction, ReferentialAction.NoAction, matchType, []), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullSetNullColumns_ThrowsArgumentNullException()
+    {
+        Assert.That(() => CreateRelationalKey(ForeignKeyMatchType.Simple, null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void MatchType_WhenNotProvidedInCtor_ReturnsSimple()
+    {
+        var relationalKey = CreateRelationalKeyWithDefaults();
+
+        Assert.That(relationalKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Simple));
+    }
+
+    [Test]
+    public static void SetNullColumns_WhenNotProvidedInCtor_ReturnsEmptyCollection()
+    {
+        var relationalKey = CreateRelationalKeyWithDefaults();
+
+        Assert.That(relationalKey.SetNullColumns, Is.Empty);
+    }
+
+    [Test]
+    public static void MatchTypeAndSetNullColumns_WhenProvidedInCtor_ReturnGivenValues()
+    {
+        var setNullColumn = Mock.Of<IDatabaseColumn>();
+        var relationalKey = CreateRelationalKey(ForeignKeyMatchType.Full, [setNullColumn]);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(relationalKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Full));
+            Assert.That(relationalKey.SetNullColumns, Is.EquivalentTo(new[] { setNullColumn }));
+        }
+    }
+
+    private static DatabaseRelationalKey CreateRelationalKey(ForeignKeyMatchType matchType, IReadOnlyCollection<IDatabaseColumn> setNullColumns)
+    {
+        const string childTableName = "child_table";
+        const string parentTableName = "parent_table";
+
+        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
+
+        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
+
+        return new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, ReferentialAction.NoAction, ReferentialAction.NoAction, matchType, setNullColumns);
+    }
+
+    private static DatabaseRelationalKey CreateRelationalKeyWithDefaults()
+    {
+        const string childTableName = "child_table";
+        const string parentTableName = "parent_table";
+
+        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        childKeyMock.Setup(k => k.Columns).Returns([]);
+
+        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        parentKeyMock.Setup(k => k.Columns).Returns([]);
+
+        return new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, ReferentialAction.NoAction, ReferentialAction.NoAction);
     }
 
     [Test]

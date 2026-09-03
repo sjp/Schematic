@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration;
@@ -40,5 +41,27 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var check = table.Checks.Single();
 
         Assert.That(check.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public async Task Checks_WhenGivenTableWithCheck_ReturnsIsValidatedTrue()
+    {
+        var table = await GetTableAsync("table_test_table_14");
+        var check = table.Checks.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.IsValidated, Is.True);
+            Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
+    }
+
+    [Test]
+    public async Task Checks_WhenGivenNotValidCheck_ReturnsIsValidatedFalse()
+    {
+        var table = await GetTableAsync("constraint_state_child");
+        var check = table.Checks.Single();
+
+        Assert.That(check.IsValidated, Is.False);
     }
 }

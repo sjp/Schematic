@@ -6,8 +6,8 @@ namespace SJP.Schematic.Core;
 /// <summary>
 /// Defines a database key constraint type.
 /// </summary>
-/// <seealso cref="IDatabaseOptional" />
-public interface IDatabaseKey : IDatabaseOptional
+/// <seealso cref="IDatabaseConstraint" />
+public interface IDatabaseKey : IDatabaseConstraint
 {
     /// <summary>
     /// The name of the key constraint, if available.

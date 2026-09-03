@@ -87,6 +87,7 @@ public class DefaultRuleProvider : IRuleProvider
             new TooManyIndexColumnsRule(level),
             new TriggerWithNoEnabledEventsRule(level),
             new UniqueIndexWithNullableColumnsRule(level),
+            new UnvalidatedConstraintsRule(level),
             new WhitespaceNameRule(level),
         ];
     }

@@ -19,6 +19,7 @@ public class DatabaseRelationalKeyMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var databaseKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
+        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
 
         return new DatabaseRelationalKey(
             identifierMapper.Map(source.ChildTable),
@@ -26,7 +27,9 @@ public class DatabaseRelationalKeyMapper
             identifierMapper.Map(source.ParentTable),
             databaseKeyMapper.Map(source.ParentKey),
             source.DeleteAction,
-            source.UpdateAction
+            source.UpdateAction,
+            source.MatchType,
+            columnMapper.MapList(source.SetNullColumns)
         );
     }
 
@@ -39,6 +42,7 @@ public class DatabaseRelationalKeyMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var databaseKeyMapper = MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
 
         return new Dto.DatabaseRelationalKey
         {
@@ -48,6 +52,8 @@ public class DatabaseRelationalKeyMapper
             ParentKey = databaseKeyMapper.Map(source.ParentKey),
             DeleteAction = source.DeleteAction,
             UpdateAction = source.UpdateAction,
+            MatchType = source.MatchType,
+            SetNullColumns = columnMapper.MapList(source.SetNullColumns),
         };
     }
 }

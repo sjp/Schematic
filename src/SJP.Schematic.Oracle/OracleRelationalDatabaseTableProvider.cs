@@ -291,10 +291,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus, row.IndexName });
+        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus, row.ValidatedStatus, row.Deferrable, row.Deferred, row.IndexName });
         var firstRow = groupedByName.First();
         var constraintName = firstRow.Key.ConstraintName;
         var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
+        var isValidated = string.Equals(firstRow.Key.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
+        var deferrability = GetDeferrability(firstRow.Key.Deferrable, firstRow.Key.Deferred);
 
         var keyColumns = ResolveColumns(
             firstRow.Value
@@ -308,7 +310,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var backingIndex = GetBackingIndex(indexes, firstRow.Key.IndexName);
 
         var primaryKey = constraintName != null
-            ? new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex)
+            ? new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex, isValidated, deferrability)
             : (IDatabaseKey?)null;
         return primaryKey != null
             ? Option<IDatabaseKey>.Some(primaryKey)
@@ -411,7 +413,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var groupedByName = uniqueKeyColumns
             .Where(static row => row.ConstraintName != null)
-            .GroupAsDictionary(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus, row.IndexName });
+            .GroupAsDictionary(static row => new { ConstraintName = row.ConstraintName!, row.EnabledStatus, row.ValidatedStatus, row.Deferrable, row.Deferred, row.IndexName });
         var constraintColumns = groupedByName
             .Select(g => new
             {
@@ -425,6 +427,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     columnLookup
                 ).ToList(),
                 IsEnabled = string.Equals(g.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal),
+                IsValidated = string.Equals(g.Key.ValidatedStatus, Constants.Validated, StringComparison.Ordinal),
+                Deferrability = GetDeferrability(g.Key.Deferrable, g.Key.Deferred),
             })
             .ToList();
         if (constraintColumns.Empty())
@@ -433,7 +437,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
 
         return constraintColumns
-            .ConvertAll(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled, GetBackingIndex(indexes, uk.IndexName)));
+            .ConvertAll(uk => new OracleDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled, GetBackingIndex(indexes, uk.IndexName), uk.IsValidated, uk.Deferrability));
     }
 
     /// <summary>
@@ -556,8 +560,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
             var isEnabled = string.Equals(checkRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
+            var isValidated = string.Equals(checkRow.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
+            var deferrability = GetDeferrability(checkRow.Deferrable, checkRow.Deferred);
 
-            var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled);
+            var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled, isValidated, deferrability);
             result.Add(check);
         }
 
@@ -650,6 +656,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         {
             row.ConstraintName,
             row.EnabledStatus,
+            row.ValidatedStatus,
+            row.Deferrable,
+            row.Deferred,
             row.DeleteAction,
             row.ParentTableSchema,
             row.ParentTableName,
@@ -705,9 +714,15 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     ).ToList();
 
                     var isEnabled = string.Equals(fkey.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
-                    var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled);
+                    var isValidated = string.Equals(fkey.Key.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
+                    var deferrability = GetDeferrability(fkey.Key.Deferrable, fkey.Key.Deferred);
+                    var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated, deferrability);
 
-                    var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction!];
+                    // DELETE_RULE is null for a foreign key whose parent row cannot be deleted at all,
+                    // which is Oracle's NO ACTION behaviour. Matches the child key direction.
+                    var deleteAction = fkey.Key.DeleteAction != null && ReferentialActionMapping.TryGetValue(fkey.Key.DeleteAction, out var mappedDeleteAction)
+                        ? mappedDeleteAction
+                        : ReferentialAction.NoAction;
                     return new OracleRelationalKey(tableName, childKey, resolvedParentTableName!, parentKey, deleteAction);
                 })
                 .IfSome(result.Add);
@@ -1043,6 +1058,17 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
     }
 
+    // DEFERRABLE is 'DEFERRABLE' or 'NOT DEFERRABLE'; DEFERRED is 'DEFERRED' or 'IMMEDIATE'.
+    private static ConstraintDeferrability GetDeferrability(string? deferrable, string? deferred)
+    {
+        if (!string.Equals(deferrable, Constants.Deferrable, StringComparison.Ordinal))
+            return ConstraintDeferrability.NotDeferrable;
+
+        return string.Equals(deferred, Constants.Deferred, StringComparison.Ordinal)
+            ? ConstraintDeferrability.DeferrableInitiallyDeferred
+            : ConstraintDeferrability.DeferrableInitiallyImmediate;
+    }
+
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
@@ -1075,6 +1101,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         public const string Delete = "DELETE";
 
         public const string Enabled = "ENABLED";
+
+        public const string Validated = "VALIDATED";
+
+        public const string Deferrable = "DEFERRABLE";
+
+        public const string Deferred = "DEFERRED";
 
         public const string Insert = "INSERT";
 

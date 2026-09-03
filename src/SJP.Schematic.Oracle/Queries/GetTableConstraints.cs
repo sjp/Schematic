@@ -30,6 +30,23 @@ internal static class GetTableConstraints
         public required string? EnabledStatus { get; init; }
 
         /// <summary>
+        /// <c>VALIDATED</c> when Oracle has verified the existing rows against the constraint,
+        /// <c>NOT VALIDATED</c> otherwise.
+        /// </summary>
+        public required string? ValidatedStatus { get; init; }
+
+        /// <summary>
+        /// <c>DEFERRABLE</c> when the constraint's check can be deferred to the end of a transaction,
+        /// <c>NOT DEFERRABLE</c> otherwise.
+        /// </summary>
+        public required string? Deferrable { get; init; }
+
+        /// <summary>
+        /// <c>DEFERRED</c> when a deferrable constraint defers by default, <c>IMMEDIATE</c> otherwise.
+        /// </summary>
+        public required string? Deferred { get; init; }
+
+        /// <summary>
         /// The index enforcing the constraint. Only populated for <c>P</c> and <c>U</c> rows.
         /// </summary>
         public required string? IndexName { get; init; }
@@ -62,6 +79,9 @@ select
     ac.CONSTRAINT_NAME as "{nameof(Result.ConstraintName)}",
     ac.CONSTRAINT_TYPE as "{nameof(Result.ConstraintType)}",
     ac.STATUS as "{nameof(Result.EnabledStatus)}",
+    ac.VALIDATED as "{nameof(Result.ValidatedStatus)}",
+    ac.DEFERRABLE as "{nameof(Result.Deferrable)}",
+    ac.DEFERRED as "{nameof(Result.Deferred)}",
     ac.INDEX_NAME as "{nameof(Result.IndexName)}",
     ac.DELETE_RULE as "{nameof(Result.DeleteAction)}",
     acc.COLUMN_NAME as "{nameof(Result.ColumnName)}",

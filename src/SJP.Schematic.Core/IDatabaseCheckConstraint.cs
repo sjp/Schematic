@@ -5,8 +5,8 @@ namespace SJP.Schematic.Core;
 /// <summary>
 /// Defines a database check constraint.
 /// </summary>
-/// <seealso cref="IDatabaseOptional" />
-public interface IDatabaseCheckConstraint : IDatabaseOptional
+/// <seealso cref="IDatabaseConstraint" />
+public interface IDatabaseCheckConstraint : IDatabaseConstraint
 {
     /// <summary>
     /// The check constraint name.

@@ -16,13 +16,20 @@ internal static class GetTableChecks
         public required string? ConstraintName { get; init; }
 
         public required string? Definition { get; init; }
+
+        /// <summary>
+        /// Whether the existing rows have been verified against the constraint. <see langword="false" />
+        /// for a constraint declared or left <c>NOT VALID</c>.
+        /// </summary>
+        public required bool IsValidated { get; init; }
     }
 
     internal const string Sql = $"""
 
 select
     c.conname as "{nameof(Result.ConstraintName)}",
-    pg_catalog.pg_get_constraintdef(c.oid) as "{nameof(Result.Definition)}"
+    pg_catalog.pg_get_constraintdef(c.oid) as "{nameof(Result.Definition)}",
+    c.convalidated as "{nameof(Result.IsValidated)}"
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
 inner join pg_catalog.pg_constraint c on c.conrelid = t.oid

@@ -252,6 +252,24 @@ create table table_test_table_43 (
     last_name_child nvarchar(50),
     constraint fk_test_table_43 foreign key (first_name_child, last_name_child) references table_test_table_42 (first_name_parent, last_name_parent)
 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table untrusted_constraint_parent (
+    a int not null,
+    constraint pk_untrusted_constraint_parent primary key (a)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table untrusted_constraint_child (
+    a int
+)", CancellationToken.None);
+        // WITH NOCHECK leaves both constraints enabled but untrusted: SQL Server never verifies the
+        // existing rows, so is_not_trusted stays set
+        await DbConnection.ExecuteAsync(@"
+alter table untrusted_constraint_child with nocheck
+add constraint fk_untrusted_constraint_child foreign key (a) references untrusted_constraint_parent (a)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+alter table untrusted_constraint_child with nocheck
+add constraint ck_untrusted_constraint_child check (a > 0)", CancellationToken.None);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
@@ -401,6 +419,8 @@ end
             "table_test_table_41",
             "table_test_table_43",
             "table_test_table_42",
+            "untrusted_constraint_child",
+            "untrusted_constraint_parent",
             "trigger_test_table_1",
             "trigger_test_table_2",
         ]);

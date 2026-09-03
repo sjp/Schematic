@@ -22,7 +22,9 @@ public class DatabaseCheckMapper
         return new DatabaseCheckConstraint(
             identifierMapper.Map(source.CheckName),
             source.Definition,
-            source.IsEnabled
+            source.IsEnabled,
+            source.IsValidated,
+            source.Deferrability
         );
     }
 
@@ -39,6 +41,8 @@ public class DatabaseCheckMapper
             CheckName = identifierMapper.Map(source.Name),
             Definition = source.Definition,
             IsEnabled = source.IsEnabled,
+            IsValidated = source.IsValidated,
+            Deferrability = source.Deferrability,
         };
     }
 }

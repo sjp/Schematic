@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using EnumsNET;
@@ -78,6 +79,20 @@ public class OracleRelationalKey : IDatabaseRelationalKey
     /// </summary>
     /// <value>Always <see cref="ReferentialAction.NoAction"/>.</value>
     public ReferentialAction UpdateAction { get; }
+
+    /// <summary>
+    /// Describes how the relationship treats child rows whose key columns are only partially
+    /// <c>null</c>. Always <see cref="ForeignKeyMatchType.Simple"/>; Oracle implements no other behaviour.
+    /// </summary>
+    /// <value>Always <see cref="ForeignKeyMatchType.Simple"/>.</value>
+    public ForeignKeyMatchType MatchType { get; } = ForeignKeyMatchType.Simple;
+
+    /// <summary>
+    /// The child key columns set to <c>null</c> by an <c>ON DELETE SET NULL</c> action. Always empty;
+    /// Oracle sets every child key column.
+    /// </summary>
+    /// <value>An empty collection.</value>
+    public IReadOnlyCollection<IDatabaseColumn> SetNullColumns { get; } = [];
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

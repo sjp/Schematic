@@ -265,6 +265,21 @@ create table table_test_partitioned_1_p1
         await DbConnection.ExecuteAsync("comment on column table_test_partitioned_1.payload is 'test partitioned column comment'", CancellationToken.None);
 
         await DbConnection.ExecuteAsync(@"
+create table constraint_state_parent (
+    a int not null,
+    b int not null,
+    constraint pk_constraint_state_parent primary key (a, b) deferrable initially deferred
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table constraint_state_child (
+    a int,
+    b int,
+    constraint ck_constraint_state_child check (a > 0) not valid,
+    constraint fk_constraint_state_child foreign key (a, b) references constraint_state_parent (a, b)
+        match full deferrable initially immediate not valid
+)", CancellationToken.None);
+
+        await DbConnection.ExecuteAsync(@"
 create table fk_bare_unique_parent (
     a int
 )", CancellationToken.None);
@@ -362,6 +377,8 @@ execute procedure test_trigger_fn()", CancellationToken.None);
         "drop table table_test_table_42",
         "drop table table_test_table_43",
         "drop table table_test_partitioned_1",
+        "drop table constraint_state_child",
+        "drop table constraint_state_parent",
         "drop table fk_bare_unique_child",
         "drop table fk_bare_unique_parent",
         "drop table trigger_test_table_1",

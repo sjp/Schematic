@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -34,6 +35,29 @@ public class ForeignKey
     /// <exception cref="ArgumentNullException"><paramref name="parentTable"/>, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is <see langword="null" />, or <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains a <see langword="null" /> value.</exception>
     /// <exception cref="ArgumentException"><paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is empty or contains an empty or whitespace value, or <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements.</exception>
     public ForeignKey(Option<string> constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
+        : this(constraintName, columnNames, parentTable, parentColumnNames, ConstraintDeferrability.NotDeferrable, ForeignKeyMatchType.Simple)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ForeignKey"/> class.
+    /// </summary>
+    /// <param name="constraintName">The constraint name.</param>
+    /// <param name="columnNames">The column names comprising this foreign key.</param>
+    /// <param name="parentTable">The parent table that the foreign key refers to.</param>
+    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
+    /// <param name="deferrability">The declared <c>DEFERRABLE</c> behaviour.</param>
+    /// <param name="matchType">The declared <c>MATCH</c> behaviour.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="parentTable"/>, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is <see langword="null" />, or <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is empty or contains an empty or whitespace value, <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements, or <paramref name="deferrability"/> or <paramref name="matchType"/> is not a valid enum.</exception>
+    public ForeignKey(
+        Option<string> constraintName,
+        IReadOnlyCollection<string> columnNames,
+        Identifier parentTable,
+        IReadOnlyCollection<string> parentColumnNames,
+        ConstraintDeferrability deferrability,
+        ForeignKeyMatchType matchType
+    )
     {
         if (columnNames.NullOrAnyNull())
             throw new ArgumentNullException(nameof(columnNames));
@@ -45,11 +69,17 @@ public class ForeignKey
             throw new ArgumentException("A foreign key must refer to at least one parent column, and its column names must not be empty or whitespace.", nameof(parentColumnNames));
         if (columnNames.Count != parentColumnNames.Count)
             throw new ArgumentException($"The number of source columns ({columnNames.Count}) does not match the number of target columns ({parentColumnNames.Count}).", nameof(parentColumnNames));
+        if (!deferrability.IsValid())
+            throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
+        if (!matchType.IsValid())
+            throw new ArgumentException($"The {nameof(ForeignKeyMatchType)} provided must be a valid enum.", nameof(matchType));
 
         ParentTable = parentTable ?? throw new ArgumentNullException(nameof(parentTable));
         Name = constraintName;
         Columns = columnNames;
         ParentColumns = parentColumnNames;
+        Deferrability = deferrability;
+        MatchType = matchType;
     }
 
     /// <summary>
@@ -76,4 +106,20 @@ public class ForeignKey
     /// </summary>
     /// <value>Columns names in the parent table.</value>
     public IEnumerable<string> ParentColumns { get; }
+
+    /// <summary>
+    /// The <c>DEFERRABLE</c> behaviour declared in the constraint's definition.
+    /// </summary>
+    /// <value>A deferrability value.</value>
+    public ConstraintDeferrability Deferrability { get; }
+
+    /// <summary>
+    /// <para>The <c>MATCH</c> behaviour declared in the constraint's definition.</para>
+    /// <para>
+    /// SQLite parses a <c>MATCH</c> clause but does not act on it; every foreign key behaves as
+    /// <see cref="ForeignKeyMatchType.Simple"/> regardless of what was declared.
+    /// </para>
+    /// </summary>
+    /// <value>A foreign key match type.</value>
+    public ForeignKeyMatchType MatchType { get; }
 }

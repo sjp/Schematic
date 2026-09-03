@@ -40,6 +40,29 @@ public class PostgreSqlDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
     public PostgreSqlDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, Option<IDatabaseIndex> backingIndex)
+        : this(name, keyType, columns, backingIndex, true, ConstraintDeferrability.NotDeferrable)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PostgreSqlDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">The key constraint name.</param>
+    /// <param name="keyType">Type of the key constraint.</param>
+    /// <param name="columns">A collection of table columns.</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <param name="isValidated">Whether the existing rows have been verified against the constraint, i.e. <c>convalidated</c>.</param>
+    /// <param name="deferrability">When the database checks the constraint, i.e. <c>condeferrable</c> and <c>condeferred</c>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> or <paramref name="deferrability"/> is not a valid enum.</exception>
+    public PostgreSqlDatabaseKey(
+        Identifier name,
+        DatabaseKeyType keyType,
+        IReadOnlyCollection<IDatabaseColumn> columns,
+        Option<IDatabaseIndex> backingIndex,
+        bool isValidated,
+        ConstraintDeferrability deferrability
+    )
     {
         ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrAnyNull())
@@ -48,11 +71,15 @@ public class PostgreSqlDatabaseKey : IDatabaseKey
             throw new ArgumentException("A key must have at least one column.", nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
+        if (!deferrability.IsValid())
+            throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
 
         Name = Option<Identifier>.Some(name.LocalName);
         KeyType = keyType;
         Columns = columns;
         BackingIndex = backingIndex;
+        IsValidated = isValidated;
+        Deferrability = deferrability;
     }
 
     /// <summary>
@@ -78,6 +105,19 @@ public class PostgreSqlDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// Indicates whether the existing rows have been verified against the key constraint. Only a
+    /// foreign key declared or left <c>NOT VALID</c> reports <see langword="false" />.
+    /// </summary>
+    /// <value><see langword="true" /> if the constraint has been validated; otherwise, <see langword="false" />.</value>
+    public bool IsValidated { get; }
+
+    /// <summary>
+    /// Describes when PostgreSQL checks the key constraint.
+    /// </summary>
+    /// <value>A deferrability value.</value>
+    public ConstraintDeferrability Deferrability { get; }
 
     /// <summary>
     /// The index that the database uses to enforce the key constraint.

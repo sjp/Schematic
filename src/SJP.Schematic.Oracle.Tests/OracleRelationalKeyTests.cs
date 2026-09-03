@@ -273,4 +273,25 @@ internal static class OracleRelationalKeyTests
 
         Assert.That(result, Is.EqualTo(expectedResult));
     }
+
+    [Test]
+    public static void ConstraintState_PropertyGet_ReportsSimpleMatchAndNoSetNullColumns()
+    {
+        Identifier childTableName = "child_table";
+        Identifier parentTableName = "parent_table";
+
+        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+
+        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
+        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+
+        var key = new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, ReferentialAction.NoAction);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(key.MatchType, Is.EqualTo(ForeignKeyMatchType.Simple));
+            Assert.That(key.SetNullColumns, Is.Empty);
+        }
+    }
 }

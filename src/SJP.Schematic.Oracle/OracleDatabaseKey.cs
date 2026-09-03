@@ -42,6 +42,31 @@ public class OracleDatabaseKey : IDatabaseKey
     /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains <see langword="null" /> values.</exception>
     /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> is not a valid enum.</exception>
     public OracleDatabaseKey(Identifier name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns, bool isEnabled, Option<IDatabaseIndex> backingIndex)
+        : this(name, keyType, columns, isEnabled, backingIndex, true, ConstraintDeferrability.NotDeferrable)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OracleDatabaseKey"/> class.
+    /// </summary>
+    /// <param name="name">A key constraint name.</param>
+    /// <param name="keyType">The key type.</param>
+    /// <param name="columns">The columns comprised by the key.</param>
+    /// <param name="isEnabled">if set to <see langword="true" /> [is enabled].</param>
+    /// <param name="backingIndex">The index used to enforce the constraint, if the database reports one.</param>
+    /// <param name="isValidated">Whether Oracle has verified the existing rows against the constraint, i.e. <c>VALIDATED</c>.</param>
+    /// <param name="deferrability">When the database checks the constraint, i.e. <c>DEFERRABLE</c> and <c>DEFERRED</c>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="name"/> or <paramref name="columns"/> is <see langword="null" />, or <paramref name="columns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columns"/> is empty, or <paramref name="keyType"/> or <paramref name="deferrability"/> is an invalid enum value.</exception>
+    public OracleDatabaseKey(
+        Identifier name,
+        DatabaseKeyType keyType,
+        IReadOnlyCollection<IDatabaseColumn> columns,
+        bool isEnabled,
+        Option<IDatabaseIndex> backingIndex,
+        bool isValidated,
+        ConstraintDeferrability deferrability
+    )
     {
         ArgumentNullException.ThrowIfNull(name);
         if (columns.NullOrAnyNull())
@@ -50,12 +75,16 @@ public class OracleDatabaseKey : IDatabaseKey
             throw new ArgumentException("A key must have at least one column.", nameof(columns));
         if (!keyType.IsValid())
             throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(keyType));
+        if (!deferrability.IsValid())
+            throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
 
         Name = Option<Identifier>.Some(name.LocalName);
         KeyType = keyType;
         Columns = columns;
         IsEnabled = isEnabled;
         BackingIndex = backingIndex;
+        IsValidated = isValidated;
+        Deferrability = deferrability;
     }
 
     /// <summary>
@@ -81,6 +110,19 @@ public class OracleDatabaseKey : IDatabaseKey
     /// </summary>
     /// <value><see langword="true" /> if this constraint is enabled; otherwise, <see langword="false" />.</value>
     public bool IsEnabled { get; }
+
+    /// <summary>
+    /// Indicates whether Oracle has verified the existing rows against the key constraint. A
+    /// constraint enabled <c>NOVALIDATE</c>, or disabled without being dropped, reports <see langword="false" />.
+    /// </summary>
+    /// <value><see langword="true" /> if the constraint has been validated; otherwise, <see langword="false" />.</value>
+    public bool IsValidated { get; }
+
+    /// <summary>
+    /// Describes when Oracle checks the key constraint.
+    /// </summary>
+    /// <value>A deferrability value.</value>
+    public ConstraintDeferrability Deferrability { get; }
 
     /// <summary>
     /// The index that the database uses to enforce the key constraint.

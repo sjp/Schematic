@@ -594,6 +594,68 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenConstraintStateRoundTripped_PreservesValidationAndDeferrability()
+    {
+        var db = CreateConstraintStateDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var table = (await importedDb.GetAllTables()).Single();
+        var primaryKey = table.PrimaryKey.UnwrapSome();
+        var check = table.Checks.Single();
+        var relationalKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(primaryKey.IsValidated, Is.True);
+            Assert.That(primaryKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+            Assert.That(check.IsValidated, Is.False);
+            Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+            Assert.That(relationalKey.ChildKey.IsValidated, Is.False);
+            Assert.That(relationalKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyImmediate));
+            Assert.That(relationalKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Full));
+            Assert.That(relationalKey.SetNullColumns.Select(static c => c.Name.LocalName), Is.EqualTo(new[] { "first_name" }));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenConstraintStateOmittedFromJson_DefaultsToValidatedAndNotDeferrable()
+    {
+        const string json = """
+            {
+              "IdentifierDefaults": { "Server": null, "Database": null, "Schema": "main" },
+              "Tables": [
+                {
+                  "TableName": { "Schema": "main", "LocalName": "test_table_name" },
+                  "Columns": [],
+                  "Checks": [ { "CheckName": { "LocalName": "test_check" }, "Definition": "1 = 1", "IsEnabled": true } ],
+                  "Indexes": [],
+                  "UniqueKeys": [],
+                  "ParentKeys": [],
+                  "ChildKeys": [],
+                  "Triggers": []
+                }
+              ],
+              "Views": [],
+              "Sequences": [],
+              "Synonyms": [],
+              "Routines": []
+            }
+            """;
+
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        var db = await Serializer.DeserializeAsync(stream, new VerbatimIdentifierResolutionStrategy());
+
+        var check = (await db.GetAllTables()).Single().Checks.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.IsValidated, Is.True);
+            Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenIndexWithPhysicalPropertiesRoundTripped_PreservesJsonStructure()
     {
         var db = CreateDetailedIndexDatabase();
@@ -1071,6 +1133,86 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    // A table whose constraints carry every non-default state the model can express: a deferrable
+    // primary key, an unvalidated check, and an unvalidated deferrable foreign key with a match type
+    // and an ON DELETE SET NULL column subset.
+    private static IRelationalDatabase CreateConstraintStateDatabase()
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            typeof(string),
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<string>.None, Option<IAutoIncrement>.None);
+
+        var primaryKey = new DatabaseKey(
+            Option<Identifier>.Some("test_pk_name"),
+            DatabaseKeyType.Primary,
+            [firstNameColumn],
+            true,
+            Option<IDatabaseIndex>.None,
+            true,
+            ConstraintDeferrability.DeferrableInitiallyDeferred
+        );
+
+        var foreignKey = new DatabaseKey(
+            Option<Identifier>.Some("test_fk_name"),
+            DatabaseKeyType.Foreign,
+            [firstNameColumn],
+            true,
+            Option<IDatabaseIndex>.None,
+            false,
+            ConstraintDeferrability.DeferrableInitiallyImmediate
+        );
+
+        var check = new DatabaseCheckConstraint(
+            Option<Identifier>.Some("test_check_name"),
+            "first_name is not null",
+            true,
+            false,
+            ConstraintDeferrability.NotDeferrable
+        );
+
+        var relationalKey = new DatabaseRelationalKey(
+            "test_table_name",
+            foreignKey,
+            "test_table_name",
+            primaryKey,
+            ReferentialAction.SetNull,
+            ReferentialAction.NoAction,
+            ForeignKeyMatchType.Full,
+            [firstNameColumn]
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [firstNameColumn],
+            Option<IDatabaseKey>.Some(primaryKey),
+            [],
+            [relationalKey],
+            [],
+            [],
+            [check],
             []
         );
 

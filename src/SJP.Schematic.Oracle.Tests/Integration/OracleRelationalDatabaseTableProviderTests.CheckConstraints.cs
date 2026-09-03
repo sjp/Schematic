@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration;
@@ -51,5 +52,19 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var check = table.Checks.Single();
 
         Assert.That(check.IsEnabled, Is.False);
+    }
+
+    [Test]
+    public async Task Checks_WhenGivenNovalidateCheck_ReturnsIsValidatedFalse()
+    {
+        var table = await GetTableAsync("constraint_state_child");
+        var check = table.Checks.Single(c => c.Name.UnwrapSome().LocalName == "CK_CONSTRAINT_STATE_CHILD");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.IsEnabled, Is.True);
+            Assert.That(check.IsValidated, Is.False);
+            Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
     }
 }

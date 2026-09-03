@@ -376,4 +376,32 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
             Assert.That(parentColumns, Is.EqualTo(expectedParentColumns));
         }
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKey_ReturnsIsValidatedTrue()
+    {
+        var table = await GetTableAsync("table_test_table_17");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.True);
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Simple));
+            Assert.That(foreignKey.SetNullColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenUntrustedForeignKey_ReturnsIsValidatedFalse()
+    {
+        var table = await GetTableAsync("untrusted_constraint_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.False);
+        }
+    }
 }

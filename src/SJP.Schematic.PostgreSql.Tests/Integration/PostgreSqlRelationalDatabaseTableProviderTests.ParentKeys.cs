@@ -311,4 +311,41 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKey_ReturnsIsValidatedTrue()
+    {
+        var table = await GetTableAsync("table_test_table_17");
+        var foreignKey = table.ParentKeys.Single();
+
+        Assert.That(foreignKey.ChildKey.IsValidated, Is.True);
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKey_ReturnsNotDeferrableAndSimpleMatch()
+    {
+        var table = await GetTableAsync("table_test_table_17");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Simple));
+        }
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenNotValidDeferrableMatchFullForeignKey_ReturnsDeclaredConstraintState()
+    {
+        var table = await GetTableAsync("constraint_state_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.False);
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyImmediate));
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Full));
+            Assert.That(foreignKey.SetNullColumns, Is.Empty);
+        }
+    }
 }

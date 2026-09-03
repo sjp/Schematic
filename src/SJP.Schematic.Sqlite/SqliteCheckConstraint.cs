@@ -48,6 +48,20 @@ public class SqliteCheckConstraint : IDatabaseCheckConstraint
     public bool IsEnabled { get; } = true;
 
     /// <summary>
+    /// Indicates whether the existing rows have been verified against the constraint. Always
+    /// <see langword="true" />; SQLite has no unvalidated check constraints.
+    /// </summary>
+    /// <value>Always <see langword="true" />.</value>
+    public bool IsValidated { get; } = true;
+
+    /// <summary>
+    /// Always <see cref="ConstraintDeferrability.NotDeferrable"/>; SQLite only accepts a
+    /// <c>DEFERRABLE</c> clause on foreign keys.
+    /// </summary>
+    /// <value><see cref="ConstraintDeferrability.NotDeferrable"/>.</value>
+    public ConstraintDeferrability Deferrability { get; } = ConstraintDeferrability.NotDeferrable;
+
+    /// <summary>
     /// Returns a string that provides a basic string representation of this object.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>

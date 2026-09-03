@@ -63,6 +63,18 @@ internal static class MySqlCheckConstraintTests
         Assert.That(check.IsEnabled, Is.False);
     }
 
+    [Test]
+    public static void ConstraintState_PropertyGet_ReportsValidatedAndNotDeferrable()
+    {
+        var check = new MySqlCheckConstraint("test_check", "test_definition", true);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.IsValidated, Is.True);
+            Assert.That(check.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
+    }
+
     [TestCase("test_check", "Check: test_check")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)
     {

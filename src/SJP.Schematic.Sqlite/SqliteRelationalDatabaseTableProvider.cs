@@ -969,12 +969,17 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                         .Select(row => columnLookup[row.from])
                         .ToList();
 
-                    var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns);
+                    // the pragma reports neither DEFERRABLE nor MATCH, so both are read from the
+                    // parsed CREATE TABLE definition when the constraint could be matched to one
+                    var deferrability = parsedConstraintOption.Match(static fk => fk.Deferrability, static () => ConstraintDeferrability.NotDeferrable);
+                    var matchType = parsedConstraintOption.Match(static fk => fk.MatchType, static () => ForeignKeyMatchType.Simple);
+
+                    var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, Option<IDatabaseIndex>.None, deferrability);
 
                     var deleteAction = GetReferentialAction(fkey.Key.OnDelete);
                     var updateAction = GetReferentialAction(fkey.Key.OnUpdate);
 
-                    return new DatabaseRelationalKey(tableName, childKey, parentTableName!, key, deleteAction, updateAction);
+                    return new DatabaseRelationalKey(tableName, childKey, parentTableName!, key, deleteAction, updateAction, matchType, []);
                 })
                 .IfSome(result.Add);
         }

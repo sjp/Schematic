@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using EnumsNET;
@@ -26,11 +27,40 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/> or <paramref name="parentKey"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="deleteAction"/> or <paramref name="updateAction"/> is not a valid enum, <paramref name="childKey"/> is not a foreign key, <paramref name="parentKey"/> is not a primary or unique key, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
     public DatabaseRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
+        : this(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction, ForeignKeyMatchType.Simple, [])
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DatabaseRelationalKey"/> class.
+    /// </summary>
+    /// <param name="childTableName">The child table name.</param>
+    /// <param name="childKey">The child key.</param>
+    /// <param name="parentTableName">The parent table name.</param>
+    /// <param name="parentKey">The parent key.</param>
+    /// <param name="deleteAction">The delete action.</param>
+    /// <param name="updateAction">The update action.</param>
+    /// <param name="matchType">How partially <c>null</c> child rows are matched against the parent key.</param>
+    /// <param name="setNullColumns">The child key columns set to <c>null</c> when <paramref name="deleteAction"/> is <see cref="ReferentialAction.SetNull"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/>, <paramref name="parentKey"/> or <paramref name="setNullColumns"/> is <see langword="null" />, or <paramref name="setNullColumns"/> contains a <see langword="null" /> value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="deleteAction"/>, <paramref name="updateAction"/> or <paramref name="matchType"/> is not a valid enum, <paramref name="childKey"/> is not a foreign key, <paramref name="parentKey"/> is not a primary or unique key, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
+    public DatabaseRelationalKey(
+        Identifier childTableName,
+        IDatabaseKey childKey,
+        Identifier parentTableName,
+        IDatabaseKey parentKey,
+        ReferentialAction deleteAction,
+        ReferentialAction updateAction,
+        ForeignKeyMatchType matchType,
+        IReadOnlyCollection<IDatabaseColumn> setNullColumns
+    )
     {
         if (!deleteAction.IsValid())
             throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
         if (!updateAction.IsValid())
             throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
+        if (!matchType.IsValid())
+            throw new ArgumentException($"The {nameof(ForeignKeyMatchType)} provided must be a valid enum.", nameof(matchType));
 
         ChildTable = childTableName ?? throw new ArgumentNullException(nameof(childTableName));
         ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
@@ -52,6 +82,8 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
 
         DeleteAction = deleteAction;
         UpdateAction = updateAction;
+        MatchType = matchType;
+        SetNullColumns = setNullColumns.ToDefensiveCopy(nameof(setNullColumns));
     }
 
     /// <summary>
@@ -89,6 +121,18 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// </summary>
     /// <value>The update action.</value>
     public ReferentialAction UpdateAction { get; }
+
+    /// <summary>
+    /// Describes how the relationship treats child rows whose key columns are only partially <c>null</c>.
+    /// </summary>
+    /// <value>A foreign key match type.</value>
+    public ForeignKeyMatchType MatchType { get; }
+
+    /// <summary>
+    /// The child key columns set to <c>null</c> when <see cref="DeleteAction"/> is <see cref="ReferentialAction.SetNull"/>.
+    /// </summary>
+    /// <value>A collection of database columns.</value>
+    public IReadOnlyCollection<IDatabaseColumn> SetNullColumns { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

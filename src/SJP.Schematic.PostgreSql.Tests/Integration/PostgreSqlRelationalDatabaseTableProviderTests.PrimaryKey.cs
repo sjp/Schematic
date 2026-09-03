@@ -101,4 +101,26 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(backingIndex.IsUnique, Is.True);
         }
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsValidatedNotDeferrableKey()
+    {
+        var table = await GetTableAsync("table_test_table_15");
+        var pk = table.PrimaryKey.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pk.IsValidated, Is.True);
+            Assert.That(pk.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+        }
+    }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenDeferrablePrimaryKey_ReturnsDeclaredDeferrability()
+    {
+        var table = await GetTableAsync("constraint_state_parent");
+        var pk = table.PrimaryKey.UnwrapSome();
+
+        Assert.That(pk.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+    }
 }

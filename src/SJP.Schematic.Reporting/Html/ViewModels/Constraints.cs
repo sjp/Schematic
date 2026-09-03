@@ -52,13 +52,17 @@ public sealed class Constraints
     /// </summary>
     public abstract class TableConstraint
     {
-        protected TableConstraint(Identifier tableName, string constraintName)
+        protected TableConstraint(Identifier tableName, string constraintName, bool isValidated, ConstraintDeferrability deferrability)
         {
             ArgumentNullException.ThrowIfNull(tableName);
+            if (!deferrability.IsValid())
+                throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
 
             TableName = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);
             ConstraintName = constraintName ?? string.Empty;
+            IsValidated = isValidated;
+            DeferrabilityDescription = ConstraintStateNames.GetDeferrabilityName(deferrability);
         }
 
         public string TableName { get; }
@@ -66,12 +70,16 @@ public sealed class Constraints
         public string TableUrl { get; }
 
         public string ConstraintName { get; }
+
+        public bool IsValidated { get; }
+
+        public string DeferrabilityDescription { get; }
     }
 
     public sealed class PrimaryKeyConstraintRow : TableConstraint
     {
-        public PrimaryKeyConstraintRow(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
-            : base(tableName, constraintName)
+        public PrimaryKeyConstraintRow(Identifier tableName, string constraintName, IEnumerable<string> columnNames, bool isValidated, ConstraintDeferrability deferrability)
+            : base(tableName, constraintName, isValidated, deferrability)
         {
             ArgumentNullException.ThrowIfNull(columnNames);
             if (columnNames.Empty())
@@ -85,8 +93,8 @@ public sealed class Constraints
 
     public sealed class UniqueKeyRow : TableConstraint
     {
-        public UniqueKeyRow(Identifier tableName, string constraintName, IEnumerable<string> columnNames)
-            : base(tableName, constraintName)
+        public UniqueKeyRow(Identifier tableName, string constraintName, IEnumerable<string> columnNames, bool isValidated, ConstraintDeferrability deferrability)
+            : base(tableName, constraintName, isValidated, deferrability)
         {
             ArgumentNullException.ThrowIfNull(columnNames);
             if (columnNames.Empty())
@@ -108,9 +116,12 @@ public sealed class Constraints
             string parentConstraintName,
             IEnumerable<string> parentColumnNames,
             ReferentialAction deleteAction,
-            ReferentialAction updateAction
+            ReferentialAction updateAction,
+            bool isValidated,
+            ConstraintDeferrability deferrability,
+            ForeignKeyMatchType matchType
         )
-            : base(childTableName, childConstraintName)
+            : base(childTableName, childConstraintName, isValidated, deferrability)
         {
             ArgumentNullException.ThrowIfNull(parentTableName);
             ArgumentNullException.ThrowIfNull(childColumnNames);
@@ -123,6 +134,8 @@ public sealed class Constraints
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(deleteAction));
             if (!updateAction.IsValid())
                 throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(updateAction));
+            if (!matchType.IsValid())
+                throw new ArgumentException($"The {nameof(ForeignKeyMatchType)} provided must be a valid enum.", nameof(matchType));
 
             ParentTableName = parentTableName.ToVisibleName();
             ParentTableUrl = UrlRouter.GetTableUrl(parentTableName);
@@ -133,6 +146,7 @@ public sealed class Constraints
 
             DeleteActionDescription = GetActionDescription(deleteAction);
             UpdateActionDescription = GetActionDescription(updateAction);
+            MatchTypeDescription = ConstraintStateNames.GetMatchTypeName(matchType);
         }
 
         public string ParentConstraintName { get; }
@@ -148,6 +162,8 @@ public sealed class Constraints
         public string DeleteActionDescription { get; }
 
         public string UpdateActionDescription { get; }
+
+        public string MatchTypeDescription { get; }
 
         private static string GetActionDescription(ReferentialAction action) => action switch
         {
@@ -166,8 +182,8 @@ public sealed class Constraints
     /// </summary>
     public sealed class CheckConstraintRow : TableConstraint
     {
-        public CheckConstraintRow(Identifier tableName, string constraintName, string definition)
-            : base(tableName, constraintName)
+        public CheckConstraintRow(Identifier tableName, string constraintName, string definition, bool isValidated, ConstraintDeferrability deferrability)
+            : base(tableName, constraintName, isValidated, deferrability)
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(definition);
 
