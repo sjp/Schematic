@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -104,9 +104,7 @@ internal static class PostgreSqlUserDefinedTypeMapper
             );
 
             var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-            var defaultValue = !row.AttributeDefault.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.AttributeDefault)
-                : Option<string>.None;
+            var defaultValue = PostgreSqlDefaultValueParser.Parse(row.AttributeDefault);
 
             return new DatabaseColumn(
                 Identifier.CreateQualifiedIdentifier(row.AttributeName!),

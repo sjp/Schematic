@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -92,7 +92,7 @@ internal static class OracleUserDefinedTypeMapper
                 Identifier.CreateQualifiedIdentifier(row.AttributeName!),
                 typeProvider.CreateColumnType(typeMetadata),
                 true,
-                Option<string>.None);
+                Option<IDatabaseDefaultValue>.None);
         }).ToList();
     }
 }

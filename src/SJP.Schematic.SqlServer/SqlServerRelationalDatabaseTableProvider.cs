@@ -630,9 +630,9 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 var autoIncrement = row.IsIdentity
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(identitySeed, identityIncrement))
                     : Option<IAutoIncrement>.None;
-                var defaultValue = row.HasDefaultValue && row.DefaultValue != null
-                    ? Option<string>.Some(row.DefaultValue)
-                    : Option<string>.None;
+                var defaultValue = row.HasDefaultValue
+                    ? SqlServerDefaultValueParser.Parse(row.DefaultValue, row.DefaultConstraintName)
+                    : Option<IDatabaseDefaultValue>.None;
                 var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ComputedColumnDefinition)
                     : Option<string>.None;

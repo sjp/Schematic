@@ -35,6 +35,8 @@ internal static class GetTableColumns
 
         public required string? DefaultValue { get; init; }
 
+        public required string? DefaultConstraintName { get; init; }
+
         public required string? ComputedColumnDefinition { get; init; }
 
         public required bool? ComputedColumnIsPersisted { get; init; }
@@ -59,6 +61,7 @@ select
     c.is_nullable as [{nameof(Result.IsNullable)}],
     case when dc.object_id is null then 0 else 1 end as [{nameof(Result.HasDefaultValue)}],
     dc.definition as [{nameof(Result.DefaultValue)}],
+    dc.name as [{nameof(Result.DefaultConstraintName)}],
     cc.definition as [{nameof(Result.ComputedColumnDefinition)}],
     cc.is_persisted as [{nameof(Result.ComputedColumnIsPersisted)}],
     c.is_identity as [{nameof(Result.IsIdentity)}],

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Buffers;
 using System.Text.RegularExpressions;
+using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Dbml;
@@ -60,14 +61,50 @@ internal static partial class StringExtensions
         return "`" + input + "`";
     }
 
-    public static string ToDbmlDefaultValue(this string input)
+    public static string ToDbmlDefaultValue(this IDatabaseDefaultValue defaultValue)
     {
-        ArgumentNullException.ThrowIfNull(input);
+        ArgumentNullException.ThrowIfNull(defaultValue);
 
-        var value = RemoveEnclosingParentheses(input.Trim());
+        var value = RemoveEnclosingParentheses(defaultValue.Definition.Trim());
         if (value.Length == 0)
             return "''";
 
+        return defaultValue.Kind switch
+        {
+            DefaultValueKind.Null => "null",
+            DefaultValueKind.Literal => ToDbmlLiteralValue(value),
+            DefaultValueKind.Expression or DefaultValueKind.SequenceNextValue => ToDbmlExpressionValue(value),
+            // a dialect that could not classify the default leaves DBML to guess from its shape
+            _ => ToDbmlUnclassifiedValue(value),
+        };
+    }
+
+    private static string ToDbmlLiteralValue(string value)
+    {
+        if (IsDbmlKeyword(value))
+            return value.ToLowerInvariant();
+
+        if (NumericLiteralRegex().IsMatch(value))
+            return value;
+
+        // a dialect that reports the value of a literal rather than the SQL that produced it, i.e.
+        // MySQL, hands over the text of the value itself rather than a quoted literal
+        return TryGetSqlStringLiteral(value, out var literal)
+            ? literal.ToDbmlStringLiteral()
+            : value.ToDbmlStringLiteral();
+    }
+
+    private static string ToDbmlExpressionValue(string value)
+    {
+        // an expression is delimited by backticks, so one that contains a backtick
+        // can only be preserved as a string
+        return value.Contains('`', StringComparison.Ordinal)
+            ? value.ToDbmlStringLiteral()
+            : value.ToDbmlExpression();
+    }
+
+    private static string ToDbmlUnclassifiedValue(string value)
+    {
         if (IsDbmlKeyword(value))
             return value.ToLowerInvariant();
 
@@ -77,11 +114,7 @@ internal static partial class StringExtensions
         if (TryGetSqlStringLiteral(value, out var literal))
             return literal.ToDbmlStringLiteral();
 
-        // an expression is delimited by backticks, so one that contains a backtick
-        // can only be preserved as a string
-        return value.Contains('`', StringComparison.Ordinal)
-            ? value.ToDbmlStringLiteral()
-            : value.ToDbmlExpression();
+        return ToDbmlExpressionValue(value);
     }
 
     private static bool IsDbmlKeyword(string input)

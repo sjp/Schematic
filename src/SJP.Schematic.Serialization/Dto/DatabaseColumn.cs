@@ -48,6 +48,27 @@ public sealed record DatabaseColumn
     public string? DefaultValue { get; init; }
 
     /// <summary>
+    /// The name of the constraint carrying the default, where the source database models a default
+    /// as a constraint in its own right. Only SQL Server does.
+    /// </summary>
+    public Identifier? DefaultConstraintName { get; init; }
+
+    /// <summary>
+    /// What <see cref="DefaultValue"/> evaluates to.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before defaults were classified still reads back, as
+    /// an unknown kind.
+    /// </remarks>
+    public Core.DefaultValueKind DefaultValueKind { get; init; }
+
+    /// <summary>
+    /// The sequence a default draws its values from, when <see cref="DefaultValueKind"/> is
+    /// <see cref="Core.DefaultValueKind.SequenceNextValue"/> and the source database named one.
+    /// </summary>
+    public Identifier? DefaultSequenceName { get; init; }
+
+    /// <summary>
     /// The type of data the column stores.
     /// </summary>
     public required DbType Type { get; init; }

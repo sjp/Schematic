@@ -744,9 +744,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
                 ? Option<string>.Some(row.DefaultValue)
                 : Option<string>.None;
-            var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
+            var defaultValue = OracleDefaultValueParser.Parse(row.DefaultValue);
 
             // Oracle evaluates a virtual column whenever it is read, so it is never stored.
             var column = new OracleDatabaseColumn(

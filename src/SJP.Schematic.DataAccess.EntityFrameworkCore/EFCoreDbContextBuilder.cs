@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using LanguageExt;
 using Microsoft.CodeAnalysis;
@@ -306,7 +307,7 @@ public class EFCoreDbContextBuilder
         ArgumentNullException.ThrowIfNull(navigationResolver);
 
         var columnExprs = table.Columns
-            .Where(static c => c.IsComputed || c.DefaultValue.IsSome || c.AutoIncrement.IsSome)
+            .Where(static c => c.IsComputed || c.Default.IsSome || c.AutoIncrement.IsSome)
             .Select(c => BuildTableColumnPropertyForBuilder(table, c));
         var primaryKeyExpr = table.PrimaryKey
             .Match(
@@ -324,6 +325,46 @@ public class EFCoreDbContextBuilder
             .Concat(indexExprs)
             .Concat(foreignKeyExprs)
             .ToList();
+    }
+
+    // A default classified as a literal is written as a value rather than as SQL, so that the
+    // generated context configures the same constant EF Core would insert. Returns null when the
+    // constant cannot be recovered from the text, leaving the caller to pass the expression through.
+    private static ExpressionSyntax? TryGetLiteralExpression(string definition)
+    {
+        var value = definition.Trim();
+
+        // SQL Server reports a default wrapped in parentheses, and a scalar in two pairs of them
+        while (value.Length > 1 && value[0] == '(' && value[^1] == ')')
+            value = value[1..^1].Trim();
+
+        if (value.Length == 0)
+            return null;
+
+        if (string.Equals(value, "true", StringComparison.OrdinalIgnoreCase))
+            return LiteralExpression(SyntaxKind.TrueLiteralExpression);
+        if (string.Equals(value, "false", StringComparison.OrdinalIgnoreCase))
+            return LiteralExpression(SyntaxKind.FalseLiteralExpression);
+
+        if (long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var integralValue))
+            return LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(integralValue));
+        if (decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var decimalValue))
+            return LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(decimalValue));
+
+        // a national character literal (e.g. N'test') carries the same text
+        var quoted = value.Length > 2 && (value[0] == 'N' || value[0] == 'n') && value[1] == '\''
+            ? value[1..]
+            : value;
+        if (quoted.Length >= 2 && quoted[0] == '\'' && quoted[^1] == '\'')
+        {
+            return LiteralExpression(
+                SyntaxKind.StringLiteralExpression,
+                Literal(quoted[1..^1].Replace("''", "'", StringComparison.Ordinal)));
+        }
+
+        // MySQL reports the value of a literal rather than the SQL that produced it, so what is left
+        // is the text of the value itself
+        return LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(value));
     }
 
     private InvocationExpressionSyntax BuildTableColumnPropertyForBuilder(IRelationalDatabaseTable table, IDatabaseColumn column)
@@ -356,20 +397,42 @@ public class EFCoreDbContextBuilder
                                     IdentifierName(EntityLambdaParameterName),
                                     IdentifierName(propertyName)))))));
 
-        column.DefaultValue.IfSome(def =>
+        column.Default.IfSome(def =>
         {
-            property = InvocationExpression(
-                MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    property,
-                    IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))))
-                .WithArgumentList(
-                    ArgumentList(
-                        SingletonSeparatedList(
-                            Argument(
-                                LiteralExpression(
-                                    SyntaxKind.StringLiteralExpression,
-                                    Literal(def))))));
+            // a default of NULL is the absence of a value rather than a value, and EF Core has
+            // nothing to configure for it
+            if (def.Kind == DefaultValueKind.Null)
+                return;
+
+            var literal = def.Kind == DefaultValueKind.Literal
+                ? TryGetLiteralExpression(def.Definition)
+                : null;
+
+            // A sequence default could be expressed with UseSequence, but that also asks EF Core to
+            // create the sequence, which the generated context does not describe, so the expression
+            // is passed through as SQL like any other.
+            property = literal != null
+                ? InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        property,
+                        IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(literal))))
+                : InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        property,
+                        IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList(
+                                Argument(
+                                    LiteralExpression(
+                                        SyntaxKind.StringLiteralExpression,
+                                        Literal(def.Definition))))));
         });
 
         column.AutoIncrement.IfSome(autoIncrement =>

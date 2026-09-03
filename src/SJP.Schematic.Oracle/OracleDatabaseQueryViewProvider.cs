@@ -309,9 +309,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
             var isNullable = row.ColumnName == null || !notNullableColumnNames.Contains(row.ColumnName);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
-                 ? Option<string>.Some(row.DefaultValue)
-                 : Option<string>.None;
+            var defaultValue = OracleDefaultValueParser.Parse(row.DefaultValue);
 
             var column = new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue);
 

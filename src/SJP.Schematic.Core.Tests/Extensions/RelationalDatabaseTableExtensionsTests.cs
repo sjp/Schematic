@@ -29,8 +29,8 @@ internal static class RelationalDatabaseTableExtensionsTests
         );
         var columns = new[]
         {
-            new DatabaseColumn("test_column_1", testColumnType, false, Option<string>.None, Option<IAutoIncrement>.None),
-            new DatabaseColumn("test_column_2", testColumnType, false, Option<string>.None, Option<IAutoIncrement>.None),
+            new DatabaseColumn("test_column_1", testColumnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None),
+            new DatabaseColumn("test_column_2", testColumnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None),
         };
 
         var indexColumns = columns.Select(c => new DatabaseIndexColumn("test", c, IndexColumnOrder.Ascending)).ToList();

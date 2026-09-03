@@ -1065,9 +1065,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var autoIncrement = isAutoIncrement
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
                 : Option<IAutoIncrement>.None;
+            // pragma table_info reports the text of the default, and the parsed definition says what
+            // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<string>.Some(tableInfo.dflt_value)
-                : Option<string>.None;
+                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo.DefaultValueKind))
+                : Option<IDatabaseDefaultValue>.None;
 
             var isComputed = parsedColumnInfo.ComputedColumnType != SqliteGeneratedColumnType.None;
             var computedStorage = parsedColumnInfo.ComputedColumnType == SqliteGeneratedColumnType.Stored
@@ -1130,9 +1132,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var autoIncrement = isAutoIncrement
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
                 : Option<IAutoIncrement>.None;
+            // pragma table_info reports the text of the default, and the parsed definition says what
+            // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<string>.Some(tableInfo.dflt_value)
-                : Option<string>.None;
+                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo.DefaultValueKind))
+                : Option<IDatabaseDefaultValue>.None;
 
             var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
             result.Add(column);

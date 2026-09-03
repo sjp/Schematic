@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -14,7 +14,12 @@ internal static class ForeignKeySetDefaultReferentialActionRuleTests
 {
     private static DatabaseColumn CreateColumn(string name, string defaultValue)
     {
-        return new DatabaseColumn(name, Mock.Of<IDbType>(), true, defaultValue, null);
+        return new DatabaseColumn(
+            name,
+            Mock.Of<IDbType>(),
+            true,
+            defaultValue != null ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(defaultValue)) : Option<IDatabaseDefaultValue>.None,
+            null);
     }
 
     private static IRelationalDatabaseTable CreateChildTable(Identifier childTableName, IDatabaseColumn childColumn, ReferentialAction deleteAction, ReferentialAction updateAction)

@@ -64,7 +64,7 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
 
         foreach (var nullableColumn in nullableColumns)
         {
-            nullableColumn.DefaultValue
+            nullableColumn.Default
                 .Where(IsNullDefaultValue)
                 .IfSome(_ =>
             {
@@ -77,9 +77,24 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
     }
 
     /// <summary>
+    /// Determines whether a default is a null value.
+    /// </summary>
+    /// <param name="defaultValue">A column's default.</param>
+    /// <returns><see langword="true" /> if the provided default is a null value; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="defaultValue"/> is <see langword="null" />.</exception>
+    protected static bool IsNullDefaultValue(IDatabaseDefaultValue defaultValue)
+    {
+        ArgumentNullException.ThrowIfNull(defaultValue);
+
+        // a dialect that could not classify the default leaves its text to speak for itself
+        return defaultValue.Kind == DefaultValueKind.Null
+            || (defaultValue.Kind == DefaultValueKind.Unknown && IsNullDefaultValue(defaultValue.Definition));
+    }
+
+    /// <summary>
     /// Determines whether a default value definition is a null value.
     /// </summary>
-    /// <param name="defaultValue">A column's default value.</param>
+    /// <param name="defaultValue">A column's default value definition.</param>
     /// <returns><see langword="true" /> if the provided default value is a null value; otherwise, <see langword="false" />.</returns>
     protected static bool IsNullDefaultValue(string defaultValue)
     {

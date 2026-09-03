@@ -696,9 +696,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     : Option<IAutoIncrement>.None;
                 var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
                 var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-                var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(row.DefaultValue)
-                    : Option<string>.None;
+                var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation);
                 var computedColumnDefinition = isComputed
                     ? Option<string>.Some(row.ComputedColumnDefinition!)
                     : Option<string>.None;

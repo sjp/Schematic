@@ -742,9 +742,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                         sequenceName));
                 }
 
-                var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(row.ColumnDefault)
-                    : Option<string>.None;
+                var defaultValue = PostgreSqlDefaultValueParser.Parse(row.ColumnDefault);
                 var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
                 var isComputed = string.Equals(row.IsGenerated, Constants.Always, StringComparison.Ordinal);

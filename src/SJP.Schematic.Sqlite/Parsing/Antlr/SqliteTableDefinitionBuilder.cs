@@ -35,6 +35,7 @@ internal static class SqliteTableDefinitionBuilder
             var autoIncrement = false;
             var collation = SqliteCollation.None;
             var defaultValue = string.Empty;
+            var defaultValueKind = DefaultValueKind.Unknown;
             var computedDefinition = string.Empty;
             var computedColumnType = SqliteGeneratedColumnType.None;
 
@@ -64,6 +65,7 @@ internal static class SqliteTableDefinitionBuilder
                 else if (columnConstraint.DEFAULT_() != null)
                 {
                     defaultValue = GetDefaultValueText(columnConstraint);
+                    defaultValueKind = GetDefaultValueKind(columnConstraint);
                 }
                 else if (columnConstraint.foreign_key_clause() != null)
                 {
@@ -90,6 +92,7 @@ internal static class SqliteTableDefinitionBuilder
                 autoIncrement,
                 collation,
                 defaultValue,
+                defaultValueKind,
                 computedDefinition,
                 computedColumnType
             ));
@@ -152,6 +155,33 @@ internal static class SqliteTableDefinitionBuilder
             return OriginalText(columnConstraint.OPEN_PAR(), columnConstraint.CLOSE_PAR());
 
         return string.Empty;
+    }
+
+    // SQLite allows a literal, a signed number, or a parenthesised expression after DEFAULT, so the
+    // token the parser matched already says what the default evaluates to. SQLite has no sequences,
+    // so a default is never drawn from one.
+    private static DefaultValueKind GetDefaultValueKind(SQLiteParser.Column_constraintContext columnConstraint)
+    {
+        if (columnConstraint.signed_number() != null)
+            return DefaultValueKind.Literal;
+
+        var literal = columnConstraint.literal_value();
+        if (literal != null)
+        {
+            if (literal.NULL_() != null)
+                return DefaultValueKind.Null;
+
+            // the remaining keyword literals are the CURRENT_* pseudo-values, which the database
+            // evaluates for each row that omits the column
+            return literal.CURRENT_TIME_() != null || literal.CURRENT_DATE_() != null || literal.CURRENT_TIMESTAMP_() != null
+                ? DefaultValueKind.Expression
+                : DefaultValueKind.Literal;
+        }
+
+        if (columnConstraint.OPEN_PAR() != null && columnConstraint.CLOSE_PAR() != null)
+            return DefaultValueKind.Expression;
+
+        return DefaultValueKind.Unknown;
     }
 
     private static IndexedColumn BuildIndexedColumn(SQLiteParser.Indexed_columnContext indexedColumn)

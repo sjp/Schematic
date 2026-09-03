@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -94,9 +94,9 @@ internal static class SqlServerUserDefinedTypeMapper
             var autoIncrement = row.IsIdentity
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(identitySeed, identityIncrement))
                 : Option<IAutoIncrement>.None;
-            var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
+            // sys.default_constraints is joined for the definition alone, so an attribute default
+            // never carries the name of the constraint holding it
+            var defaultValue = SqlServerDefaultValueParser.Parse(row.DefaultValue, null);
             var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
                 ? Option<string>.Some(row.ComputedColumnDefinition)
                 : Option<string>.None;

@@ -175,7 +175,7 @@ internal static class EFCoreTableGeneratorTests
             Option<Identifier>.None
         );
 
-        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        return new DatabaseColumn(columnName, columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
     }
 
     private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier parentTableName, IDatabaseColumn childColumn) =>
@@ -190,7 +190,7 @@ internal static class EFCoreTableGeneratorTests
 
     private static IRelationalDatabaseTable CreateTableWithColumnType(IDbType columnType)
     {
-        var column = new DatabaseColumn("test_column", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         return new RelationalDatabaseTable(
             "test_table",

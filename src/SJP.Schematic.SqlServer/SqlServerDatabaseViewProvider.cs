@@ -304,7 +304,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
                 // views cannot own default constraints or identity columns, so these are always absent
-                return new DatabaseColumn(columnName, columnType, row.IsNullable, Option<string>.None, Option<IAutoIncrement>.None);
+                return new DatabaseColumn(columnName, columnType, row.IsNullable, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
             })
             .ToListAsync(cancellationToken);
     }

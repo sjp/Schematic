@@ -103,7 +103,7 @@ public class DbmlFormatter : IDbmlFormatter
         else if (ColumnIsUniqueKey(table, column))
             builder.Append(", unique");
 
-        column.DefaultValue.IfSome(def => builder.Append(", default: ").Append(def.ToDbmlDefaultValue()));
+        column.Default.IfSome(def => builder.Append(", default: ").Append(def.ToDbmlDefaultValue()));
 
         // DBML has no computed column syntax, so the expression is preserved as a column note
         if (column.IsComputed)

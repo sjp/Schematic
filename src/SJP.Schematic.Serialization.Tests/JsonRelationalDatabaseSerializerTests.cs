@@ -1222,7 +1222,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var table = new RelationalDatabaseTable(
             "test_table_name",
@@ -1282,7 +1282,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
     private static IRelationalDatabase CreateColumnTypeDatabase(IDbType columnType)
     {
-        var column = new DatabaseColumn("test_column_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var table = new RelationalDatabaseTable(
             "test_table_name",
@@ -1326,11 +1326,11 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
         var columns = new List<IDatabaseColumn>
         {
             firstNameColumn,
-            new DatabaseColumn("test_computed_column", columnType, true, Option<string>.None, Option<IAutoIncrement>.None, true, definition, storage),
+            new DatabaseColumn("test_computed_column", columnType, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, definition, storage),
         };
 
         var table = new RelationalDatabaseTable(
@@ -1369,7 +1369,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var primaryKey = hasPrimaryKey
             ? Option<IDatabaseKey>.Some(new DatabaseKey(
@@ -1419,7 +1419,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var primaryKey = new DatabaseKey(
             Option<Identifier>.Some("test_pk_name"),
@@ -1498,7 +1498,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var detailedTrigger = new DatabaseTrigger(
             "test_detailed_trigger",
@@ -1555,7 +1555,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var index = new DatabaseIndex(
             "test_index_name",
@@ -1636,7 +1636,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var index = new DatabaseIndex(
             "test_index_name",
@@ -1808,7 +1808,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             "id",
             columnType,
             false,
-            Option<string>.None,
+            Option<IDatabaseDefaultValue>.None,
             Option<IAutoIncrement>.Some(autoIncrement)
         );
 

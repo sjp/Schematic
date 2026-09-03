@@ -425,9 +425,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             var columnType = declaredTypeName.IsNullOrWhiteSpace()
                 ? new SqliteColumnType(affinity)
                 : new SqliteColumnType(declaredTypeName, affinity);
+            // a view column cannot carry a default, so there is no definition to classify
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<string>.Some(tableInfo.dflt_value)
-                : Option<string>.None;
+                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value))
+                : Option<IDatabaseDefaultValue>.None;
 
             var column = new DatabaseColumn(columnName, columnType, !tableInfo.notnull, defaultValue, Option<IAutoIncrement>.None);
             result.Add(column);

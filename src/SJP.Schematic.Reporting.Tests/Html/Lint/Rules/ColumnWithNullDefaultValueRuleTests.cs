@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -35,7 +35,7 @@ internal static class ColumnWithNullDefaultValueRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             true,
-            "null",
+            new DatabaseDefaultValue("null", DefaultValueKind.Null),
             null
         );
 

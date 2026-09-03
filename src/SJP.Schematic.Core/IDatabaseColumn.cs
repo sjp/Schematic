@@ -26,10 +26,19 @@ public interface IDatabaseColumn
     bool IsComputed { get; }
 
     /// <summary>
+    /// The default applied to a column when omitted on an <c>INSERT</c> statement, including the
+    /// name of the constraint carrying it and a classification of what its expression evaluates to.
+    /// </summary>
+    /// <value>The default for a column, if available.</value>
+    Option<IDatabaseDefaultValue> Default { get; }
+
+    /// <summary>
     /// An expression that creates a default value for a column when omitted on an <c>INSERT</c> statement.
+    /// A convenience over <see cref="Default"/>, which carries the same expression alongside the
+    /// constraint name and classification.
     /// </summary>
     /// <value>The default value for a column, if available.</value>
-    Option<string> DefaultValue { get; }
+    Option<string> DefaultValue => Default.Map(static def => def.Definition);
 
     /// <summary>
     /// The database column data type.

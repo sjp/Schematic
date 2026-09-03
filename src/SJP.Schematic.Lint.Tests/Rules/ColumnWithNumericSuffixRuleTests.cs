@@ -63,7 +63,7 @@ internal static class ColumnWithNumericSuffixRuleTests
             "test_column_1",
             Mock.Of<IDbType>(),
             true,
-            "null",
+            new DatabaseDefaultValue("null", DefaultValueKind.Null),
             null
         );
 

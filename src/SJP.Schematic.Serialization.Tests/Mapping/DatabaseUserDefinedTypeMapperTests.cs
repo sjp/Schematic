@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -48,7 +48,7 @@ internal static class DatabaseUserDefinedTypeMapperTests
             11,
             Option<INumericPrecision>.None,
             Option<Identifier>.None);
-        var attribute = new DatabaseColumn("attr", baseType, false, Option<string>.Some("'x'"), Option<IAutoIncrement>.None);
+        var attribute = new DatabaseColumn("attr", baseType, false, Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("'x'")), Option<IAutoIncrement>.None);
         var check = new DatabaseCheckConstraint(Option<Identifier>.Some("ck_test"), "([value] > 0)", true);
 
         var userDefinedType = new DatabaseUserDefinedType(

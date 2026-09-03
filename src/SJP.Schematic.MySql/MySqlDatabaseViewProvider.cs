@@ -257,9 +257,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
                 : Option<IAutoIncrement>.None;
             var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-            var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
+            var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation);
 
             var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
             result.Add(column);

@@ -70,7 +70,7 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
         const string defaultValue = "1";
-        var column = new OracleDatabaseColumn(columnName, columnType, true, defaultValue);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, new DatabaseDefaultValue(defaultValue));
 
         Assert.That(column.DefaultValue.UnwrapSome(), Is.EqualTo(defaultValue));
     }
