@@ -149,12 +149,48 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition) = await (
+        var (columns, definition, options) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken)
+            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadOptionsAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseView(viewName, definition!, columns);
+        // MySQL supports neither triggers on a view nor indexing one.
+        return new DatabaseView(viewName, definition!, columns, [], [], options.CheckOption, options.IsUpdatable);
+    }
+
+    /// <summary>
+    /// Retrieves the check option and updatability of a view.
+    /// </summary>
+    /// <param name="viewName">A view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The view's check option, and whether rows can be written through it.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadOptionsAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var options = await DbConnection.QueryFirstOrNone(
+            GetViewOptions.Sql,
+            new GetViewOptions.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        ).ToOption();
+
+        return options.Match(
+            static row =>
+            (
+                row.CheckOption != null && CheckOptionMapping.TryGetValue(row.CheckOption, out var checkOption)
+                    ? checkOption
+                    : ViewCheckOption.None,
+                string.Equals(row.IsUpdatable, Constants.Yes, StringComparison.OrdinalIgnoreCase)
+            ),
+            static () => (ViewCheckOption.None, false)
+        );
     }
 
     /// <summary>
@@ -251,5 +287,15 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         public const string AutoIncrement = "auto_increment";
 
         public const string No = "NO";
+
+        public const string Yes = "YES";
     }
+
+    // information_schema.views.check_option values
+    private static readonly IReadOnlyDictionary<string, ViewCheckOption> CheckOptionMapping = new Dictionary<string, ViewCheckOption>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["NONE"] = ViewCheckOption.None,
+        ["LOCAL"] = ViewCheckOption.Local,
+        ["CASCADED"] = ViewCheckOption.Cascaded,
+    };
 }

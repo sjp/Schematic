@@ -165,12 +165,75 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition) = await (
+        var (columns, definition, triggers, options) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken)
+            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadTriggersAsync(viewName, cancellationToken),
+            LoadOptionsAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseView(viewName, definition!, columns);
+        // Oracle cannot index a plain view, only a materialized one.
+        return new DatabaseView(viewName, definition!, columns, triggers, [], options.CheckOption, options.IsUpdatable);
+    }
+
+    /// <summary>
+    /// Retrieves the triggers defined on a view, i.e. its <c>INSTEAD OF</c> triggers.
+    /// </summary>
+    /// <param name="viewName">A view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of triggers.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadTriggersAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var queryResult = await DbConnection.QueryAsync(
+            GetViewTriggers.Sql,
+            new GetViewTriggers.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+
+        return OracleCatalogMapper.MapTriggers(queryResult);
+    }
+
+    /// <summary>
+    /// Retrieves the check option and updatability of a view.
+    /// </summary>
+    /// <param name="viewName">A view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The view's check option, and whether rows can be written through it.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadOptionsAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var options = await DbConnection.QueryFirstOrNone(
+            GetViewOptions.Sql,
+            new GetViewOptions.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        ).ToOption();
+
+        return options.Match(
+            static row =>
+            (
+                // Oracle has a single form of WITH CHECK OPTION, whose semantics are those of a
+                // cascaded check option; it has no LOCAL form to distinguish.
+                string.Equals(row.HasCheckOption, YesValue, StringComparison.Ordinal) ? ViewCheckOption.Cascaded : ViewCheckOption.None,
+                !string.Equals(row.IsReadOnly, YesValue, StringComparison.Ordinal)
+                    && string.Equals(row.IsUpdatable, YesValue, StringComparison.Ordinal)
+            ),
+            static () => (ViewCheckOption.None, false)
+        );
     }
 
     /// <summary>
@@ -340,4 +403,6 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     }
 
     private const string EnabledValue = "ENABLED";
+
+    private const string YesValue = "Y";
 }

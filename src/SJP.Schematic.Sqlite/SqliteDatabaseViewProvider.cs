@@ -11,6 +11,8 @@ using Microsoft.Data.Sqlite;
 using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Sqlite.Exceptions;
+using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Sqlite.Pragma.Query;
 using SJP.Schematic.Sqlite.Queries;
@@ -267,12 +269,77 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         var databasePragma = GetDatabasePragma(viewName.Schema!);
 
-        var (columns, definition) = await (
+        var (columns, definition, triggers) = await (
             LoadColumnsAsync(databasePragma, viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken)
+            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadTriggersAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseView(viewName, definition!, columns);
+        return new DatabaseView(
+            viewName,
+            definition!,
+            columns,
+            triggers,
+            // SQLite cannot index a view, nor does it support a check option.
+            [],
+            ViewCheckOption.None,
+            // a SQLite view is read-only unless it carries INSTEAD OF triggers to write through.
+            triggers.Count > 0
+        );
+    }
+
+    /// <summary>
+    /// Retrieves the triggers defined on a view, i.e. its <c>INSTEAD OF</c> triggers.
+    /// </summary>
+    /// <param name="viewName">A view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of triggers.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadTriggersAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var triggerQuery = GetTriggerDefinition.Sql(Dialect, viewName.Schema!);
+        var triggerInfos = DbConnection.QueryEnumerableAsync(
+            triggerQuery,
+            new GetTriggerDefinition.Query { TableName = viewName.LocalName },
+            cancellationToken
+        );
+
+        var result = new List<IDatabaseTrigger>();
+
+        await foreach (var triggerInfo in triggerInfos.WithCancellation(cancellationToken))
+        {
+            var triggerSql = triggerInfo.Sql;
+            var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
+            {
+                try
+                {
+                    return TriggerParser.Parse(sql);
+                }
+                catch (SqliteTriggerParsingException ex)
+                {
+                    throw new SqliteTriggerParsingException(viewName, sql, ex.Message);
+                }
+            })).Value;
+
+            var trigger = new SqliteDatabaseTrigger(
+                triggerInfo.Name,
+                triggerSql,
+                parsedTrigger.Timing,
+                parsedTrigger.Event,
+                parsedTrigger.Condition,
+                parsedTrigger.UpdateColumns
+            );
+            result.Add(trigger);
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -434,7 +501,9 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     }
 
     private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
+    private static readonly SqliteTriggerParser TriggerParser = new();
 
     private const int SqliteError = 1;
 }

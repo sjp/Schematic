@@ -165,13 +165,115 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition) = await (
+        var (columns, definition, triggers, indexRows, options) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken)
+            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadTriggersAsync(viewName, cancellationToken),
+            LoadIndexRowsAsync(viewName, cancellationToken),
+            LoadOptionsAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseMaterializedView(viewName, definition!, columns);
+        var columnLookup = GetColumnLookup(columns);
+        var indexes = OracleCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+
+        return new DatabaseMaterializedView(
+            viewName,
+            definition!,
+            columns,
+            triggers,
+            indexes,
+            options.RefreshMode,
+            options.RefreshMethod,
+            options.IsPopulated
+        );
     }
+
+    /// <summary>
+    /// Retrieves the triggers defined on a materialized view, i.e. its <c>INSTEAD OF</c> triggers.
+    /// </summary>
+    /// <param name="viewName">A materialized view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of triggers.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadTriggersAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var queryResult = await DbConnection.QueryAsync(
+            GetViewTriggers.Sql,
+            new GetViewTriggers.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+
+        return OracleCatalogMapper.MapTriggers(queryResult);
+    }
+
+    private Task<IEnumerable<GetTableIndexes.Result>> LoadIndexRowsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        return DbConnection.QueryAsync(
+            GetMaterializedViewIndexes.Sql,
+            new GetMaterializedViewIndexes.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Retrieves the refresh metadata of a materialized view.
+    /// </summary>
+    /// <param name="viewName">A materialized view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>When and how the view is refreshed, and whether it currently holds data.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<(MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadOptionsAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<(MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var options = await DbConnection.QueryFirstOrNone(
+            GetMaterializedViewOptions.Sql,
+            new GetMaterializedViewOptions.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        ).ToOption();
+
+        return options.Match(
+            static row =>
+            (
+                row.RefreshMode != null && RefreshModeMapping.TryGetValue(row.RefreshMode, out var refreshMode)
+                    ? refreshMode
+                    : MaterializedViewRefreshMode.Unknown,
+                !row.RefreshMethod.IsNullOrWhiteSpace()
+                    ? Option<string>.Some(row.RefreshMethod)
+                    : Option<string>.None,
+                // a view built DEFERRED holds no data and cannot be queried until it is first
+                // refreshed, which Oracle reports as an UNUSABLE staleness.
+                !string.Equals(row.Staleness, UnusableValue, StringComparison.Ordinal)
+            ),
+            static () => (MaterializedViewRefreshMode.Unknown, Option<string>.None, false)
+        );
+    }
+
+    private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyList<IDatabaseColumn> columns)
+    {
+        var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
+
+        foreach (var column in columns)
+        {
+            if (column.Name != null)
+                result[column.Name.LocalName] = column;
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// Retrieves the definition of a materialized view.
     /// </summary>
@@ -339,4 +441,14 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     }
 
     private const string EnabledValue = "ENABLED";
+
+    private const string UnusableValue = "UNUSABLE";
+
+    // ALL_MVIEWS.REFRESH_MODE values
+    private static readonly IReadOnlyDictionary<string, MaterializedViewRefreshMode> RefreshModeMapping = new Dictionary<string, MaterializedViewRefreshMode>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["DEMAND"] = MaterializedViewRefreshMode.OnDemand,
+        ["COMMIT"] = MaterializedViewRefreshMode.OnCommit,
+        ["NEVER"] = MaterializedViewRefreshMode.Never,
+    };
 }

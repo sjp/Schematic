@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using EnumsNET;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
@@ -15,7 +16,7 @@ namespace SJP.Schematic.Core;
 public class DatabaseView : IDatabaseView
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="DatabaseView"/> class.
+    /// Initializes a new instance of the <see cref="DatabaseView"/> class, without any triggers or indexes.
     /// </summary>
     /// <param name="viewName">The view name.</param>
     /// <param name="definition">The view definition.</param>
@@ -26,13 +27,43 @@ public class DatabaseView : IDatabaseView
         Identifier viewName,
         string definition,
         IReadOnlyList<IDatabaseColumn> columns
+    ) : this(viewName, definition, columns, [], [], ViewCheckOption.None, false)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DatabaseView"/> class.
+    /// </summary>
+    /// <param name="viewName">The view name.</param>
+    /// <param name="definition">The view definition.</param>
+    /// <param name="columns">An ordered collection of columns defined by the view definition. May be empty, as a provider is not always able to resolve the columns of a view, e.g. when the view is invalid or inaccessible.</param>
+    /// <param name="triggers">The triggers defined on the view. Empty when the database does not support triggers on views.</param>
+    /// <param name="indexes">The indexes defined on the view. Empty when the database does not support indexing a view.</param>
+    /// <param name="checkOption">The check option constraining rows written through the view.</param>
+    /// <param name="isUpdatable">Whether rows can be written through the view.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="definition"/> is <see langword="null" />, or <paramref name="columns"/>, <paramref name="triggers"/> or <paramref name="indexes"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, or <paramref name="checkOption"/> is an invalid enum value.</exception>
+    public DatabaseView(
+        Identifier viewName,
+        string definition,
+        IReadOnlyList<IDatabaseColumn> columns,
+        IReadOnlyCollection<IDatabaseTrigger> triggers,
+        IReadOnlyCollection<IDatabaseIndex> indexes,
+        ViewCheckOption checkOption,
+        bool isUpdatable
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
+        if (!checkOption.IsValid())
+            throw new ArgumentException($"The {nameof(ViewCheckOption)} provided must be a valid enum.", nameof(checkOption));
 
         Name = viewName ?? throw new ArgumentNullException(nameof(viewName));
         Columns = columns.ToDefensiveCopy(nameof(columns));
+        Triggers = triggers.ToDefensiveCopy(nameof(triggers));
+        Indexes = indexes.ToDefensiveCopy(nameof(indexes));
         Definition = definition;
+        CheckOption = checkOption;
+        IsUpdatable = isUpdatable;
     }
 
     /// <summary>
@@ -52,6 +83,30 @@ public class DatabaseView : IDatabaseView
     /// </summary>
     /// <value>The view columns.</value>
     public IReadOnlyList<IDatabaseColumn> Columns { get; }
+
+    /// <summary>
+    /// The triggers defined on the view, i.e. <c>INSTEAD OF</c> triggers.
+    /// </summary>
+    /// <value>A collection of triggers.</value>
+    public IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
+
+    /// <summary>
+    /// The indexes defined on the view.
+    /// </summary>
+    /// <value>A collection of indexes.</value>
+    public IReadOnlyCollection<IDatabaseIndex> Indexes { get; }
+
+    /// <summary>
+    /// The check option constraining rows written through the view.
+    /// </summary>
+    /// <value>A view check option.</value>
+    public ViewCheckOption CheckOption { get; }
+
+    /// <summary>
+    /// Determines whether rows can be written through this view.
+    /// </summary>
+    /// <value><see langword="true" /> if this view is updatable; otherwise, <see langword="false" />.</value>
+    public virtual bool IsUpdatable { get; }
 
     /// <summary>
     /// Determines whether this view is materialized or pre-computed.

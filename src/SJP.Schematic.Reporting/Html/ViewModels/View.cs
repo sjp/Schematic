@@ -16,7 +16,15 @@ public sealed class View
         Identifier viewName,
         string definition,
         IEnumerable<ViewColumn> columns,
-        IEnumerable<ReferencedObject> referencedObjects
+        IEnumerable<ReferencedObject> referencedObjects,
+        IEnumerable<Table.Index> indexes,
+        IEnumerable<Table.Trigger> triggers,
+        ViewCheckOption checkOption,
+        bool isUpdatable,
+        bool isMaterialized,
+        MaterializedViewRefreshMode refreshMode,
+        Option<string> refreshMethod,
+        bool isPopulated
     )
     {
         ArgumentNullException.ThrowIfNull(viewName);
@@ -31,6 +39,20 @@ public sealed class View
 
         ReferencedObjects = referencedObjects;
         ReferencedObjectsCount = referencedObjects.UCount();
+
+        Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
+        IndexesCount = indexes.UCount();
+
+        Triggers = triggers ?? throw new ArgumentNullException(nameof(triggers));
+        TriggersCount = triggers.UCount();
+
+        CheckOption = GetCheckOptionDescription(checkOption);
+        IsUpdatable = isUpdatable;
+
+        IsMaterialized = isMaterialized;
+        RefreshMode = GetRefreshModeDescription(refreshMode);
+        RefreshMethod = refreshMethod.Match(static m => m ?? string.Empty, static () => string.Empty);
+        IsPopulated = isPopulated;
     }
 
     public string Name { get; }
@@ -46,6 +68,46 @@ public sealed class View
     public IEnumerable<ReferencedObject> ReferencedObjects { get; }
 
     public uint ReferencedObjectsCount { get; }
+
+    public IEnumerable<Table.Index> Indexes { get; }
+
+    public uint IndexesCount { get; }
+
+    public IEnumerable<Table.Trigger> Triggers { get; }
+
+    public uint TriggersCount { get; }
+
+    /// <summary>The view's check option, e.g. <c>WITH CASCADED CHECK OPTION</c>. Empty when it has none.</summary>
+    public string CheckOption { get; }
+
+    public bool IsUpdatable { get; }
+
+    public bool IsMaterialized { get; }
+
+    /// <summary>When a materialized view is refreshed, e.g. <c>ON DEMAND</c>. Empty when the view is not materialized, or the database did not report a refresh mode.</summary>
+    public string RefreshMode { get; }
+
+    /// <summary>How a materialized view is refreshed, e.g. <c>FAST</c>. Empty when the database has only one refresh method.</summary>
+    public string RefreshMethod { get; }
+
+    public bool IsPopulated { get; }
+
+    private static string GetCheckOptionDescription(ViewCheckOption checkOption) => checkOption switch
+    {
+        ViewCheckOption.None => string.Empty,
+        ViewCheckOption.Local => "WITH LOCAL CHECK OPTION",
+        ViewCheckOption.Cascaded => "WITH CASCADED CHECK OPTION",
+        _ => throw new ArgumentOutOfRangeException(nameof(checkOption)),
+    };
+
+    private static string GetRefreshModeDescription(MaterializedViewRefreshMode refreshMode) => refreshMode switch
+    {
+        MaterializedViewRefreshMode.Unknown => string.Empty,
+        MaterializedViewRefreshMode.OnDemand => "ON DEMAND",
+        MaterializedViewRefreshMode.OnCommit => "ON COMMIT",
+        MaterializedViewRefreshMode.Never => "NEVER",
+        _ => throw new ArgumentOutOfRangeException(nameof(refreshMode)),
+    };
 
     /// <summary>
     /// A link from a view to an object it references (hash route into the SPA).

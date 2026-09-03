@@ -4,7 +4,17 @@ import { Check, Minus } from "lucide-react";
 import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
+import { IconTooltip } from "@/components/IconTooltip";
+import { IndexStatus } from "@/components/IndexStatus";
 import { LintFindings } from "@/components/LintFindings";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useDetail } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { ViewColumn, ViewDetail } from "@/types/report";
@@ -84,6 +94,20 @@ export function ViewDetailPage() {
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
         <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
+        {data.isMaterialized && (
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            Materialized
+            {data.refreshMode && ` · refreshed ${data.refreshMode}`}
+            {data.refreshMethod && ` · ${data.refreshMethod}`}
+            {!data.isPopulated && " · not populated"}
+          </span>
+        )}
+        {data.isUpdatable && (
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            Updatable
+            {data.checkOption && ` · ${data.checkOption}`}
+          </span>
+        )}
       </div>
 
       <LintFindings objectUrl={`#/views/${viewKey}`} />
@@ -111,6 +135,77 @@ export function ViewDetailPage() {
               </li>
             ))}
           </ul>
+        </Section>
+      )}
+
+      {data.indexesCount > 0 && (
+        <Section title="Indexes" count={data.indexesCount}>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Unique</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Columns</TableHead>
+                <TableHead>Included</TableHead>
+                <TableHead>Filter</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.indexes.map((ix, i) => (
+                <TableRow key={i}>
+                  <TableCell>{ix.name || "—"}</TableCell>
+                  <TableCell>
+                    {ix.isUnique ? (
+                      <IconTooltip label="Unique index">
+                        <Check className="size-4 text-emerald-500" aria-label="Unique index" />
+                      </IconTooltip>
+                    ) : (
+                      <IconTooltip label="Non-unique index">
+                        <Minus
+                          className="size-4 text-muted-foreground"
+                          aria-label="Non-unique index"
+                        />
+                      </IconTooltip>
+                    )}
+                  </TableCell>
+                  <TableCell>{ix.indexType || "—"}</TableCell>
+                  <TableCell>{ix.columnsText}</TableCell>
+                  <TableCell>{ix.includedColumnsText || "—"}</TableCell>
+                  <TableCell>{ix.filterText || "—"}</TableCell>
+                  <TableCell>
+                    <IndexStatus {...ix} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Section>
+      )}
+
+      {data.triggersCount > 0 && (
+        <Section title="Triggers" count={data.triggersCount}>
+          <div className="space-y-4">
+            {data.triggers.map((tr, i) => (
+              <div key={i} className="rounded-md border">
+                <div className="flex flex-wrap items-center gap-x-3 border-b px-3 py-2 text-sm">
+                  <span className="font-medium">{tr.triggerName}</span>
+                  <span className="text-muted-foreground">
+                    {tr.queryTiming} {tr.events}
+                    {tr.updateColumns && ` OF ${tr.updateColumns}`}
+                    {tr.granularity && ` ${tr.granularity}`}
+                  </span>
+                  {tr.condition && (
+                    <span className="text-muted-foreground">
+                      WHEN <code className="text-xs">{tr.condition}</code>
+                    </span>
+                  )}
+                </div>
+                <pre className="overflow-x-auto p-3 text-xs">{tr.definition}</pre>
+              </div>
+            ))}
+          </div>
         </Section>
       )}
 

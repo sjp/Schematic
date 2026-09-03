@@ -9,9 +9,9 @@ using SJP.Schematic.Core.Extensions;
 namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
-/// The triggers summary payload (<c>data/triggers.json</c>): every trigger in the schema with its
-/// owning table, timing, granularity, events, condition, and definition. Triggers have no
-/// per-object detail page — they also fold into the owning table's detail payload.
+/// The triggers summary payload (<c>data/triggers.json</c>): every trigger in the schema with the
+/// table or view that owns it, timing, granularity, events, condition, and definition. Triggers
+/// have no per-object detail page — they also fold into the owning object's detail payload.
 /// </summary>
 public sealed class Triggers
 {
@@ -29,14 +29,15 @@ public sealed class Triggers
     public IEnumerable<TriggerRow> AllTriggers { get; }
 
     /// <summary>
-    /// A row in the triggers summary list: a trigger and a hash-route link to the table it belongs
-    /// to. Named distinctly from <see cref="Table.Trigger"/> so the JSON source generator emits
-    /// non-colliding metadata.
+    /// A row in the triggers summary list: a trigger and a hash-route link to the table or view it
+    /// belongs to. Named distinctly from <see cref="Table.Trigger"/> so the JSON source generator
+    /// emits non-colliding metadata.
     /// </summary>
     public sealed class TriggerRow
     {
         public TriggerRow(
-            Identifier tableName,
+            Identifier objectName,
+            string objectUrl,
             Identifier triggerName,
             string definition,
             TriggerQueryTiming queryTiming,
@@ -46,13 +47,13 @@ public sealed class Triggers
             IEnumerable<Identifier> updateColumns
         )
         {
-            ArgumentNullException.ThrowIfNull(tableName);
+            ArgumentNullException.ThrowIfNull(objectName);
             ArgumentNullException.ThrowIfNull(triggerName);
             ArgumentNullException.ThrowIfNull(updateColumns);
 
             Name = triggerName.ToVisibleName();
-            TableName = tableName.ToVisibleName();
-            TableUrl = UrlRouter.GetTableUrl(tableName);
+            ObjectName = objectName.ToVisibleName();
+            ObjectUrl = objectUrl ?? throw new ArgumentNullException(nameof(objectUrl));
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
 
             var eventFlags = triggerEvent.GetFlags()
@@ -69,9 +70,11 @@ public sealed class Triggers
 
         public string Name { get; }
 
-        public string TableName { get; }
+        /// <summary>The name of the table or view the trigger is defined on.</summary>
+        public string ObjectName { get; }
 
-        public string TableUrl { get; }
+        /// <summary>A hash route to the table or view the trigger is defined on.</summary>
+        public string ObjectUrl { get; }
 
         public string Definition { get; }
 

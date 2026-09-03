@@ -340,46 +340,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
-        var indexColumns = queryResult
-            .GroupAsDictionary(static row => new { row.IndexName, row.Uniqueness, row.IndexType, row.Status, row.Visibility })
-            .ToList();
-        if (indexColumns.Empty())
+        if (queryResult.Empty())
             return [];
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var result = new List<IDatabaseIndex>(indexColumns.Count);
-        foreach (var indexInfo in indexColumns)
-        {
-            var isUnique = string.Equals(indexInfo.Key.Uniqueness, Constants.Unique, StringComparison.Ordinal);
-            var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
-
-            var indexCols = indexInfo.Value
-                .Where(static row => row.ColumnName != null)
-                .OrderBy(static row => row.ColumnPosition)
-                .Select(static row => new { row.IsDescending, Column = row.ColumnName! })
-                .Select(row =>
-                {
-                    var order = string.Equals(row.IsDescending, Constants.Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                    var indexColumns = columnLookup.TryGetValue(row.Column, out var indexColumn)
-                        ? [indexColumn]
-                        : Array.Empty<IDatabaseColumn>();
-                    var expression = Dialect.QuoteName(row.Column);
-                    return new DatabaseIndexColumn(expression, indexColumns, order);
-                })
-                .ToList();
-
-            var indexType = indexInfo.Key.IndexType != null && IndexTypeMapping.TryGetValue(indexInfo.Key.IndexType, out var mappedIndexType)
-                ? mappedIndexType
-                : IndexType.Unknown;
-            var isValid = !string.Equals(indexInfo.Key.Status, Constants.Unusable, StringComparison.Ordinal);
-            var isVisible = !string.Equals(indexInfo.Key.Visibility, Constants.Invisible, StringComparison.Ordinal);
-
-            var index = new OracleDatabaseIndex(indexName, isUnique, indexCols, indexType, isValid, isVisible);
-            result.Add(index);
-        }
-
-        return result;
+        return OracleCatalogMapper.MapIndexes(queryResult, columnLookup, Dialect);
     }
 
     /// <summary>
@@ -886,64 +852,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
-        var triggers = queryResult.ToList();
-        if (triggers.Empty())
-            return [];
-
-        var result = new List<IDatabaseTrigger>(triggers.Count);
-        foreach (var triggerRow in triggers)
-        {
-            var triggerName = Identifier.CreateQualifiedIdentifier(triggerRow.TriggerSchema, triggerRow.TriggerName);
-            var queryTiming = triggerRow.TriggerType != null && TimingMapping.TryGetValue(triggerRow.TriggerType, out var timing)
-                ? timing
-                : TriggerQueryTiming.After;
-            var granularity = triggerRow.TriggerType != null && GranularityMapping.TryGetValue(triggerRow.TriggerType, out var rowOrStatement)
-                ? rowOrStatement
-                : TriggerGranularity.Unknown;
-            var definition = triggerRow.Definition ?? string.Empty;
-            var isEnabled = string.Equals(triggerRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
-
-            var events = TriggerEvent.None;
-            var triggerEventPieces = triggerRow.TriggerEvent != null
-                ? triggerRow.TriggerEvent.Split([" OR "], StringSplitOptions.RemoveEmptyEntries)
-                : [];
-
-            foreach (var triggerEventPiece in triggerEventPieces)
-            {
-                if (string.Equals(triggerEventPiece, Constants.Insert, StringComparison.Ordinal))
-                    events |= TriggerEvent.Insert;
-                else if (string.Equals(triggerEventPiece, Constants.Update, StringComparison.Ordinal))
-                    events |= TriggerEvent.Update;
-                else if (string.Equals(triggerEventPiece, Constants.Delete, StringComparison.Ordinal))
-                    events |= TriggerEvent.Delete;
-                else
-                    events |= TriggerEvent.Other;
-            }
-
-            var condition = !triggerRow.Condition.IsNullOrWhiteSpace()
-                ? Option<string>.Some(triggerRow.Condition)
-                : Option<string>.None;
-            var updateColumns = !triggerRow.UpdateColumns.IsNullOrWhiteSpace()
-                ? triggerRow.UpdateColumns
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                    .Select(static c => Identifier.CreateQualifiedIdentifier(c))
-                    .ToList()
-                : [];
-
-            var trigger = new DatabaseTrigger(
-                triggerName,
-                definition,
-                queryTiming,
-                events,
-                isEnabled,
-                granularity,
-                condition,
-                updateColumns
-            );
-            result.Add(trigger);
-        }
-
-        return result;
+        return OracleCatalogMapper.MapTriggers(queryResult);
     }
 
     /// <summary>
@@ -1014,15 +923,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// A mapping from the trigger query timings as described in Oracle, to a <see cref="TriggerQueryTiming"/> instance.
     /// </summary>
     /// <value>A mapping dictionary.</value>
-    protected IReadOnlyDictionary<string, TriggerQueryTiming> TimingMapping { get; } = new Dictionary<string, TriggerQueryTiming>(StringComparer.OrdinalIgnoreCase)
-    {
-        ["BEFORE STATEMENT"] = TriggerQueryTiming.Before,
-        ["BEFORE EACH ROW"] = TriggerQueryTiming.Before,
-        ["AFTER STATEMENT"] = TriggerQueryTiming.After,
-        ["AFTER EACH ROW"] = TriggerQueryTiming.After,
-        ["INSTEAD OF"] = TriggerQueryTiming.InsteadOf,
-        ["COMPOUND"] = TriggerQueryTiming.Compound,
-    };
+    protected IReadOnlyDictionary<string, TriggerQueryTiming> TimingMapping { get; } = OracleCatalogMapper.TimingMapping;
 
     /// <summary>
     /// A mapping from the trigger types as described in Oracle, to a <see cref="TriggerGranularity"/> instance.
@@ -1030,15 +931,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <see cref="TriggerGranularity.Unknown"/> rather than picking one of them.
     /// </summary>
     /// <value>A mapping dictionary.</value>
-    protected IReadOnlyDictionary<string, TriggerGranularity> GranularityMapping { get; } = new Dictionary<string, TriggerGranularity>(StringComparer.OrdinalIgnoreCase)
-    {
-        ["BEFORE STATEMENT"] = TriggerGranularity.Statement,
-        ["BEFORE EACH ROW"] = TriggerGranularity.Row,
-        ["AFTER STATEMENT"] = TriggerGranularity.Statement,
-        ["AFTER EACH ROW"] = TriggerGranularity.Row,
-        ["INSTEAD OF"] = TriggerGranularity.Row,
-        ["COMPOUND"] = TriggerGranularity.Unknown,
-    };
+    protected IReadOnlyDictionary<string, TriggerGranularity> GranularityMapping { get; } = OracleCatalogMapper.GranularityMapping;
 
     /// <summary>
     /// Qualifies the name of a table, using known identifier defaults.
@@ -1125,24 +1018,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return result;
     }
 
-    // ALL_INDEXES.INDEX_TYPE values, see the Oracle reference for ALL_INDEXES.
-    private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.Ordinal)
-    {
-        ["NORMAL"] = IndexType.BTree,
-        ["NORMAL/REV"] = IndexType.BTree,
-        ["FUNCTION-BASED NORMAL"] = IndexType.BTree,
-        ["FUNCTION-BASED NORMAL/REV"] = IndexType.BTree,
-        ["BITMAP"] = IndexType.Bitmap,
-        ["FUNCTION-BASED BITMAP"] = IndexType.Bitmap,
-        ["IOT - TOP"] = IndexType.Clustered,
-        ["DOMAIN"] = IndexType.Other,
-        ["CLUSTER"] = IndexType.Other,
-        ["LOB"] = IndexType.Other,
-    };
-
     private static class Constants
     {
-        public const string Delete = "DELETE";
 
         public const string Enabled = "ENABLED";
 
@@ -1152,21 +1029,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         public const string Deferred = "DEFERRED";
 
-        public const string Insert = "INSERT";
-
         public const string PrimaryKeyType = "P";
 
         public const string UniqueKeyType = "U";
 
         public const string ForeignKeyType = "R";
-
-        public const string Unique = "UNIQUE";
-
-        public const string Unusable = "UNUSABLE";
-
-        public const string Invisible = "INVISIBLE";
-
-        public const string Update = "UPDATE";
 
         public const string Y = "Y";
 

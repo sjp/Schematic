@@ -226,6 +226,19 @@ export interface ViewDetail {
   columnsCount: number;
   referencedObjects: ReferencedObject[];
   referencedObjectsCount: number;
+  indexes: TableIndex[];
+  indexesCount: number;
+  triggers: TableTrigger[];
+  triggersCount: number;
+  /** Display name of the check option, e.g. `WITH CASCADED CHECK OPTION`. Empty when the view has none. */
+  checkOption: string;
+  isUpdatable: boolean;
+  isMaterialized: boolean;
+  /** Display name of the refresh mode, e.g. `ON DEMAND`. Empty when the view is not materialized, or the database reported none. */
+  refreshMode: string;
+  /** How a materialized view is refreshed, e.g. `FAST`. Empty when the database has only one refresh method. */
+  refreshMethod: string;
+  isPopulated: boolean;
 }
 
 /** A row in `data/routines.json`. */
@@ -331,9 +344,10 @@ export type SynonymDetail = SynonymSummary;
 /** A row in `data/triggers.json`. */
 export interface TriggerRow {
   name: string;
-  tableName: string;
-  /** Hash route to the owning table. */
-  tableUrl: string;
+  /** The table or view the trigger is defined on. */
+  objectName: string;
+  /** Hash route to the owning table or view. */
+  objectUrl: string;
   definition: string;
   queryTiming: string;
   events: string;

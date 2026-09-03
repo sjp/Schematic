@@ -19,7 +19,8 @@ internal sealed class TriggersRenderer : IDataRenderer
 
         var triggers = data.Tables
             .SelectMany(t => t.Triggers.Select(tr => mapper.Map(t.Name, tr)))
-            .OrderBy(static t => t.TableName, StringComparer.Ordinal)
+            .Concat(data.Views.SelectMany(v => v.Triggers.Select(tr => mapper.MapView(v.Name, tr))))
+            .OrderBy(static t => t.ObjectName, StringComparer.Ordinal)
             .ThenBy(static t => t.Name, StringComparer.Ordinal)
             .ToList();
         var triggersVm = new Triggers(triggers);

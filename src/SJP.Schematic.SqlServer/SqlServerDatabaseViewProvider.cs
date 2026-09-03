@@ -140,16 +140,51 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
         var (
             columns,
             definition,
-            isMaterialized
+            triggers,
+            indexRows,
+            checkOption
         ) = await (
             LoadColumnsAsync(viewName, cancellationToken),
             LoadDefinitionAsync(viewName, cancellationToken),
-            LoadIndexExistsAsync(viewName, cancellationToken)
+            LoadTriggersAsync(viewName, cancellationToken),
+            LoadIndexRowsAsync(viewName, cancellationToken),
+            LoadCheckOptionAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return isMaterialized
-            ? new DatabaseMaterializedView(viewName, definition!, columns)
-            : new DatabaseView(viewName, definition!, columns);
+        var columnLookup = GetColumnLookup(columns);
+        var indexes = SqlServerCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+
+        // SQL Server has no materialized view of its own. An indexed view is the equivalent: creating a
+        // unique clustered index on a view is what causes its results to be stored.
+        return indexes.Count > 0
+            ? new DatabaseMaterializedView(
+                viewName,
+                definition!,
+                columns,
+                triggers,
+                indexes,
+                // an indexed view is kept in step with its base tables as they are modified, and is
+                // therefore always populated. There is no refresh to request or method to choose.
+                MaterializedViewRefreshMode.OnCommit,
+                Option<string>.None,
+                true
+            )
+            // SQL Server does not record whether a view is updatable: INFORMATION_SCHEMA.VIEWS.IS_UPDATABLE
+            // always reports 'NO', and no sys catalog view carries the information, so it is left unset.
+            : new DatabaseView(viewName, definition!, columns, triggers, indexes, checkOption, isUpdatable: false);
+    }
+
+    private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyList<IDatabaseColumn> columns)
+    {
+        var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
+
+        foreach (var column in columns)
+        {
+            if (column.Name != null)
+                result[column.Name.LocalName] = column;
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -171,21 +206,65 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     }
 
     /// <summary>
-    /// Determines whether the view is an indexed view.
+    /// Retrieves the triggers defined on a view, i.e. its <c>INSTEAD OF</c> triggers.
     /// </summary>
     /// <param name="viewName">A view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><see langword="true" /> if the view is indexed; otherwise <see langword="false" />.</returns>
+    /// <returns>A collection of triggers.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<bool> LoadIndexExistsAsync(Identifier viewName, CancellationToken cancellationToken)
+    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
-            GetViewIndexExists.Sql,
-            new GetViewIndexExists.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+        return LoadTriggersAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var queryResult = await DbConnection.QueryAsync(
+            GetViewTriggers.Sql,
+            new GetViewTriggers.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
+
+        return SqlServerCatalogMapper.MapTriggers(queryResult);
+    }
+
+    private Task<IEnumerable<GetTableIndexes.Result>> LoadIndexRowsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        return DbConnection.QueryAsync(
+            GetViewIndexes.Sql,
+            new GetViewIndexes.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Retrieves the check option that constrains rows written through a view.
+    /// </summary>
+    /// <param name="viewName">A view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A check option.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<ViewCheckOption> LoadCheckOptionAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return LoadCheckOptionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<ViewCheckOption> LoadCheckOptionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var checkOption = await DbConnection.ExecuteScalarAsync(
+            GetViewCheckOption.Sql,
+            new GetViewCheckOption.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+
+        // SQL Server only supports a cascaded check option, which it reports as 'CASCADE'.
+        return string.Equals(checkOption, "CASCADE", StringComparison.OrdinalIgnoreCase)
+            ? ViewCheckOption.Cascaded
+            : ViewCheckOption.None;
     }
 
     /// <summary>

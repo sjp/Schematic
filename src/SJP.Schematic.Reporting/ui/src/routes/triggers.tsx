@@ -18,11 +18,11 @@ export function TriggersPage() {
         cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
       },
       {
-        accessorKey: "tableName",
-        header: "Table",
+        accessorKey: "objectName",
+        header: "Object",
         cell: ({ row }) => (
-          <a href={row.original.tableUrl} className="text-primary hover:underline">
-            {row.original.tableName}
+          <a href={row.original.objectUrl} className="text-primary hover:underline">
+            {row.original.objectName}
           </a>
         ),
       },
@@ -66,7 +66,7 @@ export function TriggersPage() {
         columns={columns}
         data={data.allTriggers}
         filterPlaceholder="Filter triggers…"
-        initialSorting={[{ id: "tableName", desc: false }]}
+        initialSorting={[{ id: "objectName", desc: false }]}
         emptyMessage="No triggers."
       />
     </div>

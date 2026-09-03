@@ -165,12 +165,70 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition) = await (
+        var (columns, definition, indexRows, isPopulated) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken)
+            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadIndexRowsAsync(viewName, cancellationToken),
+            LoadIsPopulatedAsync(viewName, cancellationToken)
         ).WhenAll();
 
-        return new DatabaseMaterializedView(viewName, definition!, columns);
+        var columnLookup = GetColumnLookup(columns);
+        var indexes = PostgreSqlCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+
+        return new DatabaseMaterializedView(
+            viewName,
+            definition!,
+            columns,
+            // PostgreSQL does not support triggers on a materialized view.
+            [],
+            indexes,
+            // REFRESH MATERIALIZED VIEW is the only way a PostgreSQL materialized view is brought up to
+            // date, and it always recomputes the whole query, so there is no refresh method to report.
+            MaterializedViewRefreshMode.OnDemand,
+            Option<string>.None,
+            isPopulated
+        );
+    }
+
+    private Task<IEnumerable<GetTableIndexes.Result>> LoadIndexRowsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        return DbConnection.QueryAsync(
+            GetMaterializedViewIndexes.Sql,
+            new GetMaterializedViewIndexes.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+    }
+
+    /// <summary>
+    /// Determines whether a materialized view currently holds data, i.e. whether it has been refreshed
+    /// since it was created.
+    /// </summary>
+    /// <param name="viewName">A materialized view name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns><see langword="true" /> if the view holds data; otherwise, <see langword="false" />.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
+    protected Task<bool> LoadIsPopulatedAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+
+        return DbConnection.ExecuteScalarAsync(
+            GetMaterializedViewIsPopulated.Sql,
+            new GetMaterializedViewIsPopulated.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
+    }
+
+    private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyList<IDatabaseColumn> columns)
+    {
+        var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
+
+        foreach (var column in columns)
+        {
+            if (column.Name != null)
+                result[column.Name.LocalName] = column;
+        }
+
+        return result;
     }
 
     /// <summary>

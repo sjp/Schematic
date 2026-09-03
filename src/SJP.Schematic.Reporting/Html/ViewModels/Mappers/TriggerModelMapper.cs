@@ -10,8 +10,22 @@ internal sealed class TriggerModelMapper
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(trigger);
 
+        return Map(tableName, UrlRouter.GetTableUrl(tableName), trigger);
+    }
+
+    public Triggers.TriggerRow MapView(Identifier viewName, IDatabaseTrigger trigger)
+    {
+        ArgumentNullException.ThrowIfNull(viewName);
+        ArgumentNullException.ThrowIfNull(trigger);
+
+        return Map(viewName, UrlRouter.GetViewUrl(viewName), trigger);
+    }
+
+    private static Triggers.TriggerRow Map(Identifier objectName, string objectUrl, IDatabaseTrigger trigger)
+    {
         return new Triggers.TriggerRow(
-            tableName,
+            objectName,
+            objectUrl,
             trigger.Name,
             trigger.Definition,
             trigger.QueryTiming,
