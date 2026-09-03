@@ -32,6 +32,12 @@ internal static class GetTableColumns
         public required string? DefaultValue { get; init; }
 
         /// <summary>
+        /// <c>N</c> when an enabled and validated <c>NOT NULL</c> constraint applies to the column,
+        /// <c>Y</c> otherwise.
+        /// </summary>
+        public required string? IsNullable { get; init; }
+
+        /// <summary>
         /// <c>YES</c> when the column is a 12c identity column, else <c>NO</c>.
         /// </summary>
         public required string? IsIdentity { get; init; }
@@ -70,6 +76,7 @@ select
     c.DATA_DEFAULT as "{nameof(Result.DefaultValue)}",
     c.CHARACTER_SET_NAME as "{nameof(Result.Collation)}",
     c.VIRTUAL_COLUMN as "{nameof(Result.IsComputed)}",
+    c.NULLABLE as "{nameof(Result.IsNullable)}",
     c.IDENTITY_COLUMN as "{nameof(Result.IsIdentity)}",
     c.DEFAULT_ON_NULL as "{nameof(Result.DefaultOnNull)}",
     ic.GENERATION_TYPE as "{nameof(Result.GenerationType)}",

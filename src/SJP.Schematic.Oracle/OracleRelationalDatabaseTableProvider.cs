@@ -510,9 +510,13 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var columnNotNullConstraints = columnLookup.Keys
-            .Select(static k => k.LocalName)
-            .Select(GenerateNotNullDefinition)
+        // An inline NOT NULL is stored as a system-named check constraint, and is reported through
+        // the column's IsNullable instead. Only constraints named by Oracle whose effect the column
+        // already carries are dropped -- a user-named constraint, or one that has been disabled so
+        // that the column reads as nullable, would otherwise be invisible.
+        var columnNotNullConstraints = columnLookup
+            .Where(static kv => !kv.Value.IsNullable)
+            .Select(static kv => GenerateNotNullDefinition(kv.Key.LocalName))
             .ToHashSet(StringComparer.Ordinal);
 
         var result = new List<IDatabaseCheckConstraint>();
@@ -520,7 +524,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var checkRow in checks)
         {
             var definition = checkRow.Definition;
-            if (definition == null || columnNotNullConstraints.Contains(definition))
+            if (definition == null)
+                continue;
+
+            var isGeneratedName = string.Equals(checkRow.NameGeneration, Constants.GeneratedName, StringComparison.Ordinal);
+            if (isGeneratedName && columnNotNullConstraints.Contains(definition))
                 continue;
 
             var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
@@ -536,8 +544,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
-    /// Retrieves the raw check constraint rows defined on a given table. Shared by <see cref="LoadChecksAsync"/> and
-    /// <see cref="GetNotNullConstrainedColumnsAsync"/> so that <c>GetTableChecks</c> is only queried once per table.
+    /// Retrieves the raw check constraint rows defined on a given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -709,10 +716,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(queryCache);
 
-        return LoadColumnsAsyncCore(tableName, queryCache, cancellationToken);
+        return LoadColumnsAsyncCore(tableName, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
         var query = await DbConnection.QueryAsync(
             GetTableColumns.Sql,
@@ -720,11 +727,6 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
-        var columnNames = query
-            .Where(static row => row.ColumnName != null)
-            .Select(static row => row.ColumnName!)
-            .ToList();
-        var notNullableColumnNames = await GetNotNullConstrainedColumnsAsync(tableName, columnNames, queryCache, cancellationToken);
         var result = new List<IDatabaseColumn>();
 
         foreach (var row in query)
@@ -742,7 +744,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             };
             var columnType = TypeProvider.CreateColumnType(typeMetadata);
 
-            var isNullable = row.ColumnName == null || !notNullableColumnNames.Contains(row.ColumnName);
+            var isNullable = !string.Equals(row.IsNullable, Constants.N, StringComparison.Ordinal);
             var isComputed = string.Equals(row.IsComputed, Constants.Yes, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
@@ -856,44 +858,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
-    /// Retrieves the names all of the not-null constrained columns in a given table.
-    /// </summary>
-    /// <param name="tableName">A table name.</param>
-    /// <param name="columnNames">The column names for the given table.</param>
-    /// <param name="queryCache">A query cache for the given context.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of not-null constrained column names.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="columnNames"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
-    protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier tableName, IEnumerable<string> columnNames, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-        ArgumentNullException.ThrowIfNull(columnNames);
-        ArgumentNullException.ThrowIfNull(queryCache);
-
-        return GetNotNullConstrainedColumnsAsyncCore(tableName, columnNames, queryCache, cancellationToken);
-    }
-
-    private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier tableName, IEnumerable<string> columnNames, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
-    {
-        var checks = await queryCache.GetCheckRowsAsync(tableName, cancellationToken);
-
-        if (checks.Empty())
-            return [];
-
-        var columnNotNullConstraints = columnNames
-            .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))
-            .ToReadOnlyDictionary();
-
-        return checks
-            .Where(c => c.Definition != null
-                && string.Equals(c.EnabledStatus, Constants.Enabled, StringComparison.Ordinal)
-                && columnNotNullConstraints.ContainsKey(c.Definition))
-            .Select(c => columnNotNullConstraints[c.Definition!])
-            .ToHashSet(StringComparer.Ordinal);
-    }
-
-    /// <summary>
-    /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.
+    /// Creates a not null constraint definition, used to determine whether a constraint is a system-generated <c>NOT NULL</c> constraint.
     /// </summary>
     /// <param name="columnName">A column name.</param>
     /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
@@ -1036,6 +1001,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         public const string ForeignKeyType = "R";
 
         public const string Y = "Y";
+
+        public const string N = "N";
+
+        public const string GeneratedName = "GENERATED NAME";
 
         public const string Yes = "YES";
 

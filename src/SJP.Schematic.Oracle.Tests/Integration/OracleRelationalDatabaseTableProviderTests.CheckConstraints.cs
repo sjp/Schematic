@@ -55,6 +55,50 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     }
 
     [Test]
+    public async Task Checks_WhenGivenTableWithSystemNamedNotNullConstraint_DoesNotReturnConstraint()
+    {
+        var table = await GetTableAsync("table_test_table_33");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Checks, Is.Empty);
+            Assert.That(table.Columns.Single().IsNullable, Is.False);
+        }
+    }
+
+    [Test]
+    public async Task Checks_WhenGivenTableWithUserNamedNotNullConstraint_ReturnsConstraint()
+    {
+        var table = await GetTableAsync("table_test_table_41");
+        var check = table.Checks.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.Name.UnwrapSome().LocalName, Is.EqualTo("NN_TEST_TABLE_41"));
+            Assert.That(check.Definition, Is.EqualTo("\"TEST_COLUMN\" IS NOT NULL"));
+            Assert.That(check.IsEnabled, Is.True);
+            Assert.That(table.Columns.Single().IsNullable, Is.False);
+        }
+    }
+
+    // Oracle only reports a column as NOT NULL while its constraint is enabled and validated, so a
+    // disabled NOT NULL leaves the column nullable. The constraint is still surfaced as a check,
+    // otherwise it would be invisible in the model.
+    [Test]
+    public async Task Checks_WhenGivenTableWithDisabledNotNullConstraint_ReturnsConstraintAndNullableColumn()
+    {
+        var table = await GetTableAsync("table_test_table_42");
+        var check = table.Checks.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(check.Name.UnwrapSome().LocalName, Is.EqualTo("NN_TEST_TABLE_42"));
+            Assert.That(check.IsEnabled, Is.False);
+            Assert.That(table.Columns.Single().IsNullable, Is.True);
+        }
+    }
+
+    [Test]
     public async Task Checks_WhenGivenNovalidateCheck_ReturnsIsValidatedFalse()
     {
         var table = await GetTableAsync("constraint_state_child");

@@ -35,6 +35,11 @@ internal static class GetTableChecks
         /// <c>DEFERRED</c> when a deferrable constraint defers by default, <c>IMMEDIATE</c> otherwise.
         /// </summary>
         public required string? Deferred { get; init; }
+
+        /// <summary>
+        /// <c>GENERATED NAME</c> when Oracle named the constraint, <c>USER NAME</c> when the user did.
+        /// </summary>
+        public required string? NameGeneration { get; init; }
     }
 
     internal const string Sql = $"""
@@ -45,7 +50,8 @@ select
     STATUS as "{nameof(Result.EnabledStatus)}",
     VALIDATED as "{nameof(Result.ValidatedStatus)}",
     DEFERRABLE as "{nameof(Result.Deferrable)}",
-    DEFERRED as "{nameof(Result.Deferred)}"
+    DEFERRED as "{nameof(Result.Deferred)}",
+    GENERATED as "{nameof(Result.NameGeneration)}"
 from SYS.ALL_CONSTRAINTS
 where OWNER = :{nameof(Query.SchemaName)} and TABLE_NAME = :{nameof(Query.TableName)} and CONSTRAINT_TYPE = 'C'
 """;
