@@ -18,69 +18,36 @@ public class DatabaseCommandDependencyProvider : IDatabaseCommandDependencyProvi
 
     public IConfiguration Configuration { get; }
 
-    private IDatabaseDialect GetDialect()
+    private DialectDescriptor GetDialectDescriptor()
     {
         var dialect = Configuration.GetValue<string>("Dialect");
         if (dialect.IsNullOrWhiteSpace())
             throw new InvalidOperationException(nameof(dialect));
 
-        dialect = dialect.ToLowerInvariant();
-        return dialect switch
-        {
-            "mysql" => new MySql.MySqlDialect(),
-            "oracle" => new Oracle.OracleDialect(),
-            "postgresql" => new PostgreSql.PostgreSqlDialect(),
-            "sqlserver" => new SqlServer.SqlServerDialect(),
-            "sqlite" => new Sqlite.SqliteDialect(),
-            _ => throw new NotSupportedException($"The given dialect is not supported {dialect}, expected one of: ..."),
-        };
+        return DialectRegistry.Get(dialect);
     }
 
     public IDbConnectionFactory GetConnectionFactory()
     {
-        var dialect = Configuration.GetValue<string>("Dialect");
-        if (dialect.IsNullOrWhiteSpace())
-            throw new InvalidOperationException(nameof(dialect));
-
+        var descriptor = GetDialectDescriptor();
         var connectionString = GetConnectionString();
-        dialect = dialect.ToLowerInvariant();
-        return dialect switch
-        {
-            "mysql" => new MySql.MySqlConnectionFactory(connectionString),
-            "oracle" => new Oracle.OracleConnectionFactory(connectionString),
-            "postgresql" => new PostgreSql.PostgreSqlConnectionFactory(connectionString),
-            "sqlserver" => new SqlServer.SqlServerConnectionFactory(connectionString),
-            "sqlite" => new Sqlite.SqliteConnectionFactory(connectionString),
-            _ => throw new NotSupportedException($"The given dialect is not supported {dialect}, expected one of: ..."),
-        };
+
+        return descriptor.CreateConnectionFactory(connectionString);
     }
 
     public ISchematicConnection GetSchematicConnection()
     {
-        var connectionFactory = GetConnectionFactory();
-        var dialect = GetDialect();
+        var descriptor = GetDialectDescriptor();
+        var connectionFactory = descriptor.CreateConnectionFactory(GetConnectionString());
 
-        return new SchematicConnection(connectionFactory, dialect);
+        return new SchematicConnection(connectionFactory, descriptor.CreateDialect());
     }
 
     public IRelationalDatabaseProvider GetRelationalDatabaseProvider(ISchematicConnection connection)
     {
         ArgumentNullException.ThrowIfNull(connection);
 
-        var dialect = Configuration.GetValue<string>("Dialect");
-        if (dialect.IsNullOrWhiteSpace())
-            throw new InvalidOperationException(nameof(dialect));
-
-        dialect = dialect.ToLowerInvariant();
-        return dialect switch
-        {
-            "mysql" => new MySql.MySqlDatabaseProvider(connection),
-            "oracle" => new Oracle.OracleDatabaseProvider(connection),
-            "postgresql" => new PostgreSql.PostgreSqlDatabaseProvider(connection),
-            "sqlserver" => new SqlServer.SqlServerDatabaseProvider(connection),
-            "sqlite" => new Sqlite.SqliteDatabaseProvider(connection),
-            _ => throw new NotSupportedException($"The given dialect is not supported {dialect}, expected one of: ..."),
-        };
+        return GetDialectDescriptor().CreateDatabaseProvider(connection);
     }
 
     public string GetConnectionString()

@@ -15,8 +15,7 @@ internal sealed class ExistsQueryExecutor
 {
     /// <summary>
     /// Retrieves the executor associated with a connection, creating one when needed. Executors are
-    /// shared so that the <c>FROM</c> suffix is discovered once per connection, rather than once per
-    /// rule that needs it.
+    /// shared so that the rules running against one connection also share its probe concurrency limit.
     /// </summary>
     /// <param name="connection">A database connection, qualified with a dialect.</param>
     /// <returns>An executor bound to <paramref name="connection"/>.</returns>
@@ -54,71 +53,16 @@ internal sealed class ExistsQueryExecutor
         return ExistsAsyncCore(filterSql, cancellationToken);
     }
 
-    private async Task<bool> ExistsAsyncCore(string filterSql, CancellationToken cancellationToken)
+    private Task<bool> ExistsAsyncCore(string filterSql, CancellationToken cancellationToken)
     {
         var sql = $"select case when exists ({filterSql}) then 1 else 0 end as dummy";
 
-        // resolving the suffix is serialised by its own lock and costs at most a handful of queries per
-        // connection, so it stays outside the limiter rather than consuming permits meant for probes
-        var suffix = await GetFromQuerySuffixAsync(cancellationToken);
-        var query = suffix.IsNullOrWhiteSpace()
-            ? sql
-            : sql + " from " + suffix;
+        // engines such as Oracle reject a select without a from clause, and say so through their dialect
+        var query = Connection.Dialect.Capabilities.FromLessSelectSuffix
+            .Match(suffix => sql + " from " + suffix, sql);
 
-        return await _probeLimiter.RunAsync(ct => DbConnection.ExecuteScalarAsync<bool>(query, ct), cancellationToken);
+        return _probeLimiter.RunAsync(ct => DbConnection.ExecuteScalarAsync<bool>(query, ct), cancellationToken);
     }
-
-    // Only one caller probes; the rest wait for its answer and then reuse the cached suffix.
-    // A failed probe is not cached, so a cancelled lint run does not poison later ones.
-    private async Task<string> GetFromQuerySuffixAsync(CancellationToken cancellationToken)
-    {
-        if (_fromQuerySuffix != null)
-            return _fromQuerySuffix;
-
-        await _suffixLock.WaitAsync(cancellationToken);
-        try
-        {
-            return _fromQuerySuffix ??= await ProbeFromQuerySuffixAsync(cancellationToken);
-        }
-        finally
-        {
-            _suffixLock.Release();
-        }
-    }
-
-    private async Task<string> ProbeFromQuerySuffixAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryNoTable, cancellationToken);
-            return string.Empty;
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            // Deliberately ignoring because we are testing functionality
-        }
-
-        try
-        {
-            _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromSysDual, cancellationToken);
-            return "SYS.DUAL";
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            // Deliberately ignoring because we are testing functionality
-        }
-
-        _ = await DbConnection.ExecuteScalarAsync<bool>(TestQueryFromDual, cancellationToken);
-        return "DUAL";
-    }
-
-    private const string TestQueryNoTable = "select 1 as dummy";
-    private const string TestQueryFromDual = "select 1 as dummy from DUAL";
-    private const string TestQueryFromSysDual = "select 1 as dummy from SYS.DUAL";
-
-    private volatile string? _fromQuerySuffix;
-
-    private readonly SemaphoreSlim _suffixLock = new(1, 1);
 
     private readonly ProbeConcurrencyLimiter _probeLimiter;
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests;
 
@@ -76,5 +78,29 @@ internal static class MySqlDialectTests
         var result = dialect.QuoteIdentifier(input);
 
         Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void Capabilities_PropertyGet_DescribesMySql()
+    {
+        var capabilities = new MySqlDialect().Capabilities;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(capabilities.SupportsSchemas, Is.True);
+            Assert.That(capabilities.SupportsSequences, Is.False);
+            Assert.That(capabilities.SupportsSynonyms, Is.False);
+            Assert.That(capabilities.SupportsRoutines, Is.True);
+            Assert.That(capabilities.SupportsMaterializedViews, Is.False);
+            Assert.That(capabilities.SupportsComments, Is.True);
+            Assert.That(capabilities.SupportsDeferrableConstraints, Is.False);
+            Assert.That(capabilities.SupportsFilteredIndexes, Is.False);
+            Assert.That(capabilities.SupportsIncludedIndexColumns, Is.False);
+            Assert.That(capabilities.SupportsComputedColumns, Is.True);
+            Assert.That(capabilities.SupportsIdentityColumns, Is.True);
+            Assert.That(capabilities.SupportedReferentialActions, Does.Not.Contain(ReferentialAction.SetDefault));
+            Assert.That(capabilities.FromLessSelectSuffix, OptionIs.None);
+            Assert.That(capabilities.MaxIdentifierLength, Is.EqualTo(64));
+        }
     }
 }

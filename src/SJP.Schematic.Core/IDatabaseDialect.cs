@@ -32,6 +32,12 @@ public interface IDatabaseDialect
     bool IsReservedKeyword(string text);
 
     /// <summary>
+    /// Gets a description of what the database engine is able to express.
+    /// </summary>
+    /// <value>The dialect's capabilities.</value>
+    IDatabaseDialectCapabilities Capabilities { get; }
+
+    /// <summary>
     /// Gets a database column data type provider.
     /// </summary>
     /// <value>The type provider.</value>

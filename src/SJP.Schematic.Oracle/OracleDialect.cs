@@ -78,6 +78,37 @@ public class OracleDialect : DatabaseDialect
     public override IDependencyProvider GetDependencyProvider() => new OracleDependencyProvider();
 
     /// <summary>
+    /// Gets a description of what Oracle is able to express.
+    /// </summary>
+    /// <value>The dialect's capabilities.</value>
+    public override IDatabaseDialectCapabilities Capabilities => DialectCapabilities;
+
+    // Virtual columns are the computed column equivalent, and identity columns arrived in 12c.
+    // Oracle has no ON UPDATE clause and no partial or covering indexes; a foreign key can only
+    // cascade or set null on delete.
+    private static readonly IDatabaseDialectCapabilities DialectCapabilities = new DatabaseDialectCapabilities
+    {
+        SupportsSchemas = true,
+        SupportsSequences = true,
+        SupportsSynonyms = true,
+        SupportsRoutines = true,
+        SupportsMaterializedViews = true,
+        SupportsComments = true,
+        SupportsDeferrableConstraints = true,
+        SupportsComputedColumns = true,
+        SupportsIdentityColumns = true,
+        SupportedReferentialActions = FrozenSet.Create(
+            ReferentialAction.NoAction,
+            ReferentialAction.Cascade,
+            ReferentialAction.SetNull
+        ),
+        FromLessSelectSuffix = "DUAL",
+        // 12.2 and later, which is the oldest version the Oracle queries support. Identifiers were
+        // limited to 30 characters before then.
+        MaxIdentifierLength = 128,
+    };
+
+    /// <summary>
     /// Gets a database column data type provider.
     /// </summary>
     /// <value>The type provider.</value>

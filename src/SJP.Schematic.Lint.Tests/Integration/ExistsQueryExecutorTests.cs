@@ -57,7 +57,7 @@ create table exists_probe_table_1 (
     }
 
     [Test]
-    public async Task ExistsAsync_WhenRulesShareAConnection_ProbesFromQuerySuffixOnlyOnce()
+    public async Task ExistsAsync_WhenRuleRuns_QueriesWithoutProbingForAFromQuerySuffix()
     {
         var connectionFactory = new CountingDbConnectionFactory(DbConnection);
         var connection = new SchematicConnection(connectionFactory, new SqliteDialect());
@@ -68,19 +68,19 @@ create table exists_probe_table_1 (
             await database.GetTable("exists_probe_table_1").UnwrapSomeAsync(),
         };
 
-        // the first rule to run pays for the suffix probe as well as its own query
+        // the dialect states that SQLite needs no from clause, so a rule only pays for its own query
         var selfReferenceRule = new ForeignKeySelfReferenceRule(connection, RuleLevel.Error);
         await selfReferenceRule.AnalyseTables(tables);
-        var queryCountAfterProbingRule = connectionFactory.QueryCount;
+        var queryCountAfterFirstRule = connectionFactory.QueryCount;
 
         var noRowsRule = new NoRowsPresentOnTableRule(connection, RuleLevel.Error);
         await noRowsRule.AnalyseTables(tables);
-        var queryCountAfterSharingRule = connectionFactory.QueryCount;
+        var queryCountAfterSecondRule = connectionFactory.QueryCount;
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(queryCountAfterProbingRule, Is.EqualTo(2));
-            Assert.That(queryCountAfterSharingRule - queryCountAfterProbingRule, Is.EqualTo(1));
+            Assert.That(queryCountAfterFirstRule, Is.EqualTo(1));
+            Assert.That(queryCountAfterSecondRule - queryCountAfterFirstRule, Is.EqualTo(1));
         }
     }
 }

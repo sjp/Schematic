@@ -13,6 +13,12 @@ internal sealed class FakeDatabaseDialect : IDatabaseDialect
 {
     public IDbTypeProvider TypeProvider => null;
 
+    public IDatabaseDialectCapabilities Capabilities { get; set; } = new DatabaseDialectCapabilities
+    {
+        SupportedReferentialActions = new HashSet<ReferentialAction> { ReferentialAction.NoAction },
+        MaxIdentifierLength = int.MaxValue,
+    };
+
     public IDependencyProvider GetDependencyProvider() => new EmptyDependencyProvider();
 
     public bool IsReservedKeyword(string text) => ReservedKeywords.Contains(text, StringComparer.OrdinalIgnoreCase);

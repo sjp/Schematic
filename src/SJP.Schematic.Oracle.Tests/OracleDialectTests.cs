@@ -1,5 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests;
 
@@ -121,5 +123,29 @@ internal static class OracleDialectTests
         var result = dialect.IsReservedKeyword("not_a_keyword_at_all");
 
         Assert.That(result, Is.False);
+    }
+
+    [Test]
+    public static void Capabilities_PropertyGet_DescribesOracle()
+    {
+        var capabilities = new OracleDialect().Capabilities;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(capabilities.SupportsSchemas, Is.True);
+            Assert.That(capabilities.SupportsSequences, Is.True);
+            Assert.That(capabilities.SupportsSynonyms, Is.True);
+            Assert.That(capabilities.SupportsRoutines, Is.True);
+            Assert.That(capabilities.SupportsMaterializedViews, Is.True);
+            Assert.That(capabilities.SupportsComments, Is.True);
+            Assert.That(capabilities.SupportsDeferrableConstraints, Is.True);
+            Assert.That(capabilities.SupportsFilteredIndexes, Is.False);
+            Assert.That(capabilities.SupportsIncludedIndexColumns, Is.False);
+            Assert.That(capabilities.SupportsComputedColumns, Is.True);
+            Assert.That(capabilities.SupportsIdentityColumns, Is.True);
+            Assert.That(capabilities.SupportedReferentialActions, Is.EquivalentTo(new[] { ReferentialAction.NoAction, ReferentialAction.Cascade, ReferentialAction.SetNull }));
+            Assert.That(capabilities.FromLessSelectSuffix.UnwrapSome(), Is.EqualTo("DUAL"));
+            Assert.That(capabilities.MaxIdentifierLength, Is.EqualTo(128));
+        }
     }
 }

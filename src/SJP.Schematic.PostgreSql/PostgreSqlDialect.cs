@@ -837,6 +837,36 @@ public class PostgreSqlDialect : DatabaseDialect
     }
 
     /// <summary>
+    /// Gets a description of what PostgreSQL is able to express.
+    /// </summary>
+    /// <value>The dialect's capabilities.</value>
+    public override IDatabaseDialectCapabilities Capabilities => DialectCapabilities;
+
+    // Partial indexes are the filtered index equivalent, INCLUDE columns arrived in 11, stored
+    // generated columns in 12, and identity columns in 10.
+    private static readonly IDatabaseDialectCapabilities DialectCapabilities = new DatabaseDialectCapabilities
+    {
+        SupportsSchemas = true,
+        SupportsSequences = true,
+        SupportsRoutines = true,
+        SupportsMaterializedViews = true,
+        SupportsComments = true,
+        SupportsDeferrableConstraints = true,
+        SupportsFilteredIndexes = true,
+        SupportsIncludedIndexColumns = true,
+        SupportsComputedColumns = true,
+        SupportsIdentityColumns = true,
+        SupportedReferentialActions = FrozenSet.Create(
+            ReferentialAction.NoAction,
+            ReferentialAction.Restrict,
+            ReferentialAction.Cascade,
+            ReferentialAction.SetNull,
+            ReferentialAction.SetDefault
+        ),
+        MaxIdentifierLength = 63, // NAMEDATALEN - 1
+    };
+
+    /// <summary>
     /// Gets a database column data type provider.
     /// </summary>
     /// <value>The type provider.</value>

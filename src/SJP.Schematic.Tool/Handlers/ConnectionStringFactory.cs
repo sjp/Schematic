@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using MySqlConnector;
 using Npgsql;
 using Oracle.ManagedDataAccess.Client;
@@ -23,18 +23,10 @@ public static class ConnectionStringFactory
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dialect);
 
-        return dialect.ToLowerInvariant() switch
-        {
-            "sqlserver" => BuildSqlServer(details),
-            "postgresql" => BuildPostgreSql(details),
-            "mysql" => BuildMySql(details),
-            "oracle" => BuildOracle(details),
-            "sqlite" => ForSqlite(details.Host),
-            _ => throw new NotSupportedException($"The given dialect is not supported: {dialect}. Expected one of: mysql, oracle, postgresql, sqlserver, sqlite."),
-        };
+        return DialectRegistry.Get(dialect).BuildConnectionString(details);
     }
 
-    private static string BuildSqlServer(ConnectionDetails d)
+    internal static string BuildSqlServer(ConnectionDetails d)
     {
         var builder = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder
         {
@@ -50,7 +42,7 @@ public static class ConnectionStringFactory
         return builder.ConnectionString;
     }
 
-    private static string BuildPostgreSql(ConnectionDetails d)
+    internal static string BuildPostgreSql(ConnectionDetails d)
     {
         var builder = new NpgsqlConnectionStringBuilder { Host = d.Host };
         if (d.Port.HasValue)
@@ -65,7 +57,7 @@ public static class ConnectionStringFactory
         return builder.ConnectionString;
     }
 
-    private static string BuildMySql(ConnectionDetails d)
+    internal static string BuildMySql(ConnectionDetails d)
     {
         var builder = new MySqlConnectionStringBuilder { Server = d.Host };
         if (d.Port.HasValue)
@@ -80,7 +72,7 @@ public static class ConnectionStringFactory
         return builder.ConnectionString;
     }
 
-    private static string BuildOracle(ConnectionDetails d)
+    internal static string BuildOracle(ConnectionDetails d)
     {
         // Oracle uses an "Easy Connect" data source of the form host:port/service.
         var dataSource = d.Host;

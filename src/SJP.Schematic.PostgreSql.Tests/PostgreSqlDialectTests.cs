@@ -1,5 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
@@ -102,5 +104,29 @@ internal static class PostgreSqlDialectTests
         var result = dialect.QuoteIdentifier(input);
 
         Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void Capabilities_PropertyGet_DescribesPostgreSql()
+    {
+        var capabilities = new PostgreSqlDialect().Capabilities;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(capabilities.SupportsSchemas, Is.True);
+            Assert.That(capabilities.SupportsSequences, Is.True);
+            Assert.That(capabilities.SupportsSynonyms, Is.False);
+            Assert.That(capabilities.SupportsRoutines, Is.True);
+            Assert.That(capabilities.SupportsMaterializedViews, Is.True);
+            Assert.That(capabilities.SupportsComments, Is.True);
+            Assert.That(capabilities.SupportsDeferrableConstraints, Is.True);
+            Assert.That(capabilities.SupportsFilteredIndexes, Is.True);
+            Assert.That(capabilities.SupportsIncludedIndexColumns, Is.True);
+            Assert.That(capabilities.SupportsComputedColumns, Is.True);
+            Assert.That(capabilities.SupportsIdentityColumns, Is.True);
+            Assert.That(capabilities.SupportedReferentialActions, Has.Count.EqualTo(5));
+            Assert.That(capabilities.FromLessSelectSuffix, OptionIs.None);
+            Assert.That(capabilities.MaxIdentifierLength, Is.EqualTo(63));
+        }
     }
 }

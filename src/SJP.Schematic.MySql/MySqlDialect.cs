@@ -700,6 +700,31 @@ public class MySqlDialect : DatabaseDialect
     }
 
     /// <summary>
+    /// Gets a description of what MySQL is able to express.
+    /// </summary>
+    /// <value>The dialect's capabilities.</value>
+    public override IDatabaseDialectCapabilities Capabilities => DialectCapabilities;
+
+    // A MySQL schema is a database, so object names are schema-qualified. InnoDB parses a
+    // SET DEFAULT action but rejects the constraint that declares one, and treats RESTRICT and
+    // NO ACTION identically.
+    private static readonly IDatabaseDialectCapabilities DialectCapabilities = new DatabaseDialectCapabilities
+    {
+        SupportsSchemas = true,
+        SupportsRoutines = true,
+        SupportsComments = true,
+        SupportsComputedColumns = true,
+        SupportsIdentityColumns = true,
+        SupportedReferentialActions = FrozenSet.Create(
+            ReferentialAction.NoAction,
+            ReferentialAction.Restrict,
+            ReferentialAction.Cascade,
+            ReferentialAction.SetNull
+        ),
+        MaxIdentifierLength = 64,
+    };
+
+    /// <summary>
     /// Gets a database column data type provider.
     /// </summary>
     /// <value>The type provider.</value>

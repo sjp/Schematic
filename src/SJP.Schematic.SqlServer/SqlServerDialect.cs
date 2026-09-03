@@ -390,6 +390,35 @@ public class SqlServerDialect : DatabaseDialect
     }
 
     /// <summary>
+    /// Gets a description of what SQL Server is able to express.
+    /// </summary>
+    /// <value>The dialect's capabilities.</value>
+    public override IDatabaseDialectCapabilities Capabilities => DialectCapabilities;
+
+    // An indexed view stores its results, but it is still declared and named as a view rather than
+    // as a separate object kind, so it is not reported as a materialized view.
+    // SQL Server has no RESTRICT action; NO ACTION is the action that rejects the change.
+    private static readonly IDatabaseDialectCapabilities DialectCapabilities = new DatabaseDialectCapabilities
+    {
+        SupportsSchemas = true,
+        SupportsSequences = true,
+        SupportsSynonyms = true,
+        SupportsRoutines = true,
+        SupportsComments = true,
+        SupportsFilteredIndexes = true,
+        SupportsIncludedIndexColumns = true,
+        SupportsComputedColumns = true,
+        SupportsIdentityColumns = true,
+        SupportedReferentialActions = FrozenSet.Create(
+            ReferentialAction.NoAction,
+            ReferentialAction.Cascade,
+            ReferentialAction.SetNull,
+            ReferentialAction.SetDefault
+        ),
+        MaxIdentifierLength = 128,
+    };
+
+    /// <summary>
     /// Gets a database column data type provider.
     /// </summary>
     /// <value>The type provider.</value>

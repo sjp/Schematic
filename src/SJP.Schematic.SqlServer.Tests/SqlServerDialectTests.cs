@@ -1,5 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests;
 
@@ -102,5 +104,30 @@ internal static class SqlServerDialectTests
         var result = dialect.QuoteIdentifier(input);
 
         Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void Capabilities_PropertyGet_DescribesSqlServer()
+    {
+        var capabilities = new SqlServerDialect().Capabilities;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(capabilities.SupportsSchemas, Is.True);
+            Assert.That(capabilities.SupportsSequences, Is.True);
+            Assert.That(capabilities.SupportsSynonyms, Is.True);
+            Assert.That(capabilities.SupportsRoutines, Is.True);
+            Assert.That(capabilities.SupportsMaterializedViews, Is.False);
+            Assert.That(capabilities.SupportsComments, Is.True);
+            Assert.That(capabilities.SupportsDeferrableConstraints, Is.False);
+            Assert.That(capabilities.SupportsFilteredIndexes, Is.True);
+            Assert.That(capabilities.SupportsIncludedIndexColumns, Is.True);
+            Assert.That(capabilities.SupportsComputedColumns, Is.True);
+            Assert.That(capabilities.SupportsIdentityColumns, Is.True);
+            Assert.That(capabilities.SupportedReferentialActions, Does.Not.Contain(ReferentialAction.Restrict));
+            Assert.That(capabilities.SupportedReferentialActions, Contains.Item(ReferentialAction.SetDefault));
+            Assert.That(capabilities.FromLessSelectSuffix, OptionIs.None);
+            Assert.That(capabilities.MaxIdentifierLength, Is.EqualTo(128));
+        }
     }
 }

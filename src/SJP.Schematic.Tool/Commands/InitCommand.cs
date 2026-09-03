@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Abstractions;
@@ -16,8 +16,6 @@ namespace SJP.Schematic.Tool.Commands;
 [Description("Interactively create a schematic configuration file.")]
 internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
 {
-    private static readonly string[] Dialects = ["sqlserver", "postgresql", "mysql", "oracle", "sqlite"];
-
     public sealed class Settings : CommandSettings
     {
         [CommandOption("-o|--output <FILE>")]
@@ -57,7 +55,7 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
         var dialect = _console.Prompt(
             new SelectionPrompt<string>()
                 .Title("Which database [green]dialect[/] are you connecting to?")
-                .AddChoices(Dialects));
+                .AddChoices(DialectRegistry.DialectNames));
 
         var connectionString = PromptForConnectionString(dialect);
 
@@ -74,10 +72,12 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
 
     private string PromptForConnectionString(string dialect)
     {
-        if (string.Equals(dialect, "sqlite", StringComparison.Ordinal))
+        var descriptor = DialectRegistry.Get(dialect);
+
+        if (descriptor.IsFileBased)
         {
             var path = _console.Prompt(new TextPrompt<string>("Database [green]file path[/]:"));
-            return ConnectionStringFactory.ForSqlite(path);
+            return descriptor.BuildConnectionString(new ConnectionStringFactory.ConnectionDetails(path, null, null, null, null));
         }
 
         var mode = _console.Prompt(
@@ -104,11 +104,9 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
             password = $"${{{variableName}}}";
         }
 
-        var databaseLabel = string.Equals(dialect, "oracle", StringComparison.Ordinal) ? "Service name:" : "Database:";
-        var database = _console.Prompt(new TextPrompt<string>(databaseLabel).AllowEmpty());
+        var database = _console.Prompt(new TextPrompt<string>(descriptor.DatabaseLabel + ":").AllowEmpty());
 
-        return ConnectionStringFactory.BuildGuided(
-            dialect,
+        return descriptor.BuildConnectionString(
             new ConnectionStringFactory.ConnectionDetails(host, port, user, password, database));
     }
 

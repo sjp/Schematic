@@ -181,6 +181,33 @@ public class SqliteDialect : DatabaseDialect
     }
 
     /// <summary>
+    /// Gets a description of what SQLite is able to express.
+    /// </summary>
+    /// <value>The dialect's capabilities.</value>
+    public override IDatabaseDialectCapabilities Capabilities => DialectCapabilities;
+
+    // SQLite has no schemas of its own, but each attached database qualifies the names of the
+    // objects within it, which is what a schema is for here. Partial indexes are the filtered
+    // index equivalent, generated columns arrived in 3.31, and a rowid alias or an AUTOINCREMENT
+    // column is generated on insert. Identifiers are bounded only by statement length.
+    private static readonly IDatabaseDialectCapabilities DialectCapabilities = new DatabaseDialectCapabilities
+    {
+        SupportsSchemas = true,
+        SupportsDeferrableConstraints = true,
+        SupportsFilteredIndexes = true,
+        SupportsComputedColumns = true,
+        SupportsIdentityColumns = true,
+        SupportedReferentialActions = FrozenSet.Create(
+            ReferentialAction.NoAction,
+            ReferentialAction.Restrict,
+            ReferentialAction.Cascade,
+            ReferentialAction.SetNull,
+            ReferentialAction.SetDefault
+        ),
+        MaxIdentifierLength = int.MaxValue,
+    };
+
+    /// <summary>
     /// Gets a database column data type provider.
     /// </summary>
     /// <value>The type provider.</value>
