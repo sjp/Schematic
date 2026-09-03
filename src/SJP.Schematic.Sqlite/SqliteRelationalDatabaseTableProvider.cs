@@ -930,9 +930,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     var parentPrimaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken);
 
                     // the pragma reports a null parent column when the constraint omitted the parent
-                    // column list, which in SQLite refers to the parent table's primary key
+                    // column list, which in SQLite refers to the parent table's primary key. Taking the
+                    // primary key's own columns keeps the parent column set accurate; a primary key of a
+                    // different size cannot satisfy the constraint so no relationship is reported.
                     if (hasImplicitParentColumns)
-                        return parentPrimaryKey.ToAsync();
+                        return parentPrimaryKey.Filter(pk => pk.Columns.Count == rows.Count).ToAsync();
 
                     var parentTableColumns = await queryCache.GetColumnsAsync(name, cancellationToken);
                     var parentTableColumnLookup = GetColumnLookup(parentTableColumns);

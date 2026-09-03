@@ -364,4 +364,20 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
         }
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenForeignKeyWithOmittedParentColumnsNotMatchingParentPrimaryKeySize_IsEmpty()
+    {
+        var table = await GetTableAsync("implicit_fk_child_3");
+
+        Assert.That(table.ParentKeys, Is.Empty);
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenForeignKeyWithOmittedParentColumnsAndParentWithoutPrimaryKey_IsEmpty()
+    {
+        var table = await GetTableAsync("implicit_fk_child_4");
+
+        Assert.That(table.ParentKeys, Is.Empty);
+    }
 }

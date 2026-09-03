@@ -309,6 +309,20 @@ create table implicit_fk_child_2 (
     constraint fk_implicit_fk_child_2 foreign key (first_name_child, last_name_child) references implicit_fk_parent_2
         deferrable initially deferred
 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_child_3 (
+    first_name_child text,
+    constraint fk_implicit_fk_child_3 foreign key (first_name_child) references implicit_fk_parent_2
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_parent_3 (
+    test_column integer
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_child_4 (
+    test_column integer,
+    constraint fk_implicit_fk_child_4 foreign key (test_column) references implicit_fk_parent_3
+)", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None);
@@ -412,7 +426,10 @@ end", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table implicit_fk_child_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table implicit_fk_parent_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table implicit_fk_child_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_child_3", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table implicit_fk_parent_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_child_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_parent_3", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }
