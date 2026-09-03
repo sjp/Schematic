@@ -89,6 +89,9 @@ public class NoRowsPresentOnTableRule : Rule, ITableRule
 
     private async Task<IRuleMessage?> AnalyseTableAsyncCore(IRelationalDatabaseTable table, CancellationToken cancellationToken)
     {
+        if (DatabaseManagedTables.IsManagedByDatabase(table))
+            return null;
+
         var tableHasRows = await TableHasRowsAsync(table, cancellationToken);
         return tableHasRows
             ? null

@@ -113,7 +113,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             qualifiedTableNames.AddRange(names);
         }
 
-        var tableNames = qualifiedTableNames
+        var tableNames = (await FilterShadowTablesAsync(qualifiedTableNames))
             .OrderBy(static name => name.Schema, StringComparer.Ordinal)
             .ThenBy(static name => name.LocalName, StringComparer.Ordinal);
 
@@ -147,8 +147,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .ToArray()
             .WhenAll();
 
-        var tableNames = qualifiedTableNames
-            .SelectMany(tn => tn)
+        var tableNames = (await FilterShadowTablesAsync(qualifiedTableNames.SelectMany(static tn => tn)))
             .OrderBy(static name => name.Schema, StringComparer.Ordinal)
             .ThenBy(static name => name.LocalName, StringComparer.Ordinal)
             .ToArray();
@@ -236,7 +235,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 if (tableSchemaName == null)
                     throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
 
-                return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult));
+                var resolvedName = Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult);
+                if (!await IsShadowTableAsync(resolvedName))
+                    return Option<Identifier>.Some(resolvedName);
             }
         }
 
@@ -255,7 +256,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             );
 
             if (tableLocalName != null)
-                return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(dbName, tableLocalName));
+            {
+                var resolvedName = Identifier.CreateQualifiedIdentifier(dbName, tableLocalName);
+                if (!await IsShadowTableAsync(resolvedName))
+                    return Option<Identifier>.Some(resolvedName);
+            }
         }
 
         return Option<Identifier>.None;
@@ -299,7 +304,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             uniqueKeys,
             indexes,
             parentKeys,
-            childKeys
+            childKeys,
+            kind
         ) = await (
             queryCache.GetParsedTableAsync(tableName, cancellationToken),
             queryCache.GetColumnsAsync(tableName, cancellationToken),
@@ -308,7 +314,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             LoadIndexesAsync(tableName, queryCache, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
-            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken),
+            LoadTableKindAsync(tableName, cancellationToken)
         ).WhenAll();
         var checks = LoadChecks(parsedTable);
 
@@ -321,8 +328,30 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             childKeys,
             indexes,
             checks,
-            triggers
+            triggers,
+            kind,
+            // SQLite journals every write and has neither partitioning, system versioning, nor a
+            // table-level collation, so a table's kind is the only storage fact it reports
+            Option<ITablePartitioning>.None,
+            Option<ITableSystemVersioning>.None,
+            true,
+            Option<Identifier>.None
         );
+    }
+
+    private async Task<TableKind> LoadTableKindAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var isTemporary = string.Equals(tableName.Schema, TempSchemaName, StringComparison.OrdinalIgnoreCase);
+        var tableListEntry = await GetTableListEntryAsync(tableName, cancellationToken);
+
+        // a WITHOUT ROWID table is stored in the structure of its primary key index
+        return tableListEntry != null && string.Equals(tableListEntry.type, VirtualTableType, StringComparison.OrdinalIgnoreCase)
+            ? TableKind.Virtual
+            : isTemporary
+                ? TableKind.Temporary
+                : tableListEntry?.wr == true
+                    ? TableKind.IndexOrganized
+                    : TableKind.Regular;
     }
 
     /// <summary>
@@ -1051,16 +1080,18 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             if (tableInfo.name == null)
                 continue;
 
-            var parsedColumnInfo = parsedColumns.First(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
+            // a virtual table has no parsed definition, so its columns are described by the pragma alone
+            var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
             var columnTypeName = tableInfo.type;
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
+            var collation = parsedColumnInfo?.Collation ?? SqliteCollation.None;
             // a COLLATE clause only applies to a text column, so one parsed for any other affinity is dropped
-            var columnType = parsedColumnInfo.Collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
+            var columnType = collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
                 ? new SqliteColumnType(columnTypeName, affinity)
-                : new SqliteColumnType(columnTypeName, affinity, parsedColumnInfo.Collation);
+                : new SqliteColumnType(columnTypeName, affinity, collation);
 
-            var isAutoIncrement = parsedColumnInfo.IsAutoIncrement
+            var isAutoIncrement = (parsedColumnInfo?.IsAutoIncrement ?? false)
                 || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
             var autoIncrement = isAutoIncrement
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
@@ -1068,11 +1099,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo.DefaultValueKind))
+                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
                 : Option<IDatabaseDefaultValue>.None;
 
-            var isComputed = parsedColumnInfo.ComputedColumnType != SqliteGeneratedColumnType.None;
-            var computedStorage = parsedColumnInfo.ComputedColumnType == SqliteGeneratedColumnType.Stored
+            var computedColumnType = parsedColumnInfo?.ComputedColumnType ?? SqliteGeneratedColumnType.None;
+            var isComputed = computedColumnType != SqliteGeneratedColumnType.None;
+            var computedStorage = computedColumnType == SqliteGeneratedColumnType.Stored
                 ? ComputedColumnStorage.Stored
                 : ComputedColumnStorage.Virtual;
 
@@ -1083,7 +1115,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 defaultValue,
                 autoIncrement,
                 isComputed,
-                parsedColumnInfo.ComputedDefinition,
+                parsedColumnInfo?.ComputedDefinition,
                 computedStorage);
             result.Add(column);
         }
@@ -1118,16 +1150,18 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             if (tableInfo.name == null)
                 continue;
 
-            var parsedColumnInfo = parsedColumns.First(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
+            // a virtual table has no parsed definition, so its columns are described by the pragma alone
+            var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
             var columnTypeName = tableInfo.type;
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
+            var collation = parsedColumnInfo?.Collation ?? SqliteCollation.None;
             // a COLLATE clause only applies to a text column, so one parsed for any other affinity is dropped
-            var columnType = parsedColumnInfo.Collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
+            var columnType = collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
                 ? new SqliteColumnType(columnTypeName, affinity)
-                : new SqliteColumnType(columnTypeName, affinity, parsedColumnInfo.Collation);
+                : new SqliteColumnType(columnTypeName, affinity, collation);
 
-            var isAutoIncrement = parsedColumnInfo.IsAutoIncrement
+            var isAutoIncrement = (parsedColumnInfo?.IsAutoIncrement ?? false)
                 || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
             var autoIncrement = isAutoIncrement
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
@@ -1135,7 +1169,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo.DefaultValueKind))
+                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
                 : Option<IDatabaseDefaultValue>.None;
 
             var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
@@ -1291,6 +1325,13 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             cancellationToken
         );
 
+        // a virtual table is declared with CREATE VIRTUAL TABLE ... USING <module>(...), whose
+        // arguments are the module's business rather than column definitions, so there is nothing
+        // here for the CREATE TABLE parser to read
+        var tableListEntry = await GetTableListEntryAsync(tableName, cancellationToken);
+        if (tableListEntry != null && string.Equals(tableListEntry.type, VirtualTableType, StringComparison.OrdinalIgnoreCase))
+            return ParsedTableData.Empty(tableSql!);
+
         return _tableParserCache.GetOrAdd(tableSql!, sql => new Lazy<ParsedTableData>(() =>
         {
             try
@@ -1364,6 +1405,70 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private Task<Version> LoadDbVersionAsync() => new SqliteDatabaseProvider(Connection).GetDatabaseVersionAsync();
 
     /// <summary>
+    /// Retrieves what <c>pragma table_list</c> reports for a table, if anything. The result is
+    /// cached per schema for the lifetime of this provider instance.
+    /// </summary>
+    private async Task<pragma_table_list?> GetTableListEntryAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        if (tableName.Schema == null)
+        {
+            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+                .MatchUnsafe(static name => name, static () => (Identifier?)null);
+            if (resolvedName == null)
+                return null;
+            tableName = resolvedName;
+        }
+
+        var tableList = await GetTableListAsync(tableName.Schema!);
+        return tableList.GetValueOrDefault(tableName.LocalName);
+    }
+
+    private Task<IReadOnlyDictionary<string, pragma_table_list>> GetTableListAsync(string schema)
+    {
+        return _tableListCache
+            .GetOrAdd(schema, s => new AsyncLazy<IReadOnlyDictionary<string, pragma_table_list>>(() => LoadTableListAsync(s)))
+            .Task;
+    }
+
+    // pragma table_list arrived in SQLite 3.37.0; on anything earlier nothing is known about a
+    // table beyond its presence in sqlite_master.
+    private async Task<IReadOnlyDictionary<string, pragma_table_list>> LoadTableListAsync(string schema)
+    {
+        var version = await _dbVersion.Task;
+        if (version < TableListPragmaVersion)
+            return new Dictionary<string, pragma_table_list>(StringComparer.OrdinalIgnoreCase);
+
+        var tableList = await GetDatabasePragma(schema).TableListAsync();
+        return tableList
+            .GroupBy(static t => t.name, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(static g => g.Key, static g => g.First(), StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Determines whether a table is a shadow table, i.e. one of the internal tables that backs a
+    /// virtual table. Shadow tables are an implementation detail of the virtual table they belong
+    /// to, so they are not reported as tables in their own right.
+    /// </summary>
+    private async Task<bool> IsShadowTableAsync(Identifier tableName)
+    {
+        var tableList = await GetTableListAsync(tableName.Schema!);
+        var entry = tableList.GetValueOrDefault(tableName.LocalName);
+        return entry != null && string.Equals(entry.type, ShadowTableType, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private async Task<IReadOnlyList<Identifier>> FilterShadowTablesAsync(IEnumerable<Identifier> tableNames)
+    {
+        var result = new List<Identifier>();
+        foreach (var tableName in tableNames)
+        {
+            if (!await IsShadowTableAsync(tableName))
+                result.Add(tableName);
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Loads the list of databases attached to the current connection. The result is cached for the
     /// lifetime of this provider instance, as it only changes as a result of an explicit
     /// <c>ATTACH</c>/<c>DETACH</c> against the underlying connection.
@@ -1377,6 +1482,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<string, AsyncLazy<IReadOnlyDictionary<string, pragma_table_list>>> _tableListCache = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly AsyncLazy<Version> _dbVersion;
     private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
@@ -1396,6 +1502,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     // pragma index_xinfo reports an expression index column with this cid, and the rowid with -1.
     private const int ExpressionColumnId = -2;
+
+    private const string TempSchemaName = "temp";
+    private const string VirtualTableType = "virtual";
+    private const string ShadowTableType = "shadow";
+
+    private static readonly Version TableListPragmaVersion = new(3, 37, 0);
 
     private const string UnknownExpression = "<unknown expression>";
 

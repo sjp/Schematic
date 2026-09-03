@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -273,6 +274,85 @@ internal static class RelationalDatabaseTableTests
         var triggers = Array.Empty<IDatabaseTrigger>();
 
         Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidTableKind_ThrowsArgumentException()
+    {
+        Identifier tableName = "test_table";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        Assert.That(
+            () => new RelationalDatabaseTable(
+                tableName,
+                columns,
+                Option<IDatabaseKey>.None,
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                (TableKind)555,
+                Option<ITablePartitioning>.None,
+                Option<ITableSystemVersioning>.None,
+                true,
+                Option<Identifier>.None
+            ),
+            Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void Ctor_GivenNoStorageMetadata_DescribesAnOrdinaryLoggedTable()
+    {
+        Identifier tableName = "test_table";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+
+        var table = new RelationalDatabaseTable(tableName, columns, Option<IDatabaseKey>.None, [], [], [], [], [], []);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Kind, Is.EqualTo(TableKind.Regular));
+            Assert.That(table.Partitioning, OptionIs.None);
+            Assert.That(table.SystemVersioning, OptionIs.None);
+            Assert.That(table.IsLogged, Is.True);
+            Assert.That(table.Collation, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenStorageMetadata_RetainsGivenValues()
+    {
+        Identifier tableName = "test_table";
+        var columns = new[] { Mock.Of<IDatabaseColumn>() };
+        var partitioning = new TablePartitioning("RANGE", columns, ["test_table_2020"]);
+        var systemVersioning = new TableSystemVersioning("test_table_history", "valid_from", "valid_to");
+
+        var table = new RelationalDatabaseTable(
+            tableName,
+            columns,
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            TableKind.PartitionParent,
+            Option<ITablePartitioning>.Some(partitioning),
+            Option<ITableSystemVersioning>.Some(systemVersioning),
+            false,
+            Option<Identifier>.Some("utf8mb4_general_ci")
+        );
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Kind, Is.EqualTo(TableKind.PartitionParent));
+            Assert.That(table.Partitioning.UnwrapSome(), Is.SameAs(partitioning));
+            Assert.That(table.SystemVersioning.UnwrapSome(), Is.SameAs(systemVersioning));
+            Assert.That(table.IsLogged, Is.False);
+            Assert.That(table.Collation.UnwrapSome().LocalName, Is.EqualTo("utf8mb4_general_ci"));
+        }
     }
 
     [TestCase("", "test_table", "Table: test_table")]

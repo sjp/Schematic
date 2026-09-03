@@ -28,6 +28,8 @@ export interface TableSummary {
   parentsCount: number;
   childrenCount: number;
   columnCount: number;
+  /** Display name of the table kind, e.g. `History`. Empty for an ordinary table. */
+  kind: string;
 }
 
 /** `data/tables.json`. */
@@ -547,6 +549,30 @@ export interface SearchSummary {
 }
 
 /** `data/tables/<safeKey>.json`. */
+/** A table named by another table's storage metadata. */
+export interface LinkedTable {
+  name: string;
+  /** Hash route into the SPA. Empty when the report has no page for the object. */
+  tableUrl: string;
+}
+
+/** How a table's rows are distributed across partitions. */
+export interface TablePartitioning {
+  /** How rows are assigned to a partition, e.g. `RANGE`. */
+  strategy: string;
+  /** The columns the partitioning key is built from. Empty when the database does not report them. */
+  columnNames: string[];
+  partitions: LinkedTable[];
+  partitionsCount: number;
+}
+
+/** Where a table's superseded rows are retained. */
+export interface TableSystemVersioning {
+  historyTable: LinkedTable;
+  periodStartColumn: string;
+  periodEndColumn: string;
+}
+
 export interface TableDetail {
   name: string;
   tableUrl: string;
@@ -566,4 +592,13 @@ export interface TableDetail {
   triggers: TableTrigger[];
   triggersCount: number;
   diagrams: TableDiagram[];
+  /** Display name of the table kind, e.g. `History`. Empty for an ordinary table. */
+  kind: string;
+  /** Omitted from the JSON when the table is not partitioned. */
+  tablePartitioning?: TablePartitioning;
+  /** Omitted from the JSON when the table is not system-versioned. */
+  tableSystemVersioning?: TableSystemVersioning;
+  isLogged: boolean;
+  /** The table's default collation. Empty when the database records none for the table as a whole. */
+  collation: string;
 }

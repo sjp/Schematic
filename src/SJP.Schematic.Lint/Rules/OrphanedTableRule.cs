@@ -53,6 +53,9 @@ public class OrphanedTableRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(table);
 
+        if (DatabaseManagedTables.IsManagedByDatabase(table))
+            return [];
+
         if (table.ParentKeys.Count > 0)
             return [];
 

@@ -185,7 +185,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             primaryKey,
             uniqueKeys,
             parentKeys,
-            childKeys
+            childKeys,
+            options
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, cancellationToken),
@@ -194,7 +195,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
-            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken),
+            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -206,7 +208,104 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             childKeys,
             FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
-            triggers
+            triggers,
+            options.Kind,
+            options.Partitioning,
+            options.SystemVersioning,
+            options.IsLogged,
+            options.Collation
+        );
+    }
+
+    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var optionsResult = await DbConnection.QueryAsync(
+            GetTableOptions.Sql,
+            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        var options = optionsResult.FirstOrDefault();
+        if (options == null)
+            return TableOptions.Default;
+
+        var partitioning = Option<ITablePartitioning>.None;
+        if (!options.PartitionMethod.IsNullOrWhiteSpace())
+            partitioning = Option<ITablePartitioning>.Some(await LoadPartitioningAsync(tableName, options, queryCache, cancellationToken));
+
+        var collation = !options.Collation.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(options.Collation))
+            : Option<Identifier>.None;
+
+        // MySQL does not report temporary tables in information_schema, and InnoDB always writes to
+        // the redo log, so neither a temporary kind nor an unlogged table can be observed here.
+        return new TableOptions(
+            partitioning.IsSome ? TableKind.PartitionParent : TableKind.Regular,
+            partitioning,
+            Option<ITableSystemVersioning>.None,
+            true,
+            collation
+        );
+    }
+
+    private async Task<ITablePartitioning> LoadPartitioningAsync(Identifier tableName, GetTableOptions.Result options, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var (partitionNames, columnLookup) = await (
+            DbConnection.QueryAsync(
+                GetTablePartitions.Sql,
+                new GetTablePartitions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            ),
+            queryCache.GetColumnLookupAsync(tableName, cancellationToken)
+        ).WhenAll();
+
+        var partitions = partitionNames
+            .Select(static partitionName => Identifier.CreateQualifiedIdentifier(partitionName))
+            .ToList();
+
+        return new TablePartitioning(options.PartitionMethod!, GetPartitionColumns(options.PartitionExpression, columnLookup), partitions);
+    }
+
+    // MySQL records a partitioning expression rather than a column list. The KEY and COLUMNS methods
+    // write that expression as nothing but a comma-separated list of quoted column names, which is
+    // the only shape read back here; anything else, e.g. HASH(year(`d`)), reports no columns rather
+    // than a guess at which columns the expression touches.
+    private static IReadOnlyList<IDatabaseColumn> GetPartitionColumns(string? partitionExpression, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    {
+        if (partitionExpression.IsNullOrWhiteSpace())
+            return [];
+
+        var columns = new List<IDatabaseColumn>();
+        foreach (var part in partitionExpression.Split(','))
+        {
+            var trimmed = part.Trim();
+            if (trimmed.Length < 3 || trimmed[0] != '`' || trimmed[^1] != '`')
+                return [];
+
+            var columnName = Identifier.CreateQualifiedIdentifier(trimmed[1..^1]);
+            if (!columnLookup.TryGetValue(columnName, out var column))
+                return [];
+
+            columns.Add(column);
+        }
+
+        return columns;
+    }
+
+    private sealed record TableOptions(
+        TableKind Kind,
+        Option<ITablePartitioning> Partitioning,
+        Option<ITableSystemVersioning> SystemVersioning,
+        bool IsLogged,
+        Option<Identifier> Collation
+    )
+    {
+        public static TableOptions Default { get; } = new(
+            TableKind.Regular,
+            Option<ITablePartitioning>.None,
+            Option<ITableSystemVersioning>.None,
+            true,
+            Option<Identifier>.None
         );
     }
 

@@ -19,7 +19,8 @@ internal sealed class MainModelMapper
             table.Name,
             parentKeyCount,
             childKeyCount,
-            columnCount
+            columnCount,
+            table.Kind
         );
     }
 

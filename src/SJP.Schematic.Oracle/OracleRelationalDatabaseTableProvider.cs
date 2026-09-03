@@ -205,7 +205,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             primaryKey,
             uniqueKeys,
             parentKeys,
-            childKeys
+            childKeys,
+            options
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, queryCache, cancellationToken),
@@ -214,7 +215,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
-            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken),
+            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -226,7 +228,105 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             childKeys,
             FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
-            triggers
+            triggers,
+            options.Kind,
+            options.Partitioning,
+            options.SystemVersioning,
+            options.IsLogged,
+            options.Collation
+        );
+    }
+
+    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var optionsResult = await DbConnection.QueryAsync(
+            GetTableOptions.Sql,
+            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        var options = optionsResult.FirstOrDefault();
+        if (options == null)
+            return TableOptions.Default;
+
+        var isPartitioned = string.Equals(options.IsPartitioned, "YES", StringComparison.OrdinalIgnoreCase);
+        var partitioning = Option<ITablePartitioning>.None;
+        if (isPartitioned)
+            partitioning = Option<ITablePartitioning>.Some(await LoadPartitioningAsync(tableName, options, queryCache, cancellationToken));
+
+        var isExternal = string.Equals(options.IsExternal, "Y", StringComparison.OrdinalIgnoreCase);
+        var isTemporary = string.Equals(options.IsTemporary, "Y", StringComparison.OrdinalIgnoreCase);
+        var isIndexOrganized = string.Equals(options.IotType, "IOT", StringComparison.OrdinalIgnoreCase);
+
+        var kind = isExternal
+            ? TableKind.External
+            : isTemporary
+                ? TableKind.Temporary
+                : isPartitioned
+                    ? TableKind.PartitionParent
+                    : isIndexOrganized
+                        ? TableKind.IndexOrganized
+                        : TableKind.Regular;
+
+        // LOGGING is null for a partitioned table, where the setting belongs to each partition, so
+        // only an explicit NO is treated as unlogged.
+        var isLogged = !string.Equals(options.Logging, "NO", StringComparison.OrdinalIgnoreCase);
+
+        var collation = !options.DefaultCollation.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(options.DefaultCollation))
+            : Option<Identifier>.None;
+
+        // Oracle has no system-versioned tables; Flashback Data Archive is a separate feature that
+        // does not expose a period on the table itself.
+        return new TableOptions(kind, partitioning, Option<ITableSystemVersioning>.None, isLogged, collation);
+    }
+
+    private async Task<ITablePartitioning> LoadPartitioningAsync(Identifier tableName, GetTableOptions.Result options, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var (partitionColumnNames, partitionNames, columnLookup) = await (
+            DbConnection.QueryAsync(
+                GetTablePartitionColumns.Sql,
+                new GetTablePartitionColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            ),
+            DbConnection.QueryAsync(
+                GetTablePartitions.Sql,
+                new GetTablePartitions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            ),
+            queryCache.GetColumnLookupAsync(tableName, cancellationToken)
+        ).WhenAll();
+
+        var partitionColumns = partitionColumnNames
+            .Select(columnName => columnLookup.TryGetValue(Identifier.CreateQualifiedIdentifier(columnName), out var column) ? column : null)
+            .Where(static column => column != null)
+            .Select(static column => column!)
+            .ToList();
+        var partitions = partitionNames
+            .Select(static partitionName => Identifier.CreateQualifiedIdentifier(partitionName))
+            .ToList();
+
+        var strategy = !options.PartitioningType.IsNullOrWhiteSpace()
+            ? options.PartitioningType
+            : "UNKNOWN";
+
+        return new TablePartitioning(strategy, partitionColumns, partitions);
+    }
+
+    private sealed record TableOptions(
+        TableKind Kind,
+        Option<ITablePartitioning> Partitioning,
+        Option<ITableSystemVersioning> SystemVersioning,
+        bool IsLogged,
+        Option<Identifier> Collation
+    )
+    {
+        public static TableOptions Default { get; } = new(
+            TableKind.Regular,
+            Option<ITablePartitioning>.None,
+            Option<ITableSystemVersioning>.None,
+            true,
+            Option<Identifier>.None
         );
     }
 

@@ -23,7 +23,12 @@ public sealed class Table
         IEnumerable<CheckConstraint> checks,
         IEnumerable<Index> indexes,
         IEnumerable<Trigger> triggers,
-        IEnumerable<Diagram> diagrams
+        IEnumerable<Diagram> diagrams,
+        TableKind kind,
+        Option<Partitioning> partitioning,
+        Option<SystemVersioning> systemVersioning,
+        bool isLogged,
+        Option<Identifier> collation
     )
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -53,6 +58,12 @@ public sealed class Table
         TriggersCount = triggers.UCount();
 
         Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
+
+        Kind = TableKindNames.GetName(kind);
+        TablePartitioning = partitioning.MatchUnsafe(static p => p, static () => (Partitioning?)null);
+        TableSystemVersioning = systemVersioning.MatchUnsafe(static sv => sv, static () => (SystemVersioning?)null);
+        IsLogged = isLogged;
+        Collation = collation.Match(static name => name.ToVisibleName(), static () => string.Empty);
     }
 
     public string Name { get; }
@@ -88,6 +99,94 @@ public sealed class Table
     public uint TriggersCount { get; }
 
     public IEnumerable<Diagram> Diagrams { get; }
+
+    /// <summary>
+    /// What the table is, where that differs from an ordinary persistent table. Empty for an
+    /// ordinary table.
+    /// </summary>
+    public string Kind { get; }
+
+    /// <summary>
+    /// How the table's rows are distributed across partitions. Null when the table is not partitioned.
+    /// </summary>
+    public Partitioning? TablePartitioning { get; }
+
+    /// <summary>
+    /// Where the table's superseded rows are retained. Null when the table is not system-versioned.
+    /// </summary>
+    public SystemVersioning? TableSystemVersioning { get; }
+
+    /// <summary>
+    /// Whether writes to the table are written to the database's transaction log.
+    /// </summary>
+    public bool IsLogged { get; }
+
+    /// <summary>
+    /// The default collation applied to the table's character data. Empty when the database records
+    /// none for the table as a whole.
+    /// </summary>
+    public string Collation { get; }
+
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
+    public sealed class Partitioning
+    {
+        public Partitioning(string strategy, IEnumerable<string> columnNames, IEnumerable<LinkedTable> partitions)
+        {
+            Strategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
+            ColumnNames = columnNames ?? throw new ArgumentNullException(nameof(columnNames));
+            Partitions = partitions ?? throw new ArgumentNullException(nameof(partitions));
+            PartitionsCount = partitions.UCount();
+        }
+
+        public string Strategy { get; }
+
+        public IEnumerable<string> ColumnNames { get; }
+
+        public IEnumerable<LinkedTable> Partitions { get; }
+
+        public uint PartitionsCount { get; }
+    }
+
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
+    public sealed class SystemVersioning
+    {
+        public SystemVersioning(LinkedTable historyTable, string periodStartColumn, string periodEndColumn)
+        {
+            HistoryTable = historyTable ?? throw new ArgumentNullException(nameof(historyTable));
+            PeriodStartColumn = periodStartColumn ?? throw new ArgumentNullException(nameof(periodStartColumn));
+            PeriodEndColumn = periodEndColumn ?? throw new ArgumentNullException(nameof(periodEndColumn));
+        }
+
+        public LinkedTable HistoryTable { get; }
+
+        public string PeriodStartColumn { get; }
+
+        public string PeriodEndColumn { get; }
+    }
+
+    /// <summary>
+    /// Internal. Not intended to be used outside of this assembly. Only required for templating.
+    /// </summary>
+    public sealed class LinkedTable
+    {
+        /// <param name="name">The name of the object being referred to.</param>
+        /// <param name="isTable">Whether the report contains a page for the object. Partitions are named segments of a table rather than tables in their own right in every database but PostgreSQL, so they usually have no page to link to.</param>
+        public LinkedTable(Identifier name, bool isTable)
+        {
+            ArgumentNullException.ThrowIfNull(name);
+
+            Name = name.ToVisibleName();
+            TableUrl = isTable ? UrlRouter.GetTableUrl(name) : string.Empty;
+        }
+
+        public string Name { get; }
+
+        public string TableUrl { get; }
+    }
 
     /// <summary>
     /// Internal. Not intended to be used outside of this assembly. Only required for templating.

@@ -264,6 +264,8 @@ create table table_test_partitioned_1_p1
         await DbConnection.ExecuteAsync("comment on table table_test_partitioned_1 is 'test partitioned table comment'", CancellationToken.None);
         await DbConnection.ExecuteAsync("comment on column table_test_partitioned_1.payload is 'test partitioned column comment'", CancellationToken.None);
 
+        await DbConnection.ExecuteAsync("create unlogged table table_test_unlogged_1 ( test_column int )", CancellationToken.None);
+
         await DbConnection.ExecuteAsync(@"
 create table constraint_state_parent (
     a int not null,
@@ -402,6 +404,7 @@ execute procedure test_trigger_fn()", CancellationToken.None);
         "drop table table_test_table_42",
         "drop table table_test_table_43",
         "drop table table_test_partitioned_1",
+        "drop table table_test_unlogged_1",
         "drop table constraint_state_child",
         "drop table constraint_state_fk_parent",
         "drop table constraint_state_parent",
@@ -587,23 +590,69 @@ execute procedure test_trigger_fn()", CancellationToken.None);
     }
 
     [Test]
-    public async Task GetTable_WhenGivenIndividualPartition_ReturnsNone()
+    public async Task GetTable_WhenGivenPartitionedTable_ReturnsPartitioningDescribingItsPartitions()
     {
-        var tableIsNone = await TableProvider.GetTable("table_test_partitioned_1_p1").IsNone;
+        var table = await GetTableAsync("table_test_partitioned_1");
 
-        Assert.That(tableIsNone, Is.True);
+        var partitioning = table.Partitioning.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Kind, Is.EqualTo(TableKind.PartitionParent));
+            Assert.That(partitioning.Strategy, Is.EqualTo("RANGE"));
+            Assert.That(partitioning.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "part_key" }));
+            Assert.That(partitioning.Partitions.Select(p => p.LocalName), Is.EqualTo(new[] { "table_test_partitioned_1_p1" }));
+        }
     }
 
     [Test]
-    public async Task GetAllTables_WhenRetrieved_ContainsPartitionedParentButNotPartition()
+    public async Task GetTable_WhenGivenIndividualPartition_ReturnsTableWithPartitionKind()
+    {
+        var table = await GetTableAsync("table_test_partitioned_1_p1");
+
+        Assert.That(table.Kind, Is.EqualTo(TableKind.Partition));
+    }
+
+    [Test]
+    public async Task GetAllTables_WhenRetrieved_ContainsPartitionedParentAndItsPartition()
     {
         var tables = await GetAllTables();
 
         var containsParent = tables.Any(t => string.Equals(t.Name.LocalName, "table_test_partitioned_1", StringComparison.Ordinal));
         var containsPartition = tables.Any(t => string.Equals(t.Name.LocalName, "table_test_partitioned_1_p1", StringComparison.Ordinal));
 
-        Assert.That(containsParent, Is.True);
-        Assert.That(containsPartition, Is.False);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(containsParent, Is.True);
+            Assert.That(containsPartition, Is.True);
+        }
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenUnloggedTable_ReturnsTableThatIsNotLogged()
+    {
+        var table = await GetTableAsync("table_test_unlogged_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.IsLogged, Is.False);
+            Assert.That(table.Kind, Is.EqualTo(TableKind.Regular));
+        }
+    }
+
+    [Test]
+    public async Task GetTable_WhenGivenOrdinaryTable_ReturnsLoggedRegularTable()
+    {
+        var table = await GetTableAsync("table_test_table_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Kind, Is.EqualTo(TableKind.Regular));
+            Assert.That(table.IsLogged, Is.True);
+            Assert.That(table.Partitioning, OptionIs.None);
+            Assert.That(table.SystemVersioning, OptionIs.None);
+            Assert.That(table.Collation, OptionIs.None);
+        }
     }
 
     [Test]

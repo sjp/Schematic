@@ -34,6 +34,18 @@ export function TablesPage() {
       { accessorKey: "columnCount", header: "Columns" },
       { accessorKey: "parentsCount", header: "Parents" },
       { accessorKey: "childrenCount", header: "Children" },
+      {
+        accessorKey: "kind",
+        header: "Kind",
+        cell: ({ getValue }) => {
+          const kind = getValue<string>();
+          return kind ? (
+            <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+              {kind}
+            </span>
+          ) : null;
+        },
+      },
     ],
     [],
   );

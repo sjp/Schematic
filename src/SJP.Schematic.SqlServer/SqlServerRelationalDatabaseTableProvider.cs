@@ -169,7 +169,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             primaryKey,
             uniqueKeys,
             parentKeys,
-            childKeys
+            childKeys,
+            options
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, cancellationToken),
@@ -178,7 +179,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
-            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken),
+            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -190,7 +192,86 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             childKeys,
             FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
-            triggers
+            triggers,
+            options.Kind,
+            options.Partitioning,
+            options.SystemVersioning,
+            options.IsLogged,
+            options.Collation
+        );
+    }
+
+    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var optionsResult = await DbConnection.QueryAsync(
+            GetTableOptions.Sql,
+            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        var options = optionsResult.FirstOrDefault();
+        if (options == null)
+            return TableOptions.Default;
+
+        var partitioning = Option<ITablePartitioning>.None;
+        if (options.PartitionSchemeName != null)
+        {
+            var partitionColumns = Array.Empty<IDatabaseColumn>();
+            if (options.PartitionColumnName != null)
+            {
+                var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
+                if (columnLookup.TryGetValue(options.PartitionColumnName, out var partitionColumn))
+                    partitionColumns = [partitionColumn];
+            }
+
+            // SQL Server names partitions by number rather than by identifier, so no partition
+            // names are reported.
+            partitioning = Option<ITablePartitioning>.Some(new TablePartitioning(options.PartitionSchemeName, partitionColumns, []));
+        }
+
+        var systemVersioning = Option<ITableSystemVersioning>.None;
+        if (options.TemporalType == SystemVersionedTemporalType
+            && options.HistoryTableName != null
+            && options.PeriodStartColumnName != null
+            && options.PeriodEndColumnName != null)
+        {
+            systemVersioning = Option<ITableSystemVersioning>.Some(new TableSystemVersioning(
+                Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, options.HistoryTableSchemaName, options.HistoryTableName),
+                Identifier.CreateQualifiedIdentifier(options.PeriodStartColumnName),
+                Identifier.CreateQualifiedIdentifier(options.PeriodEndColumnName)
+            ));
+        }
+
+        var kind = options.TemporalType == HistoryTemporalType
+            ? TableKind.History
+            : options.IsExternal
+                ? TableKind.External
+                : partitioning.IsSome
+                    ? TableKind.PartitionParent
+                    : TableKind.Regular;
+
+        // SQL Server has no table-level collation; it is defined per character column instead.
+        return new TableOptions(kind, partitioning, systemVersioning, options.Durability != SchemaOnlyDurability, Option<Identifier>.None);
+    }
+
+    private const int HistoryTemporalType = 1;
+    private const int SystemVersionedTemporalType = 2;
+    private const int SchemaOnlyDurability = 1;
+
+    private sealed record TableOptions(
+        TableKind Kind,
+        Option<ITablePartitioning> Partitioning,
+        Option<ITableSystemVersioning> SystemVersioning,
+        bool IsLogged,
+        Option<Identifier> Collation
+    )
+    {
+        public static TableOptions Default { get; } = new(
+            TableKind.Regular,
+            Option<ITablePartitioning>.None,
+            Option<ITableSystemVersioning>.None,
+            true,
+            Option<Identifier>.None
         );
     }
 

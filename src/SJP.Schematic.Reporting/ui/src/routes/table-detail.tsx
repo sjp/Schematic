@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import { useDetail } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
-import type { KeyConstraint, TableColumn, TableDetail } from "@/types/report";
+import type { KeyConstraint, LinkedTable, TableColumn, TableDetail } from "@/types/report";
 
 const routeApi = getRouteApi("/tables/$tableKey");
 
@@ -211,6 +211,21 @@ export function TableDetailPage() {
         <span className="text-muted-foreground">/</span>
         <h1 className="text-2xl font-semibold">{data.name}</h1>
         <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
+        {data.kind && (
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            {data.kind}
+          </span>
+        )}
+        {!data.isLogged && (
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            Unlogged
+          </span>
+        )}
+        {data.collation && (
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            Collation · {data.collation}
+          </span>
+        )}
       </div>
 
       <LintFindings objectUrl={`#/tables/${tableKey}`} />
@@ -223,6 +238,44 @@ export function TableDetailPage() {
           initialSorting={[{ id: "ordinal", desc: false }]}
         />
       </Section>
+
+      {data.tableSystemVersioning && (
+        <Section title="System Versioning">
+          <SimpleTable
+            head={["History Table", "Period Start", "Period End"]}
+            rows={[
+              [
+                <LinkedTableLink key="history" table={data.tableSystemVersioning.historyTable} />,
+                data.tableSystemVersioning.periodStartColumn,
+                data.tableSystemVersioning.periodEndColumn,
+              ],
+            ]}
+          />
+        </Section>
+      )}
+
+      {data.tablePartitioning && (
+        <Section title="Partitioning" count={data.tablePartitioning.partitionsCount}>
+          <SimpleTable
+            head={["Strategy", "Key Columns", "Partitions"]}
+            rows={[
+              [
+                data.tablePartitioning.strategy,
+                data.tablePartitioning.columnNames.join(", ") || "—",
+                data.tablePartitioning.partitions.length > 0 ? (
+                  <span key="partitions" className="flex flex-wrap gap-x-2 gap-y-1">
+                    {data.tablePartitioning.partitions.map((partition) => (
+                      <LinkedTableLink key={partition.name} table={partition} />
+                    ))}
+                  </span>
+                ) : (
+                  "—"
+                ),
+              ],
+            ]}
+          />
+        </Section>
+      )}
 
       {data.primaryKeyExists && data.primaryKey && (
         <Section title="Primary Key">
@@ -395,6 +448,19 @@ export function TableDetailPage() {
         </Section>
       )}
     </div>
+  );
+}
+
+/** Renders a table named by another table's storage metadata, linked when the report has a page for it. */
+function LinkedTableLink({ table }: { table: LinkedTable }) {
+  if (!table.tableUrl) {
+    return <span>{table.name}</span>;
+  }
+
+  return (
+    <a href={table.tableUrl} className="text-primary hover:underline">
+      {table.name}
+    </a>
   );
 }
 

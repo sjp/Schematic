@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -15,7 +16,7 @@ internal sealed class TableRenderer : IDataRenderer
         ArgumentNullException.ThrowIfNull(context);
 
         var relationshipFinder = new RelationshipFinder(data.Tables);
-        var mapper = new TableModelMapper(relationshipFinder);
+        var mapper = new TableModelMapper(relationshipFinder, data.Tables.Select(static t => t.Name));
 
         var tablesDataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data", "tables"));
 

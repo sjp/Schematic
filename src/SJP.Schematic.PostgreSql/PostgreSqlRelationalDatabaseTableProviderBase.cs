@@ -203,7 +203,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             primaryKey,
             uniqueKeys,
             parentKeys,
-            childKeys
+            childKeys,
+            options
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, cancellationToken),
@@ -212,7 +213,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
-            LoadChildKeysAsync(tableName, queryCache, cancellationToken)
+            LoadChildKeysAsync(tableName, queryCache, cancellationToken),
+            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -224,7 +226,103 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             childKeys,
             FilterConstraintIndexes(indexes, primaryKey, uniqueKeys),
             checks,
-            triggers
+            triggers,
+            options.Kind,
+            options.Partitioning,
+            options.SystemVersioning,
+            options.IsLogged,
+            options.Collation
+        );
+    }
+
+    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var optionsResult = await DbConnection.QueryAsync(
+            GetTableOptions.Sql,
+            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        var options = optionsResult.FirstOrDefault();
+        if (options == null)
+            return TableOptions.Default;
+
+        var partitioning = Option<ITablePartitioning>.None;
+        if (string.Equals(options.RelKind, PartitionedRelKind, StringComparison.Ordinal))
+            partitioning = Option<ITablePartitioning>.Some(await LoadPartitioningAsync(tableName, options, queryCache, cancellationToken));
+
+        var kind = options.IsPartition
+            ? TableKind.Partition
+            : partitioning.IsSome
+                ? TableKind.PartitionParent
+                : string.Equals(options.Persistence, TemporaryPersistence, StringComparison.Ordinal)
+                    ? TableKind.Temporary
+                    : TableKind.Regular;
+
+        var isLogged = !string.Equals(options.Persistence, UnloggedPersistence, StringComparison.Ordinal);
+
+        // PostgreSQL has no table-level collation; it is defined per character column instead.
+        return new TableOptions(kind, partitioning, Option<ITableSystemVersioning>.None, isLogged, Option<Identifier>.None);
+    }
+
+    private async Task<ITablePartitioning> LoadPartitioningAsync(Identifier tableName, GetTableOptions.Result options, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var (partitionColumnNames, partitionNames, columnLookup) = await (
+            DbConnection.QueryAsync(
+                GetTablePartitionColumns.Sql,
+                new GetTablePartitionColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            ),
+            DbConnection.QueryAsync(
+                GetTablePartitions.Sql,
+                new GetTablePartitions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+                cancellationToken
+            ),
+            queryCache.GetColumnLookupAsync(tableName, cancellationToken)
+        ).WhenAll();
+
+        var partitionColumns = partitionColumnNames
+            .Select(columnName => columnLookup.TryGetValue(columnName, out var column) ? column : null)
+            .Where(static column => column != null)
+            .Select(static column => column!)
+            .ToList();
+        var partitions = partitionNames
+            .Select(partition => Identifier.CreateQualifiedIdentifier(tableName.Server, tableName.Database, partition.SchemaName, partition.TableName))
+            .ToList();
+
+        var strategy = PartitionStrategyMapping.TryGetValue(options.PartitionStrategy ?? string.Empty, out var mappedStrategy)
+            ? mappedStrategy
+            : UnknownPartitionStrategy;
+
+        return new TablePartitioning(strategy, partitionColumns, partitions);
+    }
+
+    private const string PartitionedRelKind = "p";
+    private const string TemporaryPersistence = "t";
+    private const string UnloggedPersistence = "u";
+    private const string UnknownPartitionStrategy = "UNKNOWN";
+
+    private static readonly IReadOnlyDictionary<string, string> PartitionStrategyMapping = new Dictionary<string, string>(StringComparer.Ordinal)
+    {
+        ["r"] = "RANGE",
+        ["l"] = "LIST",
+        ["h"] = "HASH",
+    };
+
+    private sealed record TableOptions(
+        TableKind Kind,
+        Option<ITablePartitioning> Partitioning,
+        Option<ITableSystemVersioning> SystemVersioning,
+        bool IsLogged,
+        Option<Identifier> Collation
+    )
+    {
+        public static TableOptions Default { get; } = new(
+            TableKind.Regular,
+            Option<ITablePartitioning>.None,
+            Option<ITableSystemVersioning>.None,
+            true,
+            Option<Identifier>.None
         );
     }
 

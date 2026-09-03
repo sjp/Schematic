@@ -3,6 +3,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using Polly;
@@ -53,6 +54,39 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
         var connection = Mock.Of<ISchematicConnection>();
         var rule = new NoRowsPresentOnTableRule(connection, RuleLevel.Error);
         Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
+    }
+
+    [TestCase(TableKind.History)]
+    [TestCase(TableKind.Partition)]
+    [TestCase(TableKind.PartitionParent)]
+    public static async Task AnalyseTables_GivenDatabaseManagedTable_ProducesNoMessages(TableKind kind)
+    {
+        // no query is run for a table the database manages, so a bare mock connection suffices
+        var rule = new NoRowsPresentOnTableRule(Mock.Of<ISchematicConnection>(), RuleLevel.Error);
+
+        var tables = new[]
+        {
+            new RelationalDatabaseTable(
+                "test",
+                [],
+                Option<IDatabaseKey>.None,
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                kind,
+                Option<ITablePartitioning>.None,
+                Option<ITableSystemVersioning>.None,
+                true,
+                Option<Identifier>.None
+            ),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
     }
 
     [Test]

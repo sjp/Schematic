@@ -54,6 +54,9 @@ public class NoIndexesPresentOnTableRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(table);
 
+        if (DatabaseManagedTables.IsManagedByDatabase(table))
+            return [];
+
         var noIndexesPresent = table.PrimaryKey.IsNone
             && table.UniqueKeys.Count == 0
             && table.Indexes.Count == 0;

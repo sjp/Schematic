@@ -66,4 +66,38 @@ public interface IRelationalDatabaseTable : IDatabaseQueryable
     /// </summary>
     /// <value>Triggers defined on the table.</value>
     IReadOnlyCollection<IDatabaseTrigger> Triggers { get; }
+
+    /// <summary>
+    /// What the table is, where that differs from an ordinary persistent table.
+    /// </summary>
+    /// <value>A table kind.</value>
+    TableKind Kind { get; }
+
+    /// <summary>
+    /// How the table's rows are distributed across partitions, if it is partitioned.
+    /// </summary>
+    /// <value>Partitioning information, if the table is partitioned.</value>
+    Option<ITablePartitioning> Partitioning { get; }
+
+    /// <summary>
+    /// Where the table's superseded rows are retained, if the table is system-versioned.
+    /// </summary>
+    /// <value>System versioning information, if the table is system-versioned.</value>
+    Option<ITableSystemVersioning> SystemVersioning { get; }
+
+    /// <summary>
+    /// Whether writes to the table are written to the database's transaction log.
+    /// </summary>
+    /// <value>
+    /// <see langword="false" /> for storage that trades durability for speed, e.g. a PostgreSQL
+    /// unlogged table or a SQL Server memory-optimized table with <c>SCHEMA_ONLY</c> durability;
+    /// otherwise <see langword="true" />.
+    /// </value>
+    bool IsLogged { get; }
+
+    /// <summary>
+    /// The default collation applied to the table's character data.
+    /// </summary>
+    /// <value>A collation, if the database records one for the table as a whole.</value>
+    Option<Identifier> Collation { get; }
 }

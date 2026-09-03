@@ -76,7 +76,8 @@ public sealed class Main
             Identifier tableName,
             uint parentsCount,
             uint childrenCount,
-            uint columnCount
+            uint columnCount,
+            TableKind kind
         )
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -87,6 +88,7 @@ public sealed class Main
             ParentsCount = parentsCount;
             ChildrenCount = childrenCount;
             ColumnCount = columnCount;
+            Kind = TableKindNames.GetName(kind);
         }
 
         public string Name { get; }
@@ -98,6 +100,8 @@ public sealed class Main
         public uint ChildrenCount { get; }
 
         public uint ColumnCount { get; }
+
+        public string Kind { get; }
     }
 
     /// <summary>

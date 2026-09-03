@@ -24,6 +24,39 @@ internal static class NoIndexesPresentOnTableRuleTests
         Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
     }
 
+    [TestCase(TableKind.History)]
+    [TestCase(TableKind.Partition)]
+    [TestCase(TableKind.PartitionParent)]
+    public static async Task AnalyseTables_GivenDatabaseManagedTableWithoutAnyIndexesOrCandidateKeys_ProducesNoMessages(TableKind kind)
+    {
+        var rule = new NoIndexesPresentOnTableRule(RuleLevel.Error);
+        var tables = new[] { CreateTable(kind) };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    private static RelationalDatabaseTable CreateTable(TableKind kind)
+    {
+        return new RelationalDatabaseTable(
+            "test",
+            [],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            kind,
+            Option<ITablePartitioning>.None,
+            Option<ITableSystemVersioning>.None,
+            true,
+            Option<Identifier>.None
+        );
+    }
+
     [Test]
     public static async Task AnalyseTables_GivenTableWithoutAnyIndexesOrCandidateKeys_ProducesMessages()
     {

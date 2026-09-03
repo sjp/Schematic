@@ -7,12 +7,21 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class TableModelMapper
 {
-    public TableModelMapper(RelationshipFinder relationship)
+    public TableModelMapper(RelationshipFinder relationship, IEnumerable<Identifier> tableNames)
     {
+        ArgumentNullException.ThrowIfNull(tableNames);
+
         RelationshipFinder = relationship ?? throw new ArgumentNullException(nameof(relationship));
+        TableNames = tableNames.ToHashSet(IdentifierComparer.OrdinalIgnoreCase);
     }
 
     private RelationshipFinder RelationshipFinder { get; }
+
+    /// <summary>
+    /// The tables the report covers, so that a partition or history table is only linked when there
+    /// is a page to link to.
+    /// </summary>
+    private IReadOnlySet<Identifier> TableNames { get; }
 
     public Table Map(IRelationalDatabaseTable table)
     {
@@ -193,7 +202,32 @@ internal sealed class TableModelMapper
             renderChecks,
             renderIndexes,
             renderTriggers,
-            diagrams
+            diagrams,
+            table.Kind,
+            table.Partitioning.Map(MapPartitioning),
+            table.SystemVersioning.Map(MapSystemVersioning),
+            table.IsLogged,
+            table.Collation
         );
     }
+
+    private Table.Partitioning MapPartitioning(ITablePartitioning partitioning)
+    {
+        return new Table.Partitioning(
+            partitioning.Strategy,
+            partitioning.Columns.Select(static c => c.Name.LocalName).ToList(),
+            partitioning.Partitions.Select(MapLinkedTable).ToList()
+        );
+    }
+
+    private Table.SystemVersioning MapSystemVersioning(ITableSystemVersioning systemVersioning)
+    {
+        return new Table.SystemVersioning(
+            MapLinkedTable(systemVersioning.HistoryTable),
+            systemVersioning.PeriodStartColumn.LocalName,
+            systemVersioning.PeriodEndColumn.LocalName
+        );
+    }
+
+    private Table.LinkedTable MapLinkedTable(Identifier name) => new(name, TableNames.Contains(name));
 }
