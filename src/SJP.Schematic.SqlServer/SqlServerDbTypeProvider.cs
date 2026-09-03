@@ -33,6 +33,10 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             typeMetadata.ClrType = GetClrType(typeMetadata.TypeName);
         typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName);
 
+        // varbinary(max) has no declared length, and is a large object rather than an inline value
+        if (typeMetadata.DataType == DataType.Binary && typeMetadata.MaxLength <= 0)
+            typeMetadata.DataType = DataType.LargeBinary;
+
         var definition = GetFormattedTypeName(typeMetadata);
         return new ColumnDataType(
             typeMetadata.TypeName,
@@ -42,7 +46,11 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             typeMetadata.IsFixedLength,
             typeMetadata.MaxLength,
             typeMetadata.NumericPrecision,
-            typeMetadata.Collation
+            typeMetadata.Collation,
+            typeMetadata.ElementType,
+            typeMetadata.EnumValues,
+            typeMetadata.BaseType,
+            typeMetadata.IsUnsigned
         );
     }
 
@@ -65,6 +73,10 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
             TypeName = null, // ignoring so we get a default name generated
+            ElementType = otherType.ElementType,
+            EnumValues = otherType.EnumValues,
+            BaseType = otherType.BaseType,
+            IsUnsigned = otherType.IsUnsigned,
         };
 
         return CreateColumnType(typeMetadata);
@@ -102,22 +114,35 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
                 : new Identifier("sys", "varbinary"),
             DataType.Boolean => new Identifier("sys", "bit"),
             DataType.Date or DataType.DateTime => new Identifier("sys", "datetime2"),
+            DataType.DateTimeOffset or DataType.TimeOffset => new Identifier("sys", "datetimeoffset"),
             DataType.Float => new Identifier("sys", "float"),
             DataType.Geometry => new Identifier("sys", "geometry"),
             DataType.Integer => new Identifier("sys", "int"),
-            DataType.Interval => new Identifier("sys", "datetimeoffset"),
+            // SQL Server has no interval type; a duration is stored as a time of day, which is
+            // the only type it has that measures anything other than a point in time
+            DataType.Interval => new Identifier("sys", "time"),
             DataType.Json => new Identifier("sys", "json"),
+            DataType.Money => new Identifier("sys", "money"),
             DataType.Numeric => new Identifier("sys", "numeric"),
+            DataType.RowVersion => new Identifier("sys", "rowversion"),
             DataType.SmallInteger => new Identifier("sys", "smallint"),
             DataType.String or DataType.Text => typeMetadata.IsFixedLength
                 ? new Identifier("sys", "char")
                 : new Identifier("sys", "varchar"),
             DataType.Time => new Identifier("sys", "time"),
+            DataType.TinyInteger => new Identifier("sys", "tinyint"),
             DataType.Unicode or DataType.UnicodeText => typeMetadata.IsFixedLength
                 ? new Identifier("sys", "nchar")
                 : new Identifier("sys", "nvarchar"),
             DataType.UniqueIdentifier => new Identifier("sys", "uniqueidentifier"),
+            DataType.Vector => new Identifier("sys", "vector"),
             DataType.Xml => new Identifier("sys", "xml"),
+            // SQL Server has no bit-string type; a run of bits is stored as binary
+            DataType.Bit => new Identifier("sys", "varbinary"),
+            // enumerated, set and network values have no type of their own, and are stored as text
+            DataType.Enum or DataType.Set or DataType.Network or DataType.FullTextSearch => new Identifier("sys", "nvarchar"),
+            // sql_variant is the only type able to hold a value whose shape SQL Server cannot describe
+            DataType.Array or DataType.Range or DataType.Composite or DataType.Variant or DataType.Other => new Identifier("sys", "sql_variant"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
         };
@@ -262,6 +287,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         new("sys", "datetime"),
         new("sys", "geography"),
         new("sys", "geometry"),
+        new("sys", "hierarchyid"),
         new("sys", "image"),
         new("sys", "int"),
         new("sys", "json"),
@@ -288,32 +314,35 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "date")] = DataType.Date,
         [new Identifier("sys", "datetime")] = DataType.DateTime,
         [new Identifier("sys", "datetime2")] = DataType.DateTime,
-        [new Identifier("sys", "datetimeoffset")] = DataType.Time, // not sure on this, another type better?
+        [new Identifier("sys", "datetimeoffset")] = DataType.DateTimeOffset,
         [new Identifier("sys", "decimal")] = DataType.Numeric,
         [new Identifier("sys", "float")] = DataType.Float,
         [new Identifier("sys", "geography")] = DataType.Geometry,
+        [new Identifier("sys", "hierarchyid")] = DataType.Other,
         [new Identifier("sys", "geometry")] = DataType.Geometry,
-        [new Identifier("sys", "image")] = DataType.Binary,
+        [new Identifier("sys", "image")] = DataType.LargeBinary,
         [new Identifier("sys", "int")] = DataType.Integer,
         [new Identifier("sys", "json")] = DataType.Json,
-        [new Identifier("sys", "money")] = DataType.Numeric,
+        [new Identifier("sys", "money")] = DataType.Money,
         [new Identifier("sys", "nchar")] = DataType.Unicode,
         [new Identifier("sys", "ntext")] = DataType.UnicodeText,
         [new Identifier("sys", "numeric")] = DataType.Numeric,
         [new Identifier("sys", "nvarchar")] = DataType.Unicode,
         [new Identifier("sys", "real")] = DataType.Float,
-        [new Identifier("sys", "rowversion")] = DataType.Binary,
+        [new Identifier("sys", "rowversion")] = DataType.RowVersion,
         [new Identifier("sys", "smalldatetime")] = DataType.DateTime,
         [new Identifier("sys", "smallint")] = DataType.SmallInteger,
-        [new Identifier("sys", "smallmoney")] = DataType.Numeric,
-        [new Identifier("sys", "sql_variant")] = DataType.Unknown,
+        [new Identifier("sys", "smallmoney")] = DataType.Money,
+        [new Identifier("sys", "sql_variant")] = DataType.Variant,
+        [new Identifier("sys", "sysname")] = DataType.Unicode,
         [new Identifier("sys", "text")] = DataType.Text,
         [new Identifier("sys", "time")] = DataType.Time,
-        [new Identifier("sys", "timestamp")] = DataType.Binary,
-        [new Identifier("sys", "tinyint")] = DataType.SmallInteger,
+        [new Identifier("sys", "timestamp")] = DataType.RowVersion,
+        [new Identifier("sys", "tinyint")] = DataType.TinyInteger,
         [new Identifier("sys", "uniqueidentifier")] = DataType.UniqueIdentifier,
         [new Identifier("sys", "varbinary")] = DataType.Binary,
         [new Identifier("sys", "varchar")] = DataType.String,
+        [new Identifier("sys", "vector")] = DataType.Vector,
         [new Identifier("sys", "xml")] = DataType.Xml,
     }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
 
@@ -331,6 +360,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "float")] = typeof(double),
         [new Identifier("sys", "geography")] = typeof(object),
         [new Identifier("sys", "geometry")] = typeof(object),
+        [new Identifier("sys", "hierarchyid")] = typeof(object),
         [new Identifier("sys", "image")] = typeof(byte[]),
         [new Identifier("sys", "int")] = typeof(int),
         [new Identifier("sys", "json")] = typeof(string),
@@ -345,6 +375,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "smallint")] = typeof(short),
         [new Identifier("sys", "smallmoney")] = typeof(decimal),
         [new Identifier("sys", "sql_variant")] = typeof(object),
+        [new Identifier("sys", "sysname")] = typeof(string),
         [new Identifier("sys", "text")] = typeof(string),
         [new Identifier("sys", "time")] = typeof(TimeSpan),
         [new Identifier("sys", "timestamp")] = typeof(byte[]),
@@ -352,6 +383,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "uniqueidentifier")] = typeof(Guid),
         [new Identifier("sys", "varbinary")] = typeof(byte[]),
         [new Identifier("sys", "varchar")] = typeof(string),
+        [new Identifier("sys", "vector")] = typeof(object),
         [new Identifier("sys", "xml")] = typeof(string),
     }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
 }

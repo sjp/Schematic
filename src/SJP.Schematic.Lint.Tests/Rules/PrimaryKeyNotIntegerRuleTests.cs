@@ -47,6 +47,49 @@ internal static class PrimaryKeyNotIntegerRuleTests
         Assert.That(messages, Is.Empty);
     }
 
+    [TestCase(DataType.BigInteger)]
+    [TestCase(DataType.Integer)]
+    [TestCase(DataType.SmallInteger)]
+    [TestCase(DataType.TinyInteger)]
+    public static async Task AnalyseTables_GivenTableWithPrimaryKeyWithSingleIntegerColumnOfAnyWidth_ProducesNoMessages(DataType dataType)
+    {
+        var rule = new PrimaryKeyNotIntegerRule(RuleLevel.Error);
+
+        var dataTypeMock = new Mock<IDbType>(MockBehavior.Strict);
+        dataTypeMock.Setup(t => t.DataType).Returns(dataType);
+
+        var testColumn = new DatabaseColumn(
+            "test_column_1",
+            dataTypeMock.Object,
+            false,
+            null,
+            null
+        );
+        var testPrimaryKey = new DatabaseKey(
+            Option<Identifier>.Some("test_primary_key"),
+            DatabaseKeyType.Primary,
+            [testColumn],
+            true
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            testPrimaryKey,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
     [Test]
     public static async Task AnalyseTables_GivenTableWithPrimaryKeyWithSingleIntegerColumn_ProducesNoMessages()
     {

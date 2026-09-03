@@ -111,4 +111,85 @@ public enum DataType
     /// A type which stores XML (eXtensible Markup Language) documents.
     /// </summary>
     Xml,
+
+    /// <summary>
+    /// Stores very small integers, typically a single byte.
+    /// </summary>
+    TinyInteger,
+
+    /// <summary>
+    /// A data type that holds date and time information together with an offset from UTC.
+    /// </summary>
+    DateTimeOffset,
+
+    /// <summary>
+    /// A data type that holds time information together with an offset from UTC, with no associated date data.
+    /// </summary>
+    TimeOffset,
+
+    /// <summary>
+    /// A fixed-point type dedicated to storing currency amounts.
+    /// </summary>
+    Money,
+
+    /// <summary>
+    /// A string of bits, addressed bit by bit rather than byte by byte.
+    /// </summary>
+    Bit,
+
+    /// <summary>
+    /// An opaque value that the database replaces whenever the row changes, used for optimistic concurrency.
+    /// </summary>
+    RowVersion,
+
+    /// <summary>
+    /// A collection of values of a single element type. See <see cref="IDbType.ElementType"/> for the element type.
+    /// </summary>
+    Array,
+
+    /// <summary>
+    /// A type restricted to a fixed set of named values. See <see cref="IDbType.EnumValues"/> for the permitted values.
+    /// </summary>
+    Enum,
+
+    /// <summary>
+    /// A type storing any subset of a fixed set of named values. See <see cref="IDbType.EnumValues"/> for the permitted values.
+    /// </summary>
+    Set,
+
+    /// <summary>
+    /// A type storing a range or multirange of values of a single element type. See <see cref="IDbType.ElementType"/> for the element type.
+    /// </summary>
+    Range,
+
+    /// <summary>
+    /// A type storing a network address, such as an IP address, a subnet or a MAC address.
+    /// </summary>
+    Network,
+
+    /// <summary>
+    /// A structured type built out of named attributes, such as a composite, object or table type.
+    /// </summary>
+    Composite,
+
+    /// <summary>
+    /// A type able to store a value of any other data type, such as <c>SQL_VARIANT</c> or <c>ANYDATA</c>.
+    /// </summary>
+    Variant,
+
+    /// <summary>
+    /// A fixed-dimension vector of numbers, typically used for similarity search over embeddings.
+    /// </summary>
+    Vector,
+
+    /// <summary>
+    /// A type storing a document or query prepared for full-text search.
+    /// </summary>
+    FullTextSearch,
+
+    /// <summary>
+    /// A data type the dialect recognises but which has no more specific class in this enumeration.
+    /// Unlike <see cref="Unknown"/>, this is not indicative of a bug.
+    /// </summary>
+    Other,
 }

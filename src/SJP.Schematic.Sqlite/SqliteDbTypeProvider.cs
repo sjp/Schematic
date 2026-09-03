@@ -1,6 +1,7 @@
 ﻿using System;
 using EnumsNET;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite;
@@ -21,16 +22,22 @@ public class SqliteDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeMetadata);
 
-        var typeName = GetDefaultTypeName(typeMetadata.DataType);
+        // a declared type is what the table definition says, so it is preferred over one derived
+        // from the data type class, which can only ever name one of the five affinities
+        var declaredTypeName = typeMetadata.TypeName?.LocalName;
+        var typeName = declaredTypeName.IsNullOrWhiteSpace()
+            ? GetDefaultTypeName(typeMetadata.DataType)
+            : declaredTypeName;
         var affinity = GetAffinity(typeName);
         var collation = typeMetadata.Collation.Match(
-            static c => Enum.TryParse(c.LocalName, out SqliteCollation sc) ? sc : SqliteCollation.None,
+            static c => Enum.TryParse(c.LocalName, true, out SqliteCollation sc) ? sc : SqliteCollation.None,
             static () => SqliteCollation.None
         );
 
-        return collation == SqliteCollation.None
-            ? new SqliteColumnType(affinity)
-            : new SqliteColumnType(affinity, collation);
+        // a collation only applies to a text column, so one given for any other affinity is dropped
+        return collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
+            ? new SqliteColumnType(typeName, affinity)
+            : new SqliteColumnType(typeName, affinity, collation);
     }
 
     /// <summary>
@@ -66,11 +73,14 @@ public class SqliteDbTypeProvider : IDbTypeProvider
 
         return dataType switch
         {
-            DataType.Binary or DataType.LargeBinary or DataType.Geometry => "BLOB",
-            DataType.SmallInteger or DataType.BigInteger or DataType.Boolean or DataType.Integer => "INTEGER",
+            DataType.Binary or DataType.LargeBinary or DataType.Geometry or DataType.Bit or DataType.RowVersion or DataType.Vector => "BLOB",
+            DataType.SmallInteger or DataType.BigInteger or DataType.Boolean or DataType.Integer or DataType.TinyInteger => "INTEGER",
             DataType.Float => "REAL",
-            DataType.Date or DataType.DateTime or DataType.Interval or DataType.Time or DataType.Numeric => "NUMERIC",
+            DataType.Date or DataType.DateTime or DataType.Interval or DataType.Time or DataType.Numeric or DataType.Money => "NUMERIC",
             DataType.String or DataType.Text or DataType.Unicode or DataType.UnicodeText or DataType.Json or DataType.Xml or DataType.UniqueIdentifier => "TEXT",
+            // SQLite has no type of its own for any of these, and stores each of them as text
+            DataType.DateTimeOffset or DataType.TimeOffset or DataType.Array or DataType.Enum or DataType.Set
+                or DataType.Range or DataType.Network or DataType.Composite or DataType.Variant or DataType.FullTextSearch => "TEXT",
             _ => "NUMERIC",
         };
     }

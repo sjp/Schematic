@@ -975,6 +975,142 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenArrayOfEnumColumnRoundTripped_PreservesElementTypeAndEnumValues()
+    {
+        var db = CreateColumnTypeDatabase(CreateArrayOfEnumType());
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var columnType = tables.Single().Columns.Single().Type;
+        var elementType = columnType.ElementType.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Array));
+            Assert.That(columnType.TypeName, Is.EqualTo(new Identifier("app", "_size")));
+            Assert.That(elementType.DataType, Is.EqualTo(DataType.Enum));
+            Assert.That(elementType.TypeName, Is.EqualTo(new Identifier("app", "size")));
+            Assert.That(elementType.EnumValues, Is.EqualTo(new[] { "small", "medium", "large" }));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenArrayOfEnumColumnRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateColumnTypeDatabase(CreateArrayOfEnumType());
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.That(reExportedJson, Is.EqualTo(json));
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenDomainColumnRoundTripped_PreservesBaseType()
+    {
+        var baseType = new ColumnDataType(
+            new Identifier("pg_catalog", "varchar"),
+            DataType.String,
+            "varchar(320)",
+            typeof(string),
+            false,
+            320,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+        var domainType = new ColumnDataType(
+            new Identifier("app", "email_address"),
+            DataType.String,
+            "email_address",
+            typeof(string),
+            false,
+            320,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None,
+            Option<IDbType>.None,
+            [],
+            Option<IDbType>.Some(baseType),
+            false
+        );
+        var db = CreateColumnTypeDatabase(domainType);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var columnType = tables.Single().Columns.Single().Type;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName, Is.EqualTo(new Identifier("app", "email_address")));
+            Assert.That(columnType.BaseType.UnwrapSome().TypeName, Is.EqualTo(new Identifier("pg_catalog", "varchar")));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenUnsignedColumnRoundTripped_PreservesSign()
+    {
+        var columnType = new ColumnDataType(
+            "int",
+            DataType.Integer,
+            "int unsigned",
+            typeof(uint),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None,
+            Option<IDbType>.None,
+            [],
+            Option<IDbType>.None,
+            true
+        );
+        var db = CreateColumnTypeDatabase(columnType);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+
+        Assert.That(tables.Single().Columns.Single().Type.IsUnsigned, Is.True);
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenPlainColumnRoundTripped_PreservesAbsentTypeDetail()
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            typeof(string),
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+        var db = CreateColumnTypeDatabase(columnType);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var importedType = tables.Single().Columns.Single().Type;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(importedType.ElementType.IsNone, Is.True);
+            Assert.That(importedType.EnumValues, Is.Empty);
+            Assert.That(importedType.BaseType.IsNone, Is.True);
+            Assert.That(importedType.IsUnsigned, Is.False);
+        }
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenClrTypeOutsideCoreLibraryRoundTripped_PreservesClrType()
     {
         var db = CreateColumnClrTypeDatabase(typeof(ColumnClrType));
@@ -1085,6 +1221,66 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    private static IDbType CreateArrayOfEnumType()
+    {
+        var elementType = new ColumnDataType(
+            new Identifier("app", "size"),
+            DataType.Enum,
+            "size",
+            typeof(string),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None,
+            Option<IDbType>.None,
+            ["small", "medium", "large"],
+            Option<IDbType>.None,
+            false
+        );
+
+        return new ColumnDataType(
+            new Identifier("app", "_size"),
+            DataType.Array,
+            "size[]",
+            typeof(object),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None,
+            Option<IDbType>.Some(elementType),
+            [],
+            Option<IDbType>.None,
+            false
+        );
+    }
+
+    private static IRelationalDatabase CreateColumnTypeDatabase(IDbType columnType)
+    {
+        var column = new DatabaseColumn("test_column_name", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [column],
             Option<IDatabaseKey>.None,
             [],
             [],

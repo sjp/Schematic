@@ -86,4 +86,19 @@ internal static class IndexOnLargeTextColumnRuleTests
 
         Assert.That(messages, Is.Not.Empty);
     }
+
+    // a document is as large and as poorly suited to a b-tree key as any other unbounded value
+    [TestCase(DataType.Json)]
+    [TestCase(DataType.Xml)]
+    [TestCase(DataType.FullTextSearch)]
+    public static async Task AnalyseTables_GivenIndexOverDocumentColumn_ProducesMessages(DataType dataType)
+    {
+        var rule = new IndexOnLargeTextColumnRule(RuleLevel.Error);
+        var table = CreateTableWithIndexedColumnType(dataType);
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
 }

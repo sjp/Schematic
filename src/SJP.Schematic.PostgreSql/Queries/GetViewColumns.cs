@@ -132,35 +132,77 @@ internal static class GetViewColumns
         /// A local name for a sequence used to generate values. This column be created from a serial keyword, otherwise the result will be <see langword="null" />.
         /// </summary>
         public string? SerialSequenceLocalName { get; init; }
+
+        /// <summary>
+        /// The <c>pg_type.typtype</c> of the column's type, e.g. <c>e</c> for an enum or <c>c</c> for a composite type.
+        /// </summary>
+        public string? TypeKind { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the schema of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeSchema { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the name of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeName { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the <c>pg_type.typtype</c> of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeKind { get; init; }
+
+        /// <summary>
+        /// The labels of whichever of the column's type or its element type is an enum, else <see langword="null" />.
+        /// </summary>
+        public string[]? EnumLabels { get; init; }
     }
 
     internal const string Sql = $"""
 
 select
-    column_name as "{nameof(Result.ColumnName)}",
-    ordinal_position as "{nameof(Result.OrdinalPosition)}",
-    column_default as "{nameof(Result.ColumnDefault)}",
-    is_nullable as "{nameof(Result.IsNullable)}",
-    data_type as "{nameof(Result.DataType)}",
-    character_maximum_length as "{nameof(Result.CharacterMaximumLength)}",
-    character_octet_length as "{nameof(Result.CharacterOctetLength)}",
-    numeric_precision as "{nameof(Result.NumericPrecision)}",
-    numeric_precision_radix as "{nameof(Result.NumericPrecisionRadix)}",
-    numeric_scale as "{nameof(Result.NumericScale)}",
-    datetime_precision as "{nameof(Result.DatetimePrecision)}",
-    interval_type as "{nameof(Result.IntervalType)}",
-    collation_catalog as "{nameof(Result.CollationCatalog)}",
-    collation_schema as "{nameof(Result.CollationSchema)}",
-    collation_name as "{nameof(Result.CollationName)}",
-    domain_catalog as "{nameof(Result.DomainCatalog)}",
-    domain_schema as "{nameof(Result.DomainSchema)}",
-    domain_name as "{nameof(Result.DomainName)}",
-    udt_catalog as "{nameof(Result.UdtCatalog)}",
-    udt_schema as "{nameof(Result.UdtSchema)}",
-    udt_name as "{nameof(Result.UdtName)}",
-    dtd_identifier as "{nameof(Result.DtdIdentifier)}"
-from information_schema.columns
-where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.ViewName)}
-order by ordinal_position
+    c.column_name as "{nameof(Result.ColumnName)}",
+    c.ordinal_position as "{nameof(Result.OrdinalPosition)}",
+    c.column_default as "{nameof(Result.ColumnDefault)}",
+    c.is_nullable as "{nameof(Result.IsNullable)}",
+    c.data_type as "{nameof(Result.DataType)}",
+    c.character_maximum_length as "{nameof(Result.CharacterMaximumLength)}",
+    c.character_octet_length as "{nameof(Result.CharacterOctetLength)}",
+    c.numeric_precision as "{nameof(Result.NumericPrecision)}",
+    c.numeric_precision_radix as "{nameof(Result.NumericPrecisionRadix)}",
+    c.numeric_scale as "{nameof(Result.NumericScale)}",
+    c.datetime_precision as "{nameof(Result.DatetimePrecision)}",
+    c.interval_type as "{nameof(Result.IntervalType)}",
+    c.collation_catalog as "{nameof(Result.CollationCatalog)}",
+    c.collation_schema as "{nameof(Result.CollationSchema)}",
+    c.collation_name as "{nameof(Result.CollationName)}",
+    c.domain_catalog as "{nameof(Result.DomainCatalog)}",
+    c.domain_schema as "{nameof(Result.DomainSchema)}",
+    c.domain_name as "{nameof(Result.DomainName)}",
+    c.udt_catalog as "{nameof(Result.UdtCatalog)}",
+    c.udt_schema as "{nameof(Result.UdtSchema)}",
+    c.udt_name as "{nameof(Result.UdtName)}",
+    c.dtd_identifier as "{nameof(Result.DtdIdentifier)}",
+    udt.typtype::text as "{nameof(Result.TypeKind)}",
+    elem_ns.nspname as "{nameof(Result.ElementTypeSchema)}",
+    elem.typname as "{nameof(Result.ElementTypeName)}",
+    elem.typtype::text as "{nameof(Result.ElementTypeKind)}",
+    lbl.labels as "{nameof(Result.EnumLabels)}"
+from information_schema.columns c
+-- information_schema names a column's type as ARRAY or USER-DEFINED whenever it is not built in,
+-- so the type itself is resolved through udt_name to learn what kind of type it is, what an array
+-- holds, and which labels an enum permits
+left join pg_catalog.pg_namespace udt_ns on udt_ns.nspname = c.udt_schema
+left join pg_catalog.pg_type udt on udt.typnamespace = udt_ns.oid and udt.typname = c.udt_name
+left join pg_catalog.pg_type elem on elem.oid = udt.typelem
+left join pg_catalog.pg_namespace elem_ns on elem_ns.oid = elem.typnamespace
+left join lateral (
+    select array_agg(en.enumlabel::text order by en.enumsortorder) as labels
+    from pg_catalog.pg_enum en
+    where en.enumtypid = case when udt.typtype = 'e' then udt.oid when elem.typtype = 'e' then elem.oid end
+) lbl on true
+where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.ViewName)}
+order by c.ordinal_position
 """;
 }

@@ -257,6 +257,37 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
         var attributes = new List<AttributeListSyntax>();
         var clrType = column.Type.ClrType;
 
+        // a row version is maintained by the database and used for concurrency checks, which is
+        // what OrmLite's row version annotation describes
+        if (column.Type.DataType == DataType.RowVersion)
+        {
+            attributes.Add(
+                AttributeList(
+                    SingletonSeparatedList(
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(RowVersionAttribute))))));
+        }
+
+        if (column.Type.DataType is DataType.Numeric or DataType.Money)
+        {
+            column.Type.NumericPrecision
+                .Filter(static np => np.Precision > 0)
+                .IfSome(np =>
+                {
+                    attributes.Add(
+                        AttributeList(
+                            SingletonSeparatedList(
+                                Attribute(
+                                    SyntaxUtilities.AttributeName(nameof(DecimalLengthAttribute)),
+                                    AttributeArgumentList(
+                                        SeparatedList(new[]
+                                        {
+                                            AttributeArgument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(np.Precision))),
+                                            AttributeArgument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(np.Scale))),
+                                        }))))));
+                });
+        }
+
         if (clrType == typeof(string) && column.Type.MaxLength > 0)
         {
             var maxLengthAttribute = AttributeList(

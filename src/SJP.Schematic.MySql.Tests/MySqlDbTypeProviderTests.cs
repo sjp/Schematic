@@ -1,4 +1,5 @@
 using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -38,15 +39,20 @@ internal static class MySqlDbTypeProviderTests
     // Forward mapping: a generic data type resolves to its default MySQL type name.
     [TestCase(DataType.BigInteger, "bigint")]
     [TestCase(DataType.LargeBinary, "longblob")]
-    [TestCase(DataType.Boolean, "bit")]
+    [TestCase(DataType.Bit, "bit")]
+    [TestCase(DataType.Boolean, "tinyint")]
+    [TestCase(DataType.TinyInteger, "tinyint")]
+    [TestCase(DataType.Enum, "enum")]
+    [TestCase(DataType.Set, "set")]
+    [TestCase(DataType.Money, "decimal")]
     [TestCase(DataType.Date, "date")]
     [TestCase(DataType.DateTime, "datetime")]
     [TestCase(DataType.Float, "double")]
     [TestCase(DataType.Geometry, "geometry")]
     [TestCase(DataType.Integer, "int")]
-    [TestCase(DataType.Interval, "timestamp")]
+    [TestCase(DataType.Interval, "time")]
     [TestCase(DataType.Json, "json")]
-    [TestCase(DataType.Numeric, "numeric")]
+    [TestCase(DataType.Numeric, "decimal")]
     [TestCase(DataType.SmallInteger, "smallint")]
     [TestCase(DataType.Text, "longtext")]
     [TestCase(DataType.Time, "time")]
@@ -90,13 +96,16 @@ internal static class MySqlDbTypeProviderTests
     }
 
     // Reverse mapping: a MySQL type name resolves to the matching generic data type.
-    [TestCase("bit", DataType.Boolean)]
-    [TestCase("tinyint", DataType.Integer)]
-    [TestCase("smallint", DataType.Integer)]
+    [TestCase("bit", DataType.Bit)]
+    [TestCase("tinyint", DataType.TinyInteger)]
+    [TestCase("smallint", DataType.SmallInteger)]
     [TestCase("mediumint", DataType.Integer)]
     [TestCase("int", DataType.Integer)]
-    [TestCase("bigint", DataType.Integer)]
-    [TestCase("year", DataType.Integer)]
+    [TestCase("bigint", DataType.BigInteger)]
+    [TestCase("year", DataType.SmallInteger)]
+    [TestCase("enum", DataType.Enum)]
+    [TestCase("set", DataType.Set)]
+    [TestCase("longblob", DataType.LargeBinary)]
     [TestCase("numeric", DataType.Numeric)]
     [TestCase("decimal", DataType.Numeric)]
     [TestCase("float", DataType.Float)]
@@ -138,7 +147,7 @@ internal static class MySqlDbTypeProviderTests
     }
 
     // Reverse mapping: a MySQL type name resolves to the matching CLR type.
-    [TestCase("bit", typeof(bool))]
+    [TestCase("bit", typeof(ulong))]
     [TestCase("tinyint", typeof(byte))]
     [TestCase("smallint", typeof(short))]
     [TestCase("mediumint", typeof(int))]
@@ -148,6 +157,8 @@ internal static class MySqlDbTypeProviderTests
     [TestCase("numeric", typeof(decimal))]
     [TestCase("double", typeof(double))]
     [TestCase("date", typeof(DateTime))]
+    [TestCase("time", typeof(TimeSpan))]
+    [TestCase("year", typeof(short))]
     [TestCase("varchar", typeof(string))]
     [TestCase("longtext", typeof(string))]
     [TestCase("json", typeof(string))]
@@ -222,6 +233,93 @@ internal static class MySqlDbTypeProviderTests
             Assert.That(columnType.DataType, Is.EqualTo(DataType.Geometry));
             Assert.That(columnType.ClrType, Is.EqualTo(typeof(object)));
         }
+    }
+
+
+    [Test]
+    public static void CreateColumnType_GivenEnumTypeMetadata_ReturnsEnumValuesAndDefinition()
+    {
+        var metadata = MySqlColumnTypeMetadata.Create(
+            "enum",
+            "enum('small','medium','large')",
+            Option<Identifier>.None,
+            0,
+            Option<INumericPrecision>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Enum));
+            Assert.That(columnType.EnumValues, Is.EqualTo(new[] { "small", "medium", "large" }));
+            Assert.That(columnType.Definition, Is.EqualTo("enum('small', 'medium', 'large')"));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenUnsignedColumnType_ReturnsUnsignedTypeWithDefinition()
+    {
+        var metadata = MySqlColumnTypeMetadata.Create(
+            "int",
+            "int unsigned",
+            Option<Identifier>.None,
+            0,
+            Option<INumericPrecision>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.IsUnsigned, Is.True);
+            Assert.That(columnType.Definition, Is.EqualTo("int unsigned"));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenTinyIntWithDisplayWidthOfOne_ResolvesBooleanDataType()
+    {
+        var metadata = MySqlColumnTypeMetadata.Create(
+            "tinyint",
+            "tinyint(1)",
+            Option<Identifier>.None,
+            0,
+            Option<INumericPrecision>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Boolean));
+            Assert.That(columnType.ClrType, Is.EqualTo(typeof(bool)));
+        }
+    }
+
+    // a length was previously printed as the boolean saying whether the type was a unicode one,
+    // which produced definitions such as 'varchar(True)'
+    [Test]
+    public static void CreateColumnType_GivenBoundedStringType_ReturnsDefinitionWithLength()
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = "varchar", MaxLength = 50 };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo("varchar(50)"));
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenUnboundedStringType_ReturnsDefinitionWithoutLength()
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = "varchar" };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo("varchar"));
+    }
+
+    [TestCase("enum('a','b')", new[] { "a", "b" })]
+    [TestCase("set('a','b','c')", new[] { "a", "b", "c" })]
+    [TestCase("enum('with,comma','with)paren')", new[] { "with,comma", "with)paren" })]
+    [TestCase("enum('it''s')", new[] { "it's" })]
+    [TestCase("enum()", new string[0])]
+    [TestCase("int(10) unsigned", new string[0])]
+    public static void ParseMemberValues_GivenDeclaredType_ReturnsExpectedMembers(string columnType, string[] expected)
+    {
+        Assert.That(MySqlColumnTypeMetadata.ParseMemberValues(columnType), Is.EqualTo(expected));
     }
 
     [Test]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 
 namespace SJP.Schematic.Core;
@@ -51,4 +52,28 @@ public class ColumnTypeMetadata
     /// </summary>
     /// <value>The numeric precision.</value>
     public Option<INumericPrecision> NumericPrecision { get; set; }
+
+    /// <summary>
+    /// The type of the elements stored by a collection type, if available.
+    /// </summary>
+    /// <value>The element type, for a <see cref="Core.DataType.Array"/> or <see cref="Core.DataType.Range"/> type; otherwise none.</value>
+    public Option<IDbType> ElementType { get; set; }
+
+    /// <summary>
+    /// The values a value of this type is restricted to.
+    /// </summary>
+    /// <value>The permitted values, for a <see cref="Core.DataType.Enum"/> or <see cref="Core.DataType.Set"/> type; otherwise empty.</value>
+    public IReadOnlyList<string> EnumValues { get; set; } = [];
+
+    /// <summary>
+    /// The type that this type is defined in terms of, if available.
+    /// </summary>
+    /// <value>The base type, for a domain or alias type; otherwise none.</value>
+    public Option<IDbType> BaseType { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the type stores only non-negative values.
+    /// </summary>
+    /// <value><see langword="true" /> if the type is unsigned; otherwise, <see langword="false" />.</value>
+    public bool IsUnsigned { get; set; }
 }

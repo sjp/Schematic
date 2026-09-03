@@ -41,7 +41,11 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
             typeMetadata.IsFixedLength,
             typeMetadata.MaxLength,
             typeMetadata.NumericPrecision,
-            typeMetadata.Collation
+            typeMetadata.Collation,
+            typeMetadata.ElementType,
+            typeMetadata.EnumValues,
+            typeMetadata.BaseType,
+            typeMetadata.IsUnsigned
         );
     }
 
@@ -64,6 +68,10 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
             TypeName = null, // ignoring so we get a default name generated
+            ElementType = otherType.ElementType,
+            EnumValues = otherType.EnumValues,
+            BaseType = otherType.BaseType,
+            IsUnsigned = otherType.IsUnsigned,
         };
 
         return CreateColumnType(typeMetadata);
@@ -97,26 +105,35 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         {
             DataType.Boolean => new Identifier("pg_catalog", "bool"),
             DataType.BigInteger => new Identifier("pg_catalog", "int8"),
-            DataType.Binary => typeMetadata.IsFixedLength
+            DataType.Binary or DataType.LargeBinary or DataType.RowVersion or DataType.Vector => new Identifier("pg_catalog", "bytea"),
+            DataType.Bit => typeMetadata.IsFixedLength
                 ? new Identifier("pg_catalog", "bit")
                 : new Identifier("pg_catalog", "varbit"),
-            DataType.LargeBinary => new Identifier("pg_catalog", "bytea"),
             DataType.Date => new Identifier("pg_catalog", "date"),
             DataType.DateTime => new Identifier("pg_catalog", "timestamp"),
+            DataType.DateTimeOffset => new Identifier("pg_catalog", "timestamptz"),
             DataType.Float => new Identifier("pg_catalog", "float8"),
             DataType.Geometry => new Identifier("pg_catalog", "point"),
             DataType.Integer => new Identifier("pg_catalog", "int4"),
             DataType.Interval => new Identifier("pg_catalog", "interval"),
             DataType.Json => new Identifier("pg_catalog", "jsonb"),
+            DataType.Money => new Identifier("pg_catalog", "money"),
+            DataType.Network => new Identifier("pg_catalog", "inet"),
             DataType.Numeric => new Identifier("pg_catalog", "numeric"),
-            DataType.SmallInteger => new Identifier("pg_catalog", "int2"),
+            DataType.SmallInteger or DataType.TinyInteger => new Identifier("pg_catalog", "int2"),
             DataType.Time => new Identifier("pg_catalog", "time"),
+            DataType.TimeOffset => new Identifier("pg_catalog", "timetz"),
+            DataType.FullTextSearch => new Identifier("pg_catalog", "tsvector"),
             DataType.String or DataType.Unicode => typeMetadata.IsFixedLength
                 ? new Identifier("pg_catalog", "char")
                 : new Identifier("pg_catalog", "varchar"),
             DataType.Text or DataType.UnicodeText => new Identifier("pg_catalog", "text"),
             DataType.UniqueIdentifier => new Identifier("pg_catalog", "uuid"),
             DataType.Xml => new Identifier("pg_catalog", "xml"),
+            // an array, range, composite or enum is always a named type of its own, so there is no
+            // built-in name to fall back to; text is the only type able to hold any of their values
+            DataType.Array or DataType.Range or DataType.Composite or DataType.Enum or DataType.Set
+                or DataType.Variant or DataType.Other => new Identifier("pg_catalog", "text"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
         };
@@ -145,31 +162,29 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
             return builder.GetStringAndRelease();
 
-        builder.Append('(');
-
-        var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
+        var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
         if (npWithPrecisionOrScale.IsSome)
         {
             npWithPrecisionOrScale.IfSome(precision =>
             {
+                builder.Append('(');
                 builder.Append(precision.Precision);
                 if (precision.Scale > 0)
                 {
                     builder.Append(", ");
                     builder.Append(precision.Scale);
                 }
+                builder.Append(')');
             });
         }
+        // a length is declared in characters rather than in bytes, so it is printed as it was given.
+        // an unbounded type carries no annotation at all -- an empty '()' is not valid syntax
         else if (typeMetadata.MaxLength > 0)
         {
-            var maxLength = typeMetadata.DataType == DataType.Unicode || typeMetadata.DataType == DataType.UnicodeText
-                ? typeMetadata.MaxLength / 2
-                : typeMetadata.MaxLength;
-
-            builder.Append(maxLength);
+            builder.Append('(');
+            builder.Append(typeMetadata.MaxLength);
+            builder.Append(')');
         }
-
-        builder.Append(')');
 
         return builder.GetStringAndRelease();
     }
@@ -273,7 +288,10 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         new("pg_catalog", "macaddr"),
         new("pg_catalog", "macaddr8"),
         new("pg_catalog", "money"),
+        new("pg_catalog", "name"),
+        new("pg_catalog", "oid"),
         new("pg_catalog", "path"),
+        new("pg_catalog", "interval"),
         new("pg_catalog", "pg_lsn"),
         new("pg_catalog", "point"),
         new("pg_catalog", "polygon"),
@@ -299,17 +317,17 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
         [new Identifier("pg_catalog", "bigserial")] = DataType.BigInteger,
         [new Identifier("pg_catalog", "int8")] = DataType.BigInteger,
-        [new Identifier("pg_catalog", "bit")] = DataType.Binary,
-        [new Identifier("pg_catalog", "bit varying")] = DataType.Binary,
-        [new Identifier("pg_catalog", "varbit")] = DataType.Binary,
+        [new Identifier("pg_catalog", "bit")] = DataType.Bit,
+        [new Identifier("pg_catalog", "bit varying")] = DataType.Bit,
+        [new Identifier("pg_catalog", "varbit")] = DataType.Bit,
         [new Identifier("pg_catalog", "boolean")] = DataType.Boolean,
         [new Identifier("pg_catalog", "bool")] = DataType.Boolean,
         [new Identifier("pg_catalog", "bytea")] = DataType.LargeBinary,
-        [new Identifier("pg_catalog", "character")] = DataType.Unicode,
-        [new Identifier("pg_catalog", "char")] = DataType.Unicode,
-        [new Identifier("pg_catalog", "character varying")] = DataType.Unicode,
-        [new Identifier("pg_catalog", "varchar")] = DataType.Unicode,
-        [new Identifier("pg_catalog", "text")] = DataType.UnicodeText,
+        [new Identifier("pg_catalog", "character")] = DataType.String,
+        [new Identifier("pg_catalog", "char")] = DataType.String,
+        [new Identifier("pg_catalog", "character varying")] = DataType.String,
+        [new Identifier("pg_catalog", "varchar")] = DataType.String,
+        [new Identifier("pg_catalog", "text")] = DataType.Text,
         [new Identifier("pg_catalog", "date")] = DataType.Date,
         [new Identifier("pg_catalog", "double precision")] = DataType.Float,
         [new Identifier("pg_catalog", "float8")] = DataType.Float,
@@ -329,28 +347,29 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "serial2")] = DataType.SmallInteger,
         [new Identifier("pg_catalog", "serial")] = DataType.Integer,
         [new Identifier("pg_catalog", "serial4")] = DataType.Integer,
-        [new Identifier("pg_catalog", "text")] = DataType.UnicodeText,
+        [new Identifier("pg_catalog", "name")] = DataType.String,
+        [new Identifier("pg_catalog", "oid")] = DataType.Integer,
         [new Identifier("pg_catalog", "time")] = DataType.Time,
-        [new Identifier("pg_catalog", "timetz")] = DataType.Time,
+        [new Identifier("pg_catalog", "timetz")] = DataType.TimeOffset,
         [new Identifier("pg_catalog", "timestamp")] = DataType.DateTime,
-        [new Identifier("pg_catalog", "timestamptz")] = DataType.DateTime,
+        [new Identifier("pg_catalog", "timestamptz")] = DataType.DateTimeOffset,
         [new Identifier("pg_catalog", "xml")] = DataType.Xml,
         [new Identifier("pg_catalog", "box")] = DataType.Geometry,
-        [new Identifier("pg_catalog", "cidr")] = DataType.Unknown,
+        [new Identifier("pg_catalog", "cidr")] = DataType.Network,
         [new Identifier("pg_catalog", "circle")] = DataType.Geometry,
-        [new Identifier("pg_catalog", "inet")] = DataType.Unknown,
+        [new Identifier("pg_catalog", "inet")] = DataType.Network,
         [new Identifier("pg_catalog", "line")] = DataType.Geometry,
         [new Identifier("pg_catalog", "lseg")] = DataType.Geometry,
-        [new Identifier("pg_catalog", "macaddr")] = DataType.Unknown,
-        [new Identifier("pg_catalog", "macaddr8")] = DataType.Unknown,
-        [new Identifier("pg_catalog", "money")] = DataType.Unknown,
+        [new Identifier("pg_catalog", "macaddr")] = DataType.Network,
+        [new Identifier("pg_catalog", "macaddr8")] = DataType.Network,
+        [new Identifier("pg_catalog", "money")] = DataType.Money,
         [new Identifier("pg_catalog", "path")] = DataType.Geometry,
-        [new Identifier("pg_catalog", "pg_lsn")] = DataType.Unknown,
+        [new Identifier("pg_catalog", "pg_lsn")] = DataType.Other,
         [new Identifier("pg_catalog", "point")] = DataType.Geometry,
         [new Identifier("pg_catalog", "polygon")] = DataType.Geometry,
-        [new Identifier("pg_catalog", "tsquery")] = DataType.Unknown,
-        [new Identifier("pg_catalog", "tsvector")] = DataType.Unknown,
-        [new Identifier("pg_catalog", "txid_snapshot")] = DataType.Unknown,
+        [new Identifier("pg_catalog", "tsquery")] = DataType.FullTextSearch,
+        [new Identifier("pg_catalog", "tsvector")] = DataType.FullTextSearch,
+        [new Identifier("pg_catalog", "txid_snapshot")] = DataType.Other,
         [new Identifier("pg_catalog", "uuid")] = DataType.UniqueIdentifier,
     }.ToFrozenDictionary(IdentifierComparer.Ordinal);
 
@@ -390,11 +409,12 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "serial2")] = typeof(short),
         [new Identifier("pg_catalog", "serial")] = typeof(int),
         [new Identifier("pg_catalog", "serial4")] = typeof(int),
-        [new Identifier("pg_catalog", "text")] = typeof(string),
+        [new Identifier("pg_catalog", "name")] = typeof(string),
+        [new Identifier("pg_catalog", "oid")] = typeof(long),
         [new Identifier("pg_catalog", "time")] = typeof(TimeSpan),
-        [new Identifier("pg_catalog", "timetz")] = typeof(TimeSpan),
+        [new Identifier("pg_catalog", "timetz")] = typeof(DateTimeOffset),
         [new Identifier("pg_catalog", "timestamp")] = typeof(DateTime),
-        [new Identifier("pg_catalog", "timestamptz")] = typeof(DateTime),
+        [new Identifier("pg_catalog", "timestamptz")] = typeof(DateTimeOffset),
         [new Identifier("pg_catalog", "xml")] = typeof(string),
         [new Identifier("pg_catalog", "box")] = typeof(object),
         [new Identifier("pg_catalog", "cidr")] = typeof(object),
@@ -404,7 +424,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "lseg")] = typeof(object),
         [new Identifier("pg_catalog", "macaddr")] = typeof(object),
         [new Identifier("pg_catalog", "macaddr8")] = typeof(object),
-        [new Identifier("pg_catalog", "money")] = typeof(object),
+        [new Identifier("pg_catalog", "money")] = typeof(decimal),
         [new Identifier("pg_catalog", "path")] = typeof(object),
         [new Identifier("pg_catalog", "pg_lsn")] = typeof(object),
         [new Identifier("pg_catalog", "point")] = typeof(object),

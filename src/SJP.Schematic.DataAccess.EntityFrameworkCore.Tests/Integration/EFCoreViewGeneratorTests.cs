@@ -136,13 +136,13 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column("test_numeric", TypeName = "NUMERIC")]
+        [Column("test_numeric", TypeName = "numeric")]
         public decimal? TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
+        [Column("test_nullable_numeric", TypeName = "numeric")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
@@ -154,7 +154,7 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column("test_datetime", TypeName = "NUMERIC")]
+        [Column("test_datetime", TypeName = "datetime")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
@@ -205,13 +205,13 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column("test_numeric", TypeName = "NUMERIC")]
+        [Column("test_numeric", TypeName = "numeric")]
         public decimal? TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
+        [Column("test_nullable_numeric", TypeName = "numeric")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
@@ -223,7 +223,7 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column("test_datetime", TypeName = "NUMERIC")]
+        [Column("test_datetime", TypeName = "datetime")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>
@@ -276,13 +276,13 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_numeric</c> column.
         /// </summary>
-        [Column("test_numeric", TypeName = "NUMERIC")]
+        [Column("test_numeric", TypeName = "numeric")]
         public decimal? TestNumeric { get; set; }
 
         /// <summary>
         /// The <c>test_nullable_numeric</c> column.
         /// </summary>
-        [Column("test_nullable_numeric", TypeName = "NUMERIC")]
+        [Column("test_nullable_numeric", TypeName = "numeric")]
         public decimal? TestNullableNumeric { get; set; }
 
         /// <summary>
@@ -294,7 +294,7 @@ namespace EFCoreTestNamespace.Main
         /// <summary>
         /// The <c>test_datetime</c> column.
         /// </summary>
-        [Column("test_datetime", TypeName = "NUMERIC")]
+        [Column("test_datetime", TypeName = "datetime")]
         public decimal? TestDatetime { get; set; }
 
         /// <summary>

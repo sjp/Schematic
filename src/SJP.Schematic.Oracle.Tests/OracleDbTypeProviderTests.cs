@@ -43,7 +43,12 @@ internal static class OracleDbTypeProviderTests
     [TestCase(DataType.Float, "FLOAT")]
     [TestCase(DataType.Geometry, "SDO_GEOMETRY")]
     [TestCase(DataType.Integer, "NUMBER")]
-    [TestCase(DataType.Interval, "TIMESTAMP WITH LOCAL TIME ZONE")]
+    [TestCase(DataType.Interval, "INTERVAL DAY TO SECOND")]
+    [TestCase(DataType.DateTimeOffset, "TIMESTAMP WITH TIME ZONE")]
+    [TestCase(DataType.TinyInteger, "NUMBER")]
+    [TestCase(DataType.Money, "NUMBER")]
+    [TestCase(DataType.Variant, "ANYDATA")]
+    [TestCase(DataType.Vector, "VECTOR")]
     [TestCase(DataType.Json, "JSON")]
     [TestCase(DataType.Numeric, "NUMBER")]
     [TestCase(DataType.SmallInteger, "NUMBER")]
@@ -58,12 +63,12 @@ internal static class OracleDbTypeProviderTests
     }
 
     // Forward mapping for variable-length character/binary types.
-    [TestCase(DataType.Binary, "BLOB")]
+    [TestCase(DataType.Binary, "RAW")]
     [TestCase(DataType.LargeBinary, "BLOB")]
     [TestCase(DataType.String, "VARCHAR2")]
-    [TestCase(DataType.Text, "VARCHAR2")]
+    [TestCase(DataType.Text, "CLOB")]
     [TestCase(DataType.Unicode, "NVARCHAR2")]
-    [TestCase(DataType.UnicodeText, "NVARCHAR2")]
+    [TestCase(DataType.UnicodeText, "NCLOB")]
     public static void CreateColumnType_GivenVariableLengthDataTypeWithoutTypeName_ReturnsExpectedTypeName(DataType dataType, string expectedTypeName)
     {
         var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { DataType = dataType, IsFixedLength = false });
@@ -71,13 +76,14 @@ internal static class OracleDbTypeProviderTests
         Assert.That(columnType.TypeName.LocalName, Is.EqualTo(expectedTypeName));
     }
 
-    // Forward mapping for fixed-length character/binary types.
+    // Forward mapping for fixed-length character/binary types. A large object has no fixed-length
+    // form, so it keeps the same name whether or not the column is declared as a fixed length.
     [TestCase(DataType.Binary, "RAW")]
-    [TestCase(DataType.LargeBinary, "RAW")]
+    [TestCase(DataType.LargeBinary, "BLOB")]
     [TestCase(DataType.String, "CHAR")]
-    [TestCase(DataType.Text, "CHAR")]
+    [TestCase(DataType.Text, "CLOB")]
     [TestCase(DataType.Unicode, "NCHAR")]
-    [TestCase(DataType.UnicodeText, "NCHAR")]
+    [TestCase(DataType.UnicodeText, "NCLOB")]
     public static void CreateColumnType_GivenFixedLengthDataTypeWithoutTypeName_ReturnsExpectedTypeName(DataType dataType, string expectedTypeName)
     {
         var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { DataType = dataType, IsFixedLength = true });
@@ -89,18 +95,32 @@ internal static class OracleDbTypeProviderTests
     [TestCase("BFILE", DataType.LargeBinary)]
     [TestCase("BLOB", DataType.LargeBinary)]
     [TestCase("CHAR", DataType.String)]
-    [TestCase("CLOB", DataType.String)]
+    [TestCase("ANYDATA", DataType.Variant)]
+    [TestCase("CLOB", DataType.Text)]
+    [TestCase("NCLOB", DataType.UnicodeText)]
     [TestCase("DATE", DataType.Date)]
     [TestCase("FLOAT", DataType.Float)]
     [TestCase("INTEGER", DataType.BigInteger)]
-    [TestCase("INTERVAL DAY TO SECOND", DataType.Time)]
+    [TestCase("INTERVAL DAY TO SECOND", DataType.Interval)]
+    [TestCase("INTERVAL YEAR TO MONTH", DataType.Interval)]
     [TestCase("JSON", DataType.Json)]
     [TestCase("NCHAR", DataType.Unicode)]
     [TestCase("NVARCHAR2", DataType.Unicode)]
-    [TestCase("RAW", DataType.LargeBinary)]
-    [TestCase("ROWID", DataType.String)]
+    [TestCase("RAW", DataType.Binary)]
+    [TestCase("LONG RAW", DataType.LargeBinary)]
+    [TestCase("ROWID", DataType.Other)]
+    [TestCase("UROWID", DataType.Other)]
     [TestCase("SDO_GEOMETRY", DataType.Geometry)]
     [TestCase("TIMESTAMP", DataType.DateTime)]
+    [TestCase("TIMESTAMP WITH TIME ZONE", DataType.DateTimeOffset)]
+    [TestCase("TIMESTAMP WITH LOCAL TIME ZONE", DataType.DateTime)]
+    // Oracle reports the fractional seconds precision as part of the type name
+    [TestCase("TIMESTAMP(6)", DataType.DateTime)]
+    [TestCase("TIMESTAMP(9) WITH TIME ZONE", DataType.DateTimeOffset)]
+    [TestCase("TIMESTAMP(3) WITH LOCAL TIME ZONE", DataType.DateTime)]
+    [TestCase("INTERVAL DAY(3) TO SECOND(6)", DataType.Interval)]
+    [TestCase("INTERVAL YEAR(4) TO MONTH", DataType.Interval)]
+    [TestCase("VECTOR", DataType.Vector)]
     [TestCase("VARCHAR2", DataType.String)]
     [TestCase("XMLTYPE", DataType.Xml)]
     public static void CreateColumnType_GivenTypeNameWithUnknownDataType_ResolvesExpectedDataType(string typeName, DataType expectedDataType)
@@ -123,6 +143,26 @@ internal static class OracleDbTypeProviderTests
         var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = typeName, DataType = DataType.Unknown });
 
         Assert.That(columnType.ClrType, Is.EqualTo(expectedClrType));
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenTypeNameInAnotherSchema_ResolvesOtherDataType()
+    {
+        // a type outside SYS is user-defined -- an object type, a varray or a nested table -- which
+        // the catalog does not distinguish from the column alone
+        var metadata = new ColumnTypeMetadata { TypeName = new Identifier("APP", "ADDRESS_TYPE"), DataType = DataType.Unknown };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.DataType, Is.EqualTo(DataType.Other));
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenUnqualifiedUnrecognisedTypeName_ResolvesUnknownDataType()
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = "NOT_A_REAL_TYPE", DataType = DataType.Unknown };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.DataType, Is.EqualTo(DataType.Unknown));
     }
 
     [Test]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -69,9 +70,15 @@ public class PrimaryKeyNotIntegerRule : Rule, ITableRule
     {
         ArgumentNullException.ThrowIfNull(column);
 
-        var integerTypes = new[] { DataType.BigInteger, DataType.Integer, DataType.SmallInteger };
-        return integerTypes.Contains(column.Type.DataType);
+        return IntegerTypes.Contains(column.Type.DataType);
     }
+
+    private static readonly FrozenSet<DataType> IntegerTypes = FrozenSet.Create(
+        DataType.BigInteger,
+        DataType.Integer,
+        DataType.SmallInteger,
+        DataType.TinyInteger
+    );
 
     /// <summary>
     /// Builds the message used for reporting.

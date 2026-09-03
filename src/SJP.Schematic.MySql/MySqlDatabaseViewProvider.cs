@@ -205,15 +205,14 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
                 ? new NumericPrecision(row.DateTimePrecision, 0)
                 : new NumericPrecision(row.Precision, row.Scale);
 
-            var typeMetadata = new ColumnTypeMetadata
-            {
-                TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
-                Collation = !row.Collation.IsNullOrWhiteSpace()
+            var typeMetadata = MySqlColumnTypeMetadata.Create(
+                row.DataTypeName,
+                row.ColumnType,
+                !row.Collation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
-                MaxLength = row.CharacterMaxLength,
-                NumericPrecision = precision,
-            };
+                row.CharacterMaxLength,
+                precision);
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

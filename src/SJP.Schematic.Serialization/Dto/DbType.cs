@@ -1,4 +1,6 @@
-﻿namespace SJP.Schematic.Serialization.Dto;
+﻿using System.Collections.Generic;
+
+namespace SJP.Schematic.Serialization.Dto;
 
 /// <summary>
 /// A serialized column data type.
@@ -48,4 +50,24 @@ public sealed record DbType
     /// The collation applied to the data type, if any.
     /// </summary>
     public Identifier? Collation { get; init; }
+
+    /// <summary>
+    /// The type of the elements stored by a collection type, if any.
+    /// </summary>
+    public DbType? ElementType { get; init; }
+
+    /// <summary>
+    /// The values a value of this type is restricted to, if any.
+    /// </summary>
+    public IEnumerable<string>? EnumValues { get; init; }
+
+    /// <summary>
+    /// The type that this type is defined in terms of, if any.
+    /// </summary>
+    public DbType? BaseType { get; init; }
+
+    /// <summary>
+    /// Whether the data type stores only non-negative values.
+    /// </summary>
+    public bool IsUnsigned { get; init; }
 }

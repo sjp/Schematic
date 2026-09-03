@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -40,7 +42,11 @@ public class DbTypeMapper
             source.IsFixedLength,
             source.MaxLength,
             numericPrecisionMapper.Map(source.NumericPrecision),
-            collationMapper.Map(source.Collation)
+            collationMapper.Map(source.Collation),
+            source.ElementType == null ? Option<IDbType>.None : Option<IDbType>.Some(Map(source.ElementType)),
+            source.EnumValues?.ToList() ?? (IReadOnlyList<string>)[],
+            source.BaseType == null ? Option<IDbType>.None : Option<IDbType>.Some(Map(source.BaseType)),
+            source.IsUnsigned
         );
     }
 
@@ -67,6 +73,11 @@ public class DbTypeMapper
             MaxLength = source.MaxLength,
             NumericPrecision = numericPrecisionMapper.Map(source.NumericPrecision),
             Collation = collationMapper.Map(source.Collation),
+            ElementType = source.ElementType.MatchUnsafe(Map, static () => (Dto.DbType?)null),
+            // an empty collection is left out of the document rather than written as an empty array
+            EnumValues = source.EnumValues.Count > 0 ? source.EnumValues.ToList() : null,
+            BaseType = source.BaseType.MatchUnsafe(Map, static () => (Dto.DbType?)null),
+            IsUnsigned = source.IsUnsigned,
         };
     }
 

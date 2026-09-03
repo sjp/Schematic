@@ -8,6 +8,7 @@ using LanguageExt;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Core.Extensions;
@@ -73,6 +74,12 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                 "System.ComponentModel.DataAnnotations",
                 "System.ComponentModel.DataAnnotations.Schema",
             ], StringComparer.Ordinal)
+            // Unicode and Precision are EF Core's own attributes rather than data annotations, so
+            // the namespace is only imported by a table that has a column needing one of them
+            .Union(
+                table.Columns.Any(static c => RequiresUnicodeAttribute(c) || RequiresPrecisionAttribute(c))
+                    ? ["Microsoft.EntityFrameworkCore"]
+                    : Array.Empty<string>(), StringComparer.Ordinal)
             .OrderNamespaces()
             .ToList();
 
@@ -344,6 +351,20 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         return attributes;
     }
 
+    // a string column is only annotated when its type is not a national character type, because
+    // EF Core already treats a string property as unicode
+    private static bool RequiresUnicodeAttribute(IDatabaseColumn column)
+    {
+        return column.Type.ClrType == typeof(string)
+            && (column.Type.DataType == Core.DataType.String || column.Type.DataType == Core.DataType.Text);
+    }
+
+    private static bool RequiresPrecisionAttribute(IDatabaseColumn column)
+    {
+        return (column.Type.DataType == Core.DataType.Numeric || column.Type.DataType == Core.DataType.Money)
+            && column.Type.NumericPrecision.Match(static np => np.Precision > 0, static () => false);
+    }
+
     private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
     {
         ArgumentNullException.ThrowIfNull(column);
@@ -351,6 +372,50 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
 
         var attributes = new List<AttributeListSyntax>();
         var clrType = column.Type.ClrType;
+
+        // a row version is maintained by the database and used for concurrency checks, which is
+        // exactly what EF Core's timestamp annotation describes
+        if (column.Type.DataType == Core.DataType.RowVersion)
+        {
+            attributes.Add(
+                AttributeList(
+                    SingletonSeparatedList(
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(TimestampAttribute))))));
+        }
+
+        if (RequiresUnicodeAttribute(column))
+        {
+            attributes.Add(
+                AttributeList(
+                    SingletonSeparatedList(
+                        Attribute(
+                            SyntaxUtilities.AttributeName(nameof(UnicodeAttribute)),
+                            AttributeArgumentList(
+                                SingletonSeparatedList(
+                                    AttributeArgument(
+                                        LiteralExpression(SyntaxKind.FalseLiteralExpression))))))));
+        }
+
+        if (RequiresPrecisionAttribute(column))
+        {
+            column.Type.NumericPrecision.IfSome(np =>
+            {
+                var precisionArguments = new List<AttributeArgumentSyntax>
+                {
+                    AttributeArgument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(np.Precision))),
+                };
+                if (np.Scale > 0)
+                    precisionArguments.Add(AttributeArgument(LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(np.Scale))));
+
+                attributes.Add(
+                    AttributeList(
+                        SingletonSeparatedList(
+                            Attribute(
+                                SyntaxUtilities.AttributeName(nameof(PrecisionAttribute)),
+                                AttributeArgumentList(SeparatedList(precisionArguments))))));
+            });
+        }
 
         var isConstrainedType = clrType == typeof(string) || clrType == typeof(byte[]);
         if (isConstrainedType && column.Type.MaxLength > 0)

@@ -675,15 +675,14 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             )
             .Select(row =>
             {
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
-                    Collation = !row.Collation.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
-                    : Option<Identifier>.None,
-                    MaxLength = row.CharacterMaxLength,
-                    NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
-                };
+                var typeMetadata = MySqlColumnTypeMetadata.Create(
+                    row.DataTypeName,
+                    row.ColumnType,
+                    !row.Collation.IsNullOrWhiteSpace()
+                        ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                        : Option<Identifier>.None,
+                    row.CharacterMaxLength,
+                    new NumericPrecision(row.Precision, row.Scale));
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

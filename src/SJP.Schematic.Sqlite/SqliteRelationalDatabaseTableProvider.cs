@@ -1042,7 +1042,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var columnTypeName = tableInfo.type;
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
-            var columnType = new SqliteColumnType(affinity);
+            // a COLLATE clause only applies to a text column, so one parsed for any other affinity is dropped
+            var columnType = parsedColumnInfo.Collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
+                ? new SqliteColumnType(columnTypeName, affinity)
+                : new SqliteColumnType(columnTypeName, affinity, parsedColumnInfo.Collation);
 
             var isAutoIncrement = parsedColumnInfo.IsAutoIncrement
                 || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
@@ -1104,7 +1107,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var columnTypeName = tableInfo.type;
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
-            var columnType = new SqliteColumnType(affinity);
+            // a COLLATE clause only applies to a text column, so one parsed for any other affinity is dropped
+            var columnType = parsedColumnInfo.Collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
+                ? new SqliteColumnType(columnTypeName, affinity)
+                : new SqliteColumnType(columnTypeName, affinity, parsedColumnInfo.Collation);
 
             var isAutoIncrement = parsedColumnInfo.IsAutoIncrement
                 || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);

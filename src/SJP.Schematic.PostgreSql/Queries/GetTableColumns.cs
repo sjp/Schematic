@@ -207,6 +207,31 @@ internal static class GetTableColumns
         /// <c>s</c> when a generated column is stored, <c>v</c> when it is computed on read, otherwise an empty string. <c>information_schema</c> does not report this.
         /// </summary>
         public string? GenerationKind { get; init; }
+
+        /// <summary>
+        /// The <c>pg_type.typtype</c> of the column's type, e.g. <c>e</c> for an enum or <c>c</c> for a composite type.
+        /// </summary>
+        public string? TypeKind { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the schema of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeSchema { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the name of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeName { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the <c>pg_type.typtype</c> of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeKind { get; init; }
+
+        /// <summary>
+        /// The labels of whichever of the column's type or its element type is an enum, else <see langword="null" />.
+        /// </summary>
+        public string[]? EnumLabels { get; init; }
     }
 
     // a little bit convoluted due to the quote_ident() being required.
@@ -253,7 +278,12 @@ select
     c.identity_cycle as "{nameof(Result.IdentityCycle)}",
     c.is_generated as "{nameof(Result.IsGenerated)}",
     c.generation_expression as "{nameof(Result.GenerationExpression)}",
-    att.attgenerated::text as "{nameof(Result.GenerationKind)}"
+    att.attgenerated::text as "{nameof(Result.GenerationKind)}",
+    udt.typtype::text as "{nameof(Result.TypeKind)}",
+    elem_ns.nspname as "{nameof(Result.ElementTypeSchema)}",
+    elem.typname as "{nameof(Result.ElementTypeName)}",
+    elem.typtype::text as "{nameof(Result.ElementTypeKind)}",
+    lbl.labels as "{nameof(Result.EnumLabels)}"
 from information_schema.columns c
 -- pg_get_serial_sequence() resolves a column's owning sequence through pg_depend, which covers both
 -- the sequence a serial default reads from and the one created for an identity column, so a single
@@ -275,6 +305,18 @@ left join pg_catalog.pg_sequences s
 left join pg_catalog.pg_namespace ns on ns.nspname = c.table_schema
 left join pg_catalog.pg_class cls on cls.relnamespace = ns.oid and cls.relname = c.table_name
 left join pg_catalog.pg_attribute att on att.attrelid = cls.oid and att.attname = c.column_name
+-- information_schema names a column's type as ARRAY or USER-DEFINED whenever it is not built in,
+-- so the type itself is resolved through udt_name to learn what kind of type it is, what an array
+-- holds, and which labels an enum permits
+left join pg_catalog.pg_namespace udt_ns on udt_ns.nspname = c.udt_schema
+left join pg_catalog.pg_type udt on udt.typnamespace = udt_ns.oid and udt.typname = c.udt_name
+left join pg_catalog.pg_type elem on elem.oid = udt.typelem
+left join pg_catalog.pg_namespace elem_ns on elem_ns.oid = elem.typnamespace
+left join lateral (
+    select array_agg(en.enumlabel::text order by en.enumsortorder) as labels
+    from pg_catalog.pg_enum en
+    where en.enumtypid = case when udt.typtype = 'e' then udt.oid when elem.typtype = 'e' then elem.oid end
+) lbl on true
 where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.TableName)}
 order by c.ordinal_position
 """;

@@ -132,6 +132,31 @@ internal static class GetMaterializedViewColumns
         /// A local name for a sequence used to generate values. This column be created from a serial keyword, otherwise the result will be <see langword="null" />.
         /// </summary>
         public string? SerialSequenceLocalName { get; init; }
+
+        /// <summary>
+        /// The <c>pg_type.typtype</c> of the column's type, e.g. <c>e</c> for an enum or <c>c</c> for a composite type.
+        /// </summary>
+        public string? TypeKind { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the schema of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeSchema { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the name of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeName { get; init; }
+
+        /// <summary>
+        /// If the column's type is an array, the <c>pg_type.typtype</c> of its element type, else <see langword="null" />.
+        /// </summary>
+        public string? ElementTypeKind { get; init; }
+
+        /// <summary>
+        /// The labels of whichever of the column's type or its element type is an enum, else <see langword="null" />.
+        /// </summary>
+        public string[]? EnumLabels { get; init; }
     }
 
     // taken largely from information_schema.sql for postgres (but modified to work with
@@ -190,7 +215,13 @@ select
     coalesce(nbt.nspname, nt.nspname) as "{nameof(Result.UdtSchema)}",
     coalesce(bt.typname, t.typname) as "{nameof(Result.UdtName)}",
 
-    a.attnum as "{nameof(Result.DtdIdentifier)}"
+    a.attnum as "{nameof(Result.DtdIdentifier)}",
+
+    coalesce(bt.typtype, t.typtype)::text as "{nameof(Result.TypeKind)}",
+    elem_ns.nspname as "{nameof(Result.ElementTypeSchema)}",
+    elem.typname as "{nameof(Result.ElementTypeName)}",
+    elem.typtype::text as "{nameof(Result.ElementTypeKind)}",
+    lbl.labels as "{nameof(Result.EnumLabels)}"
 
 from (pg_catalog.pg_attribute a left join pg_catalog.pg_attrdef ad on attrelid = adrelid and attnum = adnum)
     join (pg_catalog.pg_class c join pg_catalog.pg_namespace nc on (c.relnamespace = nc.oid)) on a.attrelid = c.oid
@@ -199,6 +230,17 @@ from (pg_catalog.pg_attribute a left join pg_catalog.pg_attrdef ad on attrelid =
     on (t.typtype = 'd' and t.typbasetype = bt.oid)
     left join (pg_catalog.pg_collation co join pg_catalog.pg_namespace nco on (co.collnamespace = nco.oid))
     on a.attcollation = co.oid and (nco.nspname, co.collname) <> ('pg_catalog', 'default')
+    -- the type name reported above says nothing about what kind of type it is, what an array holds,
+    -- or which labels an enum permits, so the catalog is read for those directly
+    left join pg_catalog.pg_type elem on elem.oid = coalesce(bt.typelem, t.typelem)
+    left join pg_catalog.pg_namespace elem_ns on elem_ns.oid = elem.typnamespace
+    left join lateral (
+        select array_agg(en.enumlabel::text order by en.enumsortorder) as labels
+        from pg_catalog.pg_enum en
+        where en.enumtypid = case
+            when coalesce(bt.typtype, t.typtype) = 'e' then coalesce(bt.oid, t.oid)
+            when elem.typtype = 'e' then elem.oid end
+    ) lbl on true
 
 where (not pg_catalog.pg_is_other_temp_schema(nc.oid))
     and a.attnum > 0 and not a.attisdropped

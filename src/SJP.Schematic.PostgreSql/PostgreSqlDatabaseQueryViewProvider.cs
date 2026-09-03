@@ -214,17 +214,26 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
             )
             .Select(row =>
             {
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(row.DataType),
-                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                var typeMetadata = PostgreSqlColumnTypeMetadata.Create(
+                    Dialect.TypeProvider,
+                    new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+                        row.DataType,
+                        row.UdtSchema,
+                        row.UdtName,
+                        row.DomainSchema,
+                        row.DomainName,
+                        row.TypeKind,
+                        row.ElementTypeSchema,
+                        row.ElementTypeName,
+                        row.ElementTypeKind,
+                        row.EnumLabels),
+                    !row.CollationName.IsNullOrWhiteSpace()
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
                     //TODO -- need to fix max length as it's different for char-like objects and numeric
-                    //MaxLength = row.,
+                    0,
                     // TODO: numeric_precision has a base, can be either binary or decimal, need to use the correct one
-                    NumericPrecision = new NumericPrecision(row.NumericPrecision, row.NumericScale),
-                };
+                    new NumericPrecision(row.NumericPrecision, row.NumericScale));
 
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

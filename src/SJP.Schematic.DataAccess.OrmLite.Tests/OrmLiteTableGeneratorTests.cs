@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -207,4 +207,66 @@ internal static class OrmLiteTableGeneratorTests
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
+
+    private static string GenerateForColumnType(IDbType columnType)
+    {
+        var column = new DatabaseColumn("test_column", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+        var table = new RelationalDatabaseTable(
+            "test_table",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return GetTableGenerator().Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+    }
+
+    private static ColumnDataType CreateColumnDataType(
+        string typeName,
+        DataType dataType,
+        Type clrType,
+        Option<INumericPrecision> numericPrecision = default
+    ) => new(
+        typeName,
+        dataType,
+        typeName,
+        clrType,
+        false,
+        0,
+        numericPrecision,
+        Option<Identifier>.None
+    );
+
+    // a row version is maintained by the database and used for concurrency checks, which is what
+    // OrmLite's row version annotation describes
+    [Test]
+    public static void Generate_GivenRowVersionColumn_GeneratesRowVersionAttribute()
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("rowversion", DataType.RowVersion, typeof(byte[])));
+
+        Assert.That(result, Does.Contain("[RowVersion]"));
+    }
+
+    [TestCase(DataType.Numeric)]
+    [TestCase(DataType.Money)]
+    public static void Generate_GivenNumericColumnWithPrecision_GeneratesDecimalLengthAttribute(DataType dataType)
+    {
+        var precision = Option<INumericPrecision>.Some(new NumericPrecision(18, 4));
+        var result = GenerateForColumnType(CreateColumnDataType("decimal", dataType, typeof(decimal), precision));
+
+        Assert.That(result, Does.Contain("[DecimalLength(18, 4)]"));
+    }
+
+    [Test]
+    public static void Generate_GivenNumericColumnWithoutPrecision_GeneratesNoDecimalLengthAttribute()
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("decimal", DataType.Numeric, typeof(decimal)));
+
+        Assert.That(result, Does.Not.Contain("[DecimalLength("));
+    }
 }

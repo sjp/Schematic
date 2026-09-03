@@ -345,12 +345,19 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
             var columnName = tableInfo.name;
 
-            string? columnTypeName = tableInfo.type;
+            // no pragma reports the collation of a view column, so a view column never carries one.
+            // a view column that projects an expression has no declared type, so its type is only
+            // known from the runtime type of a value. That names an affinity rather than a declared
+            // type, so the column is described by the affinity alone.
+            var declaredTypeName = tableInfo.type;
+            var columnTypeName = declaredTypeName;
             if (columnTypeName.IsNullOrWhiteSpace())
                 columnTypeLookup.TryGetValue(columnName, out columnTypeName);
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
-            var columnType = new SqliteColumnType(affinity);
+            var columnType = declaredTypeName.IsNullOrWhiteSpace()
+                ? new SqliteColumnType(affinity)
+                : new SqliteColumnType(declaredTypeName, affinity);
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<string>.Some(tableInfo.dflt_value)
                 : Option<string>.None;

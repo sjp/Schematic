@@ -3,7 +3,9 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Oracle;
@@ -12,7 +14,7 @@ namespace SJP.Schematic.Oracle;
 /// A database column type provider for Oracle.
 /// </summary>
 /// <seealso cref="IDbTypeProvider" />
-public class OracleDbTypeProvider : IDbTypeProvider
+public partial class OracleDbTypeProvider : IDbTypeProvider
 {
     /// <summary>
     /// Creates a column data type based on provided metadata.
@@ -59,7 +61,11 @@ public class OracleDbTypeProvider : IDbTypeProvider
             typeMetadata.IsFixedLength,
             typeMetadata.MaxLength,
             typeMetadata.NumericPrecision,
-            typeMetadata.Collation
+            typeMetadata.Collation,
+            typeMetadata.ElementType,
+            typeMetadata.EnumValues,
+            typeMetadata.BaseType,
+            typeMetadata.IsUnsigned
         );
     }
 
@@ -82,6 +88,10 @@ public class OracleDbTypeProvider : IDbTypeProvider
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
             TypeName = null, // ignoring so we get a default name generated
+            ElementType = otherType.ElementType,
+            EnumValues = otherType.EnumValues,
+            BaseType = otherType.BaseType,
+            IsUnsigned = otherType.IsUnsigned,
         };
 
         return CreateColumnType(typeMetadata);
@@ -97,8 +107,30 @@ public class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return FixedLengthTypes.Contains(typeName.LocalName);
+        return FixedLengthTypes.Contains(NormalizeTypeName(typeName.LocalName));
     }
+
+    /// <summary>
+    /// Removes the precision and scale arguments from a type name.
+    /// </summary>
+    /// <param name="typeName">A type name, e.g. <c>INTERVAL DAY(3) TO SECOND(6)</c>.</param>
+    /// <returns>The type name without any arguments, e.g. <c>INTERVAL DAY TO SECOND</c>.</returns>
+    /// <remarks>
+    /// Oracle reports the fractional seconds precision of a timestamp or interval as part of the
+    /// type name rather than in a precision column, so <c>TIMESTAMP(6) WITH TIME ZONE</c> and
+    /// <c>TIMESTAMP WITH TIME ZONE</c> both arrive as type names and describe the same type.
+    /// </remarks>
+    protected static string NormalizeTypeName(string typeName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
+
+        return typeName.Contains('(', StringComparison.Ordinal)
+            ? TypeNameArgumentRegex().Replace(typeName, string.Empty)
+            : typeName;
+    }
+
+    [GeneratedRegex(@"\s*\(\s*\d+\s*(?:,\s*\d+\s*)?\)", RegexOptions.ExplicitCapture)]
+    private static partial Regex TypeNameArgumentRegex();
 
     /// <summary>
     /// Gets the default name of the type.
@@ -114,28 +146,38 @@ public class OracleDbTypeProvider : IDbTypeProvider
         return typeMetadata.DataType switch
         {
             DataType.BigInteger => new Identifier("SYS", "NUMBER"),
-            DataType.Binary or DataType.LargeBinary => typeMetadata.IsFixedLength
-                ? new Identifier("SYS", "RAW")
-                : new Identifier("SYS", "BLOB"),
+            DataType.Binary => new Identifier("SYS", "RAW"),
+            DataType.LargeBinary => new Identifier("SYS", "BLOB"),
             DataType.Boolean => new Identifier("SYS", "CHAR"),
             DataType.Date => new Identifier("SYS", "DATE"),
             DataType.DateTime => new Identifier("SYS", "TIMESTAMP WITH LOCAL TIME ZONE"),
+            DataType.DateTimeOffset or DataType.TimeOffset => new Identifier("SYS", "TIMESTAMP WITH TIME ZONE"),
             DataType.Float => new Identifier("SYS", "FLOAT"),
             DataType.Geometry => new Identifier("MDSYS", "SDO_GEOMETRY"),
-            DataType.Integer => new Identifier("SYS", "NUMBER"),
-            DataType.Interval => new Identifier("sys", "TIMESTAMP WITH LOCAL TIME ZONE"),
+            DataType.Integer or DataType.SmallInteger or DataType.TinyInteger => new Identifier("SYS", "NUMBER"),
+            DataType.Interval => new Identifier("SYS", "INTERVAL DAY TO SECOND"),
             DataType.Json => new Identifier("SYS", "JSON"),
-            DataType.Numeric or DataType.SmallInteger => new Identifier("SYS", "NUMBER"),
-            DataType.String or DataType.Text => typeMetadata.IsFixedLength
+            DataType.Money or DataType.Numeric => new Identifier("SYS", "NUMBER"),
+            DataType.String => typeMetadata.IsFixedLength
                 ? new Identifier("SYS", "CHAR")
                 : new Identifier("SYS", "VARCHAR2"),
+            DataType.Text => new Identifier("SYS", "CLOB"),
+            // Oracle has no time-only type; a time of day is stored as an interval since midnight.
             DataType.Time => new Identifier("SYS", "INTERVAL DAY TO SECOND"),
-            DataType.Unicode or DataType.UnicodeText => typeMetadata.IsFixedLength
+            DataType.Unicode => typeMetadata.IsFixedLength
                 ? new Identifier("SYS", "NCHAR")
                 : new Identifier("SYS", "NVARCHAR2"),
+            DataType.UnicodeText => new Identifier("SYS", "NCLOB"),
             // Oracle has no native GUID type; UUIDs are conventionally stored as RAW(16).
             DataType.UniqueIdentifier => new Identifier("SYS", "RAW"),
+            DataType.Vector => new Identifier("SYS", "VECTOR"),
             DataType.Xml => new Identifier("SYS", "XMLTYPE"),
+            // Oracle has no bit-string type, and a row version is an opaque binary value.
+            DataType.Bit or DataType.RowVersion => new Identifier("SYS", "RAW"),
+            // enumerated, set and network values have no type of their own, and are stored as text.
+            DataType.Enum or DataType.Set or DataType.Network or DataType.FullTextSearch => new Identifier("SYS", "VARCHAR2"),
+            // ANYDATA is the only type able to hold a value whose shape Oracle cannot describe.
+            DataType.Array or DataType.Range or DataType.Composite or DataType.Variant or DataType.Other => new Identifier("SYS", "ANYDATA"),
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
         };
@@ -174,7 +216,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
             builder.Append(QuoteIdentifier(typeName.LocalName));
         }
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(typeName.LocalName))
+        if (TypeNamesWithNoLengthAnnotation.Contains(NormalizeTypeName(typeName.LocalName)))
             return builder.GetStringAndRelease();
 
         var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
@@ -213,8 +255,13 @@ public class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToDataTypeMap.TryGetValue(typeName.LocalName, out var value)
-            ? value : DataType.Unknown;
+        if (StringToDataTypeMap.TryGetValue(NormalizeTypeName(typeName.LocalName), out var value))
+            return value;
+
+        // a type in any other schema is user-defined -- an object type, a varray or a nested table.
+        // The catalog does not say which from the column alone, so it is left unclassified rather
+        // than guessed at.
+        return typeName.Schema.IsNullOrWhiteSpace() ? DataType.Unknown : DataType.Other;
     }
 
     /// <summary>
@@ -227,7 +274,7 @@ public class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToClrTypeMap.TryGetValue(typeName.LocalName, out var value)
+        return StringToClrTypeMap.TryGetValue(NormalizeTypeName(typeName.LocalName), out var value)
             ? value : typeof(object);
     }
 
@@ -281,6 +328,8 @@ public class OracleDbTypeProvider : IDbTypeProvider
         "BFILE",
         "BINARY_FLOAT",
         "BINARY_DOUBLE",
+        "ANYDATA",
+        "ANYDATASET",
         "BLOB",
         "CLOB",
         "DATE",
@@ -290,6 +339,10 @@ public class OracleDbTypeProvider : IDbTypeProvider
         "NCLOB",
         "ROWID",
         "SDO_GEOMETRY",
+        "TIMESTAMP",
+        "TIMESTAMP WITH LOCAL TIME ZONE",
+        "TIMESTAMP WITH TIME ZONE",
+        "UROWID",
         "XMLTYPE",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
@@ -302,30 +355,33 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["BLOB"] = DataType.LargeBinary,
         ["BOOLEAN"] = DataType.Boolean,
         ["CHAR"] = DataType.String,
-        ["CLOB"] = DataType.String,
+        ["ANYDATA"] = DataType.Variant,
+        ["ANYDATASET"] = DataType.Variant,
+        ["CLOB"] = DataType.Text,
         ["DATE"] = DataType.Date,
         ["FLOAT"] = DataType.Float,
         ["INTEGER"] = DataType.BigInteger,
-        ["INTERVAL YEAR TO MONTH"] = DataType.Integer,
-        ["INTERVAL DAY TO SECOND"] = DataType.Time,
+        ["INTERVAL YEAR TO MONTH"] = DataType.Interval,
+        ["INTERVAL DAY TO SECOND"] = DataType.Interval,
         ["JSON"] = DataType.Json,
         ["LONG"] = DataType.String,
         ["LONG RAW"] = DataType.LargeBinary,
         ["NCHAR"] = DataType.Unicode,
-        ["NCLOB"] = DataType.Unicode,
+        ["NCLOB"] = DataType.UnicodeText,
         ["NUMBER"] = DataType.Numeric,
         ["NVARCHAR2"] = DataType.Unicode,
         ["PLS_INTEGER"] = DataType.Integer,
-        ["RAW"] = DataType.LargeBinary,
+        ["RAW"] = DataType.Binary,
         ["REAL"] = DataType.Float,
-        ["ROWID"] = DataType.String,
+        ["ROWID"] = DataType.Other,
         ["SDO_GEOMETRY"] = DataType.Geometry,
         ["TIMESTAMP"] = DataType.DateTime,
-        ["TIMESTAMP WITH TIME ZONE"] = DataType.DateTime,
+        ["TIMESTAMP WITH TIME ZONE"] = DataType.DateTimeOffset,
         ["TIMESTAMP WITH LOCAL TIME ZONE"] = DataType.DateTime,
-        ["UROWID"] = DataType.String,
+        ["UROWID"] = DataType.Other,
         ["UNSIGNED INTEGER"] = DataType.BigInteger,
         ["VARCHAR2"] = DataType.String,
+        ["VECTOR"] = DataType.Vector,
         ["XMLTYPE"] = DataType.Xml,
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
@@ -338,6 +394,8 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["BLOB"] = typeof(byte[]),
         ["BOOLEAN"] = typeof(bool),
         ["CHAR"] = typeof(string),
+        ["ANYDATA"] = typeof(object),
+        ["ANYDATASET"] = typeof(object),
         ["CLOB"] = typeof(string),
         ["DATE"] = typeof(DateTime),
         ["FLOAT"] = typeof(decimal),
@@ -357,11 +415,12 @@ public class OracleDbTypeProvider : IDbTypeProvider
         ["ROWID"] = typeof(string),
         ["SDO_GEOMETRY"] = typeof(object),
         ["TIMESTAMP"] = typeof(DateTime),
-        ["TIMESTAMP WITH TIME ZONE"] = typeof(DateTime),
+        ["TIMESTAMP WITH TIME ZONE"] = typeof(DateTimeOffset),
         ["TIMESTAMP WITH LOCAL TIME ZONE"] = typeof(DateTime),
         ["UROWID"] = typeof(string),
         ["UNSIGNED INTEGER"] = typeof(decimal),
         ["VARCHAR2"] = typeof(string),
+        ["VECTOR"] = typeof(object),
         ["XMLTYPE"] = typeof(string),
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 }

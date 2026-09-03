@@ -17,6 +17,11 @@ internal static class GetViewColumns
 
         public required string DataTypeName { get; init; }
 
+        /// <summary>
+        /// The full column type as declared, e.g. <c>enum('a','b')</c>, <c>tinyint(1)</c> or <c>int unsigned</c>. Only this reports the members of an enum or set, the display width, and whether the type is unsigned.
+        /// </summary>
+        public required string ColumnType { get; init; }
+
         public required int CharacterMaxLength { get; init; }
 
         public required int Precision { get; init; }
@@ -41,6 +46,7 @@ internal static class GetViewColumns
 select
     column_name as `{nameof(Result.ColumnName)}`,
     data_type as `{nameof(Result.DataTypeName)}`,
+    column_type as `{nameof(Result.ColumnType)}`,
     character_maximum_length as `{nameof(Result.CharacterMaxLength)}`,
     numeric_precision as `{nameof(Result.Precision)}`,
     numeric_scale as `{nameof(Result.Scale)}`,

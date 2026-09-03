@@ -213,10 +213,10 @@ Table main.test_table_1 {
     test_pk INTEGER [not null, increment, primary key]
     test_int INTEGER [not null]
     test_nullable_int INTEGER [null]
-    test_numeric NUMERIC [not null]
-    test_nullable_numeric NUMERIC [null]
+    test_numeric numeric [not null]
+    test_nullable_numeric numeric [null]
     test_blob BLOB [not null]
-    test_datetime NUMERIC [null, default: `CURRENT_TIMESTAMP`]
+    test_datetime datetime [null, default: `CURRENT_TIMESTAMP`]
     test_string TEXT [null]
     test_string_with_default TEXT [null, default: 'test']
 }

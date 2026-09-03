@@ -759,19 +759,28 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             )
             .Select(row =>
             {
-                var typeMetadata = new ColumnTypeMetadata
-                {
-                    TypeName = Identifier.CreateQualifiedIdentifier(Constants.PgCatalog, row.DataType),
-                    Collation = !row.CollationName.IsNullOrWhiteSpace()
+                var typeMetadata = PostgreSqlColumnTypeMetadata.Create(
+                    TypeProvider,
+                    new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+                        row.DataType,
+                        row.UdtSchema,
+                        row.UdtName,
+                        row.DomainSchema,
+                        row.DomainName,
+                        row.TypeKind,
+                        row.ElementTypeSchema,
+                        row.ElementTypeName,
+                        row.ElementTypeKind,
+                        row.EnumLabels),
+                    !row.CollationName.IsNullOrWhiteSpace()
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
-                    MaxLength = row.CharacterMaximumLength > 0
+                    row.CharacterMaximumLength > 0
                         ? row.CharacterMaximumLength
                         : CreatePrecisionFromBase(row.NumericPrecision, row.NumericPrecisionRadix),
-                    NumericPrecision = row.NumericPrecisionRadix > 0
+                    row.NumericPrecisionRadix > 0
                         ? Option<INumericPrecision>.Some(CreatePrecisionWithScaleFromBase(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix))
-                        : Option<INumericPrecision>.None,
-                };
+                        : Option<INumericPrecision>.None);
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

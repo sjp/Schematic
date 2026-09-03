@@ -270,6 +270,13 @@ create table table_test_table_45 (
 )", CancellationToken.None);
 
         await DbConnection.ExecuteAsync(@"
+create table table_test_table_46 (
+    declared_type_column varchar(50),
+    collated_column text collate nocase,
+    uncollated_column text
+)", CancellationToken.None);
+
+        await DbConnection.ExecuteAsync(@"
 create table deferrable_fk_parent (
     test_column integer not null primary key
 )", CancellationToken.None);
@@ -373,6 +380,7 @@ end", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_42", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_43", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_46", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_44", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_45", CancellationToken.None);
 

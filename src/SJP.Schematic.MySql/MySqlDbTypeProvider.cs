@@ -41,7 +41,11 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             typeMetadata.IsFixedLength,
             typeMetadata.MaxLength,
             typeMetadata.NumericPrecision,
-            typeMetadata.Collation
+            typeMetadata.Collation,
+            typeMetadata.ElementType,
+            typeMetadata.EnumValues,
+            typeMetadata.BaseType,
+            typeMetadata.IsUnsigned
         );
     }
 
@@ -64,6 +68,10 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
             TypeName = null, // ignoring so we get a default name generated
+            ElementType = otherType.ElementType,
+            EnumValues = otherType.EnumValues,
+            BaseType = otherType.BaseType,
+            IsUnsigned = otherType.IsUnsigned,
         };
 
         return CreateColumnType(typeMetadata);
@@ -99,23 +107,36 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             DataType.BigInteger => "bigint",
             DataType.Binary => typeMetadata.IsFixedLength ? "binary" : "varbinary",
             DataType.LargeBinary => "longblob",
-            DataType.Boolean => "bit",
+            // MySQL has no boolean type; BOOL is a synonym for TINYINT(1).
+            DataType.Boolean => "tinyint",
+            DataType.Bit => "bit",
             DataType.Date => "date",
             DataType.DateTime => "datetime",
+            // MySQL has no offset-aware type; a TIMESTAMP is stored in UTC and read back in the
+            // session time zone, which is as close as the server comes to carrying an offset.
+            DataType.DateTimeOffset or DataType.TimeOffset => "timestamp",
+            DataType.Enum => "enum",
             DataType.Float => "double",
             DataType.Geometry => "geometry",
             DataType.Integer => "int",
-            DataType.Interval => "timestamp",
+            DataType.Interval => "time",
             DataType.Json => "json",
-            DataType.Numeric => "numeric",
+            DataType.Money or DataType.Numeric => "decimal",
+            DataType.Set => "set",
             DataType.SmallInteger => "smallint",
             DataType.String or DataType.Unicode => typeMetadata.IsFixedLength ? "char" : "varchar",
             DataType.Text or DataType.UnicodeText => "longtext",
             DataType.Time => "time",
+            DataType.TinyInteger => "tinyint",
             // MySQL has no native GUID type; UUIDs are conventionally stored as CHAR(36).
             DataType.UniqueIdentifier => "char",
             // MySQL has no native XML type; XML documents are stored as unbounded text.
             DataType.Xml => "longtext",
+            // a row version and a vector are both opaque runs of bytes.
+            DataType.RowVersion or DataType.Vector => "varbinary",
+            // MySQL has no type of its own for any of these, and stores each of them as text.
+            DataType.Array or DataType.Range or DataType.Composite or DataType.Network
+                or DataType.Variant or DataType.FullTextSearch or DataType.Other => "longtext",
             DataType.Unknown => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for an unknown data type."),
             _ => throw new ArgumentOutOfRangeException(nameof(typeMetadata), "Unable to determine a type name for data type: " + typeMetadata.DataType.ToString()),
         };
@@ -139,31 +160,46 @@ public class MySqlDbTypeProvider : IDbTypeProvider
 
         builder.Append(typeName);
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
-            return builder.GetStringAndRelease();
-
-        builder.Append('(');
-
-        var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(np => np.Precision > 0 || np.Scale > 0);
-        if (npWithPrecisionOrScale.IsSome)
+        // an enum or a set is declared by its members rather than by a length
+        if (typeMetadata.EnumValues.Count > 0)
         {
-            npWithPrecisionOrScale.IfSome(precision =>
+            builder.Append('(');
+            for (var i = 0; i < typeMetadata.EnumValues.Count; i++)
             {
-                builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
-                if (precision.Scale > 0)
-                {
+                if (i > 0)
                     builder.Append(", ");
-                    builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
-                }
-            });
+                builder.Append('\'').Append(typeMetadata.EnumValues[i].Replace("'", "''", StringComparison.Ordinal)).Append('\'');
+            }
+            builder.Append(')');
         }
-        else if (typeMetadata.MaxLength > 0)
+        else if (!TypeNamesWithNoLengthAnnotation.Contains(typeName))
         {
-            var maxLength = typeMetadata.DataType == DataType.Unicode || typeMetadata.DataType == DataType.UnicodeText;
-            builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
+            var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
+            if (npWithPrecisionOrScale.IsSome)
+            {
+                npWithPrecisionOrScale.IfSome(precision =>
+                {
+                    builder.Append('(');
+                    builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
+                    if (precision.Scale > 0)
+                    {
+                        builder.Append(", ");
+                        builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
+                    }
+                    builder.Append(')');
+                });
+            }
+            // an unbounded type carries no annotation at all -- an empty '()' is not valid syntax
+            else if (typeMetadata.MaxLength > 0)
+            {
+                builder.Append('(');
+                builder.Append(typeMetadata.MaxLength.ToString(CultureInfo.InvariantCulture));
+                builder.Append(')');
+            }
         }
 
-        builder.Append(')');
+        if (typeMetadata.IsUnsigned)
+            builder.Append(" unsigned");
 
         return builder.GetStringAndRelease();
     }
@@ -218,11 +254,12 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         "tinyblob",
         "blob",
         "mediumblob",
-        "largeblob",
+        "longblob",
         "tinytext",
         "text",
         "mediumtext",
         "longtext",
+        "date",
         "json",
         "geometry",
         "point",
@@ -236,12 +273,12 @@ public class MySqlDbTypeProvider : IDbTypeProvider
 
     private static readonly FrozenDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
     {
-        ["bit"] = DataType.Boolean,
-        ["tinyint"] = DataType.Integer,
-        ["smallint"] = DataType.Integer,
+        ["bit"] = DataType.Bit,
+        ["tinyint"] = DataType.TinyInteger,
+        ["smallint"] = DataType.SmallInteger,
         ["mediumint"] = DataType.Integer,
         ["int"] = DataType.Integer,
-        ["bigint"] = DataType.Integer,
+        ["bigint"] = DataType.BigInteger,
         ["numeric"] = DataType.Numeric,
         ["decimal"] = DataType.Numeric,
         ["float"] = DataType.Float,
@@ -250,15 +287,17 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["datetime"] = DataType.DateTime,
         ["timestamp"] = DataType.DateTime,
         ["time"] = DataType.Time,
-        ["year"] = DataType.Integer,
+        ["year"] = DataType.SmallInteger,
         ["char"] = DataType.Unicode,
         ["varchar"] = DataType.Unicode,
+        ["enum"] = DataType.Enum,
+        ["set"] = DataType.Set,
         ["binary"] = DataType.Binary,
         ["varbinary"] = DataType.Binary,
         ["tinyblob"] = DataType.LargeBinary,
         ["blob"] = DataType.LargeBinary,
         ["mediumblob"] = DataType.LargeBinary,
-        ["largeblob"] = DataType.LargeBinary,
+        ["longblob"] = DataType.LargeBinary,
         ["tinytext"] = DataType.UnicodeText,
         ["text"] = DataType.UnicodeText,
         ["mediumtext"] = DataType.UnicodeText,
@@ -276,7 +315,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
 
     private static readonly FrozenDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
     {
-        ["bit"] = typeof(bool),
+        ["bit"] = typeof(ulong),
         ["tinyint"] = typeof(byte),
         ["smallint"] = typeof(short),
         ["mediumint"] = typeof(int),
@@ -289,10 +328,12 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["date"] = typeof(DateTime),
         ["datetime"] = typeof(DateTime),
         ["timestamp"] = typeof(DateTime),
-        ["time"] = typeof(DateTime),
-        ["year"] = typeof(int),
+        ["time"] = typeof(TimeSpan),
+        ["year"] = typeof(short),
         ["char"] = typeof(string),
         ["varchar"] = typeof(string),
+        ["enum"] = typeof(string),
+        ["set"] = typeof(string),
         ["tinytext"] = typeof(string),
         ["text"] = typeof(string),
         ["mediumtext"] = typeof(string),
@@ -302,7 +343,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["tinyblob"] = typeof(byte[]),
         ["blob"] = typeof(byte[]),
         ["mediumblob"] = typeof(byte[]),
-        ["largeblob"] = typeof(byte[]),
+        ["longblob"] = typeof(byte[]),
         ["json"] = typeof(string),
         ["geometry"] = typeof(object),
         ["point"] = typeof(object),

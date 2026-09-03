@@ -198,4 +198,38 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         Assert.That(computedColumnDefinitions, Is.EqualTo(expectedDefinitions));
     }
+
+    // SQLite stores values by affinity, but the declared type is what the table definition says,
+    // so it is reported unchanged rather than replaced by the name of the affinity
+    [Test]
+    public async Task Columns_WhenGivenTableWithDeclaredColumnType_ReturnsDeclaredTypeName()
+    {
+        var table = await GetTableAsync("table_test_table_46");
+        var column = table.Columns.Single(c => c.Name.LocalName == "declared_type_column");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.TypeName.LocalName, Is.EqualTo("varchar"));
+            Assert.That(column.Type.Definition, Is.EqualTo("varchar(50)"));
+            Assert.That(column.Type.DataType, Is.EqualTo(DataType.UnicodeText));
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithCollatedColumn_ReturnsCollation()
+    {
+        var table = await GetTableAsync("table_test_table_46");
+        var column = table.Columns.Single(c => c.Name.LocalName == "collated_column");
+
+        Assert.That(column.Type.Collation.UnwrapSome().LocalName, Is.EqualTo("NOCASE"));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithUncollatedColumn_ReturnsNoCollation()
+    {
+        var table = await GetTableAsync("table_test_table_46");
+        var column = table.Columns.Single(c => c.Name.LocalName == "uncollated_column");
+
+        Assert.That(column.Type.Collation.IsNone, Is.True);
+    }
 }

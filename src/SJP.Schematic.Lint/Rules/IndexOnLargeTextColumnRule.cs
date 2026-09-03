@@ -18,7 +18,11 @@ public class IndexOnLargeTextColumnRule : Rule, ITableRule
     private static readonly FrozenSet<DataType> LargeDataTypes = FrozenSet.Create(
         DataType.Text,
         DataType.UnicodeText,
-        DataType.LargeBinary
+        DataType.LargeBinary,
+        // a document is as large and as poorly suited to a b-tree key as any other unbounded value
+        DataType.Json,
+        DataType.Xml,
+        DataType.FullTextSearch
     );
 
     /// <summary>

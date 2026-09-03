@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite;
@@ -19,16 +21,8 @@ public class SqliteColumnType : IDbType
     /// <param name="typeAffinity">The type affinity.</param>
     /// <exception cref="ArgumentException"><paramref name="typeAffinity"/> is an invalid enum value.</exception>
     public SqliteColumnType(SqliteTypeAffinity typeAffinity)
+        : this(null, typeAffinity)
     {
-        if (!typeAffinity.IsValid())
-            throw new ArgumentException($"The {nameof(SqliteTypeAffinity)} provided must be a valid enum.", nameof(typeAffinity));
-
-        var typeName = typeAffinity.ToString().ToUpperInvariant();
-        TypeName = typeName;
-        Definition = typeName;
-
-        DataType = _affinityTypeMap[typeAffinity];
-        ClrType = _affinityClrTypeMap[typeAffinity];
     }
 
     /// <summary>
@@ -38,10 +32,45 @@ public class SqliteColumnType : IDbType
     /// <param name="collation">The collation.</param>
     /// <exception cref="ArgumentException"><paramref name="collation"/> or <paramref name="typeAffinity"/> are invalid enum values. Alternatively if the <paramref name="collation"/> is not <see cref="SqliteTypeAffinity.Text"/>.</exception>
     public SqliteColumnType(SqliteTypeAffinity typeAffinity, SqliteCollation collation)
-        : this(typeAffinity)
+        : this(null, typeAffinity, collation)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqliteColumnType"/> class, preserving the type as it was declared.
+    /// </summary>
+    /// <param name="declaredTypeName">The type as it was declared in the table definition, e.g. <c>VARCHAR(50)</c>. When absent, the affinity names the type instead.</param>
+    /// <param name="typeAffinity">The type affinity.</param>
+    /// <exception cref="ArgumentException"><paramref name="typeAffinity"/> is an invalid enum value.</exception>
+    /// <remarks>
+    /// SQLite stores values by affinity rather than by declared type, so the affinity determines
+    /// <see cref="DataType"/> and <see cref="ClrType"/>. The declared type is nevertheless what the
+    /// table definition says, so it is reported unchanged as the type name and definition.
+    /// </remarks>
+    public SqliteColumnType(string? declaredTypeName, SqliteTypeAffinity typeAffinity)
     {
         if (!typeAffinity.IsValid())
             throw new ArgumentException($"The {nameof(SqliteTypeAffinity)} provided must be a valid enum.", nameof(typeAffinity));
+
+        var affinityName = typeAffinity.ToString().ToUpperInvariant();
+        var definition = declaredTypeName?.Trim();
+        Definition = definition.IsNullOrWhiteSpace() ? affinityName : definition;
+        TypeName = GetTypeNameWithoutArguments(Definition);
+
+        DataType = AffinityTypeMap[typeAffinity];
+        ClrType = AffinityClrTypeMap[typeAffinity];
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqliteColumnType"/> class, preserving the type as it was declared.
+    /// </summary>
+    /// <param name="declaredTypeName">The type as it was declared in the table definition, e.g. <c>VARCHAR(50)</c>. When absent, the affinity names the type instead.</param>
+    /// <param name="typeAffinity">The type affinity.</param>
+    /// <param name="collation">The collation.</param>
+    /// <exception cref="ArgumentException"><paramref name="collation"/> or <paramref name="typeAffinity"/> are invalid enum values. Alternatively if the <paramref name="collation"/> is not <see cref="SqliteTypeAffinity.Text"/>.</exception>
+    public SqliteColumnType(string? declaredTypeName, SqliteTypeAffinity typeAffinity, SqliteCollation collation)
+        : this(declaredTypeName, typeAffinity)
+    {
         if (!collation.IsValid())
             throw new ArgumentException($"The {nameof(SqliteCollation)} provided must be a valid enum.", nameof(collation));
         if (typeAffinity != SqliteTypeAffinity.Text)
@@ -100,21 +129,55 @@ public class SqliteColumnType : IDbType
     /// <value>The collation.</value>
     public Option<Identifier> Collation { get; }
 
-    private readonly IReadOnlyDictionary<SqliteTypeAffinity, DataType> _affinityTypeMap = new Dictionary<SqliteTypeAffinity, DataType>
+    /// <summary>
+    /// The type of the elements stored by a collection type, if available.
+    /// </summary>
+    /// <value>The element type. Always unavailable; SQLite has no collection types.</value>
+    public Option<IDbType> ElementType { get; } = Option<IDbType>.None;
+
+    /// <summary>
+    /// The values a value of this type is restricted to.
+    /// </summary>
+    /// <value>The permitted values. Always empty; SQLite has no enumerated types.</value>
+    public IReadOnlyList<string> EnumValues { get; } = [];
+
+    /// <summary>
+    /// The type that this type is defined in terms of, if available.
+    /// </summary>
+    /// <value>The base type. Always unavailable; SQLite has no domain or alias types.</value>
+    public Option<IDbType> BaseType { get; } = Option<IDbType>.None;
+
+    /// <summary>
+    /// Gets a value indicating whether the type stores only non-negative values.
+    /// </summary>
+    /// <value>Always <see langword="false" />; SQLite has no unsigned types.</value>
+    public bool IsUnsigned { get; }
+
+    // a declared type may carry arguments, e.g. VARCHAR(50) or DECIMAL(10, 2), which are part of
+    // the definition but not of the name
+    private static string GetTypeNameWithoutArguments(string definition)
+    {
+        var parenIndex = definition.IndexOf('(', StringComparison.Ordinal);
+        return parenIndex < 0
+            ? definition
+            : definition[..parenIndex].TrimEnd();
+    }
+
+    private static readonly FrozenDictionary<SqliteTypeAffinity, DataType> AffinityTypeMap = new Dictionary<SqliteTypeAffinity, DataType>
     {
         [SqliteTypeAffinity.Blob] = DataType.LargeBinary,
         [SqliteTypeAffinity.Integer] = DataType.BigInteger,
         [SqliteTypeAffinity.Numeric] = DataType.Numeric,
         [SqliteTypeAffinity.Real] = DataType.Float,
         [SqliteTypeAffinity.Text] = DataType.UnicodeText,
-    };
+    }.ToFrozenDictionary();
 
-    private readonly IReadOnlyDictionary<SqliteTypeAffinity, Type> _affinityClrTypeMap = new Dictionary<SqliteTypeAffinity, Type>
+    private static readonly FrozenDictionary<SqliteTypeAffinity, Type> AffinityClrTypeMap = new Dictionary<SqliteTypeAffinity, Type>
     {
         [SqliteTypeAffinity.Blob] = typeof(byte[]),
         [SqliteTypeAffinity.Integer] = typeof(long),
         [SqliteTypeAffinity.Numeric] = typeof(decimal),
         [SqliteTypeAffinity.Real] = typeof(double),
         [SqliteTypeAffinity.Text] = typeof(string),
-    };
+    }.ToFrozenDictionary();
 }

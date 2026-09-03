@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -187,4 +187,107 @@ internal static class EFCoreTableGeneratorTests
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
+
+    private static IRelationalDatabaseTable CreateTableWithColumnType(IDbType columnType)
+    {
+        var column = new DatabaseColumn("test_column", columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+
+        return new RelationalDatabaseTable(
+            "test_table",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    private static string GenerateForColumnType(IDbType columnType)
+    {
+        var table = CreateTableWithColumnType(columnType);
+        return GetTableGenerator().Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+    }
+
+    private static ColumnDataType CreateColumnDataType(
+        string typeName,
+        DataType dataType,
+        Type clrType,
+        Option<INumericPrecision> numericPrecision = default
+    ) => new(
+        typeName,
+        dataType,
+        typeName,
+        clrType,
+        false,
+        0,
+        numericPrecision,
+        Option<Identifier>.None
+    );
+
+    // a row version is maintained by the database and used for concurrency checks, which is exactly
+    // what EF Core's timestamp annotation describes
+    [Test]
+    public static void Generate_GivenRowVersionColumn_GeneratesTimestampAttribute()
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("rowversion", DataType.RowVersion, typeof(byte[])));
+
+        Assert.That(result, Does.Contain("[Timestamp]"));
+    }
+
+    // EF Core already treats a string property as unicode, so only a non-unicode column is annotated
+    [TestCase(DataType.String)]
+    [TestCase(DataType.Text)]
+    public static void Generate_GivenNonUnicodeStringColumn_GeneratesUnicodeAttribute(DataType dataType)
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("varchar", dataType, typeof(string)));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("[Unicode(false)]"));
+            Assert.That(result, Does.Contain("using Microsoft.EntityFrameworkCore;"));
+        }
+    }
+
+    [TestCase(DataType.Unicode)]
+    [TestCase(DataType.UnicodeText)]
+    public static void Generate_GivenUnicodeStringColumn_GeneratesNoUnicodeAttribute(DataType dataType)
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("nvarchar", dataType, typeof(string)));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Not.Contain("[Unicode("));
+            Assert.That(result, Does.Not.Contain("using Microsoft.EntityFrameworkCore;"));
+        }
+    }
+
+    [TestCase(DataType.Numeric)]
+    [TestCase(DataType.Money)]
+    public static void Generate_GivenNumericColumnWithPrecision_GeneratesPrecisionAttribute(DataType dataType)
+    {
+        var precision = Option<INumericPrecision>.Some(new NumericPrecision(18, 4));
+        var result = GenerateForColumnType(CreateColumnDataType("decimal", dataType, typeof(decimal), precision));
+
+        Assert.That(result, Does.Contain("[Precision(18, 4)]"));
+    }
+
+    [Test]
+    public static void Generate_GivenNumericColumnWithoutScale_GeneratesPrecisionAttributeWithoutScale()
+    {
+        var precision = Option<INumericPrecision>.Some(new NumericPrecision(18, 0));
+        var result = GenerateForColumnType(CreateColumnDataType("decimal", DataType.Numeric, typeof(decimal), precision));
+
+        Assert.That(result, Does.Contain("[Precision(18)]"));
+    }
+
+    [Test]
+    public static void Generate_GivenNumericColumnWithoutPrecision_GeneratesNoPrecisionAttribute()
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("decimal", DataType.Numeric, typeof(decimal)));
+
+        Assert.That(result, Does.Not.Contain("[Precision("));
+    }
 }
