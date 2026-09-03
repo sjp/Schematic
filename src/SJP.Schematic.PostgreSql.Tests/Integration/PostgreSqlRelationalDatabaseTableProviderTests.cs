@@ -276,14 +276,20 @@ create table constraint_state_fk_parent (
     b int not null,
     constraint pk_constraint_state_fk_parent primary key (a, b)
 )", CancellationToken.None);
+        // NOT VALID is only honoured by ALTER TABLE ADD CONSTRAINT; constraints declared
+        // inline in CREATE TABLE are always recorded as validated.
         await DbConnection.ExecuteAsync(@"
 create table constraint_state_child (
     a int,
-    b int,
-    constraint ck_constraint_state_child check (a > 0) not valid,
-    constraint fk_constraint_state_child foreign key (a, b) references constraint_state_fk_parent (a, b)
-        match full deferrable initially immediate not valid
+    b int
 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+alter table constraint_state_child
+    add constraint ck_constraint_state_child check (a > 0) not valid", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+alter table constraint_state_child
+    add constraint fk_constraint_state_child foreign key (a, b) references constraint_state_fk_parent (a, b)
+        match full deferrable initially immediate not valid", CancellationToken.None);
 
         await DbConnection.ExecuteAsync(@"
 create table fk_bare_unique_parent (
