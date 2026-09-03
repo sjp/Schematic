@@ -11,8 +11,10 @@ internal static class GetSequenceDefinition
         public required string SequenceName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : ISequenceDefinitionRow
     {
+        public required string TypeName { get; init; }
+
         public required int CacheSize { get; init; }
 
         public required bool Cycle { get; init; }
@@ -29,6 +31,7 @@ internal static class GetSequenceDefinition
     internal const string Sql = $"""
 
 select
+    pg_catalog.format_type(data_type, null) as "{nameof(Result.TypeName)}",
     start_value as "{nameof(Result.StartValue)}",
     min_value as "{nameof(Result.MinValue)}",
     max_value as "{nameof(Result.MaxValue)}",

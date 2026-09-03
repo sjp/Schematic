@@ -41,6 +41,12 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     protected IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
+    /// A type provider used to describe the type of the values a sequence generates.
+    /// </summary>
+    /// <value>A type provider.</value>
+    protected IDbTypeProvider TypeProvider { get; } = new SqlServerDbTypeProvider();
+
+    /// <summary>
     /// Enumerates all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -51,15 +57,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-                return new DatabaseSequence(
-                    sequenceName,
-                    row.StartValue,
-                    row.Increment,
-                    Option<decimal>.Some(row.MinValue),
-                    Option<decimal>.Some(row.MaxValue),
-                    row.Cycle,
-                    row.IsCached ? row.CacheSize ?? -1 : 0 // -1 as unknown/database determined
-                );
+                return BuildSequence(sequenceName, row);
             });
     }
 
@@ -74,15 +72,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-                return new DatabaseSequence(
-                    sequenceName,
-                    row.StartValue,
-                    row.Increment,
-                    Option<decimal>.Some(row.MinValue),
-                    Option<decimal>.Some(row.MaxValue),
-                    row.Cycle,
-                    row.IsCached ? row.CacheSize ?? -1 : 0 // -1 as unknown/database determined
-                );
+                return BuildSequence(sequenceName, row);
             })
             .ToListAsync(cancellationToken);
     }
@@ -147,15 +137,42 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
-        ).Map<IDatabaseSequence>(dto => new DatabaseSequence(
+        ).Map<IDatabaseSequence>(row => BuildSequence(sequenceName, row));
+    }
+
+    private DatabaseSequence BuildSequence(Identifier sequenceName, ISequenceDefinitionRow row)
+    {
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(row.TypeSchemaName, row.TypeName),
+            MaxLength = row.TypeMaxLength,
+            NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
+        };
+
+        // sys.sequences reports a cached sequence with no size when CACHE was given without one,
+        // in which case the engine picks a size and never says which
+        var cacheMode = !row.IsCached
+            ? SequenceCacheMode.None
+            : row.CacheSize.HasValue
+                ? SequenceCacheMode.Sized
+                : SequenceCacheMode.EngineDefault;
+        var cacheSize = row.IsCached && row.CacheSize.HasValue
+            ? Option<int>.Some(row.CacheSize.Value)
+            : Option<int>.None;
+
+        return new DatabaseSequence(
             sequenceName,
-            dto.StartValue,
-            dto.Increment,
-            Option<decimal>.Some(dto.MinValue),
-            Option<decimal>.Some(dto.MaxValue),
-            dto.Cycle,
-            dto.IsCached ? dto.CacheSize ?? -1 : 0 // -1 as unknown/database determined
-        ));
+            TypeProvider.CreateColumnType(typeMetadata),
+            row.StartValue,
+            row.Increment,
+            Option<decimal>.Some(row.MinValue),
+            Option<decimal>.Some(row.MaxValue),
+            row.Cycle,
+            cacheMode,
+            cacheSize,
+            // a SQL Server sequence is served by a single instance, so values are always ordered
+            true
+        );
     }
 
     /// <summary>

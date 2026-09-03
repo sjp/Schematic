@@ -74,6 +74,10 @@ public class InvalidSequenceConfigurationRule : Rule, ISequenceRule
             .Where(max => sequence.Start > max)
             .IfSome(_ => result.Add(BuildMessage(sequence.Name, "has a starting value above its maximum value.")));
 
+        sequence.CacheSize
+            .Where(static size => size <= 0)
+            .IfSome(_ => result.Add(BuildMessage(sequence.Name, "is set to cache a number of values that is not positive, so it cannot pre-allocate anything.")));
+
         if (sequence.Cycle && (sequence.MinValue.IsNone || sequence.MaxValue.IsNone))
             result.Add(BuildMessage(sequence.Name, "is set to cycle but does not define both a minimum and maximum value, so it cannot cycle and will instead overflow."));
 

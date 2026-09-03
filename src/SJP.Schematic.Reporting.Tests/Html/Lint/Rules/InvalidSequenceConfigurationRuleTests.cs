@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -21,7 +21,7 @@ internal static class InvalidSequenceConfigurationRuleTests
         sequence.Setup(s => s.MinValue).Returns(minValue);
         sequence.Setup(s => s.MaxValue).Returns(maxValue);
         sequence.Setup(s => s.Cycle).Returns(cycle);
-        sequence.Setup(s => s.Cache).Returns(0);
+        sequence.Setup(s => s.CacheSize).Returns(Option<int>.None);
         return sequence.Object;
     }
 

@@ -49,6 +49,12 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
+    /// A type provider used to describe the type of the values a sequence generates.
+    /// </summary>
+    /// <value>A type provider.</value>
+    protected IDbTypeProvider TypeProvider { get; } = new PostgreSqlDbTypeProvider();
+
+    /// <summary>
     /// Enumerates all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -59,15 +65,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-                return new DatabaseSequence(
-                    sequenceName,
-                    row.StartValue,
-                    row.Increment,
-                    Option<decimal>.Some(row.MinValue),
-                    Option<decimal>.Some(row.MaxValue),
-                    row.Cycle,
-                    row.CacheSize
-                );
+                return BuildSequence(sequenceName, row);
             });
     }
 
@@ -82,15 +80,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-                return new DatabaseSequence(
-                    sequenceName,
-                    row.StartValue,
-                    row.Increment,
-                    Option<decimal>.Some(row.MinValue),
-                    Option<decimal>.Some(row.MaxValue),
-                    row.Cycle,
-                    row.CacheSize
-                );
+                return BuildSequence(sequenceName, row);
             })
             .ToListAsync(cancellationToken);
     }
@@ -175,15 +165,31 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
             GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
-        ).Map<IDatabaseSequence>(dto => new DatabaseSequence(
+        ).Map<IDatabaseSequence>(row => BuildSequence(sequenceName, row));
+    }
+
+    private DatabaseSequence BuildSequence(Identifier sequenceName, ISequenceDefinitionRow row)
+    {
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(PgCatalog, row.TypeName),
+        };
+
+        return new DatabaseSequence(
             sequenceName,
-            dto.StartValue,
-            dto.Increment,
-            Option<decimal>.Some(dto.MinValue),
-            Option<decimal>.Some(dto.MaxValue),
-            dto.Cycle,
-            dto.CacheSize
-        ));
+            TypeProvider.CreateColumnType(typeMetadata),
+            row.StartValue,
+            row.Increment,
+            Option<decimal>.Some(row.MinValue),
+            Option<decimal>.Some(row.MaxValue),
+            row.Cycle,
+            // PostgreSQL always pre-allocates, reporting a cache of one value for a sequence
+            // declared without CACHE, so the size is always known
+            SequenceCacheMode.Sized,
+            Option<int>.Some(row.CacheSize),
+            // a PostgreSQL sequence is served by a single instance, so values are always ordered
+            true
+        );
     }
 
     /// <summary>
@@ -199,4 +205,6 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
         var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
     }
+
+    private const string PgCatalog = "pg_catalog";
 }

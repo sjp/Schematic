@@ -49,6 +49,12 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
 
     /// <summary>
+    /// A type provider used to describe the type of the values a sequence generates.
+    /// </summary>
+    /// <value>A type provider.</value>
+    protected IDbTypeProvider TypeProvider { get; } = new OracleDbTypeProvider();
+
+    /// <summary>
     /// Enumerate all database sequences.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -59,21 +65,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-
-                var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
-                var start = row.Increment >= 0
-                    ? row.MinValue
-                    : row.MaxValue;
-
-                return new DatabaseSequence(
-                    sequenceName,
-                    start,
-                    row.Increment,
-                    Option<decimal>.Some(row.MinValue),
-                    Option<decimal>.Some(row.MaxValue),
-                    cycle,
-                    row.CacheSize
-                );
+                return BuildSequence(sequenceName, row);
             });
     }
 
@@ -88,21 +80,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             .Select(row =>
             {
                 var sequenceName = QualifySequenceName(Identifier.CreateQualifiedIdentifier(row.SchemaName, row.SequenceName));
-
-                var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
-                var start = row.Increment >= 0
-                    ? row.MinValue
-                    : row.MaxValue;
-
-                return new DatabaseSequence(
-                    sequenceName,
-                    start,
-                    row.Increment,
-                    Option<decimal>.Some(row.MinValue),
-                    Option<decimal>.Some(row.MaxValue),
-                    cycle,
-                    row.CacheSize
-                );
+                return BuildSequence(sequenceName, row);
             })
             .ToListAsync(cancellationToken);
     }
@@ -187,23 +165,51 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
-        ).Map<IDatabaseSequence>(row =>
-        {
-            var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
-            var start = row.Increment >= 0
-                ? row.MinValue
-                : row.MaxValue;
+        ).Map<IDatabaseSequence>(row => BuildSequence(sequenceName, row));
+    }
 
-            return new DatabaseSequence(
-                sequenceName,
-                start,
-                row.Increment,
-                Option<decimal>.Some(row.MinValue),
-                Option<decimal>.Some(row.MaxValue),
-                cycle,
-                row.CacheSize
-            );
-        });
+    /// <summary>
+    /// Describes a sequence from the row the catalog reported for it.
+    /// </summary>
+    /// <param name="sequenceName">The name of the sequence.</param>
+    /// <param name="row">The catalog's description of the sequence.</param>
+    /// <returns>A database sequence.</returns>
+    /// <remarks>
+    /// <c>ALL_SEQUENCES</c> records no starting value, only the value the sequence has reached, so
+    /// the starting value is taken to be the bound the sequence advances away from. That matches
+    /// Oracle's own default for a sequence declared without <c>START WITH</c>, but a sequence
+    /// created with an explicit <c>START WITH</c> inside its bounds cannot be distinguished from
+    /// one that was not.
+    /// </remarks>
+    private DatabaseSequence BuildSequence(Identifier sequenceName, ISequenceDefinitionRow row)
+    {
+        var cycle = string.Equals(row.Cycle, Constants.Y, StringComparison.Ordinal);
+        var isOrdered = string.Equals(row.Order, Constants.Y, StringComparison.Ordinal);
+        var start = row.Increment >= 0
+            ? row.MinValue
+            : row.MaxValue;
+
+        // ALL_SEQUENCES describes no type; before 23c every sequence generates NUMBER values, and
+        // 23c's typed sequences are still not reported by the catalog
+        var typeMetadata = new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(Constants.Sys, Constants.Number),
+            NumericPrecision = new NumericPrecision(SequencePrecision, 0),
+        };
+
+        return new DatabaseSequence(
+            sequenceName,
+            TypeProvider.CreateColumnType(typeMetadata),
+            start,
+            row.Increment,
+            Option<decimal>.Some(row.MinValue),
+            Option<decimal>.Some(row.MaxValue),
+            cycle,
+            // NOCACHE is recorded as a cache of no values at all
+            row.CacheSize == 0 ? SequenceCacheMode.None : SequenceCacheMode.Sized,
+            Option<int>.Some(row.CacheSize),
+            isOrdered
+        );
     }
 
     /// <summary>
@@ -220,8 +226,17 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
     }
 
+    /// <summary>
+    /// The number of digits an Oracle sequence value can hold.
+    /// </summary>
+    private const int SequencePrecision = 28;
+
     private static class Constants
     {
         public const string Y = "Y";
+
+        public const string Sys = "SYS";
+
+        public const string Number = "NUMBER";
     }
 }

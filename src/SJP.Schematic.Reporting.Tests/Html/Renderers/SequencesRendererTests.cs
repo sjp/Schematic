@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -16,8 +16,8 @@ internal static class SequencesRendererTests
     public static async Task RenderAsync_GivenSequences_WritesSummaryFileWithExpectedCount()
     {
         using var tempDir = new TemporaryDirectory();
-        var first = new DatabaseSequence(new Identifier("seq_one"), 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
-        var second = new DatabaseSequence(new Identifier("seq_two"), 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
+        var first = new DatabaseSequence(new Identifier("seq_one"), TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
+        var second = new DatabaseSequence(new Identifier("seq_two"), TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
 
         var renderer = new SequencesRenderer();
         var data = ReportDataFactory.Create(sequences: [first, second]);
@@ -34,7 +34,7 @@ internal static class SequencesRendererTests
     public static async Task RenderAsync_GivenSequences_RegistersSummaryPayloadUnderSequencesBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var sequence = new DatabaseSequence(new Identifier("seq_one"), 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
+        var sequence = new DatabaseSequence(new Identifier("seq_one"), TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
         var bundle = new BundleBuilder();
 
         var renderer = new SequencesRenderer();

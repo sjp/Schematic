@@ -179,12 +179,15 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var sequence = new DatabaseSequence(
             "test_sequence_name",
+            TestDbTypes.BigInteger,
             1,
             10,
             Option<decimal>.Some(-10),
             Option<decimal>.Some(1000),
             true,
-            20
+            SequenceCacheMode.Sized,
+            Option<int>.Some(20),
+            true
         );
         var sequences = new[] { sequence };
 
@@ -217,12 +220,15 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var sequence = new DatabaseSequence(
             "test_sequence_name",
+            TestDbTypes.BigInteger,
             1,
             10,
             Option<decimal>.Some(-10),
             Option<decimal>.Some(1000),
             true,
-            20
+            SequenceCacheMode.Sized,
+            Option<int>.Some(20),
+            true
         );
         var sequences = new[] { sequence };
 

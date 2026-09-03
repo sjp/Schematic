@@ -316,26 +316,58 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
     }
 
     [Test]
-    public async Task Cache_GivenDefaultSequence_ReturnsNegativeOne()
+    public async Task CacheMode_GivenDefaultSequence_ReturnsEngineDefault()
     {
         var sequence = await GetSequenceAsync("db_test_sequence_1");
 
-        Assert.That(sequence.Cache, Is.EqualTo(-1));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.EngineDefault));
+            Assert.That(sequence.CacheSize, OptionIs.None);
+        }
     }
 
     [Test]
-    public async Task Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
+    public async Task CacheMode_GivenSequenceWithCacheSet_ReturnsSizedCache()
     {
         var sequence = await GetSequenceAsync("db_test_sequence_10");
 
-        Assert.That(sequence.Cache, Is.EqualTo(10));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
+            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(10));
+        }
     }
 
     [Test]
-    public async Task Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
+    public async Task CacheMode_GivenSequenceWithNoCacheSet_ReturnsNoCache()
     {
         var sequence = await GetSequenceAsync("db_test_sequence_11");
 
-        Assert.That(sequence.Cache, Is.Zero);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.None));
+            Assert.That(sequence.CacheSize, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task Type_GivenDefaultSequence_ReturnsBigInteger()
+    {
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.Type.TypeName.LocalName, Is.EqualTo("bigint"));
+            Assert.That(sequence.Type.ClrType, Is.EqualTo(typeof(long)));
+        }
+    }
+
+    [Test]
+    public async Task IsOrdered_GivenDefaultSequence_ReturnsTrue()
+    {
+        var sequence = await GetSequenceAsync("db_test_sequence_1");
+
+        Assert.That(sequence.IsOrdered, Is.True);
     }
 }

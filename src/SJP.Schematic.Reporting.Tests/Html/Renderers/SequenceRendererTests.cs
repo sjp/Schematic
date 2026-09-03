@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -28,7 +28,7 @@ internal static class SequenceRendererTests
     {
         using var tempDir = new TemporaryDirectory();
         var sequenceName = new Identifier("test_sequence");
-        var sequence = new DatabaseSequence(sequenceName, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
 
         var renderer = new SequenceRenderer();
         var data = ReportDataFactory.Create(sequences: [sequence]);
@@ -44,7 +44,7 @@ internal static class SequenceRendererTests
     {
         using var tempDir = new TemporaryDirectory();
         var sequenceName = new Identifier("test_sequence");
-        var sequence = new DatabaseSequence(sequenceName, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, 0);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
         var bundle = new BundleBuilder();
 
         var renderer = new SequenceRenderer();

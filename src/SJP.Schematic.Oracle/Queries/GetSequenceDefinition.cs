@@ -11,11 +11,13 @@ internal static class GetSequenceDefinition
         public required string SequenceName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : ISequenceDefinitionRow
     {
         public required int CacheSize { get; init; }
 
         public required string? Cycle { get; init; }
+
+        public required string? Order { get; init; }
 
         public required decimal Increment { get; init; }
 
@@ -31,6 +33,7 @@ select
     MIN_VALUE as "{nameof(Result.MinValue)}",
     MAX_VALUE as "{nameof(Result.MaxValue)}",
     CYCLE_FLAG as "{nameof(Result.Cycle)}",
+    ORDER_FLAG as "{nameof(Result.Order)}",
     CACHE_SIZE as "{nameof(Result.CacheSize)}"
 from SYS.ALL_SEQUENCES
 where SEQUENCE_OWNER = :{nameof(Query.SchemaName)} and SEQUENCE_NAME = :{nameof(Query.SequenceName)}

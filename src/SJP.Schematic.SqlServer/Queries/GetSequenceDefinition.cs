@@ -11,8 +11,18 @@ internal static class GetSequenceDefinition
         public required string SequenceName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : ISequenceDefinitionRow
     {
+        public required string TypeSchemaName { get; init; }
+
+        public required string TypeName { get; init; }
+
+        public required int TypeMaxLength { get; init; }
+
+        public required int Precision { get; init; }
+
+        public required int Scale { get; init; }
+
         public required bool IsCached { get; init; }
 
         public required int? CacheSize { get; init; }
@@ -30,13 +40,19 @@ internal static class GetSequenceDefinition
 
     internal const string Sql = @$"
 select
-    start_value as [{nameof(Result.StartValue)}],
-    increment as [{nameof(Result.Increment)}],
-    minimum_value as [{nameof(Result.MinValue)}],
-    maximum_value as [{nameof(Result.MaxValue)}],
-    is_cycling as [{nameof(Result.Cycle)}],
-    is_cached as [{nameof(Result.IsCached)}],
-    cache_size as [{nameof(Result.CacheSize)}]
-from sys.sequences
-where schema_id = schema_id(@{nameof(Query.SchemaName)}) and name = @{nameof(Query.SequenceName)} and is_ms_shipped = 0";
+    schema_name(t.schema_id) as [{nameof(Result.TypeSchemaName)}],
+    t.name as [{nameof(Result.TypeName)}],
+    cast(t.max_length as int) as [{nameof(Result.TypeMaxLength)}],
+    cast(s.precision as int) as [{nameof(Result.Precision)}],
+    cast(s.scale as int) as [{nameof(Result.Scale)}],
+    s.start_value as [{nameof(Result.StartValue)}],
+    s.increment as [{nameof(Result.Increment)}],
+    s.minimum_value as [{nameof(Result.MinValue)}],
+    s.maximum_value as [{nameof(Result.MaxValue)}],
+    s.is_cycling as [{nameof(Result.Cycle)}],
+    s.is_cached as [{nameof(Result.IsCached)}],
+    s.cache_size as [{nameof(Result.CacheSize)}]
+from sys.sequences s
+inner join sys.types t on s.user_type_id = t.user_type_id
+where s.schema_id = schema_id(@{nameof(Query.SchemaName)}) and s.name = @{nameof(Query.SequenceName)} and s.is_ms_shipped = 0";
 }

@@ -11,9 +11,24 @@ public sealed record DatabaseSequence
     public required Identifier SequenceName { get; init; }
 
     /// <summary>
-    /// The amount of values that are cached.
+    /// The type of the values the sequence generates.
     /// </summary>
-    public required int Cache { get; init; }
+    public required DbType Type { get; init; }
+
+    /// <summary>
+    /// Describes whether the database pre-allocates values for the sequence.
+    /// </summary>
+    public required Core.SequenceCacheMode CacheMode { get; init; }
+
+    /// <summary>
+    /// The number of values that are pre-allocated, if the database reports a size.
+    /// </summary>
+    public int? CacheSize { get; init; }
+
+    /// <summary>
+    /// Whether values are generated in the order they are requested.
+    /// </summary>
+    public required bool IsOrdered { get; init; }
 
     /// <summary>
     /// Whether the sequence can cycle, generating duplicate values once its bounds are reached.

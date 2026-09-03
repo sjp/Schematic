@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -131,12 +131,15 @@ public sealed class Main
     {
         public Sequence(
             Identifier sequenceName,
+            string type,
             decimal start,
             decimal increment,
             Option<decimal> minValue,
             Option<decimal> maxValue,
-            int cache,
-            bool cycle
+            SequenceCacheMode cacheMode,
+            Option<int> cacheSize,
+            bool cycle,
+            bool isOrdered
         )
         {
             ArgumentNullException.ThrowIfNull(sequenceName);
@@ -144,17 +147,21 @@ public sealed class Main
             Name = sequenceName.ToVisibleName();
             SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
 
+            Type = type;
             Start = start;
             Increment = increment;
             MinValue = minValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
             MaxValue = maxValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
-            Cache = cache;
+            Cache = SequenceCacheNames.GetName(cacheMode, cacheSize);
             Cycle = cycle;
+            IsOrdered = isOrdered;
         }
 
         public string Name { get; }
 
         public string SequenceUrl { get; }
+
+        public string Type { get; }
 
         public decimal Start { get; }
 
@@ -164,9 +171,11 @@ public sealed class Main
 
         public decimal? MaxValue { get; }
 
-        public int Cache { get; }
+        public string Cache { get; }
 
         public bool Cycle { get; }
+
+        public bool IsOrdered { get; }
     }
 
     /// <summary>

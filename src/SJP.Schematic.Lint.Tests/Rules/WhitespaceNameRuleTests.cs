@@ -4,6 +4,7 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint.Rules;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
@@ -258,12 +259,15 @@ internal static class WhitespaceNameRuleTests
 
         var sequence = new DatabaseSequence(
             sequenceName,
+            TestDbTypes.BigInteger,
             1,
             1,
             1,
             100,
             true,
-            10
+            SequenceCacheMode.Sized,
+            Option<int>.Some(10),
+            true
         );
         var sequences = new[] { sequence };
 
@@ -280,12 +284,15 @@ internal static class WhitespaceNameRuleTests
 
         var sequence = new DatabaseSequence(
             sequenceName,
+            TestDbTypes.BigInteger,
             1,
             1,
             1,
             100,
             true,
-            10
+            SequenceCacheMode.Sized,
+            Option<int>.Some(10),
+            true
         );
         var sequences = new[] { sequence };
 
@@ -698,12 +705,15 @@ internal static class WhitespaceNameRuleTests
 
         var sequence = new DatabaseSequence(
             Identifier.CreateQualifiedIdentifier("test name", "test_sequence"),
+            TestDbTypes.BigInteger,
             1,
             1,
             1,
             100,
             true,
-            10
+            SequenceCacheMode.Sized,
+            Option<int>.Some(10),
+            true
         );
         var sequences = new[] { sequence };
 

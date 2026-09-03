@@ -1,9 +1,10 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html.Lint.Rules;
 
@@ -151,7 +152,7 @@ internal static class WhitespaceNameRuleTests
         var rule = new WhitespaceNameRule(RuleLevel.Error);
         var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "   test   ");
 
-        var sequence = new DatabaseSequence(sequenceName, 1, 1, 1, 100, true, 10);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1, 1, 1, 100, true, SequenceCacheMode.Sized, Option<int>.Some(10), true);
         var sequences = new[] { sequence };
 
         var messages = await rule.AnalyseSequences(sequences);

@@ -889,8 +889,6 @@ public class EFCoreDbContextBuilder
             hasSequenceArgs.Add(schemaArg);
         }
 
-        // sequence metadata is decimal-valued, but EF Core's sequence builder is
-        // restricted to long/int values, so the widest usable type is generated
         var hasSequence = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
@@ -899,8 +897,8 @@ public class EFCoreDbContextBuilder
                     Identifier(nameof(RelationalModelBuilderExtensions.HasSequence)))
                     .WithTypeArgumentList(
                         TypeArgumentList(
-                            SingletonSeparatedList<TypeSyntax>(
-                                PredefinedType(Token(SyntaxKind.LongKeyword)))))))
+                            SingletonSeparatedList(
+                                GetSequenceValueType(sequence.Type))))))
             .WithArgumentList(
                 ArgumentList(SeparatedList(hasSequenceArgs)));
 
@@ -909,9 +907,9 @@ public class EFCoreDbContextBuilder
                 Argument(
                     LiteralExpression(
                         SyntaxKind.NumericLiteralExpression,
-                        Literal(ToStartsAtValue(sequence.Start))))));
+                        Literal(ToBoundaryValue(sequence.Start))))));
 
-        var startsAt = InvocationExpression(
+        var result = InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 hasSequence,
@@ -925,16 +923,69 @@ public class EFCoreDbContextBuilder
                         SyntaxKind.NumericLiteralExpression,
                         Literal(ToIncrementsByValue(sequence.Increment))))));
 
+        result = InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                result,
+                IdentifierName(nameof(SequenceBuilder.IncrementsBy))))
+            .WithArgumentList(incrementsByArgs);
+
+        var builder = result;
+        sequence.MinValue.IfSome(min => builder = BuildSequenceBoundary(builder, nameof(SequenceBuilder.HasMin), min));
+        sequence.MaxValue.IfSome(max => builder = BuildSequenceBoundary(builder, nameof(SequenceBuilder.HasMax), max));
+        result = builder;
+
+        if (sequence.Cycle)
+        {
+            result = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    result,
+                    IdentifierName(nameof(SequenceBuilder.IsCyclic))));
+        }
+
+        return result;
+    }
+
+    private static InvocationExpressionSyntax BuildSequenceBoundary(InvocationExpressionSyntax target, string methodName, decimal boundary)
+    {
         return InvocationExpression(
             MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
-                startsAt,
-                IdentifierName(nameof(SequenceBuilder.IncrementsBy))))
-            .WithArgumentList(incrementsByArgs);
+                target,
+                IdentifierName(methodName)))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            LiteralExpression(
+                                SyntaxKind.NumericLiteralExpression,
+                                Literal(ToBoundaryValue(boundary)))))));
     }
 
-    private static long ToStartsAtValue(decimal start) =>
-        decimal.ToInt64(Math.Clamp(decimal.Truncate(start), long.MinValue, long.MaxValue));
+    /// <summary>
+    /// Names the type argument for <c>HasSequence&lt;T&gt;()</c>, given the type the database
+    /// generates values in. EF Core supports only the integral types and <see cref="decimal"/>,
+    /// so a sequence of any other type is configured as the widest integral type it supports.
+    /// </summary>
+    private static TypeSyntax GetSequenceValueType(IDbType sequenceType)
+    {
+        var keyword = Type.GetTypeCode(sequenceType.ClrType) switch
+        {
+            TypeCode.Byte => SyntaxKind.ByteKeyword,
+            TypeCode.Int16 => SyntaxKind.ShortKeyword,
+            TypeCode.Int32 => SyntaxKind.IntKeyword,
+            TypeCode.Decimal => SyntaxKind.DecimalKeyword,
+            _ => SyntaxKind.LongKeyword,
+        };
+
+        return PredefinedType(Token(keyword));
+    }
+
+    // the starting value and the bounds are decimal-valued in the model, but EF Core's sequence
+    // builder takes them as long, so a value outside that range is pinned to its nearest end
+    private static long ToBoundaryValue(decimal value) =>
+        decimal.ToInt64(Math.Clamp(decimal.Truncate(value), long.MinValue, long.MaxValue));
 
     private static int ToIncrementsByValue(decimal increment) =>
         decimal.ToInt32(Math.Clamp(decimal.Truncate(increment), int.MinValue, int.MaxValue));

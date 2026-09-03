@@ -41,12 +41,14 @@ export function SequenceDetailPage() {
       <LintFindings objectUrl={`#/sequences/${sequenceKey}`} />
 
       <dl className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
+        <Property label="Type" value={data.type} />
         <Property label="Start" value={data.start} />
         <Property label="Increment" value={data.increment} />
         <Property label="Min Value" value={data.minValue ?? "—"} />
         <Property label="Max Value" value={data.maxValue ?? "—"} />
-        <Property label="Cache" value={data.cache} />
+        <Property label="Cache" value={data.cache || "—"} />
         <Property label="Cycle" value={data.cycle ? "Yes" : "No"} />
+        <Property label="Ordered" value={data.isOrdered ? "Yes" : "No"} />
       </dl>
     </div>
   );

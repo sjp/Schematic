@@ -31,6 +31,7 @@ export function SequencesPage() {
           </Link>
         ),
       },
+      { accessorKey: "type", header: "Type" },
       { accessorKey: "start", header: "Start" },
       { accessorKey: "increment", header: "Increment" },
       {
@@ -43,7 +44,11 @@ export function SequencesPage() {
         header: "Max",
         cell: ({ getValue }) => getValue<number | undefined>() ?? "—",
       },
-      { accessorKey: "cache", header: "Cache" },
+      {
+        accessorKey: "cache",
+        header: "Cache",
+        cell: ({ getValue }) => getValue<string>() || "—",
+      },
       {
         accessorKey: "cycle",
         header: "Cycle",

@@ -29,6 +29,7 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create sequence db_test_sequence_9 nocycle", CancellationToken.None);
         await DbConnection.ExecuteAsync("create sequence db_test_sequence_10 cache 10", CancellationToken.None);
         await DbConnection.ExecuteAsync("create sequence db_test_sequence_11 nocache", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_12 order", CancellationToken.None);
     }
 
     [OneTimeTearDown]
@@ -45,6 +46,7 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
         await DbConnection.ExecuteAsync("drop sequence db_test_sequence_9", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop sequence db_test_sequence_10", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop sequence db_test_sequence_11", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_12", CancellationToken.None);
     }
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
@@ -307,26 +309,66 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     [Test]
-    public async Task Cache_GivenDefaultSequence_ReturnsDefaultCacheSize()
+    public async Task CacheMode_GivenDefaultSequence_ReturnsDefaultCacheSize()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1");
 
-        Assert.That(sequence.Cache, Is.EqualTo(SequenceDefaultCache));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
+            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(SequenceDefaultCache));
+        }
     }
 
     [Test]
-    public async Task Cache_GivenSequenceWithCacheSet_ReturnsCorrectValue()
+    public async Task CacheMode_GivenSequenceWithCacheSet_ReturnsSizedCache()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_10");
 
-        Assert.That(sequence.Cache, Is.EqualTo(10));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
+            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(10));
+        }
     }
 
     [Test]
-    public async Task Cache_GivenSequenceWithNoCacheSet_ReturnsCorrectValue()
+    public async Task CacheMode_GivenSequenceWithNoCacheSet_ReturnsNoCache()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_11");
 
-        Assert.That(sequence.Cache, Is.Zero);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.None));
+            Assert.That(sequence.CacheSize, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task Type_GivenDefaultSequence_ReturnsNumber()
+    {
+        var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.Type.TypeName.LocalName, Is.EqualTo("NUMBER"));
+            Assert.That(sequence.Type.ClrType, Is.EqualTo(typeof(decimal)));
+        }
+    }
+
+    [Test]
+    public async Task IsOrdered_GivenDefaultSequence_ReturnsFalse()
+    {
+        var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1");
+
+        Assert.That(sequence.IsOrdered, Is.False);
+    }
+
+    [Test]
+    public async Task IsOrdered_GivenOrderedSequence_ReturnsTrue()
+    {
+        var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_12");
+
+        Assert.That(sequence.IsOrdered, Is.True);
     }
 }

@@ -20,15 +20,20 @@ public class DatabaseSequenceMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var decimalMapper = MapperRegistry.GetMapper<decimal?, Option<decimal>>();
+        var intMapper = MapperRegistry.GetMapper<int?, Option<int>>();
+        var dbTypeMapper = MapperRegistry.GetMapper<Dto.DbType, IDbType>();
 
         return new DatabaseSequence(
             identifierMapper.Map(source.SequenceName),
+            dbTypeMapper.Map(source.Type),
             source.Start,
             source.Increment,
             decimalMapper.Map(source.MinValue),
             decimalMapper.Map(source.MaxValue),
             source.Cycle,
-            source.Cache
+            source.CacheMode,
+            intMapper.Map(source.CacheSize),
+            source.IsOrdered
         );
     }
 
@@ -41,16 +46,21 @@ public class DatabaseSequenceMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var decimalMapper = MapperRegistry.GetMapper<Option<decimal>, decimal?>();
+        var intMapper = MapperRegistry.GetMapper<Option<int>, int?>();
+        var dbTypeMapper = MapperRegistry.GetMapper<IDbType, Dto.DbType>();
 
         return new Dto.DatabaseSequence
         {
             SequenceName = identifierMapper.Map(source.Name),
+            Type = dbTypeMapper.Map(source.Type),
             Start = source.Start,
             Increment = source.Increment,
             MinValue = decimalMapper.Map(source.MinValue),
             MaxValue = decimalMapper.Map(source.MaxValue),
             Cycle = source.Cycle,
-            Cache = source.Cache,
+            CacheMode = source.CacheMode,
+            CacheSize = intMapper.Map(source.CacheSize),
+            IsOrdered = source.IsOrdered,
         };
     }
 }

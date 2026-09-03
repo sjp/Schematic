@@ -146,4 +146,36 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
 
         Assert.That(containsTestSequence, Is.True);
     }
+
+    [Test]
+    public async Task Type_GivenDefaultSequence_ReturnsBigInteger()
+    {
+        var sequence = await SequenceProvider.GetSequence("db_test_sequence_1").UnwrapSomeAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.Type.TypeName.LocalName, Is.EqualTo("bigint"));
+            Assert.That(sequence.Type.ClrType, Is.EqualTo(typeof(long)));
+        }
+    }
+
+    [Test]
+    public async Task CacheMode_GivenDefaultSequence_ReturnsSizedCache()
+    {
+        var sequence = await SequenceProvider.GetSequence("db_test_sequence_1").UnwrapSomeAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
+            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task IsOrdered_GivenDefaultSequence_ReturnsTrue()
+    {
+        var sequence = await SequenceProvider.GetSequence("db_test_sequence_1").UnwrapSomeAsync();
+
+        Assert.That(sequence.IsOrdered, Is.True);
+    }
 }

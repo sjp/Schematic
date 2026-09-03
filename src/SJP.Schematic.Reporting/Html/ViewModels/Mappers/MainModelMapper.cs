@@ -37,12 +37,15 @@ internal sealed class MainModelMapper
 
         return new Main.Sequence(
             sequence.Name,
+            sequence.Type.Definition,
             sequence.Start,
             sequence.Increment,
             sequence.MinValue,
             sequence.MaxValue,
-            sequence.Cache,
-            sequence.Cycle
+            sequence.CacheMode,
+            sequence.CacheSize,
+            sequence.Cycle,
+            sequence.IsOrdered
         );
     }
 

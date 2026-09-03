@@ -2,6 +2,7 @@
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests;
 
@@ -84,12 +85,15 @@ internal static class EFCoreDbContextBuilderTests
 
         var sequence = new DatabaseSequence(
             "test_sequence",
+            TestDbTypes.BigInteger,
             3,
             20,
             Option<decimal>.Some(0),
             Option<decimal>.Some(100),
             true,
-            2
+            SequenceCacheMode.Sized,
+            Option<int>.Some(2),
+            true
         );
         var sequences = new[] { sequence };
 
@@ -122,18 +126,21 @@ internal static class EFCoreDbContextBuilderTests
 
         var sequence = new DatabaseSequence(
             "test_sequence",
+            TestDbTypes.BigInteger,
             decimal.MaxValue,
             1.5M,
             Option<decimal>.None,
             Option<decimal>.None,
             true,
-            2
+            SequenceCacheMode.Sized,
+            Option<int>.Some(2),
+            true
         );
         var sequences = new[] { sequence };
 
         var result = dbContextBuilder.Generate(tables, views, sequences);
 
-        Assert.That(result, Does.Contain("""modelBuilder.HasSequence<long>("test_sequence").StartsAt(9223372036854775807L).IncrementsBy(1);"""));
+        Assert.That(result, Does.Contain("""modelBuilder.HasSequence<long>("test_sequence").StartsAt(9223372036854775807L).IncrementsBy(1).IsCyclic();"""));
     }
 
     [Test]
@@ -521,7 +528,7 @@ namespace test
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.HasSequence<long>("test_sequence").StartsAt(3L).IncrementsBy(20);
+            modelBuilder.HasSequence<long>("test_sequence").StartsAt(3L).IncrementsBy(20).HasMin(0L).HasMax(100L).IsCyclic();
         }
     }
 }

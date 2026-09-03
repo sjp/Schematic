@@ -303,14 +303,19 @@ export interface SequenceSummary {
   name: string;
   /** Hash route, e.g. `#/sequences/<safeKey>`. */
   sequenceUrl: string;
+  /** The declared type of the generated values, e.g. `bigint`. */
+  type: string;
   start: number;
   increment: number;
   /** Omitted from the JSON when the sequence has no minimum. */
   minValue?: number;
   /** Omitted from the JSON when the sequence has no maximum. */
   maxValue?: number;
-  cache: number;
+  /** A cache size, `None`, `Database default`, or empty when the database reports nothing. */
+  cache: string;
   cycle: boolean;
+  /** Only Oracle distinguishes an unordered sequence; elsewhere this is always true. */
+  isOrdered: boolean;
 }
 
 /** `data/sequences.json`. */
