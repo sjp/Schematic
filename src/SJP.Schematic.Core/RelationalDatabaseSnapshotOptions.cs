@@ -6,6 +6,11 @@
 public sealed record RelationalDatabaseSnapshotOptions
 {
     /// <summary>
+    /// Indicates whether schemas should be exported. The default is <see langword="true" />.
+    /// </summary>
+    public bool IncludeSchemas { get; init; } = true;
+
+    /// <summary>
     /// Indicates whether tables should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeTables { get; init; } = true;
@@ -41,6 +46,7 @@ public sealed record RelationalDatabaseSnapshotOptions
     /// </summary>
     public static RelationalDatabaseSnapshotOptions Empty => new RelationalDatabaseSnapshotOptions
     {
+        IncludeSchemas = false,
         IncludeTables = false,
         IncludeViews = false,
         IncludeSequences = false,

@@ -46,18 +46,20 @@ public class ReportGenerator
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            schemas
         ) = await (
             Database.GetAllTables(cancellationToken),
             Database.GetAllViews(cancellationToken),
             Database.GetAllSequences(cancellationToken),
             Database.GetAllSynonyms(cancellationToken),
-            Database.GetAllRoutines(cancellationToken)
+            Database.GetAllRoutines(cancellationToken),
+            Database.GetAllSchemas(cancellationToken)
         ).WhenAll();
 
         var dbVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(cancellationToken);
 
-        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, dbVersion);
+        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, schemas, dbVersion);
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
         // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
@@ -121,6 +123,7 @@ public class ReportGenerator
         IReadOnlyCollection<IDatabaseSequence> sequences,
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IDatabaseSchema> schemas,
         string databaseVersion
     )
     {
@@ -129,6 +132,7 @@ public class ReportGenerator
         ArgumentNullException.ThrowIfNull(sequences);
         ArgumentNullException.ThrowIfNull(synonyms);
         ArgumentNullException.ThrowIfNull(routines);
+        ArgumentNullException.ThrowIfNull(schemas);
 
         // Referenced-object resolution (used by view detail) maps a dependency expression to the
         // owning object's hash route, across every object type.
@@ -144,7 +148,7 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        return new ReportData(Database, tables, views, sequences, synonyms, routines, databaseVersion, referencedObjectTargets, synonymTargets);
+        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, databaseVersion, referencedObjectTargets, synonymTargets);
     }
 
     // The renderer list is fixed for every run: each renderer's constructor only takes genuine

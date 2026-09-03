@@ -1011,6 +1011,92 @@ internal static class RelationalDatabaseCommentProviderTests
         Assert.That(comments.Select(c => c.TypeName).Single(), Is.EqualTo(typeName));
     }
 
+    [Test]
+    public static void Ctor_GivenNullSchemaComments_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabaseCommentProvider(
+                identifierDefaults,
+                identifierResolver,
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                null
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void GetSchemaComments_GivenNullSchemaName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => EmptyCommentProvider.GetSchemaComments(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetSchemaComments_WhenGivenMatchingSchemaName_ReturnsCommentsFromCtor()
+    {
+        Identifier schemaName = "test_schema";
+        var provider = CreateProviderWithSchemaComments(new DatabaseSchemaComments(schemaName, Option<string>.None));
+
+        var comments = await provider.GetSchemaComments(schemaName).UnwrapSomeAsync();
+
+        Assert.That(comments.SchemaName.LocalName, Is.EqualTo(schemaName.LocalName));
+    }
+
+    [Test]
+    public static async Task GetSchemaComments_WhenGivenNonMatchingSchemaName_ReturnsNone()
+    {
+        var provider = CreateProviderWithSchemaComments(new DatabaseSchemaComments("test_schema", Option<string>.None));
+
+        var comments = await provider.GetSchemaComments("other_schema").ToOption();
+
+        Assert.That(comments, OptionIs.None);
+    }
+
+    [Test]
+    public static async Task EnumerateAllSchemaComments_WhenInvoked_ReturnsCommentsFromCtor()
+    {
+        Identifier schemaName = "test_schema";
+        var provider = CreateProviderWithSchemaComments(new DatabaseSchemaComments(schemaName, Option<string>.None));
+
+        var comments = await provider.EnumerateAllSchemaComments().ToListAsync();
+
+        Assert.That(comments.Select(c => c.SchemaName).Single(), Is.EqualTo(schemaName));
+    }
+
+    [Test]
+    public static async Task GetAllSchemaComments_WhenInvoked_ReturnsCommentsFromCtor()
+    {
+        Identifier schemaName = "test_schema";
+        var provider = CreateProviderWithSchemaComments(new DatabaseSchemaComments(schemaName, Option<string>.None));
+
+        var comments = await provider.GetAllSchemaComments();
+
+        Assert.That(comments.Select(c => c.SchemaName).Single(), Is.EqualTo(schemaName));
+    }
+
+    private static IRelationalDatabaseCommentProvider CreateProviderWithSchemaComments(params IDatabaseSchemaComments[] schemaComments)
+    {
+        return new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            schemaComments
+        );
+    }
+
     private static IRelationalDatabaseCommentProvider CreateProviderWithUserDefinedTypeComments(params IDatabaseUserDefinedTypeComments[] typeComments)
     {
         return new RelationalDatabaseCommentProvider(

@@ -17,7 +17,7 @@ const MAIN: MainSummary = {
   columnsCount: 10,
   constraintsCount: 2,
   indexesCount: 3,
-  schemas: ["main"],
+  schemas: [{ name: "main", isDefault: true, isSystem: false, objectCount: 5 }],
   schemasCount: 1,
   tablesCount: 4,
   viewsCount: 1,
@@ -79,5 +79,15 @@ describe("DashboardPage", () => {
     render(<DashboardPage />);
 
     expect(screen.getByText("Lint issue")).toBeInTheDocument();
+  });
+
+  it("lists each schema with its object count", () => {
+    stubSummaries({ lint: LINT });
+
+    render(<DashboardPage />);
+
+    const schema = screen.getByText("main").closest("li");
+    expect(within(schema!).getByText("default")).toBeInTheDocument();
+    expect(within(schema!).getByText("5")).toBeInTheDocument();
   });
 });

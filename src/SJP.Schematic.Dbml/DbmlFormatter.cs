@@ -59,7 +59,43 @@ public class DbmlFormatter : IDbmlFormatter
             RenderForeignKeys(builder, table, parentKeys);
         }
 
+        RenderTableGroups(builder, tables);
+
         return builder.GetStringAndRelease().TrimEnd();
+    }
+
+    /// <summary>
+    /// Emits one <c>TableGroup</c> per schema, so that a diagram lays the tables of a schema out
+    /// together. A table whose name carries no schema cannot be placed in a group, and a database
+    /// whose tables all share one schema gains nothing from grouping, so neither is rendered.
+    /// </summary>
+    private static void RenderTableGroups(StringBuilder builder, IReadOnlyCollection<IRelationalDatabaseTable> tables)
+    {
+        var tablesBySchema = tables
+            .Select(static t => new { Table = t, Qualifier = t.Name.ToDbmlQualifier() })
+            .Where(static t => t.Qualifier != null)
+            .GroupBy(static t => t.Qualifier!, StringComparer.Ordinal)
+            .OrderBy(static g => g.Key, StringComparer.Ordinal)
+            .ToList();
+
+        if (tablesBySchema.Count < 2)
+            return;
+
+        foreach (var schemaTables in tablesBySchema)
+        {
+            builder.AppendLine();
+            builder.Append("TableGroup ")
+                .Append(schemaTables.Key.ToDbmlIdentifier())
+                .AppendLine(" {");
+
+            foreach (var table in schemaTables)
+            {
+                builder.Append(Indent)
+                    .AppendLine(table.Table.Name.ToDbmlName());
+            }
+
+            builder.AppendLine("}");
+        }
     }
 
     private static void RenderTable(StringBuilder builder, IRelationalDatabaseTable table)

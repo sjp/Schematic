@@ -26,6 +26,26 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
     public IIdentifierDefaults IdentifierDefaults { get; }
 
     /// <summary>
+    /// Enumerates all database schemas. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database schemas.</returns>
+    public IAsyncEnumerable<IDatabaseSchema> EnumerateAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return SchemaProvider.EnumerateAllSchemas(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database schemas. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database schemas.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchema>> GetAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return SchemaProvider.GetAllSchemas(cancellationToken);
+    }
+
+    /// <summary>
     /// Enumerates all database tables. This will always be an empty collection.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
@@ -229,6 +249,7 @@ public sealed class EmptyRelationalDatabase : IRelationalDatabase
         return UserDefinedTypeProvider.GetUserDefinedType(typeName, cancellationToken);
     }
 
+    private static readonly IDatabaseSchemaProvider SchemaProvider = new EmptyDatabaseSchemaProvider();
     private static readonly IRelationalDatabaseTableProvider TableProvider = new EmptyRelationalDatabaseTableProvider();
     private static readonly IDatabaseViewProvider ViewProvider = new EmptyDatabaseViewProvider();
     private static readonly IDatabaseSequenceProvider SequenceProvider = new EmptyDatabaseSequenceProvider();

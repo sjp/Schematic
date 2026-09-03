@@ -3,6 +3,7 @@
 /// <summary>
 /// Defines a container type which retrieves comments associated with all top-level database objects.
 /// </summary>
+/// <seealso cref="IDatabaseSchemaCommentProvider" />
 /// <seealso cref="IRelationalDatabaseTableCommentProvider" />
 /// <seealso cref="IDatabaseViewCommentProvider" />
 /// <seealso cref="IDatabaseSequenceCommentProvider" />
@@ -10,7 +11,8 @@
 /// <seealso cref="IDatabaseRoutineCommentProvider" />
 /// <seealso cref="IDatabaseUserDefinedTypeCommentProvider" />
 public interface IRelationalDatabaseCommentProvider
-    : IRelationalDatabaseTableCommentProvider,
+    : IDatabaseSchemaCommentProvider,
+      IRelationalDatabaseTableCommentProvider,
       IDatabaseViewCommentProvider,
       IDatabaseSequenceCommentProvider,
       IDatabaseSynonymCommentProvider,

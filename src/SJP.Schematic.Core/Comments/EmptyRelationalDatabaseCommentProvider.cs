@@ -232,6 +232,41 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
         return _userDefinedTypeCommentProvider.GetUserDefinedTypeComments(typeName, cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves comments for a particular database schema. This will always be a 'none' result.
+    /// </summary>
+    /// <param name="schemaName">The name of a database schema.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSchemaComments}" /> instance which is always none.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseSchemaComments> GetSchemaComments(Identifier schemaName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(schemaName);
+
+        return _schemaCommentProvider.GetSchemaComments(schemaName, cancellationToken);
+    }
+
+    /// <summary>
+    /// Enumerates all database schema comments defined within a database. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of schema comments.</returns>
+    public IAsyncEnumerable<IDatabaseSchemaComments> EnumerateAllSchemaComments(CancellationToken cancellationToken = default)
+    {
+        return _schemaCommentProvider.EnumerateAllSchemaComments(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database schema comments defined within a database. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of schema comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchemaComments>> GetAllSchemaComments(CancellationToken cancellationToken = default)
+    {
+        return _schemaCommentProvider.GetAllSchemaComments(cancellationToken);
+    }
+
+    private static readonly IDatabaseSchemaCommentProvider _schemaCommentProvider = new EmptyDatabaseSchemaCommentProvider();
     private static readonly IRelationalDatabaseTableCommentProvider _tableCommentProvider = new EmptyRelationalDatabaseTableCommentProvider();
     private static readonly IDatabaseViewCommentProvider _viewCommentProvider = new EmptyDatabaseViewCommentProvider();
     private static readonly IDatabaseSequenceCommentProvider _sequenceCommentProvider = new EmptyDatabaseSequenceCommentProvider();

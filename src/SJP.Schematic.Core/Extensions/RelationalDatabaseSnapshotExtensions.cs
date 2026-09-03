@@ -79,6 +79,9 @@ public static class RelationalDatabaseSnapshotExtensions
 
     private static async Task<IRelationalDatabase> SnapshotAsyncCore(IRelationalDatabase database, RelationalDatabaseSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
+        var schemasTask = snapshotOptions.IncludeSchemas
+            ? database.GetAllSchemas(cancellationToken)
+            : Empty.Tasks.Schemas;
         var tablesTask = snapshotOptions.IncludeTables
             ? database.GetAllTables(cancellationToken)
             : Empty.Tasks.Tables;
@@ -104,14 +107,16 @@ public static class RelationalDatabaseSnapshotExtensions
             sequences,
             synonyms,
             routines,
-            userDefinedTypes
+            userDefinedTypes,
+            schemas
         ) = await (
             tablesTask,
             viewsTask,
             sequencesTask,
             synonymsTask,
             routinesTask,
-            userDefinedTypesTask
+            userDefinedTypesTask,
+            schemasTask
         ).WhenAll();
 
         return new RelationalDatabase(
@@ -122,7 +127,8 @@ public static class RelationalDatabaseSnapshotExtensions
             sequences,
             synonyms,
             routines,
-            userDefinedTypes
+            userDefinedTypes,
+            schemas
         );
     }
 }

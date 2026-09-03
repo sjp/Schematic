@@ -187,6 +187,22 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
+    public static async Task EnumerateAllSchemas_WhenEnumerated_ContainsNoValues()
+    {
+        var hasSchemas = await Database.EnumerateAllSchemas().AnyAsync();
+
+        Assert.That(hasSchemas, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllSchemas_WhenRetrieved_ContainsNoValues()
+    {
+        var schemas = await Database.GetAllSchemas();
+
+        Assert.That(schemas, Is.Empty);
+    }
+
+    [Test]
     public static async Task EnumerateAllUserDefinedTypes_WhenEnumerated_ContainsNoValues()
     {
         var hasTypes = await Database.EnumerateAllUserDefinedTypes().AnyAsync();

@@ -15,6 +15,7 @@ namespace SJP.Schematic.Core.Comments;
 /// <seealso cref="IRelationalDatabaseCommentProvider" />
 public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvider
 {
+    private readonly FrozenDictionary<Identifier, IDatabaseSchemaComments> _schemaCommentsByName;
     private readonly FrozenDictionary<Identifier, IRelationalDatabaseTableComments> _tableCommentsByName;
     private readonly FrozenDictionary<Identifier, IDatabaseViewComments> _viewCommentsByName;
     private readonly FrozenDictionary<Identifier, IDatabaseSequenceComments> _sequenceCommentsByName;
@@ -68,6 +69,34 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         IEnumerable<IDatabaseRoutineComments> routineComments,
         IEnumerable<IDatabaseUserDefinedTypeComments> userDefinedTypeComments
     )
+        : this(identifierDefaults, identifierResolver, tableComments, viewComments, sequenceComments, synonymComments, routineComments, userDefinedTypeComments, [])
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RelationalDatabaseCommentProvider"/> class.
+    /// </summary>
+    /// <param name="identifierDefaults">Database identifier defaults.</param>
+    /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
+    /// <param name="tableComments">A collection of database table comment information.</param>
+    /// <param name="viewComments">A collection of database view comment information.</param>
+    /// <param name="sequenceComments">A collection of database sequence comment information.</param>
+    /// <param name="synonymComments">A collection of database synonym comment information.</param>
+    /// <param name="routineComments">A collection of database routine comment information.</param>
+    /// <param name="userDefinedTypeComments">A collection of database user-defined type comment information.</param>
+    /// <param name="schemaComments">A collection of database schema comment information.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/>, <paramref name="routineComments"/>, <paramref name="userDefinedTypeComments"/> or <paramref name="schemaComments"/> is <see langword="null" />.</exception>
+    public RelationalDatabaseCommentProvider(
+        IIdentifierDefaults identifierDefaults,
+        IIdentifierResolutionStrategy identifierResolver,
+        IEnumerable<IRelationalDatabaseTableComments> tableComments,
+        IEnumerable<IDatabaseViewComments> viewComments,
+        IEnumerable<IDatabaseSequenceComments> sequenceComments,
+        IEnumerable<IDatabaseSynonymComments> synonymComments,
+        IEnumerable<IDatabaseRoutineComments> routineComments,
+        IEnumerable<IDatabaseUserDefinedTypeComments> userDefinedTypeComments,
+        IEnumerable<IDatabaseSchemaComments> schemaComments
+    )
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
@@ -77,6 +106,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         SynonymComments = synonymComments?.ToList() ?? throw new ArgumentNullException(nameof(synonymComments));
         RoutineComments = routineComments?.ToList() ?? throw new ArgumentNullException(nameof(routineComments));
         UserDefinedTypeComments = userDefinedTypeComments?.ToList() ?? throw new ArgumentNullException(nameof(userDefinedTypeComments));
+        SchemaComments = schemaComments?.ToList() ?? throw new ArgumentNullException(nameof(schemaComments));
 
         _tableCommentsByName = BuildLookup(TableComments, static c => c.TableName);
         _viewCommentsByName = BuildLookup(ViewComments, static c => c.ViewName);
@@ -84,6 +114,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         _synonymCommentsByName = BuildLookup(SynonymComments, static c => c.SynonymName);
         _routineCommentsByName = BuildLookup(RoutineComments, static c => c.RoutineName);
         _userDefinedTypeCommentsByName = BuildLookup(UserDefinedTypeComments, static c => c.TypeName);
+        _schemaCommentsByName = BuildSchemaLookup(SchemaComments);
     }
 
     /// <summary>
@@ -97,6 +128,11 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <value>An identifier resolver.</value>
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
+
+    /// <summary>
+    /// An in-memory collection of all database schema comment information.
+    /// </summary>
+    protected IReadOnlyCollection<IDatabaseSchemaComments> SchemaComments { get; }
 
     /// <summary>
     /// An in-memory collection of all database table comment information.
@@ -294,6 +330,57 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         ArgumentNullException.ThrowIfNull(typeName);
 
         return GetResolvedComments(_userDefinedTypeCommentsByName, typeName);
+    }
+
+    /// <summary>
+    /// Enumerates all database schema comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token. Unused.</param>
+    /// <returns>A collection of schema comments.</returns>
+    public IAsyncEnumerable<IDatabaseSchemaComments> EnumerateAllSchemaComments(CancellationToken cancellationToken = default) => SchemaComments.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all database schema comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token. Unused.</param>
+    /// <returns>A collection of schema comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchemaComments>> GetAllSchemaComments(CancellationToken cancellationToken = default) => Task.FromResult(SchemaComments);
+
+    /// <summary>
+    /// Retrieves comments for a particular database schema.
+    /// </summary>
+    /// <param name="schemaName">The name of a database schema.</param>
+    /// <param name="cancellationToken">The cancellation token. Unused.</param>
+    /// <returns>An <see cref="OptionAsync{IDatabaseSchemaComments}" /> instance which holds the value of the schema's comments, if available.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseSchemaComments> GetSchemaComments(Identifier schemaName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(schemaName);
+
+        return IdentifierResolver
+            .GetResolutionOrder(schemaName)
+            .Select(name => _schemaCommentsByName.TryGetValue(new Identifier(name.LocalName), out var comments)
+                ? Option<IDatabaseSchemaComments>.Some(comments)
+                : Option<IDatabaseSchemaComments>.None)
+            .FirstSome()
+            .ToAsync();
+    }
+
+    /// <summary>
+    /// Builds a lookup of schema comments. Schemas are never themselves schema-qualified, so they
+    /// are keyed by their local name alone.
+    /// </summary>
+    /// <param name="comments">A collection of database schema comments.</param>
+    /// <returns>A lookup of schema comments, keyed by schema name.</returns>
+    private static FrozenDictionary<Identifier, IDatabaseSchemaComments> BuildSchemaLookup(IReadOnlyCollection<IDatabaseSchemaComments> comments)
+    {
+        var result = new Dictionary<Identifier, IDatabaseSchemaComments>(comments.Count);
+
+        // when names collide the first set of comments encountered takes precedence
+        foreach (var comment in comments)
+            result.TryAdd(new Identifier(comment.SchemaName.LocalName), comment);
+
+        return result.ToFrozenDictionary();
     }
 
     /// <summary>

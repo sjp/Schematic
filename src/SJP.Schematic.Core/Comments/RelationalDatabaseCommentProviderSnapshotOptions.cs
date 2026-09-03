@@ -6,6 +6,11 @@
 public sealed record RelationalDatabaseCommentProviderSnapshotOptions
 {
     /// <summary>
+    /// Indicates whether schema comments should be exported. The default is <see langword="true" />.
+    /// </summary>
+    public bool IncludeSchemaComments { get; init; } = true;
+
+    /// <summary>
     /// Indicates whether table comments should be exported. The default is <see langword="true" />.
     /// </summary>
     public bool IncludeTableComments { get; init; } = true;
@@ -41,6 +46,7 @@ public sealed record RelationalDatabaseCommentProviderSnapshotOptions
     /// </summary>
     public static RelationalDatabaseCommentProviderSnapshotOptions Empty => new RelationalDatabaseCommentProviderSnapshotOptions
     {
+        IncludeSchemaComments = false,
         IncludeTableComments = false,
         IncludeViewComments = false,
         IncludeSequenceComments = false,

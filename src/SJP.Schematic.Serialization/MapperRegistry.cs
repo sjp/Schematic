@@ -55,6 +55,9 @@ internal static class MapperRegistry
         RegisterMapper<Dto.DatabaseRoutineParameter, IDatabaseRoutineParameter>(mappers, () => new DatabaseRoutineParameterMapper());
         RegisterMapper<IDatabaseRoutineParameter, Dto.DatabaseRoutineParameter>(mappers, () => new DatabaseRoutineParameterMapper());
 
+        RegisterMapper<Dto.DatabaseSchema, IDatabaseSchema>(mappers, () => new DatabaseSchemaMapper());
+        RegisterMapper<IDatabaseSchema, Dto.DatabaseSchema>(mappers, () => new DatabaseSchemaMapper());
+
         RegisterMapper<Dto.DatabaseSequence, IDatabaseSequence>(mappers, () => new DatabaseSequenceMapper());
         RegisterMapper<IDatabaseSequence, Dto.DatabaseSequence>(mappers, () => new DatabaseSequenceMapper());
 
@@ -102,6 +105,9 @@ internal static class MapperRegistry
         // Comments
         RegisterMapper<Dto.Comments.DatabaseRoutineComments, IDatabaseRoutineComments>(mappers, () => new DatabaseRoutineCommentsMapper());
         RegisterMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>(mappers, () => new DatabaseRoutineCommentsMapper());
+
+        RegisterMapper<Dto.Comments.DatabaseSchemaComments, IDatabaseSchemaComments>(mappers, () => new DatabaseSchemaCommentsMapper());
+        RegisterMapper<IDatabaseSchemaComments, Dto.Comments.DatabaseSchemaComments>(mappers, () => new DatabaseSchemaCommentsMapper());
 
         RegisterMapper<Dto.Comments.DatabaseSequenceComments, IDatabaseSequenceComments>(mappers, () => new DatabaseSequenceCommentsMapper());
         RegisterMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>(mappers, () => new DatabaseSequenceCommentsMapper());

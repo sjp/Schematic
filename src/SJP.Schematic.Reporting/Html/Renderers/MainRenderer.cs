@@ -55,17 +55,17 @@ internal sealed class MainRenderer : IDataRenderer
         var routineNames = data.Routines.Select(static r => r.Name).ToList();
         var synonymNames = data.Synonyms.Select(static s => s.Name).ToList();
 
-        var schemas = tableNames
-            .Union(viewNames)
-            .Union(sequenceNames)
-            .Union(synonymNames)
-            .Union(routineNames)
+        var objectCountsBySchema = tableNames
+            .Concat(viewNames)
+            .Concat(sequenceNames)
+            .Concat(synonymNames)
+            .Concat(routineNames)
             .Select(static n => n.Schema)
             .Where(static n => n != null)
-            .Distinct(StringComparer.Ordinal)
-            .Select(static s => s!)
-            .Order(StringComparer.Ordinal)
-            .ToList();
+            .GroupBy(static n => n!, StringComparer.Ordinal)
+            .ToDictionary(static g => g.Key, static g => (uint)g.Count(), StringComparer.Ordinal);
+
+        var schemas = BuildSchemas(data, objectCountsBySchema);
 
         var mainModel = new Main(
             data.Database.IdentifierDefaults.Database,
@@ -86,5 +86,41 @@ internal sealed class MainRenderer : IDataRenderer
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "main.json"));
         await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+    }
+
+    /// <summary>
+    /// Combines the schemas the database declares with the schemas that the report's objects are
+    /// named in. A dialect that reports no schemas still gets a list, and a schema holding no
+    /// objects is still listed as long as a user declared it. System schemas are only listed when
+    /// they hold something the report covers, so that e.g. SQL Server's fixed-role schemas do not
+    /// crowd out the ones a reader cares about.
+    /// </summary>
+    private static IReadOnlyCollection<Main.Schema> BuildSchemas(ReportData data, IReadOnlyDictionary<string, uint> objectCountsBySchema)
+    {
+        var defaultSchema = data.Database.IdentifierDefaults.Schema;
+        var schemas = new Dictionary<string, Main.Schema>(StringComparer.Ordinal);
+
+        foreach (var schema in data.Schemas)
+        {
+            var name = schema.Name.LocalName;
+            var objectCount = objectCountsBySchema.GetValueOrDefault(name);
+            if (schema.IsSystem && objectCount == 0)
+                continue;
+
+            schemas[name] = new Main.Schema(name, schema.IsDefault, schema.IsSystem, objectCount);
+        }
+
+        foreach (var (name, objectCount) in objectCountsBySchema)
+        {
+            if (schemas.ContainsKey(name))
+                continue;
+
+            var isDefault = string.Equals(name, defaultSchema, StringComparison.Ordinal);
+            schemas[name] = new Main.Schema(name, isDefault, false, objectCount);
+        }
+
+        return schemas.Values
+            .OrderBy(static s => s.Name, StringComparer.Ordinal)
+            .ToList();
     }
 }

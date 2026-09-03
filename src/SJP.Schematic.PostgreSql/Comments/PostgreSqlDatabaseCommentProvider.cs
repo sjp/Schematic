@@ -32,6 +32,7 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         _sequenceCommentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, identifierResolver);
         _routineCommentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, identifierResolver);
         _userDefinedTypeCommentProvider = new PostgreSqlUserDefinedTypeCommentProvider(connection, identifierDefaults, identifierResolver);
+        _schemaCommentProvider = new PostgreSqlSchemaCommentProvider(connection, identifierDefaults);
     }
 
     /// <summary>
@@ -244,6 +245,41 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         return _userDefinedTypeCommentProvider.GetAllUserDefinedTypeComments(cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves comments for a database schema, if available.
+    /// </summary>
+    /// <param name="schemaName">A schema name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Comments for the given database schema, if available.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="schemaName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseSchemaComments> GetSchemaComments(Identifier schemaName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(schemaName);
+
+        return _schemaCommentProvider.GetSchemaComments(schemaName, cancellationToken);
+    }
+
+    /// <summary>
+    /// Enumerates all database schema comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of schema comments.</returns>
+    public IAsyncEnumerable<IDatabaseSchemaComments> EnumerateAllSchemaComments(CancellationToken cancellationToken = default)
+    {
+        return _schemaCommentProvider.EnumerateAllSchemaComments(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database schema comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of schema comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchemaComments>> GetAllSchemaComments(CancellationToken cancellationToken = default)
+    {
+        return _schemaCommentProvider.GetAllSchemaComments(cancellationToken);
+    }
+
+    private readonly IDatabaseSchemaCommentProvider _schemaCommentProvider;
     private readonly IRelationalDatabaseTableCommentProvider _tableCommentProvider;
     private readonly IDatabaseViewCommentProvider _viewCommentProvider;
     private readonly IDatabaseSequenceCommentProvider _sequenceCommentProvider;

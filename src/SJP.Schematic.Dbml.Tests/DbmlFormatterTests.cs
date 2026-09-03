@@ -700,6 +700,39 @@ internal static class DbmlFormatterTests
         );
     }
 
+    [Test]
+    public static void RenderTables_GivenTablesInMultipleSchemas_RendersATableGroupPerSchema()
+    {
+        var first = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "orders"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+        var second = CreateTable(Identifier.CreateQualifiedIdentifier("hr", "staff"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([first, second]);
+
+        Assert.That(result, Is.EqualTo(MultipleSchemaDbml).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenTablesInASingleSchema_DoesNotRenderATableGroup()
+    {
+        var first = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "orders"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+        var second = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "customers"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([first, second]);
+
+        Assert.That(result, Does.Not.Contain("TableGroup"));
+    }
+
+    [Test]
+    public static void RenderTables_GivenUnqualifiedTableNames_DoesNotRenderATableGroup()
+    {
+        var first = CreateTable("orders", CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+        var second = CreateTable("customers", CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([first, second]);
+
+        Assert.That(result, Does.Not.Contain("TableGroup"));
+    }
+
     private static IRelationalDatabaseTable CreateTable(
         IReadOnlyList<IDatabaseColumn> columns,
         Option<IDatabaseKey> primaryKey,
@@ -714,6 +747,24 @@ internal static class DbmlFormatterTests
         IReadOnlyCollection<IDatabaseKey> uniqueKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes
     ) => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, [], [], indexes, [], []);
+
+    private const string MultipleSchemaDbml = """
+Table sales.orders {
+    id text [not null]
+}
+
+Table hr.staff {
+    id text [not null]
+}
+
+TableGroup hr {
+    hr.staff
+}
+
+TableGroup sales {
+    sales.orders
+}
+""";
 
     private const string NullableColumnDbml = """
 Table test_table {
@@ -955,6 +1006,14 @@ Table a_b.c {
 Table a.child_table {
     order_id text [not null]
 }
+
+TableGroup a {
+    a.child_table
+}
+
+TableGroup a_b {
+    a_b.c
+}
 """;
 
     private const string SchemaQualifiedNamesDbml = """
@@ -967,6 +1026,14 @@ Table "archive schema"."order lines" {
 }
 
 Ref: "archive schema"."order lines"."Order ID" > sales.orders."Order ID"
+
+TableGroup "archive schema" {
+    "archive schema"."order lines"
+}
+
+TableGroup sales {
+    sales.orders
+}
 """;
 
     private const string CollidingFlattenedNamesDbml = """
@@ -979,6 +1046,14 @@ Table a.b_c {
 }
 
 Ref: a.b_c.order_id > a_b.c.order_id
+
+TableGroup a {
+    a.b_c
+}
+
+TableGroup a_b {
+    a_b.c
+}
 """;
 
     private const string FullyQualifiedNamesDbml = """
@@ -988,6 +1063,14 @@ Table "live.sales".orders {
 
 Table "remote_server.backup.sales".orders {
     order_id text [not null]
+}
+
+TableGroup "live.sales" {
+    "live.sales".orders
+}
+
+TableGroup "remote_server.backup.sales" {
+    "remote_server.backup.sales".orders
 }
 """;
 

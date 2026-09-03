@@ -686,4 +686,55 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
 
         Assert.That(await snapshot.GetAllUserDefinedTypeComments(), Is.Empty);
     }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenGivenCommentProviderWithSchemaComments_ReturnsProviderWithMatchingComments()
+    {
+        Identifier schemaName = "test_schema_name";
+        var schemaComments = new[] { new DatabaseSchemaComments(schemaName, Option<string>.None) };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            schemaComments
+        );
+
+        var snapshot = await commentProvider.SnapshotAsync(new RelationalDatabaseCommentProviderSnapshotOptions());
+        var snapshotComments = await snapshot.GetSchemaComments(schemaName).ToOption();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await snapshot.GetAllSchemaComments(), Has.Exactly(1).Items);
+            Assert.That(snapshotComments, OptionIs.Some);
+            Assert.That(snapshotComments.UnwrapSome().SchemaName.LocalName, Is.EqualTo(schemaName.LocalName));
+        }
+    }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenSchemaCommentsExcludedByOptions_ReturnsProviderWithoutComments()
+    {
+        var schemaComments = new[] { new DatabaseSchemaComments("test_schema_name", Option<string>.None) };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            schemaComments
+        );
+
+        var snapshot = await commentProvider.SnapshotAsync(RelationalDatabaseCommentProviderSnapshotOptions.Empty);
+
+        Assert.That(await snapshot.GetAllSchemaComments(), Is.Empty);
+    }
 }

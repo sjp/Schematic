@@ -24,6 +24,11 @@ public static class Empty
     public static class Tasks
     {
         /// <summary>
+        /// An empty collection of schemas.
+        /// </summary>
+        public static Task<IReadOnlyCollection<IDatabaseSchema>> Schemas { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseSchema>>(FrozenSet<IDatabaseSchema>.Empty);
+
+        /// <summary>
         /// An empty collection of tables.
         /// </summary>
         public static Task<IReadOnlyCollection<IRelationalDatabaseTable>> Tables { get; } = Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTable>>(FrozenSet<IRelationalDatabaseTable>.Empty);
@@ -52,6 +57,11 @@ public static class Empty
         /// An empty collection of user-defined types.
         /// </summary>
         public static Task<IReadOnlyCollection<IDatabaseUserDefinedType>> UserDefinedTypes { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseUserDefinedType>>(FrozenSet<IDatabaseUserDefinedType>.Empty);
+
+        /// <summary>
+        /// An empty collection of schema comments.
+        /// </summary>
+        public static Task<IReadOnlyCollection<IDatabaseSchemaComments>> SchemaComments { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseSchemaComments>>(FrozenSet<IDatabaseSchemaComments>.Empty);
 
         /// <summary>
         /// An empty collection of table comments.

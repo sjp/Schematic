@@ -3,6 +3,7 @@
 /// <summary>
 /// Defines a container type that implements accessors for all database objects.
 /// </summary>
+/// <seealso cref="IDatabaseSchemaProvider" />
 /// <seealso cref="IRelationalDatabaseTableProvider" />
 /// <seealso cref="IDatabaseViewProvider" />
 /// <seealso cref="IDatabaseSequenceProvider" />
@@ -10,7 +11,8 @@
 /// <seealso cref="IDatabaseRoutineProvider" />
 /// <seealso cref="IDatabaseUserDefinedTypeProvider" />
 public interface IRelationalDatabase
-    : IRelationalDatabaseTableProvider,
+    : IDatabaseSchemaProvider,
+      IRelationalDatabaseTableProvider,
       IDatabaseViewProvider,
       IDatabaseSequenceProvider,
       IDatabaseSynonymProvider,

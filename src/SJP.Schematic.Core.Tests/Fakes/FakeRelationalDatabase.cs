@@ -16,6 +16,8 @@ internal class FakeRelationalDatabase : IRelationalDatabase
 
     public IIdentifierDefaults IdentifierDefaults { get; }
 
+    public IReadOnlyCollection<IDatabaseSchema> Schemas { get; set; } = [];
+
     public IReadOnlyCollection<IRelationalDatabaseTable> Tables { get; set; } = [];
 
     public IReadOnlyCollection<IDatabaseView> Views { get; set; } = [];
@@ -58,6 +60,8 @@ internal class FakeRelationalDatabase : IRelationalDatabase
         return UserDefinedTypes.Find(t => t.Name == typeName).ToAsync();
     }
 
+    public virtual IAsyncEnumerable<IDatabaseSchema> EnumerateAllSchemas(CancellationToken cancellationToken = default) => Schemas.ToAsyncEnumerable();
+
     public virtual IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
 
     public virtual IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default) => Synonyms.ToAsyncEnumerable();
@@ -69,6 +73,8 @@ internal class FakeRelationalDatabase : IRelationalDatabase
     public virtual IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
 
     public virtual IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default) => UserDefinedTypes.ToAsyncEnumerable();
+
+    public virtual Task<IReadOnlyCollection<IDatabaseSchema>> GetAllSchemas(CancellationToken cancellationToken = default) => Task.FromResult(Schemas);
 
     public virtual Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
 

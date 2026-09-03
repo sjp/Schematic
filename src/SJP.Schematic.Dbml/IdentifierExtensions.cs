@@ -20,15 +20,34 @@ internal static class IdentifierExtensions
 
         var parts = GetNameParts(identifier);
         var localName = parts[^1].ToDbmlIdentifier();
-        if (parts.Count == 1)
+
+        var qualifier = GetQualifier(parts);
+        if (qualifier == null)
             return localName;
 
-        // DBML qualifies an object by at most one schema, so any server and database components
-        // are folded into the schema component. Quoting each component separately keeps names
-        // such as 'a_b'.'c' and 'a'.'b_c' distinct from one another.
-        var schemaName = parts.GetRange(0, parts.Count - 1).Join(".").ToDbmlIdentifier();
+        return qualifier.ToDbmlIdentifier() + "." + localName;
+    }
 
-        return schemaName + "." + localName;
+    /// <summary>
+    /// The schema an object is rendered within, i.e. everything ahead of its local name once the
+    /// server and database components have been folded in. <see langword="null" /> when the name
+    /// carries no qualifier at all.
+    /// </summary>
+    public static string? ToDbmlQualifier(this Identifier identifier)
+    {
+        ArgumentNullException.ThrowIfNull(identifier);
+
+        return GetQualifier(GetNameParts(identifier));
+    }
+
+    // DBML qualifies an object by at most one schema, so any server and database components
+    // are folded into the schema component. Quoting each component separately keeps names
+    // such as 'a_b'.'c' and 'a'.'b_c' distinct from one another.
+    private static string? GetQualifier(List<string> parts)
+    {
+        return parts.Count == 1
+            ? null
+            : parts.GetRange(0, parts.Count - 1).Join(".");
     }
 
     public static string ToDbmlLocalName(this Identifier identifier)

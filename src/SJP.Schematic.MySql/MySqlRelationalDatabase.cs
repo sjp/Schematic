@@ -28,6 +28,7 @@ public class MySqlRelationalDatabase : IRelationalDatabase
         _tableProvider = new MySqlRelationalDatabaseTableProvider(connection, identifierDefaults);
         _viewProvider = new MySqlDatabaseViewProvider(connection, identifierDefaults);
         _routineProvider = new MySqlDatabaseRoutineProvider(connection, identifierDefaults);
+        _schemaProvider = new MySqlDatabaseSchemaProvider(connection, identifierDefaults);
     }
 
     /// <summary>
@@ -240,6 +241,27 @@ public class MySqlRelationalDatabase : IRelationalDatabase
         return UserDefinedTypeProvider.GetUserDefinedType(typeName, cancellationToken);
     }
 
+    /// <summary>
+    /// Enumerates all database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public IAsyncEnumerable<IDatabaseSchema> EnumerateAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return _schemaProvider.EnumerateAllSchemas(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchema>> GetAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return _schemaProvider.GetAllSchemas(cancellationToken);
+    }
+
+    private readonly IDatabaseSchemaProvider _schemaProvider;
     private readonly IRelationalDatabaseTableProvider _tableProvider;
     private readonly IDatabaseViewProvider _viewProvider;
     private readonly IDatabaseRoutineProvider _routineProvider;

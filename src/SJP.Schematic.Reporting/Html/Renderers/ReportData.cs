@@ -20,6 +20,7 @@ internal sealed class ReportData
         IReadOnlyCollection<IDatabaseSequence> sequences,
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IDatabaseSchema> schemas,
         string? databaseVersion,
         ReferencedObjectTargets referencedObjectTargets,
         SynonymTargets synonymTargets
@@ -31,6 +32,7 @@ internal sealed class ReportData
         Sequences = sequences ?? throw new ArgumentNullException(nameof(sequences));
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
         Routines = routines ?? throw new ArgumentNullException(nameof(routines));
+        Schemas = schemas ?? throw new ArgumentNullException(nameof(schemas));
         DatabaseVersion = databaseVersion;
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
@@ -47,6 +49,8 @@ internal sealed class ReportData
     public IReadOnlyCollection<IDatabaseSynonym> Synonyms { get; }
 
     public IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
+
+    public IReadOnlyCollection<IDatabaseSchema> Schemas { get; }
 
     public string? DatabaseVersion { get; }
 

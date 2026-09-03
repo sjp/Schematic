@@ -11,13 +11,24 @@ export interface MainSummary {
   columnsCount: number;
   constraintsCount: number;
   indexesCount: number;
-  schemas: string[];
+  schemas: SchemaSummary[];
   schemasCount: number;
   tablesCount: number;
   viewsCount: number;
   sequencesCount: number;
   synonymsCount: number;
   routinesCount: number;
+}
+
+/** A schema declared by the database, as listed on the dashboard. */
+export interface SchemaSummary {
+  name: string;
+  /** Whether unqualified object names resolve to this schema. */
+  isDefault: boolean;
+  /** Whether the database declares this schema itself, e.g. `sys` or `pg_catalog`. */
+  isSystem: boolean;
+  /** Tables, views, sequences, synonyms and routines the report holds for this schema. */
+  objectCount: number;
 }
 
 /** A row in `data/tables.json`. */

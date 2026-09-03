@@ -80,6 +80,9 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
 
     private static async Task<IRelationalDatabaseCommentProvider> SnapshotAsyncCore(IRelationalDatabaseCommentProvider databaseComments, RelationalDatabaseCommentProviderSnapshotOptions snapshotOptions, IIdentifierResolutionStrategy identifierResolver, CancellationToken cancellationToken)
     {
+        var schemaCommentsTask = snapshotOptions.IncludeSchemaComments
+            ? databaseComments.GetAllSchemaComments(cancellationToken)
+            : Empty.Tasks.SchemaComments;
         var tableCommentsTask = snapshotOptions.IncludeTableComments
             ? databaseComments.GetAllTableComments(cancellationToken)
             : Empty.Tasks.TableComments;
@@ -105,14 +108,16 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
             sequenceComments,
             synonymComments,
             routineComments,
-            userDefinedTypeComments
+            userDefinedTypeComments,
+            schemaComments
         ) = await (
             tableCommentsTask,
             viewCommentsTask,
             sequenceCommentsTask,
             synonymCommentsTask,
             routineCommentsTask,
-            userDefinedTypeCommentsTask
+            userDefinedTypeCommentsTask,
+            schemaCommentsTask
         ).WhenAll();
 
         return new RelationalDatabaseCommentProvider(
@@ -123,7 +128,8 @@ public static class RelationalDatabaseCommentProviderSnapshotExtensions
             sequenceComments,
             synonymComments,
             routineComments,
-            userDefinedTypeComments
+            userDefinedTypeComments,
+            schemaComments
         );
     }
 }

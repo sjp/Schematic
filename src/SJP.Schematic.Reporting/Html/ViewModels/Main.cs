@@ -18,7 +18,7 @@ public sealed class Main
         uint columnsCount,
         uint constraintsCount,
         uint indexesCount,
-        IReadOnlyCollection<string> schemas,
+        IReadOnlyCollection<Schema> schemas,
         uint tablesCount,
         uint viewsCount,
         uint sequencesCount,
@@ -53,7 +53,7 @@ public sealed class Main
 
     public uint IndexesCount { get; }
 
-    public IReadOnlyCollection<string> Schemas { get; }
+    public IReadOnlyCollection<Schema> Schemas { get; }
 
     public uint SchemasCount { get; }
 
@@ -66,6 +66,33 @@ public sealed class Main
     public uint SynonymsCount { get; }
 
     public uint RoutinesCount { get; }
+
+    /// <summary>
+    /// A schema declared by the database, as shown in the dashboard's schema list.
+    /// </summary>
+    public sealed class Schema
+    {
+        public Schema(string name, bool isDefault, bool isSystem, uint objectCount)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+
+            Name = name;
+            IsDefault = isDefault;
+            IsSystem = isSystem;
+            ObjectCount = objectCount;
+        }
+
+        public string Name { get; }
+
+        public bool IsDefault { get; }
+
+        public bool IsSystem { get; }
+
+        /// <summary>
+        /// The number of tables, views, sequences, synonyms and routines the report holds for this schema.
+        /// </summary>
+        public uint ObjectCount { get; }
+    }
 
     /// <summary>
     /// A row in the tables summary list (<c>data/tables.json</c>). Shared by <see cref="Tables"/>.

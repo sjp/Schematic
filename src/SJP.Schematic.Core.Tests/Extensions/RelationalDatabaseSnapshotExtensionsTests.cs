@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
@@ -737,5 +738,47 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var snapshot = await database.SnapshotAsync(RelationalDatabaseSnapshotOptions.Empty);
 
         Assert.That(await snapshot.GetAllUserDefinedTypes(), Is.Empty);
+    }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenGivenRelationalDatabaseWithSchemas_ReturnsDatabaseWithMatchingSchemas()
+    {
+        var schemas = new IDatabaseSchema[] { new DatabaseSchema("test_schema", Option<string>.None, true, false) };
+
+        var database = new RelationalDatabase(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            schemas
+        );
+
+        var snapshot = await database.SnapshotAsync(new RelationalDatabaseSnapshotOptions());
+
+        Assert.That(await snapshot.GetAllSchemas(), Is.EqualTo(schemas));
+    }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenSchemasExcludedByOptions_ReturnsDatabaseWithoutSchemas()
+    {
+        var database = new RelationalDatabase(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [new DatabaseSchema("test_schema", Option<string>.None, true, false)]
+        );
+
+        var snapshot = await database.SnapshotAsync(RelationalDatabaseSnapshotOptions.Empty);
+
+        Assert.That(await snapshot.GetAllSchemas(), Is.Empty);
     }
 }

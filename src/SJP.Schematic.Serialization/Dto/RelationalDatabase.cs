@@ -13,6 +13,14 @@ public sealed record RelationalDatabase
     public required IdentifierDefaults IdentifierDefaults { get; init; }
 
     /// <summary>
+    /// The schemas in the database.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before schemas were exported still reads back.
+    /// </remarks>
+    public IEnumerable<DatabaseSchema> Schemas { get; init; } = [];
+
+    /// <summary>
     /// The tables in the database.
     /// </summary>
     public required IEnumerable<RelationalDatabaseTable> Tables { get; init; }

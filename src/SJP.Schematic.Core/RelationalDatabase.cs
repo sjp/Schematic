@@ -67,6 +67,34 @@ public class RelationalDatabase : IRelationalDatabase
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes
     )
+        : this(identifierDefaults, identifierResolver, tables, views, sequences, synonyms, routines, userDefinedTypes, [])
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RelationalDatabase"/> class.
+    /// </summary>
+    /// <param name="identifierDefaults">Database identifier defaults.</param>
+    /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
+    /// <param name="tables">A collection of database tables.</param>
+    /// <param name="views">A collection of database views.</param>
+    /// <param name="sequences">A collection of database sequences.</param>
+    /// <param name="synonyms">A collection of database synonyms.</param>
+    /// <param name="routines">A collection of database routines.</param>
+    /// <param name="userDefinedTypes">A collection of database user-defined types.</param>
+    /// <param name="schemas">A collection of database schemas.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/>, <paramref name="userDefinedTypes"/> or <paramref name="schemas"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
+    public RelationalDatabase(
+        IIdentifierDefaults identifierDefaults,
+        IIdentifierResolutionStrategy identifierResolver,
+        IReadOnlyCollection<IRelationalDatabaseTable> tables,
+        IReadOnlyCollection<IDatabaseView> views,
+        IReadOnlyCollection<IDatabaseSequence> sequences,
+        IReadOnlyCollection<IDatabaseSynonym> synonyms,
+        IReadOnlyCollection<IDatabaseRoutine> routines,
+        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes,
+        IReadOnlyCollection<IDatabaseSchema> schemas
+    )
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
@@ -76,6 +104,7 @@ public class RelationalDatabase : IRelationalDatabase
         Synonyms = synonyms.ToDefensiveCopy(nameof(synonyms));
         Routines = routines.ToDefensiveCopy(nameof(routines));
         UserDefinedTypes = userDefinedTypes.ToDefensiveCopy(nameof(userDefinedTypes));
+        Schemas = schemas.ToDefensiveCopy(nameof(schemas));
 
         _tablesByName = BuildLookup(Tables);
         _viewsByName = BuildLookup(Views);
@@ -96,6 +125,12 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <value>An identifier resolver.</value>
     protected IIdentifierResolutionStrategy IdentifierResolver { get; }
+
+    /// <summary>
+    /// An in-memory collection of database schemas.
+    /// </summary>
+    /// <value>A collection of database schemas.</value>
+    protected IReadOnlyCollection<IDatabaseSchema> Schemas { get; }
 
     /// <summary>
     /// An in-memory collection of database tables.
@@ -188,6 +223,20 @@ public class RelationalDatabase : IRelationalDatabase
             .FirstSome()
             .ToAsync();
     }
+
+    /// <summary>
+    /// Enumerates all of the database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public IAsyncEnumerable<IDatabaseSchema> EnumerateAllSchemas(CancellationToken cancellationToken = default) => Schemas.ToAsyncEnumerable();
+
+    /// <summary>
+    /// Retrieves all of the database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token. Unused.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchema>> GetAllSchemas(CancellationToken cancellationToken = default) => Task.FromResult(Schemas);
 
     /// <summary>
     /// Enumerates all of the database tables.

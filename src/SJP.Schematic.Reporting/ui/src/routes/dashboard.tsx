@@ -122,7 +122,30 @@ export function DashboardPage() {
       </div>
 
       {data.schemas.length > 0 && (
-        <div className="text-sm text-muted-foreground">Schemas: {data.schemas.join(", ")}</div>
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-muted-foreground">Schemas</h2>
+          <ul className="flex flex-wrap gap-2">
+            {data.schemas.map((schema) => (
+              <li
+                key={schema.name}
+                className="flex items-center gap-2 rounded-md border bg-card px-3 py-1.5 text-sm"
+              >
+                <span className="font-medium">{schema.name}</span>
+                {schema.isDefault && (
+                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                    default
+                  </span>
+                )}
+                {schema.isSystem && (
+                  <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                    system
+                  </span>
+                )}
+                <span className="tabular-nums text-muted-foreground">{schema.objectCount}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );

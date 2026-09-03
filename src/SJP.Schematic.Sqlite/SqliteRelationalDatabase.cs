@@ -28,6 +28,7 @@ public class SqliteRelationalDatabase : ISqliteDatabase
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, connectionPragma, identifierDefaults);
         _viewProvider = new SqliteDatabaseViewProvider(connection, connectionPragma, identifierDefaults);
+        _schemaProvider = new SqliteDatabaseSchemaProvider(connectionPragma, identifierDefaults);
     }
 
     /// <summary>
@@ -437,6 +438,27 @@ public class SqliteRelationalDatabase : ISqliteDatabase
         return UserDefinedTypeProvider.GetUserDefinedType(typeName, cancellationToken);
     }
 
+    /// <summary>
+    /// Enumerates all database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public IAsyncEnumerable<IDatabaseSchema> EnumerateAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return _schemaProvider.EnumerateAllSchemas(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchema>> GetAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return _schemaProvider.GetAllSchemas(cancellationToken);
+    }
+
+    private readonly IDatabaseSchemaProvider _schemaProvider;
     private readonly IRelationalDatabaseTableProvider _tableProvider;
     private readonly IDatabaseViewProvider _viewProvider;
     private static readonly IDatabaseSequenceProvider SequenceProvider = new EmptyDatabaseSequenceProvider();

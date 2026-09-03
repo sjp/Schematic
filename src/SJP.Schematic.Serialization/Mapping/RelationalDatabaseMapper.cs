@@ -32,6 +32,7 @@ public class RelationalDatabaseMapper
         var synonymMapper = MapperRegistry.GetMapper<Dto.DatabaseSynonym, IDatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<Dto.DatabaseRoutine, IDatabaseRoutine>();
         var userDefinedTypeMapper = MapperRegistry.GetMapper<Dto.DatabaseUserDefinedType, IDatabaseUserDefinedType>();
+        var schemaMapper = MapperRegistry.GetMapper<Dto.DatabaseSchema, IDatabaseSchema>();
 
         return new RelationalDatabase(
             identifierDefaultsMapper.Map(source.IdentifierDefaults),
@@ -41,7 +42,8 @@ public class RelationalDatabaseMapper
             sequenceMapper.MapList(source.Sequences),
             synonymMapper.MapList(source.Synonyms),
             routineMapper.MapList(source.Routines),
-            userDefinedTypeMapper.MapList(source.UserDefinedTypes)
+            userDefinedTypeMapper.MapList(source.UserDefinedTypes),
+            schemaMapper.MapList(source.Schemas)
         );
     }
 
@@ -59,6 +61,7 @@ public class RelationalDatabaseMapper
         var synonymMapper = MapperRegistry.GetMapper<IDatabaseSynonym, Dto.DatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<IDatabaseRoutine, Dto.DatabaseRoutine>();
         var userDefinedTypeMapper = MapperRegistry.GetMapper<IDatabaseUserDefinedType, Dto.DatabaseUserDefinedType>();
+        var schemaMapper = MapperRegistry.GetMapper<IDatabaseSchema, Dto.DatabaseSchema>();
 
         var (
             tables,
@@ -66,14 +69,16 @@ public class RelationalDatabaseMapper
             sequences,
             synonyms,
             routines,
-            userDefinedTypes
+            userDefinedTypes,
+            schemas
         ) = await (
             source.GetAllTables(cancellationToken),
             source.GetAllViews(cancellationToken),
             source.GetAllSequences(cancellationToken),
             source.GetAllSynonyms(cancellationToken),
             source.GetAllRoutines(cancellationToken),
-            source.GetAllUserDefinedTypes(cancellationToken)
+            source.GetAllUserDefinedTypes(cancellationToken),
+            source.GetAllSchemas(cancellationToken)
         ).WhenAll();
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
@@ -87,6 +92,7 @@ public class RelationalDatabaseMapper
             Synonyms = synonymMapper.MapList(synonyms),
             Routines = routineMapper.MapList(routines),
             UserDefinedTypes = userDefinedTypeMapper.MapList(userDefinedTypes),
+            Schemas = schemaMapper.MapList(schemas),
         };
     }
 }

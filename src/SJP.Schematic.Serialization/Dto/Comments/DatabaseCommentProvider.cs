@@ -13,6 +13,14 @@ public sealed record DatabaseCommentProvider
     public required IdentifierDefaults IdentifierDefaults { get; init; }
 
     /// <summary>
+    /// The comments attached to the database's schemas.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before schemas were exported still reads back.
+    /// </remarks>
+    public IEnumerable<DatabaseSchemaComments> SchemaComments { get; init; } = [];
+
+    /// <summary>
     /// The comments attached to the database's tables.
     /// </summary>
     public required IEnumerable<DatabaseTableComments> TableComments { get; init; }

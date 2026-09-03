@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -1256,6 +1257,108 @@ internal static class RelationalDatabaseTests
         var userDefinedType = await database.GetUserDefinedType("other_type_name").ToOption();
 
         Assert.That(userDefinedType, OptionIs.None);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullSchemas_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+        var userDefinedTypes = Array.Empty<IDatabaseUserDefinedType>();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                tables,
+                views,
+                sequences,
+                synonyms,
+                routines,
+                userDefinedTypes,
+                null
+            ),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenSchemasContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+        var userDefinedTypes = Array.Empty<IDatabaseUserDefinedType>();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                tables,
+                views,
+                sequences,
+                synonyms,
+                routines,
+                userDefinedTypes,
+                new IDatabaseSchema[] { null }
+            ),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetAllSchemas_WhenConstructedWithoutSchemas_IsEmpty()
+    {
+        var database = CreateDatabaseWithSchemas([]);
+
+        Assert.That(await database.GetAllSchemas(), Is.Empty);
+    }
+
+    [Test]
+    public static async Task EnumerateAllSchemas_WhenInvoked_ReturnsSchemasFromCtor()
+    {
+        var database = CreateDatabaseWithSchemas([CreateSchema("test_schema")]);
+
+        var schemas = await database.EnumerateAllSchemas().ToListAsync();
+
+        Assert.That(schemas.Select(s => s.Name.LocalName).Single(), Is.EqualTo("test_schema"));
+    }
+
+    [Test]
+    public static async Task GetAllSchemas_WhenInvoked_ReturnsSchemasFromCtor()
+    {
+        var database = CreateDatabaseWithSchemas([CreateSchema("test_schema")]);
+
+        var schemas = await database.GetAllSchemas();
+
+        Assert.That(schemas.Select(s => s.Name.LocalName).Single(), Is.EqualTo("test_schema"));
+    }
+
+    private static IDatabaseSchema CreateSchema(Identifier schemaName)
+    {
+        return new DatabaseSchema(schemaName, Option<string>.None, false, false);
+    }
+
+    private static RelationalDatabase CreateDatabaseWithSchemas(IReadOnlyCollection<IDatabaseSchema> schemas)
+    {
+        return new RelationalDatabase(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            schemas
+        );
     }
 
     private static IDatabaseUserDefinedType CreateUserDefinedType(Identifier typeName)

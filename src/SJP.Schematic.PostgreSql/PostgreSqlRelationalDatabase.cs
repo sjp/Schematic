@@ -29,6 +29,7 @@ public class PostgreSqlRelationalDatabase : IRelationalDatabase
         _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
         _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
         _userDefinedTypeProvider = new PostgreSqlDatabaseUserDefinedTypeProvider(connection.ConnectionFactory, identifierDefaults);
+        _schemaProvider = new PostgreSqlDatabaseSchemaProvider(connection.ConnectionFactory, identifierDefaults);
     }
 
     /// <summary>
@@ -241,6 +242,27 @@ public class PostgreSqlRelationalDatabase : IRelationalDatabase
         return _userDefinedTypeProvider.GetUserDefinedType(typeName, cancellationToken);
     }
 
+    /// <summary>
+    /// Enumerates all database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public IAsyncEnumerable<IDatabaseSchema> EnumerateAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return _schemaProvider.EnumerateAllSchemas(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database schemas.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database schemas.</returns>
+    public Task<IReadOnlyCollection<IDatabaseSchema>> GetAllSchemas(CancellationToken cancellationToken = default)
+    {
+        return _schemaProvider.GetAllSchemas(cancellationToken);
+    }
+
+    private readonly IDatabaseSchemaProvider _schemaProvider;
     private readonly IRelationalDatabaseTableProvider _tableProvider;
     private readonly IDatabaseViewProvider _viewProvider;
     private readonly IDatabaseSequenceProvider _sequenceProvider;
