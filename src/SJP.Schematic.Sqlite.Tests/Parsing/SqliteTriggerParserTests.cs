@@ -1,7 +1,9 @@
 using System;
+using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Parsing;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing;
 
@@ -35,5 +37,45 @@ internal static class SqliteTriggerParserTests
             Assert.That(result.Timing, Is.EqualTo(expectedTiming));
             Assert.That(result.Event, Is.EqualTo(expectedEvent));
         }
+    }
+
+    [Test]
+    public static void Parse_GivenTriggerWithWhenClause_ReturnsCondition()
+    {
+        var parser = new SqliteTriggerParser();
+
+        var result = parser.Parse("create trigger trig after insert on foo when new.a > 1 begin select 1; end");
+
+        Assert.That(result.Condition.UnwrapSome(), Is.EqualTo("new.a > 1"));
+    }
+
+    [Test]
+    public static void Parse_GivenTriggerWithoutWhenClause_ReturnsNoCondition()
+    {
+        var parser = new SqliteTriggerParser();
+
+        var result = parser.Parse("create trigger trig after insert on foo begin select 1; end");
+
+        Assert.That(result.Condition, OptionIs.None);
+    }
+
+    [Test]
+    public static void Parse_GivenTriggerWithUpdateOfColumns_ReturnsUpdateColumns()
+    {
+        var parser = new SqliteTriggerParser();
+
+        var result = parser.Parse("create trigger trig before update of a, \"b c\" on foo begin select 1; end");
+
+        Assert.That(result.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "a", "b c" }));
+    }
+
+    [Test]
+    public static void Parse_GivenTriggerWithoutUpdateOfColumns_ReturnsEmptyUpdateColumns()
+    {
+        var parser = new SqliteTriggerParser();
+
+        var result = parser.Parse("create trigger trig before update on foo begin select 1; end");
+
+        Assert.That(result.UpdateColumns, Is.Empty);
     }
 }

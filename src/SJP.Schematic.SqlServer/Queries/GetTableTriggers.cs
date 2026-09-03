@@ -28,8 +28,9 @@ internal static class GetTableTriggers
         public required bool IsDeleteTrigger { get; init; }
 
         // Set when a trigger fires on an event other than INSERT/UPDATE/DELETE, i.e. one Schematic doesn't
-        // currently model, so the caller can raise the same error as before instead of silently dropping it.
-        public required string? UnsupportedTriggerEvent { get; init; }
+        // currently model. The trigger is still returned, with TriggerEvent.Other set alongside whatever
+        // events are modelled.
+        public required bool IsOtherTrigger { get; init; }
     }
 
     // sys.trigger_events emits one row per (trigger, event), and a trigger fired on multiple events would
@@ -44,7 +45,7 @@ select
     cast(max(case when te.type_desc = 'INSERT' then 1 else 0 end) as bit) as [{nameof(Result.IsInsertTrigger)}],
     cast(max(case when te.type_desc = 'UPDATE' then 1 else 0 end) as bit) as [{nameof(Result.IsUpdateTrigger)}],
     cast(max(case when te.type_desc = 'DELETE' then 1 else 0 end) as bit) as [{nameof(Result.IsDeleteTrigger)}],
-    max(case when te.type_desc not in ('INSERT', 'UPDATE', 'DELETE') then te.type_desc end) as [{nameof(Result.UnsupportedTriggerEvent)}]
+    cast(max(case when te.type_desc not in ('INSERT', 'UPDATE', 'DELETE') then 1 else 0 end) as bit) as [{nameof(Result.IsOtherTrigger)}]
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id

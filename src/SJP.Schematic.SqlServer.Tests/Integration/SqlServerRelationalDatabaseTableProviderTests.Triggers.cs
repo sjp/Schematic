@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration;
 
@@ -233,6 +234,20 @@ end
         {
             Assert.That(matchingTriggers, Has.Count.EqualTo(1));
             Assert.That(matchingTriggers[0].Definition, Is.EqualTo(expectedDefinition));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenTableWithTrigger_ReturnsStatementGranularityAndNoConditionOrUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Statement));
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
         }
     }
 }

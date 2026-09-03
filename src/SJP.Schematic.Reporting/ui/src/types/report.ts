@@ -129,6 +129,12 @@ export interface TableTrigger {
   definition: string;
   queryTiming: string;
   events: string;
+  /** How often the trigger fires. Empty when the database did not report a granularity. */
+  granularity: string;
+  /** The trigger's `WHEN` clause. Empty when the trigger is unconditional. */
+  condition: string;
+  /** The trigger's `UPDATE OF` column list. Empty when updates to any column fire it. */
+  updateColumns: string;
 }
 
 /** A column row shown inside a table node; carries key flags so the UI can filter to a compact view. */
@@ -331,6 +337,12 @@ export interface TriggerRow {
   definition: string;
   queryTiming: string;
   events: string;
+  /** How often the trigger fires. Empty when the database did not report a granularity. */
+  granularity: string;
+  /** The trigger's `WHEN` clause. Empty when the trigger is unconditional. */
+  condition: string;
+  /** The trigger's `UPDATE OF` column list. Empty when updates to any column fire it. */
+  updateColumns: string;
 }
 
 /** `data/triggers.json`. */

@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using LanguageExt;
+using NUnit.Framework;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -158,6 +160,141 @@ internal static class DatabaseTriggerTests
         var trigger = new DatabaseTrigger(triggerName, definition, timing, events, false);
 
         Assert.That(trigger.IsEnabled, Is.False);
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidTriggerGranularity_ThrowsArgumentException()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        const TriggerGranularity granularity = (TriggerGranularity)55;
+
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true, granularity, Option<string>.None, []),
+            Throws.ArgumentException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenNullUpdateColumns_ThrowsArgumentNullException()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true, TriggerGranularity.Row, Option<string>.None, null!),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenUpdateColumnsContainingNull_ThrowsArgumentNullException()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        var updateColumns = new Identifier[] { null! };
+
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true, TriggerGranularity.Row, Option<string>.None, updateColumns),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenOtherTriggerEvent_DoesNotThrow()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Insert | TriggerEvent.Truncate | TriggerEvent.Other;
+
+        var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
+
+        Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+    }
+
+    [Test]
+    public static void Ctor_GivenShortCtor_DefaultsNewMembersToUnknownAndEmpty()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Unknown));
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        });
+    }
+
+    [Test]
+    public static void Granularity_PropertyGet_EqualsCtorArg()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        const TriggerGranularity granularity = TriggerGranularity.Statement;
+
+        var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true, granularity, Option<string>.None, []);
+
+        Assert.That(trigger.Granularity, Is.EqualTo(granularity));
+    }
+
+    [Test]
+    public static void Condition_PropertyGet_EqualsCtorArg()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        const string condition = "new.value > 0";
+
+        var trigger = new DatabaseTrigger(
+            triggerName,
+            definition,
+            timing,
+            events,
+            true,
+            TriggerGranularity.Row,
+            Option<string>.Some(condition),
+            []
+        );
+
+        Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo(condition));
+    }
+
+    [Test]
+    public static void UpdateColumns_PropertyGet_EqualsCtorArg()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        var updateColumns = new Identifier[] { "first_col", "second_col" };
+
+        var trigger = new DatabaseTrigger(
+            triggerName,
+            definition,
+            timing,
+            events,
+            true,
+            TriggerGranularity.Row,
+            Option<string>.None,
+            updateColumns
+        );
+
+        Assert.That(trigger.UpdateColumns, Is.EqualTo(updateColumns));
     }
 
     [TestCase("test_trigger", "Trigger: test_trigger")]

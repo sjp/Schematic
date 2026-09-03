@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests.Integration;
 
@@ -137,6 +138,55 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenStatementLevelTrigger_ReturnsStatementGranularity()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+
+        Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Statement));
+    }
+
+    [Test]
+    public async Task Triggers_GivenUnconditionalTrigger_ReturnsNoConditionAndNoUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_5");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenConditionalRowLevelUpdateOfTrigger_ReturnsGranularityConditionAndUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_7");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
+            Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo("(new.table_id > 1)"));
+            Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "table_id" }));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenTruncateTrigger_ReturnsTruncateEvent()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_8");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Truncate));
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Statement));
         }
     }
 }

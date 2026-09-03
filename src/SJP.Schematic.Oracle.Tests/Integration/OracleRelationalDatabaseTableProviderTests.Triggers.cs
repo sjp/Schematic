@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests.Integration;
 
@@ -141,6 +142,63 @@ end;
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenRowLevelTrigger_ReturnsRowGranularity()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_1");
+
+        Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
+    }
+
+    [Test]
+    public async Task Triggers_GivenStatementLevelTrigger_ReturnsStatementGranularity()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIG_STMT");
+
+        Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Statement));
+    }
+
+    [Test]
+    public async Task Triggers_GivenUnconditionalTrigger_ReturnsNoConditionAndNoUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIGGER_5");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenConditionalUpdateOfTrigger_ReturnsConditionAndUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIG_UPD");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Condition.UnwrapSome().Trim(), Is.EqualTo("new.table_id > 1"));
+            Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "TABLE_ID" }));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenCompoundTrigger_ReturnsCompoundTimingAndUnknownGranularity()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "TRIGGER_TEST_TABLE_1_TRIG_CMP");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.Compound));
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Unknown));
         }
     }
 }

@@ -359,7 +359,14 @@ export function TableDetailPage() {
                   <span className="font-medium">{tr.triggerName}</span>
                   <span className="text-muted-foreground">
                     {tr.queryTiming} {tr.events}
+                    {tr.updateColumns && ` OF ${tr.updateColumns}`}
+                    {tr.granularity && ` ${tr.granularity}`}
                   </span>
+                  {tr.condition && (
+                    <span className="text-muted-foreground">
+                      WHEN <code className="text-xs">{tr.condition}</code>
+                    </span>
+                  )}
                 </div>
                 <pre className="overflow-x-auto p-3 text-xs">{tr.definition}</pre>
               </div>

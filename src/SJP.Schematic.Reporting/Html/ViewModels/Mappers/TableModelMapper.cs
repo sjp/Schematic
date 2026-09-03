@@ -166,7 +166,10 @@ internal sealed class TableModelMapper
                 tr.Name,
                 tr.Definition,
                 tr.QueryTiming,
-                tr.TriggerEvent
+                tr.TriggerEvent,
+                tr.Granularity,
+                tr.Condition,
+                tr.UpdateColumns
             ));
 
         var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);

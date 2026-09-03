@@ -19,4 +19,10 @@ public enum TriggerQueryTiming
     /// Occurs instead of a SQL statement when a statement would modify a table.
     /// </summary>
     InsteadOf,
+
+    /// <summary>
+    /// Occurs at more than one timing point within a single statement. Only Oracle supports this,
+    /// via a compound trigger, whose sections fire before and after the statement and each row.
+    /// </summary>
+    Compound,
 }

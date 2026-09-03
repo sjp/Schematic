@@ -1,4 +1,6 @@
-﻿using Boxed.Mapping;
+﻿using System.Linq;
+using Boxed.Mapping;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
@@ -18,13 +20,17 @@ public class DatabaseTriggerMapper
     public IDatabaseTrigger Map(Dto.DatabaseTrigger source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var optionalMapper = MapperRegistry.GetMapper<string?, Option<string>>();
 
         return new DatabaseTrigger(
             identifierMapper.Map(source.TriggerName),
             source.Definition,
             source.QueryTiming,
             source.TriggerEvent,
-            source.IsEnabled
+            source.IsEnabled,
+            source.Granularity,
+            optionalMapper.Map(source.Condition),
+            source.UpdateColumns.Select(identifierMapper.Map).ToList()
         );
     }
 
@@ -36,6 +42,7 @@ public class DatabaseTriggerMapper
     public Dto.DatabaseTrigger Map(IDatabaseTrigger source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var optionalMapper = MapperRegistry.GetMapper<Option<string>, string?>();
 
         return new Dto.DatabaseTrigger
         {
@@ -44,6 +51,9 @@ public class DatabaseTriggerMapper
             QueryTiming = source.QueryTiming,
             TriggerEvent = source.TriggerEvent,
             IsEnabled = source.IsEnabled,
+            Granularity = source.Granularity,
+            Condition = optionalMapper.Map(source.Condition),
+            UpdateColumns = source.UpdateColumns.Select(identifierMapper.Map).ToList(),
         };
     }
 }

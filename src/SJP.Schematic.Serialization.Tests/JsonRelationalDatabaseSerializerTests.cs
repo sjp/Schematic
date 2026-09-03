@@ -607,6 +607,44 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenTriggerRoundTripped_PreservesGranularityConditionAndUpdateColumns()
+    {
+        var db = CreateTriggerDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var trigger = tables.Single().Triggers.Single(t => t.Name.LocalName == "test_detailed_trigger");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.Compound));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Update | TriggerEvent.Truncate | TriggerEvent.Other));
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
+            Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo("new.first_name is not null"));
+            Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "first_name" }));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenPlainTriggerRoundTripped_PreservesUnknownGranularityAndEmptyOptionals()
+    {
+        var db = CreateTriggerDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var trigger = tables.Single().Triggers.Single(t => t.Name.LocalName == "test_plain_trigger");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Unknown));
+            Assert.That(trigger.Condition.IsNone, Is.True);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        }
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenConstraintStateRoundTripped_PreservesValidationAndDeferrability()
     {
         var db = CreateConstraintStateDatabase();
@@ -1230,6 +1268,65 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [check],
             []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    // A table with one trigger carrying every fact the model can express, alongside a trigger that
+    // carries none of them, so that both the populated and the defaulted paths are covered.
+    private static IRelationalDatabase CreateTriggerDatabase()
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(100)",
+            typeof(string),
+            false,
+            100,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<string>.None, Option<IAutoIncrement>.None);
+
+        var detailedTrigger = new DatabaseTrigger(
+            "test_detailed_trigger",
+            "create trigger test_detailed_trigger ...",
+            TriggerQueryTiming.Compound,
+            TriggerEvent.Update | TriggerEvent.Truncate | TriggerEvent.Other,
+            true,
+            TriggerGranularity.Row,
+            Option<string>.Some("new.first_name is not null"),
+            ["first_name"]
+        );
+
+        var plainTrigger = new DatabaseTrigger(
+            "test_plain_trigger",
+            "create trigger test_plain_trigger ...",
+            TriggerQueryTiming.After,
+            TriggerEvent.Insert,
+            false
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [firstNameColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            [detailedTrigger, plainTrigger]
         );
 
         return new RelationalDatabase(

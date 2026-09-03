@@ -27,4 +27,15 @@ public enum TriggerEvent
     /// An <c>DELETE</c> operation on a table.
     /// </summary>
     Delete = 1 << 2,
+
+    /// <summary>
+    /// A <c>TRUNCATE</c> operation on a table. Only PostgreSQL supports triggering on this event.
+    /// </summary>
+    Truncate = 1 << 3,
+
+    /// <summary>
+    /// An event that the database recognises but Schematic does not model. The trigger is still
+    /// returned, and its <see cref="IDatabaseTrigger.Definition"/> describes what it fires on.
+    /// </summary>
+    Other = 1 << 30,
 }

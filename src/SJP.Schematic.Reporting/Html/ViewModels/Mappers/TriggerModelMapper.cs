@@ -15,7 +15,10 @@ internal sealed class TriggerModelMapper
             trigger.Name,
             trigger.Definition,
             trigger.QueryTiming,
-            trigger.TriggerEvent
+            trigger.TriggerEvent,
+            trigger.Granularity,
+            trigger.Condition,
+            trigger.UpdateColumns
         );
     }
 }

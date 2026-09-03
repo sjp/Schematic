@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration;
 
@@ -145,6 +146,41 @@ end";
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenTableWithTrigger_ReturnsRowGranularity()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_1");
+
+        Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
+    }
+
+    [Test]
+    public async Task Triggers_GivenTableWithUnconditionalTrigger_ReturnsNoConditionAndNoUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_5");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task Triggers_GivenTableWithConditionalUpdateOfTrigger_ReturnsConditionAndUpdateColumns()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_7");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo("new.table_id > 1"));
+            Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "table_id" }));
         }
     }
 }

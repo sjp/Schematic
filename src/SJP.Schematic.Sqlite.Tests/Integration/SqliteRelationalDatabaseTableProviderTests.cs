@@ -318,6 +318,14 @@ on trigger_test_table_1
 begin
     select 1;
 end", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_7
+after update of table_id
+on trigger_test_table_1
+for each row
+when new.table_id > 1
+begin
+    select 1;
+end", CancellationToken.None);
     }
 
     [OneTimeTearDown]

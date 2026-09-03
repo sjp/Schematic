@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
@@ -149,6 +152,82 @@ internal static class PostgreSqlDatabaseTriggerTests
         var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled);
 
         Assert.That(trigger.IsEnabled, Is.EqualTo(enabled));
+    }
+
+    [Test]
+    public static void Ctor_GivenInvalidTriggerGranularity_ThrowsArgumentException()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        const TriggerGranularity granularity = (TriggerGranularity)55;
+
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, true, granularity, Option<string>.None, []),
+            Throws.ArgumentException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenNullUpdateColumns_ThrowsArgumentNullException()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, true, TriggerGranularity.Row, Option<string>.None, null!),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenShortCtor_DefaultsNewMembersToUnknownAndEmpty()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Unknown));
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        });
+    }
+
+    [Test]
+    public static void GranularityConditionAndUpdateColumns_PropertyGet_EqualCtorArgs()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update | TriggerEvent.Truncate;
+        const string condition = "new.value > 0";
+        var updateColumns = new Identifier[] { "first_col" };
+
+        var trigger = new PostgreSqlDatabaseTrigger(
+            triggerName,
+            definition,
+            timing,
+            events,
+            true,
+            TriggerGranularity.Statement,
+            Option<string>.Some(condition),
+            updateColumns
+        );
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Statement));
+            Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo(condition));
+            Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "first_col" }));
+        });
     }
 
     [TestCase("test_trigger", "Trigger: test_trigger")]

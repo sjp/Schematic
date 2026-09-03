@@ -388,26 +388,29 @@ public sealed class Table
             Identifier triggerName,
             string definition,
             TriggerQueryTiming queryTiming,
-            TriggerEvent triggerEvent
+            TriggerEvent triggerEvent,
+            TriggerGranularity granularity,
+            Option<string> condition,
+            IEnumerable<Identifier> updateColumns
         )
         {
             ArgumentNullException.ThrowIfNull(triggerName);
             ArgumentException.ThrowIfNullOrWhiteSpace(definition);
+            ArgumentNullException.ThrowIfNull(updateColumns);
 
             TriggerName = triggerName.LocalName;
             Definition = definition;
 
-            var queryFlags = queryTiming.GetFlags()
-                .Select(static qt => GetTimingDescription(qt))
-                .Order(StringComparer.Ordinal)
-                .ToList();
             var eventFlags = triggerEvent.GetFlags()
                 .Select(static te => GetEventDescription(te))
                 .Order(StringComparer.Ordinal)
                 .ToList();
 
-            QueryTiming = queryFlags.Join(", ");
+            QueryTiming = GetTimingDescription(queryTiming);
             Events = eventFlags.Join(", ");
+            Granularity = GetGranularityDescription(granularity);
+            Condition = condition.MatchUnsafe(static c => c, static () => string.Empty) ?? string.Empty;
+            UpdateColumns = updateColumns.Select(static c => c.LocalName).Join(", ");
         }
 
         public string TriggerName { get; }
@@ -418,12 +421,30 @@ public sealed class Table
 
         public string Events { get; }
 
+        /// <summary>How often the trigger fires. Empty when the database did not report a granularity.</summary>
+        public string Granularity { get; }
+
+        /// <summary>The trigger's <c>WHEN</c> clause. Empty when the trigger is unconditional.</summary>
+        public string Condition { get; }
+
+        /// <summary>The trigger's <c>UPDATE OF</c> column list. Empty when updates to any column fire it.</summary>
+        public string UpdateColumns { get; }
+
         private static string GetTimingDescription(TriggerQueryTiming timing) => timing switch
         {
             TriggerQueryTiming.After => "AFTER",
             TriggerQueryTiming.Before => "BEFORE",
             TriggerQueryTiming.InsteadOf => "INSTEAD OF",
+            TriggerQueryTiming.Compound => "COMPOUND",
             _ => throw new ArgumentOutOfRangeException(nameof(timing)),
+        };
+
+        private static string GetGranularityDescription(TriggerGranularity granularity) => granularity switch
+        {
+            TriggerGranularity.Row => "FOR EACH ROW",
+            TriggerGranularity.Statement => "FOR EACH STATEMENT",
+            TriggerGranularity.Unknown => string.Empty,
+            _ => throw new ArgumentOutOfRangeException(nameof(granularity)),
         };
 
         private static string GetEventDescription(TriggerEvent triggerEvent) => triggerEvent switch
@@ -431,6 +452,8 @@ public sealed class Table
             TriggerEvent.Delete => "DELETE",
             TriggerEvent.Insert => "INSERT",
             TriggerEvent.Update => "UPDATE",
+            TriggerEvent.Truncate => "TRUNCATE",
+            TriggerEvent.Other => "OTHER",
             _ => throw new ArgumentOutOfRangeException(nameof(triggerEvent)),
         };
     }

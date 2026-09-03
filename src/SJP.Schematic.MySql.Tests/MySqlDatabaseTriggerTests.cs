@@ -1,6 +1,7 @@
 ﻿using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests;
 
@@ -112,5 +113,23 @@ internal static class MySqlDatabaseTriggerTests
         var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
 
         Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+    }
+
+    [Test]
+    public static void GranularityConditionAndUpdateColumns_PropertyGet_ReportMySqlsFixedCapabilities()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        });
     }
 }

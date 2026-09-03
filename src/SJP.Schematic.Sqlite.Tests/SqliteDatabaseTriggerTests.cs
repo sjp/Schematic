@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Linq;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
@@ -125,6 +128,76 @@ internal static class SqliteDatabaseTriggerTests
         var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
         Assert.That(trigger.IsEnabled, Is.True);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullUpdateColumns_ThrowsArgumentNullException()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        Assert.That(
+            () => new SqliteDatabaseTrigger(triggerName, definition, timing, events, Option<string>.None, null!),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void Granularity_PropertyGet_IsAlwaysRow()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
+
+        Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
+    }
+
+    [Test]
+    public static void Ctor_GivenShortCtor_DefaultsConditionAndUpdateColumnsToEmpty()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+
+        var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trigger.Condition, OptionIs.None);
+            Assert.That(trigger.UpdateColumns, Is.Empty);
+        });
+    }
+
+    [Test]
+    public static void ConditionAndUpdateColumns_PropertyGet_EqualCtorArgs()
+    {
+        Identifier triggerName = "test_trigger";
+        const string definition = "create trigger test_trigger...";
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Update;
+        const string condition = "new.value > 0";
+        var updateColumns = new Identifier[] { "first_col" };
+
+        var trigger = new SqliteDatabaseTrigger(
+            triggerName,
+            definition,
+            timing,
+            events,
+            Option<string>.Some(condition),
+            updateColumns
+        );
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo(condition));
+            Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "first_col" }));
+        });
     }
 
     [TestCase("test_trigger", "Trigger: test_trigger")]

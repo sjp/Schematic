@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.SqlServer.Queries;
@@ -765,9 +764,6 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         var result = new List<IDatabaseTrigger>(triggerRows.Count);
         foreach (var trig in triggerRows)
         {
-            if (trig.UnsupportedTriggerEvent != null)
-                throw new UnsupportedTriggerEventException(tableName, trig.UnsupportedTriggerEvent);
-
             var triggerName = Identifier.CreateQualifiedIdentifier(trig.TriggerName);
             var queryTiming = trig.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
             var definition = trig.Definition;
@@ -780,8 +776,22 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 events |= TriggerEvent.Update;
             if (trig.IsDeleteTrigger)
                 events |= TriggerEvent.Delete;
+            if (trig.IsOtherTrigger)
+                events |= TriggerEvent.Other;
 
-            var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+            // SQL Server DML triggers always fire once per statement; there is no FOR EACH ROW form.
+            // Neither is there a WHEN clause or an UPDATE OF column list -- a trigger body tests
+            // update(column) at runtime instead, which the catalog does not record.
+            var trigger = new DatabaseTrigger(
+                triggerName,
+                definition,
+                queryTiming,
+                events,
+                isEnabled,
+                TriggerGranularity.Statement,
+                Option<string>.None,
+                []
+            );
             result.Add(trigger);
         }
 

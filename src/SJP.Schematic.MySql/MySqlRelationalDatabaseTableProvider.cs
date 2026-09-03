@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using LanguageExt;
 using Nito.AsyncEx;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.MySql.Queries;
@@ -774,7 +773,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 else if (string.Equals(trigEvent, Constants.Delete, StringComparison.Ordinal))
                     events |= TriggerEvent.Delete;
                 else
-                    throw new UnsupportedTriggerEventException(tableName, trigEvent ?? string.Empty);
+                    events |= TriggerEvent.Other;
             }
 
             var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);

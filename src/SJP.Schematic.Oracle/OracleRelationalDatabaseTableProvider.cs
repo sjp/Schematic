@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Oracle.Queries;
@@ -898,6 +897,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var queryTiming = triggerRow.TriggerType != null && TimingMapping.TryGetValue(triggerRow.TriggerType, out var timing)
                 ? timing
                 : TriggerQueryTiming.After;
+            var granularity = triggerRow.TriggerType != null && GranularityMapping.TryGetValue(triggerRow.TriggerType, out var rowOrStatement)
+                ? rowOrStatement
+                : TriggerGranularity.Unknown;
             var definition = triggerRow.Definition ?? string.Empty;
             var isEnabled = string.Equals(triggerRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
 
@@ -915,10 +917,29 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 else if (string.Equals(triggerEventPiece, Constants.Delete, StringComparison.Ordinal))
                     events |= TriggerEvent.Delete;
                 else
-                    throw new UnsupportedTriggerEventException(tableName, triggerEventPiece);
+                    events |= TriggerEvent.Other;
             }
 
-            var trigger = new DatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+            var condition = !triggerRow.Condition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(triggerRow.Condition)
+                : Option<string>.None;
+            var updateColumns = !triggerRow.UpdateColumns.IsNullOrWhiteSpace()
+                ? triggerRow.UpdateColumns
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(static c => Identifier.CreateQualifiedIdentifier(c))
+                    .ToList()
+                : [];
+
+            var trigger = new DatabaseTrigger(
+                triggerName,
+                definition,
+                queryTiming,
+                events,
+                isEnabled,
+                granularity,
+                condition,
+                updateColumns
+            );
             result.Add(trigger);
         }
 
@@ -1000,7 +1021,23 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ["AFTER STATEMENT"] = TriggerQueryTiming.After,
         ["AFTER EACH ROW"] = TriggerQueryTiming.After,
         ["INSTEAD OF"] = TriggerQueryTiming.InsteadOf,
-        ["COMPOUND"] = TriggerQueryTiming.InsteadOf,
+        ["COMPOUND"] = TriggerQueryTiming.Compound,
+    };
+
+    /// <summary>
+    /// A mapping from the trigger types as described in Oracle, to a <see cref="TriggerGranularity"/> instance.
+    /// A compound trigger has sections at both granularities, so it is reported as
+    /// <see cref="TriggerGranularity.Unknown"/> rather than picking one of them.
+    /// </summary>
+    /// <value>A mapping dictionary.</value>
+    protected IReadOnlyDictionary<string, TriggerGranularity> GranularityMapping { get; } = new Dictionary<string, TriggerGranularity>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["BEFORE STATEMENT"] = TriggerGranularity.Statement,
+        ["BEFORE EACH ROW"] = TriggerGranularity.Row,
+        ["AFTER STATEMENT"] = TriggerGranularity.Statement,
+        ["AFTER EACH ROW"] = TriggerGranularity.Row,
+        ["INSTEAD OF"] = TriggerGranularity.Row,
+        ["COMPOUND"] = TriggerGranularity.Unknown,
     };
 
     /// <summary>

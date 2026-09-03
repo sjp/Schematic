@@ -28,6 +28,22 @@ export function TriggersPage() {
       },
       { accessorKey: "queryTiming", header: "Timing" },
       { accessorKey: "events", header: "Events" },
+      {
+        accessorKey: "granularity",
+        header: "Granularity",
+        cell: ({ row }) =>
+          row.original.granularity || <span className="text-muted-foreground">—</span>,
+      },
+      {
+        accessorKey: "condition",
+        header: "Condition",
+        cell: ({ row }) =>
+          row.original.condition ? (
+            <code className="text-xs">{row.original.condition}</code>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          ),
+      },
     ],
     [],
   );

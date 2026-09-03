@@ -6,7 +6,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Exceptions;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.PostgreSql.Queries;
@@ -888,6 +887,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             row.TriggerName,
             row.Definition,
             row.Timing,
+            row.Granularity,
+            row.Condition,
             row.EnabledFlag,
         }).ToList();
         if (triggers.Empty())
@@ -909,12 +910,34 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     events |= TriggerEvent.Update;
                 else if (string.Equals(triggerEvent, Constants.Delete, StringComparison.Ordinal))
                     events |= TriggerEvent.Delete;
+                else if (string.Equals(triggerEvent, Constants.Truncate, StringComparison.Ordinal))
+                    events |= TriggerEvent.Truncate;
                 else
-                    throw new UnsupportedTriggerEventException(tableName, triggerEvent ?? string.Empty);
+                    events |= TriggerEvent.Other;
             }
 
+            var granularity = string.Equals(trig.Key.Granularity, Constants.Row, StringComparison.Ordinal)
+                ? TriggerGranularity.Row
+                : TriggerGranularity.Statement;
+            var condition = !trig.Key.Condition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(trig.Key.Condition)
+                : Option<string>.None;
+            // tgattr is per-trigger, so any row of the group carries the same UPDATE OF column list.
+            var updateColumns = trig.Value[0].UpdateColumns?
+                .Select(static c => Identifier.CreateQualifiedIdentifier(c))
+                .ToList() ?? [];
+
             var isEnabled = !string.Equals(trig.Key.EnabledFlag, Constants.DisabledFlag, StringComparison.Ordinal);
-            var trigger = new PostgreSqlDatabaseTrigger(triggerName, definition, queryTiming, events, isEnabled);
+            var trigger = new PostgreSqlDatabaseTrigger(
+                triggerName,
+                definition,
+                queryTiming,
+                events,
+                isEnabled,
+                granularity,
+                condition,
+                updateColumns
+            );
             result.Add(trigger);
         }
 
@@ -1126,6 +1149,16 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// Determines whether a key type is a primary key.
         /// </summary>
         public const string PrimaryKeyType = "p";
+
+        /// <summary>
+        /// Used to check whether a trigger fires once per row, rather than once per statement.
+        /// </summary>
+        public const string Row = "ROW";
+
+        /// <summary>
+        /// Used to check whether a trigger event is a <c>TRUNCATE</c> event.
+        /// </summary>
+        public const string Truncate = "TRUNCATE";
 
         /// <summary>
         /// Used to check whether a trigger event is an <c>UPDATE</c> event.

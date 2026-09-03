@@ -57,6 +57,8 @@ public class TriggerWithNoEnabledEventsRule : Rule, ITableRule
         var result = new List<IRuleMessage>();
         foreach (var trigger in table.Triggers)
         {
+            // A trigger carrying only TriggerEvent.Other still fires, on an event Schematic does not
+            // model, so it is not dead code and is deliberately left unreported.
             if (trigger.TriggerEvent != TriggerEvent.None)
                 continue;
 

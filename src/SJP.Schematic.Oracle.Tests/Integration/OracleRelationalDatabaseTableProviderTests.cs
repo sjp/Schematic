@@ -230,6 +230,30 @@ begin
     null;
 end;
 ", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trig_upd
+after update of table_id on trigger_test_table_1
+for each row
+when (new.table_id > 1)
+begin
+    null;
+end;
+", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trig_stmt
+before insert on trigger_test_table_1
+begin
+    null;
+end;
+", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trig_cmp
+for insert on trigger_test_table_1
+compound trigger
+    before statement is begin null; end before statement;
+    after statement is begin null; end after statement;
+end trigger_test_table_1_trig_cmp;
+", CancellationToken.None);
     }
 
     [OneTimeTearDown]

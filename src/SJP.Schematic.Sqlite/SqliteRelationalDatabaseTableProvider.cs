@@ -1207,7 +1207,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 }
             })).Value;
 
-            var trigger = new SqliteDatabaseTrigger(triggerInfo.Name, triggerSql, parsedTrigger.Timing, parsedTrigger.Event);
+            var trigger = new SqliteDatabaseTrigger(
+                triggerInfo.Name,
+                triggerSql,
+                parsedTrigger.Timing,
+                parsedTrigger.Event,
+                parsedTrigger.Condition,
+                parsedTrigger.UpdateColumns
+            );
             result.Add(trigger);
         }
 

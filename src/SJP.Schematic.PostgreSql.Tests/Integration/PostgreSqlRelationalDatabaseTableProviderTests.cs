@@ -329,6 +329,19 @@ create trigger trigger_test_table_1_trigger_6
 after delete
 on trigger_test_table_1
 execute procedure test_trigger_fn()", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_7
+after update of table_id
+on trigger_test_table_1
+for each row
+when (new.table_id > 1)
+execute procedure test_trigger_fn()", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_8
+after truncate
+on trigger_test_table_1
+for each statement
+execute procedure test_trigger_fn()", CancellationToken.None);
     }
 
     [OneTimeTearDown]

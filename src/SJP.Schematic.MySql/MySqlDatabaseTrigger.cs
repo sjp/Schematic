@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using EnumsNET;
+using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -69,6 +71,24 @@ public class MySqlDatabaseTrigger : IDatabaseTrigger
     /// </summary>
     /// <value>Always <see langword="true" />.</value>
     public bool IsEnabled { get; } = true;
+
+    /// <summary>
+    /// Describes how often the trigger fires for the statement that caused it to fire.
+    /// </summary>
+    /// <value>Always <see cref="TriggerGranularity.Row"/>, as MySQL only supports row-level triggers.</value>
+    public TriggerGranularity Granularity { get; } = TriggerGranularity.Row;
+
+    /// <summary>
+    /// An expression that must evaluate to <c>true</c> for the trigger body to run, i.e. a <c>WHEN</c> clause.
+    /// </summary>
+    /// <value>Always <see cref="Option{A}.None"/>, as MySQL has no <c>WHEN</c> clause on triggers.</value>
+    public Option<string> Condition { get; } = Option<string>.None;
+
+    /// <summary>
+    /// The columns that an <c>UPDATE</c> must touch for the trigger to fire, i.e. an <c>UPDATE OF</c> column list.
+    /// </summary>
+    /// <value>Always empty, as MySQL has no <c>UPDATE OF</c> clause on triggers.</value>
+    public IReadOnlyCollection<Identifier> UpdateColumns { get; } = [];
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.
