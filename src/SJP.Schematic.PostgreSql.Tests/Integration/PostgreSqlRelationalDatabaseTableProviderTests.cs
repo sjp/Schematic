@@ -271,11 +271,17 @@ create table constraint_state_parent (
     constraint pk_constraint_state_parent primary key (a, b) deferrable initially deferred
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"
+create table constraint_state_fk_parent (
+    a int not null,
+    b int not null,
+    constraint pk_constraint_state_fk_parent primary key (a, b)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
 create table constraint_state_child (
     a int,
     b int,
     constraint ck_constraint_state_child check (a > 0) not valid,
-    constraint fk_constraint_state_child foreign key (a, b) references constraint_state_parent (a, b)
+    constraint fk_constraint_state_child foreign key (a, b) references constraint_state_fk_parent (a, b)
         match full deferrable initially immediate not valid
 )", CancellationToken.None);
 
@@ -391,6 +397,7 @@ execute procedure test_trigger_fn()", CancellationToken.None);
         "drop table table_test_table_43",
         "drop table table_test_partitioned_1",
         "drop table constraint_state_child",
+        "drop table constraint_state_fk_parent",
         "drop table constraint_state_parent",
         "drop table fk_bare_unique_child",
         "drop table fk_bare_unique_parent",
