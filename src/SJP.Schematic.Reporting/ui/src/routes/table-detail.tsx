@@ -1,6 +1,6 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Check, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
+import { Check, Hash, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { DataTable } from "@/components/DataTable";
@@ -108,6 +108,19 @@ function KeyIcons({
           }
         >
           <Link2 className="size-3.5 text-emerald-500" aria-label="Foreign key" />
+        </IconTooltip>
+      )}
+      {column.isAutoIncrement && (
+        <IconTooltip
+          label={
+            <>
+              <span className="font-medium">Generated</span>
+              {column.identityGeneration && <> · {column.identityGeneration}</>}
+              {column.identitySequenceName && <> · {column.identitySequenceName}</>}
+            </>
+          }
+        >
+          <Hash className="size-3.5 text-violet-500" aria-label="Generated value" />
         </IconTooltip>
       )}
     </span>

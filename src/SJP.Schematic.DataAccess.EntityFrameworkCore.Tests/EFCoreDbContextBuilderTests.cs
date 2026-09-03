@@ -327,6 +327,82 @@ internal static class EFCoreDbContextBuilderTests
         Assert.That(result, Does.Contain("""HasForeignKey(t => t.address_id).HasPrincipalKey(t => t!.address_)"""));
     }
 
+    [Test]
+    public static void Generate_GivenColumnGeneratedByDefault_ConfiguresValueGeneratedOnAddOnly()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var column = CreateIdentityColumn("address_id", IdentityGeneration.ByDefault);
+        var table = new RelationalDatabaseTable(
+            "address",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([table], [], []);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("""Property(t => t.address_id).ValueGeneratedOnAdd()"""));
+            Assert.That(result, Does.Not.Contain("UseIdentityAlwaysColumn"));
+        }
+    }
+
+    [Test]
+    public static void Generate_GivenColumnGeneratedAlways_ConfiguresIdentityAlwaysColumn()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var column = CreateIdentityColumn("address_id", IdentityGeneration.Always);
+        var table = new RelationalDatabaseTable(
+            "address",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([table], [], []);
+
+        Assert.That(result, Does.Contain("""Property(t => t.address_id).ValueGeneratedOnAdd().UseIdentityAlwaysColumn()"""));
+    }
+
+    [Test]
+    public static void Generate_GivenColumnWithoutIdentity_DoesNotConfigureValueGeneration()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var column = CreateColumn("address_id");
+        var table = new RelationalDatabaseTable(
+            "address",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([table], [], []);
+
+        Assert.That(result, Does.Not.Contain("ValueGeneratedOnAdd"));
+    }
+
     private static IRelationalDatabaseTable CreateTable(Identifier tableName) =>
         new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
 
@@ -344,6 +420,24 @@ internal static class EFCoreDbContextBuilderTests
         );
 
         return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+    }
+
+    private static IDatabaseColumn CreateIdentityColumn(Identifier columnName, IdentityGeneration generation)
+    {
+        var columnType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(long),
+            false,
+            -1,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var autoIncrement = new AutoIncrement(1, 1, generation, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None);
+
+        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.Some(autoIncrement));
     }
 
     private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier childKeyName, IDatabaseColumn childColumn, Identifier parentTableName, IDatabaseKey parentKey) =>

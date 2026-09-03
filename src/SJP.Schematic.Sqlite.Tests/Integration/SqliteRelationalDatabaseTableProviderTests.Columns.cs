@@ -99,6 +99,57 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     }
 
     [Test]
+    public async Task Columns_WhenGivenAutoIncrementColumn_ReturnsByDefaultGeneration()
+    {
+        var table = await GetTableAsync("table_test_table_41");
+        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefault));
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(1));
+            Assert.That(autoIncrement.Increment, Is.EqualTo(1));
+            Assert.That(autoIncrement.SequenceName, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenIntegerPrimaryKeyColumn_ReturnsAutoIncrementForRowidAlias()
+    {
+        var table = await GetTableAsync("table_test_table_42");
+        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+
+        Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefault));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenNonIntegerPrimaryKeyColumn_ReturnsNoneAutoIncrement()
+    {
+        var table = await GetTableAsync("table_test_table_43");
+        var column = table.Columns.Single();
+
+        Assert.That(column.AutoIncrement, OptionIs.None);
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenIntegerPrimaryKeyColumnInWithoutRowidTable_ReturnsNoneAutoIncrement()
+    {
+        var table = await GetTableAsync("table_test_table_44");
+        var column = table.Columns.Single();
+
+        Assert.That(column.AutoIncrement, OptionIs.None);
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenDescendingIntegerPrimaryKeyColumn_ReturnsNoneAutoIncrement()
+    {
+        var table = await GetTableAsync("table_test_table_45");
+        var column = table.Columns.Single();
+
+        Assert.That(column.AutoIncrement, OptionIs.None);
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithNoGeneratedColumns_ReturnsNoComputedColumns()
     {
         const string tableName = "table_test_table_1";

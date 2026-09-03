@@ -757,16 +757,41 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
 
+                var sequenceName = !row.SequenceSchemaName.IsNullOrWhiteSpace() && !row.SequenceLocalName.IsNullOrWhiteSpace()
+                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.SequenceSchemaName, row.SequenceLocalName))
+                    : Option<Identifier>.None;
+
                 var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
                 var autoIncrement = isAutoIncrement
                     && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
                     && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(seqStart, seqIncr))
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(
+                        seqStart,
+                        seqIncr,
+                        string.Equals(row.IdentityGeneration, Constants.Always, StringComparison.Ordinal)
+                            ? IdentityGeneration.Always
+                            : IdentityGeneration.ByDefault,
+                        ParseNumericBound(row.IdentityMinimum),
+                        ParseNumericBound(row.IdentityMaximum),
+                        string.Equals(row.IdentityCycle, Constants.Yes, StringComparison.Ordinal),
+                        sequenceName))
                     : Option<IAutoIncrement>.None;
 
-                var isSerialAutoIncrement = !isAutoIncrement && !row.SerialSequenceSchemaName.IsNullOrWhiteSpace() && !row.SerialSequenceLocalName.IsNullOrWhiteSpace();
+                // A serial column is an ordinary column defaulting to nextval() over an owned
+                // sequence, so its parameters live on the sequence rather than on the column, and an
+                // explicitly supplied value is always accepted.
+                var isSerialAutoIncrement = !isAutoIncrement && sequenceName.IsSome;
                 if (isSerialAutoIncrement)
-                    autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
+                {
+                    autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(
+                        row.SequenceStart ?? 1,
+                        row.SequenceIncrement is long increment && increment != 0 ? increment : 1,
+                        IdentityGeneration.ByDefault,
+                        ToNumericBound(row.SequenceMinValue),
+                        ToNumericBound(row.SequenceMaxValue),
+                        row.SequenceCycle == true,
+                        sequenceName));
+                }
 
                 var defaultValue = !row.ColumnDefault.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ColumnDefault)
@@ -783,6 +808,22 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
             })
             .ToListAsync(cancellationToken);
+    }
+
+    // information_schema reports sequence bounds as text, because they may exceed the range of any
+    // one SQL numeric type.
+    private static Option<decimal> ParseNumericBound(string? value)
+    {
+        return decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result)
+            ? Option<decimal>.Some(result)
+            : Option<decimal>.None;
+    }
+
+    private static Option<decimal> ToNumericBound(long? value)
+    {
+        return value.HasValue
+            ? Option<decimal>.Some(value.Value)
+            : Option<decimal>.None;
     }
 
     /// <summary>

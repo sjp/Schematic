@@ -149,6 +149,7 @@ namespace EFCoreTestNamespace
         /// <param name="modelBuilder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestPk).ValueGeneratedOnAdd();
             modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestDatetime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Main.TestTable1>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable1>().HasKey(t => t.TestPk);
@@ -158,9 +159,11 @@ namespace EFCoreTestNamespace
             modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.MiddleName }).IsUnique().HasDatabaseName("ux_test_table_2_first_name_middle_name");
             modelBuilder.Entity<Main.TestTable2>().HasIndex(t => t.Comment).HasDatabaseName("ix_test_table_2_comment");
             modelBuilder.Entity<Main.TestTable2>().HasIndex(t => new { t.FirstName, t.LastName }).HasDatabaseName("ix_test_table_2_first_name");
+            modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestPk).ValueGeneratedOnAdd();
             modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestDatetime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Main.TestTable3>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable3>().HasKey(t => t.TestPk);
+            modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestPk).ValueGeneratedOnAdd();
             modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestDatetime).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Main.TestTable4>().Property(t => t.TestStringWithDefault).HasDefaultValueSql("'test'");
             modelBuilder.Entity<Main.TestTable4>().HasKey(t => t.TestPk);

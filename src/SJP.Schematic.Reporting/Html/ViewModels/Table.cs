@@ -104,7 +104,8 @@ public sealed class Table
             bool isUniqueKeyColumn,
             bool isForeignKeyColumn,
             IEnumerable<ChildKey> childKeys,
-            IEnumerable<ParentKey> parentKeys
+            IEnumerable<ParentKey> parentKeys,
+            Option<IAutoIncrement> autoIncrement
         )
         {
             ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
@@ -122,6 +123,12 @@ public sealed class Table
 
             ParentKeys = parentKeys ?? throw new ArgumentNullException(nameof(parentKeys));
             ParentKeysCount = parentKeys.UCount();
+
+            IsAutoIncrement = autoIncrement.IsSome;
+            IdentityGeneration = autoIncrement.Match(static incr => IdentityGenerationNames.GetName(incr.Generation), static () => string.Empty);
+            IdentitySequenceName = autoIncrement
+                .Bind(static incr => incr.SequenceName)
+                .Match(static name => name.ToVisibleName(), static () => string.Empty);
         }
 
         public int Ordinal { get; }
@@ -147,6 +154,12 @@ public sealed class Table
         public IEnumerable<ChildKey> ChildKeys { get; }
 
         public uint ChildKeysCount { get; }
+
+        public bool IsAutoIncrement { get; }
+
+        public string IdentityGeneration { get; }
+
+        public string IdentitySequenceName { get; }
     }
 
     /// <summary>

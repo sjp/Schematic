@@ -259,6 +259,16 @@ create table table_test_table_40 (
     primary key (test_column_1, test_column_2)
 )", CancellationToken.None);
 
+        await DbConnection.ExecuteAsync("create table table_test_table_41 ( test_column integer not null primary key autoincrement )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_42 ( test_column integer not null primary key )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_43 ( test_column bigint not null primary key )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_44 ( test_column integer not null primary key ) without rowid", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_45 (
+    test_column integer not null,
+    primary key (test_column desc)
+)", CancellationToken.None);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
@@ -341,6 +351,11 @@ end", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_38", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_39", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table table_test_table_40", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_41", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_42", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_43", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_44", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_test_table_45", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }

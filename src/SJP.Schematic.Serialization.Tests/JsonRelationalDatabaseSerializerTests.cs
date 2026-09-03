@@ -613,6 +613,47 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenIdentityColumnRoundTripped_PreservesIdentityMetadata()
+    {
+        var db = CreateIdentityColumnDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var autoIncrement = tables.Single().Columns.Single().AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(10));
+            Assert.That(autoIncrement.Increment, Is.EqualTo(5));
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.Always));
+            Assert.That(autoIncrement.MinValue.UnwrapSome(), Is.EqualTo(-100));
+            Assert.That(autoIncrement.MaxValue.UnwrapSome(), Is.EqualTo(9999));
+            Assert.That(autoIncrement.Cycle, Is.True);
+            Assert.That(autoIncrement.SequenceName.UnwrapSome().LocalName, Is.EqualTo("test_sequence"));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenIdentityColumnRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateIdentityColumnDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        Assert.That(reExportedJson, Is.EqualTo(json));
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenTableWithoutPrimaryKeyRoundTripped_PreservesMissingPrimaryKey()
     {
         var db = CreatePrimaryKeyDatabase(hasPrimaryKey: false);
@@ -1280,6 +1321,60 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [routine]
+        );
+    }
+
+    private static IRelationalDatabase CreateIdentityColumnDatabase()
+    {
+        var columnType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(int),
+            false,
+            4,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var autoIncrement = new AutoIncrement(
+            10,
+            5,
+            IdentityGeneration.Always,
+            Option<decimal>.Some(-100),
+            Option<decimal>.Some(9999),
+            true,
+            Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier("test_schema", "test_sequence"))
+        );
+
+        var idColumn = new DatabaseColumn(
+            "id",
+            columnType,
+            false,
+            Option<string>.None,
+            Option<IAutoIncrement>.Some(autoIncrement)
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            [idColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
         );
     }
 }

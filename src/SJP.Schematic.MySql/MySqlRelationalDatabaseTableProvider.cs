@@ -688,9 +688,13 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
+                // MySQL exposes no per-column start or increment: the starting value is a table
+                // option that moves as rows are inserted, and the step is the server-wide
+                // auto_increment_increment variable. Both are server state rather than schema, so
+                // the sequence is described by its defaults of 1 and 1.
                 var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
                 var autoIncrement = isAutoIncrement
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
                     : Option<IAutoIncrement>.None;
                 var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
                 var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -773,12 +774,73 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             var column = isComputed
                 ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, computedColumnDefinition)
-                : new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue);
+                : new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue, BuildAutoIncrement(row, tableName));
 
             result.Add(column);
         }
 
         return result;
+    }
+
+    private static Option<IAutoIncrement> BuildAutoIncrement(GetTableColumns.Result row, Identifier tableName)
+    {
+        if (!string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal))
+            return Option<IAutoIncrement>.None;
+
+        var options = ParseIdentityOptions(row.IdentityOptions);
+
+        // GENERATION_TYPE only distinguishes ALWAYS from BY DEFAULT; whether a supplied NULL is
+        // replaced by a generated value is reported separately, on the column itself.
+        var generation = string.Equals(row.GenerationType, Constants.Always, StringComparison.Ordinal)
+            ? IdentityGeneration.Always
+            : string.Equals(row.DefaultOnNull, Constants.Yes, StringComparison.Ordinal)
+                ? IdentityGeneration.ByDefaultOnNull
+                : IdentityGeneration.ByDefault;
+
+        var sequenceName = !row.SequenceName.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Schema, row.SequenceName))
+            : Option<Identifier>.None;
+
+        return Option<IAutoIncrement>.Some(new AutoIncrement(
+            GetIdentityOption(options, Constants.StartWith).IfNone(1),
+            GetIdentityOption(options, Constants.IncrementBy).Match(static incr => incr != 0 ? incr : 1, static () => 1),
+            generation,
+            GetIdentityOption(options, Constants.MinValue),
+            GetIdentityOption(options, Constants.MaxValue),
+            options.TryGetValue(Constants.CycleFlag, out var cycleFlag) && string.Equals(cycleFlag, Constants.Y, StringComparison.OrdinalIgnoreCase),
+            sequenceName
+        ));
+    }
+
+    // IDENTITY_OPTIONS describes the backing sequence as a single comma-separated list of
+    // 'NAME: VALUE' pairs, e.g.
+    // START WITH: 1, INCREMENT BY: 1, MAX_VALUE: 9999999999999999999999999999, MIN_VALUE: 1, CYCLE_FLAG: N, CACHE_SIZE: 20, ORDER_FLAG: N
+    private static IReadOnlyDictionary<string, string> ParseIdentityOptions(string? identityOptions)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (identityOptions.IsNullOrWhiteSpace())
+            return result;
+
+        foreach (var option in identityOptions.Split(','))
+        {
+            var separatorIndex = option.IndexOf(':', StringComparison.Ordinal);
+            if (separatorIndex < 0)
+                continue;
+
+            var key = option[..separatorIndex].Trim();
+            if (key.Length > 0)
+                result[key] = option[(separatorIndex + 1)..].Trim();
+        }
+
+        return result;
+    }
+
+    private static Option<decimal> GetIdentityOption(IReadOnlyDictionary<string, string> options, string optionName)
+    {
+        return options.TryGetValue(optionName, out var value)
+            && decimal.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
+            ? Option<decimal>.Some(result)
+            : Option<decimal>.None;
     }
 
     /// <summary>
@@ -1033,6 +1095,18 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         public const string Y = "Y";
 
         public const string Yes = "YES";
+
+        public const string Always = "ALWAYS";
+
+        public const string StartWith = "START WITH";
+
+        public const string IncrementBy = "INCREMENT BY";
+
+        public const string MinValue = "MIN_VALUE";
+
+        public const string MaxValue = "MAX_VALUE";
+
+        public const string CycleFlag = "CYCLE_FLAG";
     }
 
     /// <summary>

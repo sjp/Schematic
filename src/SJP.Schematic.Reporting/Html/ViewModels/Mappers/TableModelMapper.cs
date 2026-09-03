@@ -99,7 +99,8 @@ internal sealed class TableModelMapper
                 isUniqueKey,
                 isParentKey,
                 columnChildKeys,
-                columnParentKeys
+                columnParentKeys,
+                tableColumn.Column.AutoIncrement
             );
             columns.Add(column);
         }

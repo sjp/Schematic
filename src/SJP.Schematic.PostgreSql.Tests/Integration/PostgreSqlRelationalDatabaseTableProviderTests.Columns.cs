@@ -149,6 +149,57 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableColumnWithSerialIdentity_ReturnsByDefaultGenerationAndOwningSequence()
+    {
+        const string tableName = "table_test_table_35";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns[table.Columns.Count - 1];
+        var autoIncrement = column.AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefault));
+            Assert.That(autoIncrement.SequenceName.UnwrapSome().LocalName, Is.EqualTo("table_test_table_35_test_column_seq"));
+            Assert.That(autoIncrement.Cycle, Is.False);
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableColumnWithAlwaysIdentity_ReturnsAlwaysGeneration()
+    {
+        const string tableName = "table_test_table_36";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns[table.Columns.Count - 1];
+        var autoIncrement = column.AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.Always));
+            Assert.That(autoIncrement.SequenceName, OptionIs.Some);
+            Assert.That(autoIncrement.Cycle, Is.False);
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableColumnWithByDefaultIdentity_ReturnsBoundsAndCycle()
+    {
+        const string tableName = "table_test_table_43";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single();
+        var autoIncrement = column.AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefault));
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(5));
+            Assert.That(autoIncrement.Increment, Is.EqualTo(2));
+            Assert.That(autoIncrement.MinValue.UnwrapSome(), Is.EqualTo(1));
+            Assert.That(autoIncrement.MaxValue.UnwrapSome(), Is.EqualTo(900));
+            Assert.That(autoIncrement.Cycle, Is.True);
+        }
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithNoGeneratedColumns_ReturnsNoComputedColumns()
     {
         const string tableName = "table_test_table_1";

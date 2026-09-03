@@ -63,6 +63,11 @@ export interface TableColumn {
   parentKeysCount: number;
   childKeys: ChildKey[];
   childKeysCount: number;
+  isAutoIncrement: boolean;
+  /** Empty when the database does not report a generation strategy. */
+  identityGeneration: string;
+  /** Empty when no named sequence backs the column. */
+  identitySequenceName: string;
 }
 
 export interface KeyConstraint {

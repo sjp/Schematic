@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using LanguageExt;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -92,6 +93,17 @@ internal static class OracleDatabaseColumnTests
         var column = new OracleDatabaseColumn(columnName, columnType, true, null);
 
         Assert.That(column.AutoIncrement, OptionIs.None);
+    }
+
+    [Test]
+    public static void AutoIncrement_GivenIdentityCtorArgument_ReturnsCtorArgument()
+    {
+        Identifier columnName = "test_column";
+        var columnType = Mock.Of<IDbType>();
+        var autoIncrement = new AutoIncrement(1, 1, IdentityGeneration.Always, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.Some("ISEQ$$_12345"));
+        var column = new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.Some(autoIncrement));
+
+        Assert.That(column.AutoIncrement.UnwrapSome(), Is.EqualTo(autoIncrement));
     }
 
     [TestCase("test_column_1", "Column: test_column_1")]

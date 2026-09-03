@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -122,13 +122,17 @@ internal static class SqliteTableDefinitionBuilder
             }
         }
 
+        var tableOptions = context.table_options();
+        var isWithoutRowId = tableOptions != null && tableOptions.WITHOUT_().Length > 0;
+
         return new ParsedTableData(
             definition,
             columns,
             primaryKey,
             uniqueKeys,
             foreignKeys,
-            checks
+            checks,
+            isWithoutRowId
         );
     }
 

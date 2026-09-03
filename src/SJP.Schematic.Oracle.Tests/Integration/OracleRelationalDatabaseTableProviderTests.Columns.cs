@@ -137,6 +137,35 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableColumnWithAlwaysIdentity_ReturnsIdentityMetadata()
+    {
+        const string tableName = "TABLE_TEST_TABLE_39";
+        var table = await GetTableAsync(tableName);
+        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.Always));
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(10));
+            Assert.That(autoIncrement.Increment, Is.EqualTo(5));
+            Assert.That(autoIncrement.MinValue.UnwrapSome(), Is.EqualTo(1));
+            Assert.That(autoIncrement.MaxValue.UnwrapSome(), Is.EqualTo(900));
+            Assert.That(autoIncrement.Cycle, Is.True);
+            Assert.That(autoIncrement.SequenceName, OptionIs.Some);
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableColumnWithDefaultOnNullIdentity_ReturnsByDefaultOnNullGeneration()
+    {
+        const string tableName = "TABLE_TEST_TABLE_40";
+        var table = await GetTableAsync(tableName);
+        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+
+        Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefaultOnNull));
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
         if (!await DatabaseProvider.SupportsJsonDataType())

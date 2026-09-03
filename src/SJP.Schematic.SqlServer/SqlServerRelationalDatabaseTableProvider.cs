@@ -698,11 +698,14 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var autoIncrement = row.IdentityIncrement
-                    .Match(
-                        incr => row.IdentitySeed.Match(seed => new AutoIncrement(seed, incr), () => Option<IAutoIncrement>.None),
-                        static () => Option<IAutoIncrement>.None
-                    );
+                // sys.identity_columns reports the seed and increment as sql_variant, which can be
+                // null for a column whose identity was defined without them; SQL Server's own
+                // defaults are 1 and 1.
+                var identitySeed = row.IdentitySeed ?? 1;
+                var identityIncrement = row.IdentityIncrement is long incr && incr != 0 ? incr : 1;
+                var autoIncrement = row.IsIdentity
+                    ? Option<IAutoIncrement>.Some(new AutoIncrement(identitySeed, identityIncrement))
+                    : Option<IAutoIncrement>.None;
                 var defaultValue = row.HasDefaultValue && row.DefaultValue != null
                     ? Option<string>.Some(row.DefaultValue)
                     : Option<string>.None;

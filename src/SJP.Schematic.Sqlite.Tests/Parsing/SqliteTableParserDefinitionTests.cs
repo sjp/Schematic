@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -36,6 +36,30 @@ internal static class SqliteTableParserDefinitionTests
             Assert.That(pk.Name.IfNone(string.Empty), Is.EqualTo("pk_t"));
             Assert.That(pk.Columns.Select(c => c.Name), Is.EqualTo(new[] { "a", "b" }));
         }
+    }
+
+    [Test]
+    public static void Parse_GivenTableWithoutRowIdOption_ReturnsWithoutRowId()
+    {
+        var result = Parse("create table t (id integer primary key) without rowid");
+
+        Assert.That(result.IsWithoutRowId, Is.True);
+    }
+
+    [Test]
+    public static void Parse_GivenTableWithoutTableOptions_ReturnsNotWithoutRowId()
+    {
+        var result = Parse("create table t (id integer primary key)");
+
+        Assert.That(result.IsWithoutRowId, Is.False);
+    }
+
+    [Test]
+    public static void Parse_GivenStrictTable_ReturnsNotWithoutRowId()
+    {
+        var result = Parse("create table t (id integer primary key) strict");
+
+        Assert.That(result.IsWithoutRowId, Is.False);
     }
 
     [Test]

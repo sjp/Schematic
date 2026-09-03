@@ -18,9 +18,21 @@ public class AutoIncrementMapper
     /// <returns>The auto-incrementing sequence, if the column has one.</returns>
     public Option<IAutoIncrement> Map(Dto.AutoIncrement? source)
     {
-        return source == null
-            ? Option<IAutoIncrement>.None
-            : Option<IAutoIncrement>.Some(new AutoIncrement(source.InitialValue, source.Increment));
+        if (source == null)
+            return Option<IAutoIncrement>.None;
+
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
+        var decimalMapper = MapperRegistry.GetMapper<decimal?, Option<decimal>>();
+
+        return Option<IAutoIncrement>.Some(new AutoIncrement(
+            source.InitialValue,
+            source.Increment,
+            source.Generation,
+            decimalMapper.Map(source.MinValue),
+            decimalMapper.Map(source.MaxValue),
+            source.Cycle,
+            identifierMapper.Map(source.SequenceName)
+        ));
     }
 
     /// <summary>
@@ -30,11 +42,19 @@ public class AutoIncrementMapper
     /// <returns>A serialized auto-incrementing sequence, or <see langword="null"/> when the column has none.</returns>
     public Dto.AutoIncrement? Map(Option<IAutoIncrement> source)
     {
+        var identifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
+        var decimalMapper = MapperRegistry.GetMapper<Option<decimal>, decimal?>();
+
         return source.MatchUnsafe(
-            static incr => new Dto.AutoIncrement
+            incr => new Dto.AutoIncrement
             {
                 Increment = incr.Increment,
                 InitialValue = incr.InitialValue,
+                Generation = incr.Generation,
+                MinValue = decimalMapper.Map(incr.MinValue),
+                MaxValue = decimalMapper.Map(incr.MaxValue),
+                Cycle = incr.Cycle,
+                SequenceName = identifierMapper.Map(incr.SequenceName),
             },
             static () => (Dto.AutoIncrement?)null
         );

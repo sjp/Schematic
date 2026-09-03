@@ -37,6 +37,8 @@ internal static class GetTableColumns
 
         public required string? ComputedColumnDefinition { get; init; }
 
+        public required bool IsIdentity { get; init; }
+
         public required long? IdentitySeed { get; init; }
 
         public required long? IdentityIncrement { get; init; }
@@ -56,6 +58,7 @@ select
     case when dc.object_id is null then 0 else 1 end as [{nameof(Result.HasDefaultValue)}],
     dc.definition as [{nameof(Result.DefaultValue)}],
     cc.definition as [{nameof(Result.ComputedColumnDefinition)}],
+    c.is_identity as [{nameof(Result.IsIdentity)}],
     (convert(bigint, ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
     (convert(bigint, ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
 from sys.tables t

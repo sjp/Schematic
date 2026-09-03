@@ -124,14 +124,39 @@ internal static class GetTableColumns
         public string? DtdIdentifier { get; init; }
 
         /// <summary>
-        /// A schema name for a sequence used to generate values. The column must be created from a serial keyword, otherwise the result will be <see langword="null" />.
+        /// A schema name for the sequence used to generate values, whether the column was declared with a serial type or as an identity column. <see langword="null" /> when no sequence backs the column.
         /// </summary>
-        public string? SerialSequenceSchemaName { get; init; }
+        public string? SequenceSchemaName { get; init; }
 
         /// <summary>
-        /// A local name for a sequence used to generate values. This column be created from a serial keyword, otherwise the result will be <see langword="null" />.
+        /// A local name for the sequence used to generate values, whether the column was declared with a serial type or as an identity column. <see langword="null" /> when no sequence backs the column.
         /// </summary>
-        public string? SerialSequenceLocalName { get; init; }
+        public string? SequenceLocalName { get; init; }
+
+        /// <summary>
+        /// The start value of the backing sequence, else <see langword="null" />. Read for serial columns, whose start value <c>information_schema.columns</c> does not report.
+        /// </summary>
+        public long? SequenceStart { get; init; }
+
+        /// <summary>
+        /// The increment of the backing sequence, else <see langword="null" />.
+        /// </summary>
+        public long? SequenceIncrement { get; init; }
+
+        /// <summary>
+        /// The minimum value of the backing sequence, else <see langword="null" />.
+        /// </summary>
+        public long? SequenceMinValue { get; init; }
+
+        /// <summary>
+        /// The maximum value of the backing sequence, else <see langword="null" />.
+        /// </summary>
+        public long? SequenceMaxValue { get; init; }
+
+        /// <summary>
+        /// Whether the backing sequence cycles, else <see langword="null" />.
+        /// </summary>
+        public bool? SequenceCycle { get; init; }
 
         /// <summary>
         /// If the column is an identity column, then <c>YES</c>, else <c>NO</c>.
@@ -207,8 +232,13 @@ select
     c.udt_schema as "{nameof(Result.UdtSchema)}",
     c.udt_name as "{nameof(Result.UdtName)}",
     c.dtd_identifier as "{nameof(Result.DtdIdentifier)}",
-    seq.parts[1] as "{nameof(Result.SerialSequenceSchemaName)}",
-    seq.parts[2] as "{nameof(Result.SerialSequenceLocalName)}",
+    seq.parts[1] as "{nameof(Result.SequenceSchemaName)}",
+    seq.parts[2] as "{nameof(Result.SequenceLocalName)}",
+    s.start_value as "{nameof(Result.SequenceStart)}",
+    s.increment_by as "{nameof(Result.SequenceIncrement)}",
+    s.min_value as "{nameof(Result.SequenceMinValue)}",
+    s.max_value as "{nameof(Result.SequenceMaxValue)}",
+    s.cycle as "{nameof(Result.SequenceCycle)}",
     c.is_identity as "{nameof(Result.IsIdentity)}",
     c.identity_generation as "{nameof(Result.IdentityGeneration)}",
     c.identity_start as "{nameof(Result.IdentityStart)}",
@@ -219,20 +249,21 @@ select
     c.is_generated as "{nameof(Result.IsGenerated)}",
     c.generation_expression as "{nameof(Result.GenerationExpression)}"
 from information_schema.columns c
--- pg_get_serial_sequence() resolves a column's owning sequence via its DEFAULT expression, which
--- identity columns never have (they use GENERATED ... AS IDENTITY, not a default), so it already
--- returns null for them; skipping the call there avoids a regclass resolution + pg_depend scan per
--- identity column without changing the result.
+-- pg_get_serial_sequence() resolves a column's owning sequence through pg_depend, which covers both
+-- the sequence a serial default reads from and the one created for an identity column, so a single
+-- call names the sequence behind either kind of generated column.
 cross join lateral (
-    select case when c.is_identity = 'NO' then
-        pg_catalog.parse_ident(
-            pg_catalog.pg_get_serial_sequence(
-                pg_catalog.quote_ident(c.table_schema) || '.' || pg_catalog.quote_ident(c.table_name),
-                c.column_name
-            )
+    select pg_catalog.parse_ident(
+        pg_catalog.pg_get_serial_sequence(
+            pg_catalog.quote_ident(c.table_schema) || '.' || pg_catalog.quote_ident(c.table_name),
+            c.column_name
         )
-    end as parts
+    ) as parts
 ) seq
+-- information_schema.columns reports start/increment/bounds for identity columns only, so a serial
+-- column's parameters have to come from the sequence itself.
+left join pg_catalog.pg_sequences s
+    on s.schemaname = seq.parts[1] and s.sequencename = seq.parts[2]
 where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.TableName)}
 order by c.ordinal_position
 """;

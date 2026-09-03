@@ -23,6 +23,20 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="defaultValue">The default value.</param>
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
     public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<string> defaultValue)
+        : this(columnName, type, isNullable, defaultValue, Option<IAutoIncrement>.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="OracleDatabaseColumn"/> class.
+    /// </summary>
+    /// <param name="columnName">A column name.</param>
+    /// <param name="type">A column type.</param>
+    /// <param name="isNullable">If set to <see langword="true" /> the column is nullable.</param>
+    /// <param name="defaultValue">The default value.</param>
+    /// <param name="autoIncrement">The identity definition applied to the column, if it has one.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
+    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<string> defaultValue, Option<IAutoIncrement> autoIncrement)
     {
         ArgumentNullException.ThrowIfNull(columnName);
 
@@ -30,6 +44,7 @@ public class OracleDatabaseColumn : IDatabaseColumn
         Type = type ?? throw new ArgumentNullException(nameof(type));
         IsNullable = isNullable;
         DefaultValue = defaultValue;
+        AutoIncrement = autoIncrement;
     }
 
     /// <summary>
@@ -63,10 +78,10 @@ public class OracleDatabaseColumn : IDatabaseColumn
     public bool IsNullable { get; }
 
     /// <summary>
-    /// Retrieves the auto-increment parameters applies to this column, always 'none'.
+    /// Retrieves the identity definition applied to this column, if it is an identity column.
     /// </summary>
-    /// <value>An automatic increment definition that is always 'none'.</value>
-    public Option<IAutoIncrement> AutoIncrement { get; } = Option<IAutoIncrement>.None;
+    /// <value>An automatic increment definition, if available.</value>
+    public Option<IAutoIncrement> AutoIncrement { get; }
 
     /// <summary>
     /// Returns a string that provides a basic string representation of this object.

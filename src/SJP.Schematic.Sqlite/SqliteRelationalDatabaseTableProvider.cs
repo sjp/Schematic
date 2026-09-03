@@ -1026,6 +1026,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var result = new List<IDatabaseColumn>();
         var parsedColumns = parsedTable.Columns;
+        var rowidAliasColumnName = GetRowidAliasColumnName(parsedTable);
 
         foreach (var tableInfo in tableInfos)
         {
@@ -1038,9 +1039,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
             var columnType = new SqliteColumnType(affinity);
 
-            var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
+            var isAutoIncrement = parsedColumnInfo.IsAutoIncrement
+                || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
             var autoIncrement = isAutoIncrement
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
                 : Option<IAutoIncrement>.None;
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<string>.Some(tableInfo.dflt_value)
@@ -1081,6 +1083,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var result = new List<IDatabaseColumn>();
         var parsedColumns = parsedTable.Columns;
+        var rowidAliasColumnName = GetRowidAliasColumnName(parsedTable);
 
         foreach (var tableInfo in tableInfos)
         {
@@ -1093,9 +1096,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
             var columnType = new SqliteColumnType(affinity);
 
-            var isAutoIncrement = parsedColumnInfo.IsAutoIncrement;
+            var isAutoIncrement = parsedColumnInfo.IsAutoIncrement
+                || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
             var autoIncrement = isAutoIncrement
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
                 : Option<IAutoIncrement>.None;
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<string>.Some(tableInfo.dflt_value)
@@ -1107,6 +1111,42 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         return result;
     }
+
+    // A column declared as INTEGER PRIMARY KEY in a rowid table is an alias for the table's rowid,
+    // and SQLite generates a value for it on insert exactly as it does for an AUTOINCREMENT column.
+    // The keyword only additionally forbids reusing the ids of deleted rows, which is not something
+    // the model describes, so both are reported as an auto-incrementing column.
+    private static string? GetRowidAliasColumnName(ParsedTableData parsedTable)
+    {
+        if (parsedTable.IsWithoutRowId)
+            return null;
+
+        var primaryKey = parsedTable.PrimaryKey.MatchUnsafe(static pk => pk, static () => (PrimaryKey?)null);
+        if (primaryKey == null)
+            return null;
+
+        var pkColumns = primaryKey.Columns.ToList();
+        if (pkColumns.Count != 1)
+            return null;
+
+        // PRIMARY KEY(x DESC) declared as a table constraint is not a rowid alias, while the same
+        // ordering given as a column constraint is; the parser only records an ordering for the
+        // table-constraint form, so requiring an ascending column covers both.
+        var pkColumn = pkColumns[0];
+        if (pkColumn.Name == null || pkColumn.ColumnOrder != IndexColumnOrder.Ascending)
+            return null;
+
+        var column = parsedTable.Columns
+            .FirstOrDefault(c => string.Equals(c.Name, pkColumn.Name, StringComparison.OrdinalIgnoreCase));
+
+        return column != null && string.Equals(column.TypeDefinition.Trim(), SqliteIntegerTypeName, StringComparison.OrdinalIgnoreCase)
+            ? column.Name
+            : null;
+    }
+
+    // Only a column whose declared type is exactly INTEGER aliases the rowid; any other type name
+    // with integer affinity, e.g. BIGINT, does not.
+    private const string SqliteIntegerTypeName = "INTEGER";
 
     /// <summary>
     /// Retrieves all triggers defined on a table.

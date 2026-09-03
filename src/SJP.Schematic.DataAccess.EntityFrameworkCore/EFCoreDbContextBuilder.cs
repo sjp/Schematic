@@ -306,7 +306,7 @@ public class EFCoreDbContextBuilder
         ArgumentNullException.ThrowIfNull(navigationResolver);
 
         var columnExprs = table.Columns
-            .Where(static c => c.IsComputed || c.DefaultValue.IsSome)
+            .Where(static c => c.IsComputed || c.DefaultValue.IsSome || c.AutoIncrement.IsSome)
             .Select(c => BuildTableColumnPropertyForBuilder(table, c));
         var primaryKeyExpr = table.PrimaryKey
             .Match(
@@ -370,6 +370,28 @@ public class EFCoreDbContextBuilder
                                 LiteralExpression(
                                     SyntaxKind.StringLiteralExpression,
                                     Literal(def))))));
+        });
+
+        column.AutoIncrement.IfSome(autoIncrement =>
+        {
+            property = InvocationExpression(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    property,
+                    IdentifierName(nameof(PropertyBuilder.ValueGeneratedOnAdd))));
+
+            // As with the index options above, this is a provider-specific extension method
+            // (NpgsqlPropertyBuilderExtensions) named rather than referenced. Only PostgreSQL and
+            // Oracle report an always-generated identity, so a context generated from any other
+            // database never calls it.
+            if (autoIncrement.Generation == IdentityGeneration.Always)
+            {
+                property = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        property,
+                        IdentifierName("UseIdentityAlwaysColumn")));
+            }
         });
 
         if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
