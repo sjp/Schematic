@@ -26,6 +26,8 @@ internal class FakeRelationalDatabase : IRelationalDatabase
 
     public IReadOnlyCollection<IDatabaseRoutine> Routines { get; set; } = [];
 
+    public IReadOnlyCollection<IDatabaseUserDefinedType> UserDefinedTypes { get; set; } = [];
+
     public virtual OptionAsync<IDatabaseSequence> GetSequence(Identifier sequenceName, CancellationToken cancellationToken = default)
     {
         return Sequences.Find(s => s.Name == sequenceName).ToAsync();
@@ -51,6 +53,11 @@ internal class FakeRelationalDatabase : IRelationalDatabase
         return Routines.Find(r => r.Name == routineName).ToAsync();
     }
 
+    public virtual OptionAsync<IDatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
+    {
+        return UserDefinedTypes.Find(t => t.Name == typeName).ToAsync();
+    }
+
     public virtual IAsyncEnumerable<IDatabaseSequence> EnumerateAllSequences(CancellationToken cancellationToken = default) => Sequences.ToAsyncEnumerable();
 
     public virtual IAsyncEnumerable<IDatabaseSynonym> EnumerateAllSynonyms(CancellationToken cancellationToken = default) => Synonyms.ToAsyncEnumerable();
@@ -61,6 +68,8 @@ internal class FakeRelationalDatabase : IRelationalDatabase
 
     public virtual IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default) => Routines.ToAsyncEnumerable();
 
+    public virtual IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default) => UserDefinedTypes.ToAsyncEnumerable();
+
     public virtual Task<IReadOnlyCollection<IDatabaseSequence>> GetAllSequences(CancellationToken cancellationToken = default) => Task.FromResult(Sequences);
 
     public virtual Task<IReadOnlyCollection<IDatabaseSynonym>> GetAllSynonyms(CancellationToken cancellationToken = default) => Task.FromResult(Synonyms);
@@ -70,4 +79,6 @@ internal class FakeRelationalDatabase : IRelationalDatabase
     public virtual Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default) => Task.FromResult(Views);
 
     public virtual Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default) => Task.FromResult(Routines);
+
+    public virtual Task<IReadOnlyCollection<IDatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default) => Task.FromResult(UserDefinedTypes);
 }

@@ -686,4 +686,56 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             Assert.That(routineSnapshotRoutines, Is.EqualTo(routines));
         }
     }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenGivenRelationalDatabaseWithUserDefinedTypes_ReturnsDatabaseWithMatchingUserDefinedTypes()
+    {
+        var testTypeName = Identifier.CreateQualifiedIdentifier("test_type_name");
+        var userDefinedType = new Mock<IDatabaseUserDefinedType>(MockBehavior.Strict);
+        userDefinedType.Setup(t => t.Name).Returns(testTypeName);
+        var userDefinedTypes = new[] { userDefinedType.Object };
+
+        var database = new RelationalDatabase(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            userDefinedTypes
+        );
+
+        var snapshot = await database.SnapshotAsync(new RelationalDatabaseSnapshotOptions());
+        var snapshotType = await snapshot.GetUserDefinedType(testTypeName).ToOption();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await snapshot.GetAllUserDefinedTypes(), Is.EqualTo(userDefinedTypes));
+            Assert.That(snapshotType, OptionIs.Some);
+            Assert.That(snapshotType.UnwrapSome().Name.LocalName, Is.EqualTo(testTypeName.LocalName));
+        }
+    }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenUserDefinedTypesExcludedByOptions_ReturnsDatabaseWithoutUserDefinedTypes()
+    {
+        var userDefinedType = new Mock<IDatabaseUserDefinedType>(MockBehavior.Strict);
+        userDefinedType.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("test_type_name"));
+
+        var database = new RelationalDatabase(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            [userDefinedType.Object]
+        );
+
+        var snapshot = await database.SnapshotAsync(RelationalDatabaseSnapshotOptions.Empty);
+
+        Assert.That(await snapshot.GetAllUserDefinedTypes(), Is.Empty);
+    }
 }

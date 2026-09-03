@@ -33,6 +33,7 @@ public class DatabaseCommentProviderMapper
         var sequenceCommentsMapper = MapperRegistry.GetMapper<Dto.Comments.DatabaseSequenceComments, IDatabaseSequenceComments>();
         var synonymCommentsMapper = MapperRegistry.GetMapper<Dto.Comments.DatabaseSynonymComments, IDatabaseSynonymComments>();
         var routineCommentsMapper = MapperRegistry.GetMapper<Dto.Comments.DatabaseRoutineComments, IDatabaseRoutineComments>();
+        var userDefinedTypeCommentsMapper = MapperRegistry.GetMapper<Dto.Comments.DatabaseUserDefinedTypeComments, IDatabaseUserDefinedTypeComments>();
 
         return new RelationalDatabaseCommentProvider(
             identifierDefaultsMapper.Map(source.IdentifierDefaults),
@@ -41,7 +42,8 @@ public class DatabaseCommentProviderMapper
             viewCommentsMapper.MapList(source.ViewComments),
             sequenceCommentsMapper.MapList(source.SequenceComments),
             synonymCommentsMapper.MapList(source.SynonymComments),
-            routineCommentsMapper.MapList(source.RoutineComments)
+            routineCommentsMapper.MapList(source.RoutineComments),
+            userDefinedTypeCommentsMapper.MapList(source.UserDefinedTypeComments)
         );
     }
 
@@ -59,13 +61,15 @@ public class DatabaseCommentProviderMapper
             viewComments,
             sequenceComments,
             synonymComments,
-            routineComments
+            routineComments,
+            userDefinedTypeComments
         ) = await (
             source.GetAllTableComments(cancellationToken),
             source.GetAllViewComments(cancellationToken),
             source.GetAllSequenceComments(cancellationToken),
             source.GetAllSynonymComments(cancellationToken),
-            source.GetAllRoutineComments(cancellationToken)
+            source.GetAllRoutineComments(cancellationToken),
+            source.GetAllUserDefinedTypeComments(cancellationToken)
         ).WhenAll();
 
         var tableCommentMapper = MapperRegistry.GetMapper<IRelationalDatabaseTableComments, DatabaseTableComments>();
@@ -73,6 +77,7 @@ public class DatabaseCommentProviderMapper
         var sequenceCommentMapper = MapperRegistry.GetMapper<IDatabaseSequenceComments, Dto.Comments.DatabaseSequenceComments>();
         var synonymCommentMapper = MapperRegistry.GetMapper<IDatabaseSynonymComments, Dto.Comments.DatabaseSynonymComments>();
         var routineCommentMapper = MapperRegistry.GetMapper<IDatabaseRoutineComments, Dto.Comments.DatabaseRoutineComments>();
+        var userDefinedTypeCommentMapper = MapperRegistry.GetMapper<IDatabaseUserDefinedTypeComments, Dto.Comments.DatabaseUserDefinedTypeComments>();
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
 
@@ -84,6 +89,7 @@ public class DatabaseCommentProviderMapper
             SequenceComments = sequenceCommentMapper.MapList(sequenceComments),
             SynonymComments = synonymCommentMapper.MapList(synonymComments),
             RoutineComments = routineCommentMapper.MapList(routineComments),
+            UserDefinedTypeComments = userDefinedTypeCommentMapper.MapList(userDefinedTypeComments),
         };
     }
 }

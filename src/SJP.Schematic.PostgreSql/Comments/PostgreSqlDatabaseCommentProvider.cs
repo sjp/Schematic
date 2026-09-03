@@ -31,6 +31,7 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         _viewCommentProvider = new PostgreSqlViewCommentProvider(connection, identifierDefaults, identifierResolver);
         _sequenceCommentProvider = new PostgreSqlSequenceCommentProvider(connection, identifierDefaults, identifierResolver);
         _routineCommentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, identifierResolver);
+        _userDefinedTypeCommentProvider = new PostgreSqlUserDefinedTypeCommentProvider(connection, identifierDefaults, identifierResolver);
     }
 
     /// <summary>
@@ -209,10 +210,45 @@ public class PostgreSqlDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         return _routineCommentProvider.GetAllRoutineComments(cancellationToken);
     }
 
+    /// <summary>
+    /// Retrieves comments for a database user-defined type, if available.
+    /// </summary>
+    /// <param name="typeName">A user-defined type name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Comments for the given database user-defined type, if available.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseUserDefinedTypeComments> GetUserDefinedTypeComments(Identifier typeName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return _userDefinedTypeCommentProvider.GetUserDefinedTypeComments(typeName, cancellationToken);
+    }
+
+    /// <summary>
+    /// Enumerates all database user-defined type comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of user-defined type comments.</returns>
+    public IAsyncEnumerable<IDatabaseUserDefinedTypeComments> EnumerateAllUserDefinedTypeComments(CancellationToken cancellationToken = default)
+    {
+        return _userDefinedTypeCommentProvider.EnumerateAllUserDefinedTypeComments(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database user-defined type comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of user-defined type comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseUserDefinedTypeComments>> GetAllUserDefinedTypeComments(CancellationToken cancellationToken = default)
+    {
+        return _userDefinedTypeCommentProvider.GetAllUserDefinedTypeComments(cancellationToken);
+    }
+
     private readonly IRelationalDatabaseTableCommentProvider _tableCommentProvider;
     private readonly IDatabaseViewCommentProvider _viewCommentProvider;
     private readonly IDatabaseSequenceCommentProvider _sequenceCommentProvider;
     private readonly IDatabaseRoutineCommentProvider _routineCommentProvider;
+    private readonly IDatabaseUserDefinedTypeCommentProvider _userDefinedTypeCommentProvider;
 
     private static readonly IDatabaseSynonymCommentProvider SynonymCommentProvider = new EmptyDatabaseSynonymCommentProvider();
 }

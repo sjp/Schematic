@@ -49,6 +49,11 @@ public static class Empty
         public static Task<IReadOnlyCollection<IDatabaseRoutine>> Routines { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseRoutine>>(FrozenSet<IDatabaseRoutine>.Empty);
 
         /// <summary>
+        /// An empty collection of user-defined types.
+        /// </summary>
+        public static Task<IReadOnlyCollection<IDatabaseUserDefinedType>> UserDefinedTypes { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseUserDefinedType>>(FrozenSet<IDatabaseUserDefinedType>.Empty);
+
+        /// <summary>
         /// An empty collection of table comments.
         /// </summary>
         public static Task<IReadOnlyCollection<IRelationalDatabaseTableComments>> TableComments { get; } = Task.FromResult<IReadOnlyCollection<IRelationalDatabaseTableComments>>(FrozenSet<IRelationalDatabaseTableComments>.Empty);
@@ -72,5 +77,10 @@ public static class Empty
         /// An empty collection of routine comments.
         /// </summary>
         public static Task<IReadOnlyCollection<IDatabaseRoutineComments>> RoutineComments { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseRoutineComments>>(FrozenSet<IDatabaseRoutineComments>.Empty);
+
+        /// <summary>
+        /// An empty collection of user-defined type comments.
+        /// </summary>
+        public static Task<IReadOnlyCollection<IDatabaseUserDefinedTypeComments>> UserDefinedTypeComments { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseUserDefinedTypeComments>>(FrozenSet<IDatabaseUserDefinedTypeComments>.Empty);
     }
 }

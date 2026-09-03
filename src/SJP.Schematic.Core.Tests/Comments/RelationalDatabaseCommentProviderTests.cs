@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -938,5 +939,89 @@ internal static class RelationalDatabaseCommentProviderTests
         var dbTableComments = await commentProvider.GetTableComments(otherDatabaseTableName).ToOption();
 
         Assert.That(dbTableComments, OptionIs.None);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullUserDefinedTypeComments_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+
+        Assert.That(
+            () => new RelationalDatabaseCommentProvider(
+                identifierDefaults,
+                identifierResolver,
+                [],
+                [],
+                [],
+                [],
+                [],
+                null
+            ),
+            Throws.ArgumentNullException
+        );
+    }
+
+    [Test]
+    public static void GetUserDefinedTypeComments_GivenNullTypeName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => EmptyCommentProvider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetUserDefinedTypeComments_WhenGivenMatchingTypeName_ReturnsCommentsFromCtor()
+    {
+        Identifier typeName = "test_type";
+        var provider = CreateProviderWithUserDefinedTypeComments(new DatabaseUserDefinedTypeComments(typeName, Option<string>.None));
+
+        var comments = await provider.GetUserDefinedTypeComments(typeName).UnwrapSomeAsync();
+
+        Assert.That(comments.TypeName.LocalName, Is.EqualTo(typeName.LocalName));
+    }
+
+    [Test]
+    public static async Task GetUserDefinedTypeComments_WhenGivenNonMatchingTypeName_ReturnsNone()
+    {
+        var provider = CreateProviderWithUserDefinedTypeComments(new DatabaseUserDefinedTypeComments("test_type", Option<string>.None));
+
+        var comments = await provider.GetUserDefinedTypeComments("other_type").ToOption();
+
+        Assert.That(comments, OptionIs.None);
+    }
+
+    [Test]
+    public static async Task EnumerateAllUserDefinedTypeComments_WhenInvoked_ReturnsCommentsFromCtor()
+    {
+        Identifier typeName = "test_type";
+        var provider = CreateProviderWithUserDefinedTypeComments(new DatabaseUserDefinedTypeComments(typeName, Option<string>.None));
+
+        var comments = await provider.EnumerateAllUserDefinedTypeComments().ToListAsync();
+
+        Assert.That(comments.Select(c => c.TypeName).Single(), Is.EqualTo(typeName));
+    }
+
+    [Test]
+    public static async Task GetAllUserDefinedTypeComments_WhenInvoked_ReturnsCommentsFromCtor()
+    {
+        Identifier typeName = "test_type";
+        var provider = CreateProviderWithUserDefinedTypeComments(new DatabaseUserDefinedTypeComments(typeName, Option<string>.None));
+
+        var comments = await provider.GetAllUserDefinedTypeComments();
+
+        Assert.That(comments.Select(c => c.TypeName).Single(), Is.EqualTo(typeName));
+    }
+
+    private static IRelationalDatabaseCommentProvider CreateProviderWithUserDefinedTypeComments(params IDatabaseUserDefinedTypeComments[] typeComments)
+    {
+        return new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            typeComments
+        );
     }
 }

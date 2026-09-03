@@ -31,6 +31,11 @@ public sealed record RelationalDatabaseCommentProviderSnapshotOptions
     public bool IncludeSynonymComments { get; init; } = true;
 
     /// <summary>
+    /// Indicates whether user-defined type comments should be exported. The default is <see langword="true" />.
+    /// </summary>
+    public bool IncludeUserDefinedTypeComments { get; init; } = true;
+
+    /// <summary>
     /// Configures options so that no database comments will be exported.
     /// This is intended to be used to enable opt-in approaches, rather than the default of opt-out.
     /// </summary>
@@ -41,5 +46,6 @@ public sealed record RelationalDatabaseCommentProviderSnapshotOptions
         IncludeSequenceComments = false,
         IncludeRoutineComments = false,
         IncludeSynonymComments = false,
+        IncludeUserDefinedTypeComments = false,
     };
 }

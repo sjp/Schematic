@@ -47,6 +47,12 @@ internal static class EmptyRelationalDatabaseTests
     }
 
     [Test]
+    public static void GetUserDefinedType_GivenNullTypeName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => Database.GetUserDefinedType(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
     public static async Task GetTable_GivenValidSequenceName_ReturnsNone()
     {
         var tableName = new Identifier("test");
@@ -169,5 +175,30 @@ internal static class EmptyRelationalDatabaseTests
         var routines = await Database.GetAllRoutines();
 
         Assert.That(routines, Is.Empty);
+    }
+
+    [Test]
+    public static async Task GetUserDefinedType_GivenValidTypeName_ReturnsNone()
+    {
+        Identifier typeName = "test_type";
+        var typeIsNone = await Database.GetUserDefinedType(typeName).IsNone;
+
+        Assert.That(typeIsNone, Is.True);
+    }
+
+    [Test]
+    public static async Task EnumerateAllUserDefinedTypes_WhenEnumerated_ContainsNoValues()
+    {
+        var hasTypes = await Database.EnumerateAllUserDefinedTypes().AnyAsync();
+
+        Assert.That(hasTypes, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllUserDefinedTypes_WhenRetrieved_ContainsNoValues()
+    {
+        var userDefinedTypes = await Database.GetAllUserDefinedTypes();
+
+        Assert.That(userDefinedTypes, Is.Empty);
     }
 }

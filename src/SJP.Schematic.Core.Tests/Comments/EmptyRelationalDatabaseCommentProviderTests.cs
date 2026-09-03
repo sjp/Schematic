@@ -190,4 +190,40 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
 
         Assert.That(comments, Is.Empty);
     }
+
+    [Test]
+    public static void GetUserDefinedTypeComments_GivenNullName_ThrowsArgumentNullException()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+
+        Assert.That(() => provider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetUserDefinedTypeComments_GivenValidName_ReturnsNone()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comment = provider.GetUserDefinedTypeComments("test_type");
+        var commentIsNone = await comment.IsNone;
+
+        Assert.That(commentIsNone, Is.True);
+    }
+
+    [Test]
+    public static async Task EnumerateAllUserDefinedTypeComments_WhenInvoked_DoesNotEnumerateAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var hasComments = await provider.EnumerateAllUserDefinedTypeComments().AnyAsync();
+
+        Assert.That(hasComments, Is.False);
+    }
+
+    [Test]
+    public static async Task GetAllUserDefinedTypeComments_WhenInvoked_DoesNotContainAnyValues()
+    {
+        var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
+        var comments = await provider.GetAllUserDefinedTypeComments();
+
+        Assert.That(comments, Is.Empty);
+    }
 }

@@ -28,6 +28,7 @@ public class PostgreSqlRelationalDatabase : IRelationalDatabase
         _viewProvider = new PostgreSqlDatabaseViewProvider(connection, identifierDefaults, identifierResolver);
         _sequenceProvider = new PostgreSqlDatabaseSequenceProvider(connection, identifierDefaults, identifierResolver);
         _routineProvider = new PostgreSqlDatabaseRoutineProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
+        _userDefinedTypeProvider = new PostgreSqlDatabaseUserDefinedTypeProvider(connection.ConnectionFactory, identifierDefaults);
     }
 
     /// <summary>
@@ -206,9 +207,44 @@ public class PostgreSqlRelationalDatabase : IRelationalDatabase
         return _routineProvider.GetRoutine(routineName, cancellationToken);
     }
 
+    /// <summary>
+    /// Enumerates all database user-defined types.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database user-defined types.</returns>
+    public IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    {
+        return _userDefinedTypeProvider.EnumerateAllUserDefinedTypes(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database user-defined types.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A collection of database user-defined types.</returns>
+    public Task<IReadOnlyCollection<IDatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    {
+        return _userDefinedTypeProvider.GetAllUserDefinedTypes(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets a database user-defined type.
+    /// </summary>
+    /// <param name="typeName">A database user-defined type name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A database user-defined type in the 'some' state if found; otherwise 'none'.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return _userDefinedTypeProvider.GetUserDefinedType(typeName, cancellationToken);
+    }
+
     private readonly IRelationalDatabaseTableProvider _tableProvider;
     private readonly IDatabaseViewProvider _viewProvider;
     private readonly IDatabaseSequenceProvider _sequenceProvider;
     private readonly IDatabaseRoutineProvider _routineProvider;
+    private readonly IDatabaseUserDefinedTypeProvider _userDefinedTypeProvider;
     private static readonly IDatabaseSynonymProvider SynonymProvider = new EmptyDatabaseSynonymProvider();
 }

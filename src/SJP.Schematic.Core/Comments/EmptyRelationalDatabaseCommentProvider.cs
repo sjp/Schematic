@@ -198,9 +198,44 @@ public sealed class EmptyRelationalDatabaseCommentProvider : IRelationalDatabase
         return _viewCommentProvider.GetViewComments(viewName, cancellationToken);
     }
 
+    /// <summary>
+    /// Enumerates all database user-defined type comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of user-defined type comments.</returns>
+    public IAsyncEnumerable<IDatabaseUserDefinedTypeComments> EnumerateAllUserDefinedTypeComments(CancellationToken cancellationToken = default)
+    {
+        return _userDefinedTypeCommentProvider.EnumerateAllUserDefinedTypeComments(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves all database user-defined type comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An empty collection of user-defined type comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseUserDefinedTypeComments>> GetAllUserDefinedTypeComments(CancellationToken cancellationToken = default)
+    {
+        return _userDefinedTypeCommentProvider.GetAllUserDefinedTypeComments(cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves comments for a particular database user-defined type.
+    /// </summary>
+    /// <param name="typeName">The name of a database user-defined type.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>An <see cref="OptionAsync{IDatabaseUserDefinedTypeComments}" /> instance which is always none.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseUserDefinedTypeComments> GetUserDefinedTypeComments(Identifier typeName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return _userDefinedTypeCommentProvider.GetUserDefinedTypeComments(typeName, cancellationToken);
+    }
+
     private static readonly IRelationalDatabaseTableCommentProvider _tableCommentProvider = new EmptyRelationalDatabaseTableCommentProvider();
     private static readonly IDatabaseViewCommentProvider _viewCommentProvider = new EmptyDatabaseViewCommentProvider();
     private static readonly IDatabaseSequenceCommentProvider _sequenceCommentProvider = new EmptyDatabaseSequenceCommentProvider();
     private static readonly IDatabaseSynonymCommentProvider _synonymCommentProvider = new EmptyDatabaseSynonymCommentProvider();
     private static readonly IDatabaseRoutineCommentProvider _routineCommentProvider = new EmptyDatabaseRoutineCommentProvider();
+    private static readonly IDatabaseUserDefinedTypeCommentProvider _userDefinedTypeCommentProvider = new EmptyDatabaseUserDefinedTypeCommentProvider();
 }

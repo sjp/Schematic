@@ -36,4 +36,12 @@ public sealed record RelationalDatabase
     /// The routines in the database.
     /// </summary>
     public required IEnumerable<DatabaseRoutine> Routines { get; init; }
+
+    /// <summary>
+    /// The user-defined types in the database.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before user-defined types were exported still reads back.
+    /// </remarks>
+    public IEnumerable<DatabaseUserDefinedType> UserDefinedTypes { get; init; } = [];
 }

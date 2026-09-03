@@ -20,6 +20,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     private readonly FrozenDictionary<Identifier, IDatabaseSequenceComments> _sequenceCommentsByName;
     private readonly FrozenDictionary<Identifier, IDatabaseSynonymComments> _synonymCommentsByName;
     private readonly FrozenDictionary<Identifier, IDatabaseRoutineComments> _routineCommentsByName;
+    private readonly FrozenDictionary<Identifier, IDatabaseUserDefinedTypeComments> _userDefinedTypeCommentsByName;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RelationalDatabaseCommentProvider"/> class.
@@ -41,6 +42,32 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         IEnumerable<IDatabaseSynonymComments> synonymComments,
         IEnumerable<IDatabaseRoutineComments> routineComments
     )
+        : this(identifierDefaults, identifierResolver, tableComments, viewComments, sequenceComments, synonymComments, routineComments, [])
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RelationalDatabaseCommentProvider"/> class.
+    /// </summary>
+    /// <param name="identifierDefaults">Database identifier defaults.</param>
+    /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
+    /// <param name="tableComments">A collection of database table comment information.</param>
+    /// <param name="viewComments">A collection of database view comment information.</param>
+    /// <param name="sequenceComments">A collection of database sequence comment information.</param>
+    /// <param name="synonymComments">A collection of database synonym comment information.</param>
+    /// <param name="routineComments">A collection of database routine comment information.</param>
+    /// <param name="userDefinedTypeComments">A collection of database user-defined type comment information.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/>, <paramref name="routineComments"/> or <paramref name="userDefinedTypeComments"/> is <see langword="null" />.</exception>
+    public RelationalDatabaseCommentProvider(
+        IIdentifierDefaults identifierDefaults,
+        IIdentifierResolutionStrategy identifierResolver,
+        IEnumerable<IRelationalDatabaseTableComments> tableComments,
+        IEnumerable<IDatabaseViewComments> viewComments,
+        IEnumerable<IDatabaseSequenceComments> sequenceComments,
+        IEnumerable<IDatabaseSynonymComments> synonymComments,
+        IEnumerable<IDatabaseRoutineComments> routineComments,
+        IEnumerable<IDatabaseUserDefinedTypeComments> userDefinedTypeComments
+    )
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
@@ -49,12 +76,14 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         SequenceComments = sequenceComments?.ToList() ?? throw new ArgumentNullException(nameof(sequenceComments));
         SynonymComments = synonymComments?.ToList() ?? throw new ArgumentNullException(nameof(synonymComments));
         RoutineComments = routineComments?.ToList() ?? throw new ArgumentNullException(nameof(routineComments));
+        UserDefinedTypeComments = userDefinedTypeComments?.ToList() ?? throw new ArgumentNullException(nameof(userDefinedTypeComments));
 
         _tableCommentsByName = BuildLookup(TableComments, static c => c.TableName);
         _viewCommentsByName = BuildLookup(ViewComments, static c => c.ViewName);
         _sequenceCommentsByName = BuildLookup(SequenceComments, static c => c.SequenceName);
         _synonymCommentsByName = BuildLookup(SynonymComments, static c => c.SynonymName);
         _routineCommentsByName = BuildLookup(RoutineComments, static c => c.RoutineName);
+        _userDefinedTypeCommentsByName = BuildLookup(UserDefinedTypeComments, static c => c.TypeName);
     }
 
     /// <summary>
@@ -95,6 +124,11 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     protected IReadOnlyCollection<IDatabaseRoutineComments> RoutineComments { get; }
 
     /// <summary>
+    /// An in-memory collection of all database user-defined type comment information.
+    /// </summary>
+    protected IReadOnlyCollection<IDatabaseUserDefinedTypeComments> UserDefinedTypeComments { get; }
+
+    /// <summary>
     /// Enumerates all database routine comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -130,6 +164,13 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default) => ViewComments.ToAsyncEnumerable();
 
     /// <summary>
+    /// Enumerates all database user-defined type comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of user-defined type comments.</returns>
+    public IAsyncEnumerable<IDatabaseUserDefinedTypeComments> EnumerateAllUserDefinedTypeComments(CancellationToken cancellationToken = default) => UserDefinedTypeComments.ToAsyncEnumerable();
+
+    /// <summary>
     /// Retrieves all database routine comments defined within a database.
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -163,6 +204,13 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
     public Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default) => Task.FromResult(ViewComments);
+
+    /// <summary>
+    /// Retrieves all database user-defined type comments defined within a database.
+    /// </summary>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of user-defined type comments.</returns>
+    public Task<IReadOnlyCollection<IDatabaseUserDefinedTypeComments>> GetAllUserDefinedTypeComments(CancellationToken cancellationToken = default) => Task.FromResult(UserDefinedTypeComments);
 
     /// <summary>
     /// Retrieves comments for a particular database routine.
@@ -232,6 +280,20 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         ArgumentNullException.ThrowIfNull(viewName);
 
         return GetResolvedComments(_viewCommentsByName, viewName);
+    }
+
+    /// <summary>
+    /// Retrieves comments for a particular database user-defined type.
+    /// </summary>
+    /// <param name="typeName">The name of a database user-defined type.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Database user-defined type comments in the 'some' state if found; otherwise 'none'.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseUserDefinedTypeComments> GetUserDefinedTypeComments(Identifier typeName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return GetResolvedComments(_userDefinedTypeCommentsByName, typeName);
     }
 
     /// <summary>

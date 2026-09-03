@@ -94,19 +94,24 @@ public static class RelationalDatabaseSnapshotExtensions
         var routinesTask = snapshotOptions.IncludeRoutines
             ? database.GetAllRoutines(cancellationToken)
             : Empty.Tasks.Routines;
+        var userDefinedTypesTask = snapshotOptions.IncludeUserDefinedTypes
+            ? database.GetAllUserDefinedTypes(cancellationToken)
+            : Empty.Tasks.UserDefinedTypes;
 
         var (
             tables,
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            userDefinedTypes
         ) = await (
             tablesTask,
             viewsTask,
             sequencesTask,
             synonymsTask,
-            routinesTask
+            routinesTask,
+            userDefinedTypesTask
         ).WhenAll();
 
         return new RelationalDatabase(
@@ -116,7 +121,8 @@ public static class RelationalDatabaseSnapshotExtensions
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            userDefinedTypes
         );
     }
 }

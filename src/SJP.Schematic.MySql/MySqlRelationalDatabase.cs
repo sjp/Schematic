@@ -206,9 +206,44 @@ public class MySqlRelationalDatabase : IRelationalDatabase
         return _routineProvider.GetRoutine(routineName, cancellationToken);
     }
 
+    /// <summary>
+    /// Enumerates all database user-defined types. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database user-defined types.</returns>
+    public IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    {
+        return UserDefinedTypeProvider.EnumerateAllUserDefinedTypes(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets all database user-defined types. This will always be an empty collection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>An empty collection of database user-defined types.</returns>
+    public Task<IReadOnlyCollection<IDatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    {
+        return UserDefinedTypeProvider.GetAllUserDefinedTypes(cancellationToken);
+    }
+
+    /// <summary>
+    /// Gets a database user-defined type. This will always be a 'none' result.
+    /// </summary>
+    /// <param name="typeName">A database user-defined type name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A database user-defined type in the 'none' state.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    public OptionAsync<IDatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return UserDefinedTypeProvider.GetUserDefinedType(typeName, cancellationToken);
+    }
+
     private readonly IRelationalDatabaseTableProvider _tableProvider;
     private readonly IDatabaseViewProvider _viewProvider;
     private readonly IDatabaseRoutineProvider _routineProvider;
     private static readonly IDatabaseSequenceProvider SequenceProvider = new EmptyDatabaseSequenceProvider();
     private static readonly IDatabaseSynonymProvider SynonymProvider = new EmptyDatabaseSynonymProvider();
+    private static readonly IDatabaseUserDefinedTypeProvider UserDefinedTypeProvider = new EmptyDatabaseUserDefinedTypeProvider();
 }

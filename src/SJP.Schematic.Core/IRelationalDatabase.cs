@@ -8,12 +8,14 @@
 /// <seealso cref="IDatabaseSequenceProvider" />
 /// <seealso cref="IDatabaseSynonymProvider" />
 /// <seealso cref="IDatabaseRoutineProvider" />
+/// <seealso cref="IDatabaseUserDefinedTypeProvider" />
 public interface IRelationalDatabase
     : IRelationalDatabaseTableProvider,
       IDatabaseViewProvider,
       IDatabaseSequenceProvider,
       IDatabaseSynonymProvider,
-      IDatabaseRoutineProvider
+      IDatabaseRoutineProvider,
+      IDatabaseUserDefinedTypeProvider
 {
     /// <summary>
     /// Identifier defaults. Used to determine the default name resolution applied to the database.

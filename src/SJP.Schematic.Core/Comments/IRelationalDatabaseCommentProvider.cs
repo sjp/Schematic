@@ -8,12 +8,14 @@
 /// <seealso cref="IDatabaseSequenceCommentProvider" />
 /// <seealso cref="IDatabaseSynonymCommentProvider" />
 /// <seealso cref="IDatabaseRoutineCommentProvider" />
+/// <seealso cref="IDatabaseUserDefinedTypeCommentProvider" />
 public interface IRelationalDatabaseCommentProvider
     : IRelationalDatabaseTableCommentProvider,
       IDatabaseViewCommentProvider,
       IDatabaseSequenceCommentProvider,
       IDatabaseSynonymCommentProvider,
-      IDatabaseRoutineCommentProvider
+      IDatabaseRoutineCommentProvider,
+      IDatabaseUserDefinedTypeCommentProvider
 {
     /// <summary>
     /// Identifier defaults. Used to determine the default name resolution applied to the database.

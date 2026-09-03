@@ -1149,6 +1149,136 @@ internal static class RelationalDatabaseTests
         Assert.That(dbTable, OptionIs.None);
     }
 
+    [Test]
+    public static void Ctor_GivenNullUserDefinedTypes_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                tables,
+                views,
+                sequences,
+                synonyms,
+                routines,
+                null
+            ),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Ctor_GivenUserDefinedTypesContainingNull_ThrowsArgumentNullException()
+    {
+        var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
+        var identifierResolver = new VerbatimIdentifierResolutionStrategy();
+        var tables = Array.Empty<IRelationalDatabaseTable>();
+        var views = Array.Empty<IDatabaseView>();
+        var sequences = Array.Empty<IDatabaseSequence>();
+        var synonyms = Array.Empty<IDatabaseSynonym>();
+        var routines = Array.Empty<IDatabaseRoutine>();
+
+        Assert.That(
+            () => new RelationalDatabase(
+                identifierDefaults,
+                identifierResolver,
+                tables,
+                views,
+                sequences,
+                synonyms,
+                routines,
+                new IDatabaseUserDefinedType[] { null }
+            ),
+            Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetAllUserDefinedTypes_WhenConstructedWithoutTypes_IsEmpty()
+    {
+        var database = CreateDatabaseWithUserDefinedTypes([]);
+
+        Assert.That(await database.GetAllUserDefinedTypes(), Is.Empty);
+    }
+
+    [Test]
+    public static async Task EnumerateAllUserDefinedTypes_WhenInvoked_ReturnsTypesFromCtor()
+    {
+        var testTypeName = Identifier.CreateQualifiedIdentifier("test_type_name");
+        var database = CreateDatabaseWithUserDefinedTypes([CreateUserDefinedType(testTypeName)]);
+
+        var dbTypes = await database.EnumerateAllUserDefinedTypes().ToListAsync();
+        var typeName = dbTypes.Select(t => t.Name).Single();
+
+        Assert.That(typeName, Is.EqualTo(testTypeName));
+    }
+
+    [Test]
+    public static async Task GetAllUserDefinedTypes_WhenInvoked_ReturnsTypesFromCtor()
+    {
+        var testTypeName = Identifier.CreateQualifiedIdentifier("test_type_name");
+        var database = CreateDatabaseWithUserDefinedTypes([CreateUserDefinedType(testTypeName)]);
+
+        var dbTypes = await database.GetAllUserDefinedTypes();
+        var typeName = dbTypes.Select(t => t.Name).Single();
+
+        Assert.That(typeName, Is.EqualTo(testTypeName));
+    }
+
+    [Test]
+    public static void GetUserDefinedType_GivenNullTypeName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => EmptyDatabase.GetUserDefinedType(null), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetUserDefinedType_WhenGivenMatchingTypeName_ReturnsTypeFromCtor()
+    {
+        var testTypeName = Identifier.CreateQualifiedIdentifier("test_type_name");
+        var database = CreateDatabaseWithUserDefinedTypes([CreateUserDefinedType(testTypeName)]);
+
+        var userDefinedType = await database.GetUserDefinedType(testTypeName).UnwrapSomeAsync();
+
+        Assert.That(userDefinedType.Name.LocalName, Is.EqualTo(testTypeName.LocalName));
+    }
+
+    [Test]
+    public static async Task GetUserDefinedType_WhenGivenNonMatchingTypeName_ReturnsNone()
+    {
+        var database = CreateDatabaseWithUserDefinedTypes([CreateUserDefinedType("test_type_name")]);
+
+        var userDefinedType = await database.GetUserDefinedType("other_type_name").ToOption();
+
+        Assert.That(userDefinedType, OptionIs.None);
+    }
+
+    private static IDatabaseUserDefinedType CreateUserDefinedType(Identifier typeName)
+    {
+        var userDefinedType = new Mock<IDatabaseUserDefinedType>(MockBehavior.Strict);
+        userDefinedType.Setup(t => t.Name).Returns(typeName);
+        return userDefinedType.Object;
+    }
+
+    private static RelationalDatabase CreateDatabaseWithUserDefinedTypes(IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes)
+    {
+        return new RelationalDatabase(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            userDefinedTypes
+        );
+    }
+
     private sealed class EnumerationCountingCollection<T> : IReadOnlyCollection<T>
     {
         private readonly IReadOnlyCollection<T> _collection;

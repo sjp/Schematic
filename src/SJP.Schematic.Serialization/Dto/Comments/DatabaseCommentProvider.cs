@@ -36,4 +36,12 @@ public sealed record DatabaseCommentProvider
     /// The comments attached to the database's routines.
     /// </summary>
     public required IEnumerable<DatabaseRoutineComments> RoutineComments { get; init; }
+
+    /// <summary>
+    /// The comments attached to the database's user-defined types.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before user-defined types were exported still reads back.
+    /// </remarks>
+    public IEnumerable<DatabaseUserDefinedTypeComments> UserDefinedTypeComments { get; init; } = [];
 }

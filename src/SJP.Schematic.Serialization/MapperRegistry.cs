@@ -93,6 +93,9 @@ internal static class MapperRegistry
         RegisterMapper<int?, Option<int>>(mappers, () => new OptionMapper());
         RegisterMapper<Option<int>, int?>(mappers, () => new OptionMapper());
 
+        RegisterMapper<Dto.DatabaseUserDefinedType, IDatabaseUserDefinedType>(mappers, () => new DatabaseUserDefinedTypeMapper());
+        RegisterMapper<IDatabaseUserDefinedType, Dto.DatabaseUserDefinedType>(mappers, () => new DatabaseUserDefinedTypeMapper());
+
         RegisterMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>(mappers, () => new RelationalDatabaseTableMapper());
         RegisterMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>(mappers, () => new RelationalDatabaseTableMapper());
 
@@ -108,6 +111,9 @@ internal static class MapperRegistry
 
         RegisterMapper<Dto.Comments.DatabaseTableComments, IRelationalDatabaseTableComments>(mappers, () => new DatabaseTableCommentsMapper());
         RegisterMapper<IRelationalDatabaseTableComments, Dto.Comments.DatabaseTableComments>(mappers, () => new DatabaseTableCommentsMapper());
+
+        RegisterMapper<Dto.Comments.DatabaseUserDefinedTypeComments, IDatabaseUserDefinedTypeComments>(mappers, () => new DatabaseUserDefinedTypeCommentsMapper());
+        RegisterMapper<IDatabaseUserDefinedTypeComments, Dto.Comments.DatabaseUserDefinedTypeComments>(mappers, () => new DatabaseUserDefinedTypeCommentsMapper());
 
         RegisterMapper<Dto.Comments.DatabaseViewComments, IDatabaseViewComments>(mappers, () => new DatabaseViewCommentsMapper());
         RegisterMapper<IDatabaseViewComments, Dto.Comments.DatabaseViewComments>(mappers, () => new DatabaseViewCommentsMapper());

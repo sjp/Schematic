@@ -31,6 +31,7 @@ public class RelationalDatabaseMapper
         var sequenceMapper = MapperRegistry.GetMapper<Dto.DatabaseSequence, IDatabaseSequence>();
         var synonymMapper = MapperRegistry.GetMapper<Dto.DatabaseSynonym, IDatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<Dto.DatabaseRoutine, IDatabaseRoutine>();
+        var userDefinedTypeMapper = MapperRegistry.GetMapper<Dto.DatabaseUserDefinedType, IDatabaseUserDefinedType>();
 
         return new RelationalDatabase(
             identifierDefaultsMapper.Map(source.IdentifierDefaults),
@@ -39,7 +40,8 @@ public class RelationalDatabaseMapper
             viewMapper.MapList(source.Views),
             sequenceMapper.MapList(source.Sequences),
             synonymMapper.MapList(source.Synonyms),
-            routineMapper.MapList(source.Routines)
+            routineMapper.MapList(source.Routines),
+            userDefinedTypeMapper.MapList(source.UserDefinedTypes)
         );
     }
 
@@ -56,19 +58,22 @@ public class RelationalDatabaseMapper
         var sequenceMapper = MapperRegistry.GetMapper<IDatabaseSequence, Dto.DatabaseSequence>();
         var synonymMapper = MapperRegistry.GetMapper<IDatabaseSynonym, Dto.DatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<IDatabaseRoutine, Dto.DatabaseRoutine>();
+        var userDefinedTypeMapper = MapperRegistry.GetMapper<IDatabaseUserDefinedType, Dto.DatabaseUserDefinedType>();
 
         var (
             tables,
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            userDefinedTypes
         ) = await (
             source.GetAllTables(cancellationToken),
             source.GetAllViews(cancellationToken),
             source.GetAllSequences(cancellationToken),
             source.GetAllSynonyms(cancellationToken),
-            source.GetAllRoutines(cancellationToken)
+            source.GetAllRoutines(cancellationToken),
+            source.GetAllUserDefinedTypes(cancellationToken)
         ).WhenAll();
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
@@ -81,6 +86,7 @@ public class RelationalDatabaseMapper
             Sequences = sequenceMapper.MapList(sequences),
             Synonyms = synonymMapper.MapList(synonyms),
             Routines = routineMapper.MapList(routines),
+            UserDefinedTypes = userDefinedTypeMapper.MapList(userDefinedTypes),
         };
     }
 }

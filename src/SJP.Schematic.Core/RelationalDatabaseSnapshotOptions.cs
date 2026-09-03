@@ -31,6 +31,11 @@ public sealed record RelationalDatabaseSnapshotOptions
     public bool IncludeRoutines { get; init; } = true;
 
     /// <summary>
+    /// Indicates whether user-defined types should be exported. The default is <see langword="true" />.
+    /// </summary>
+    public bool IncludeUserDefinedTypes { get; init; } = true;
+
+    /// <summary>
     /// Configures options so that no database entities will be exported.
     /// This is intended to be used to enable opt-in approaches, rather than the default of opt-out.
     /// </summary>
@@ -41,5 +46,6 @@ public sealed record RelationalDatabaseSnapshotOptions
         IncludeSequences = false,
         IncludeRoutines = false,
         IncludeSynonyms = false,
+        IncludeUserDefinedTypes = false,
     };
 }

@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -635,5 +636,54 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
             Assert.That(routineSnapshotSynonymComments, Is.Empty);
             Assert.That(routineSnapshotRoutineComments, Is.EqualTo(routineComments));
         }
+    }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenGivenCommentProviderWithUserDefinedTypeComments_ReturnsProviderWithMatchingComments()
+    {
+        Identifier typeName = "test_type_name";
+        var typeComments = new[] { new DatabaseUserDefinedTypeComments(typeName, Option<string>.None) };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            typeComments
+        );
+
+        var snapshot = await commentProvider.SnapshotAsync(new RelationalDatabaseCommentProviderSnapshotOptions());
+        var snapshotComments = await snapshot.GetUserDefinedTypeComments(typeName).ToOption();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await snapshot.GetAllUserDefinedTypeComments(), Has.Exactly(1).Items);
+            Assert.That(snapshotComments, OptionIs.Some);
+            Assert.That(snapshotComments.UnwrapSome().TypeName.LocalName, Is.EqualTo(typeName.LocalName));
+        }
+    }
+
+    [Test]
+    public static async Task SnapshotAsync_WhenUserDefinedTypeCommentsExcludedByOptions_ReturnsProviderWithoutComments()
+    {
+        var typeComments = new[] { new DatabaseUserDefinedTypeComments("test_type_name", Option<string>.None) };
+
+        var commentProvider = new RelationalDatabaseCommentProvider(
+            new IdentifierDefaults("test_server", "test_database", "test_schema"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            typeComments
+        );
+
+        var snapshot = await commentProvider.SnapshotAsync(RelationalDatabaseCommentProviderSnapshotOptions.Empty);
+
+        Assert.That(await snapshot.GetAllUserDefinedTypeComments(), Is.Empty);
     }
 }
