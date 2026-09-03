@@ -27,7 +27,18 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         ArgumentNullException.ThrowIfNull(typeMetadata);
 
         if (typeMetadata.TypeName == null)
+        {
             typeMetadata.TypeName = GetDefaultTypeName(typeMetadata);
+        }
+        else
+        {
+            // the arguments a name carries describe the column rather than name a type, so they are
+            // read out of the name and the name is left describing the type alone
+            if (typeMetadata.FractionalSecondsPrecision.IsNone)
+                typeMetadata.FractionalSecondsPrecision = GetFractionalSecondsPrecision(typeMetadata.TypeName.LocalName);
+            typeMetadata.TypeName = NormalizeTypeName(typeMetadata.TypeName);
+        }
+
         if (typeMetadata.DataType == DataType.Unknown)
         {
             typeMetadata.DataType = GetDataType(typeMetadata.TypeName);
@@ -65,7 +76,8 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
             typeMetadata.ElementType,
             typeMetadata.EnumValues,
             typeMetadata.BaseType,
-            typeMetadata.IsUnsigned
+            typeMetadata.IsUnsigned,
+            fractionalSecondsPrecision: typeMetadata.FractionalSecondsPrecision
         );
     }
 
@@ -87,6 +99,7 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
             IsFixedLength = otherType.IsFixedLength,
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
+            FractionalSecondsPrecision = otherType.FractionalSecondsPrecision,
             TypeName = null, // ignoring so we get a default name generated
             ElementType = otherType.ElementType,
             EnumValues = otherType.EnumValues,
@@ -131,6 +144,44 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
 
     [GeneratedRegex(@"\s*\(\s*\d+\s*(?:,\s*\d+\s*)?\)", RegexOptions.ExplicitCapture)]
     private static partial Regex TypeNameArgumentRegex();
+
+    /// <summary>
+    /// Reads the fractional seconds precision out of a type name that declares one.
+    /// </summary>
+    /// <param name="typeName">A type name, e.g. <c>TIMESTAMP(9) WITH TIME ZONE</c>.</param>
+    /// <returns>The number of digits kept after the decimal point in the seconds of a value of the type, when the name declares one; otherwise none.</returns>
+    /// <remarks>
+    /// A timestamp declares its precision immediately after the type, while an interval declares one
+    /// for each of its fields, of which only the trailing <c>SECOND</c> has a fractional part. The
+    /// leading field precision of an interval is not a fractional seconds precision, and is reported
+    /// by the catalog as the type's numeric precision.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="typeName"/> is empty or whitespace.</exception>
+    protected static LanguageExt.Option<int> GetFractionalSecondsPrecision(string typeName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(typeName);
+
+        if (!typeName.Contains('(', StringComparison.Ordinal))
+            return LanguageExt.Option<int>.None;
+
+        var match = FractionalSecondsPrecisionRegex().Match(typeName);
+        return match.Success && int.TryParse(match.Groups["precision"].ValueSpan, CultureInfo.InvariantCulture, out var precision)
+            ? LanguageExt.Option<int>.Some(precision)
+            : LanguageExt.Option<int>.None;
+    }
+
+    [GeneratedRegex(@"^(?:TIMESTAMP|INTERVAL\s+.*?\bSECOND)\s*\(\s*(?<precision>\d+)\s*\)", RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)]
+    private static partial Regex FractionalSecondsPrecisionRegex();
+
+    // the arguments only ever qualify the local name, so the rest of a qualified name is untouched
+    private static Identifier NormalizeTypeName(Identifier typeName)
+    {
+        var localName = NormalizeTypeName(typeName.LocalName);
+        return string.Equals(localName, typeName.LocalName, StringComparison.Ordinal)
+            ? typeName
+            : Identifier.CreateQualifiedIdentifier(typeName.Server, typeName.Database, typeName.Schema, localName);
+    }
 
     /// <summary>
     /// Gets the default name of the type.
@@ -216,7 +267,23 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
             builder.Append(QuoteIdentifier(typeName.LocalName));
         }
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(NormalizeTypeName(typeName.LocalName)))
+        var normalizedName = NormalizeTypeName(typeName.LocalName);
+
+        // a timestamp or a day-to-second interval is annotated with the precision of its seconds and
+        // with nothing else; its numeric precision, where it has one, counts the leading field's digits
+        if (TypeNamesWithFractionalSecondsPrecision.Contains(normalizedName))
+        {
+            typeMetadata.FractionalSecondsPrecision.IfSome(precision =>
+            {
+                builder.Append('(');
+                builder.Append(precision.ToString(CultureInfo.InvariantCulture));
+                builder.Append(')');
+            });
+
+            return builder.GetStringAndRelease();
+        }
+
+        if (TypeNamesWithNoLengthAnnotation.Contains(normalizedName))
             return builder.GetStringAndRelease();
 
         var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
@@ -321,6 +388,14 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         "CHAR",
         "NCHAR",
         "RAW",
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly FrozenSet<string> TypeNamesWithFractionalSecondsPrecision = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "INTERVAL DAY TO SECOND",
+        "TIMESTAMP",
+        "TIMESTAMP WITH LOCAL TIME ZONE",
+        "TIMESTAMP WITH TIME ZONE",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     private static readonly FrozenSet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests;
 
@@ -244,7 +245,8 @@ internal static class MySqlDbTypeProviderTests
             "enum('small','medium','large')",
             Option<Identifier>.None,
             0,
-            Option<INumericPrecision>.None);
+            Option<INumericPrecision>.None,
+            Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -263,7 +265,8 @@ internal static class MySqlDbTypeProviderTests
             "int unsigned",
             Option<Identifier>.None,
             0,
-            Option<INumericPrecision>.None);
+            Option<INumericPrecision>.None,
+            Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -281,7 +284,8 @@ internal static class MySqlDbTypeProviderTests
             "tinyint(1)",
             Option<Identifier>.None,
             0,
-            Option<INumericPrecision>.None);
+            Option<INumericPrecision>.None,
+            Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -333,5 +337,46 @@ internal static class MySqlDbTypeProviderTests
             Assert.That(comparableType.DataType, Is.EqualTo(DataType.Json));
             Assert.That(comparableType.TypeName.LocalName, Is.EqualTo("json"));
         }
+    }
+
+    // information_schema reports a datetime precision for the temporal types and for nothing else,
+    // and MySQL prints no annotation at all when a value resolves to the whole second
+    [TestCase("datetime", 6, "datetime(6)")]
+    [TestCase("timestamp", 3, "timestamp(3)")]
+    [TestCase("time", 0, "time")]
+    public static void CreateColumnType_GivenTemporalTypeWithDateTimePrecision_ReportsPrecisionAndDefinition(
+        string dataTypeName,
+        int dateTimePrecision,
+        string expectedDefinition)
+    {
+        var metadata = MySqlColumnTypeMetadata.Create(
+            dataTypeName,
+            dataTypeName,
+            Option<Identifier>.None,
+            0,
+            Option<INumericPrecision>.Some(new NumericPrecision(0, 0)),
+            dateTimePrecision);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(dateTimePrecision));
+            Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenTypeWithoutDateTimePrecision_ReportsNoFractionalSecondsPrecision()
+    {
+        var metadata = MySqlColumnTypeMetadata.Create(
+            "int",
+            "int",
+            Option<Identifier>.None,
+            0,
+            Option<INumericPrecision>.Some(new NumericPrecision(10, 0)),
+            Option<int>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.FractionalSecondsPrecision, Is.EqualTo(Option<int>.None));
     }
 }

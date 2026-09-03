@@ -781,7 +781,10 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                         : Option<Identifier>.None,
                     row.CharacterMaxLength,
-                    new NumericPrecision(row.Precision, row.Scale));
+                    new NumericPrecision(row.Precision, row.Scale),
+                    row.DateTimePrecision.HasValue
+                        ? Option<int>.Some(row.DateTimePrecision.Value)
+                        : Option<int>.None);
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

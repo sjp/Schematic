@@ -37,6 +37,9 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         if (typeMetadata.DataType == DataType.Binary && typeMetadata.MaxLength <= 0)
             typeMetadata.DataType = DataType.LargeBinary;
 
+        if (typeMetadata.FractionalSecondsPrecision.IsNone)
+            typeMetadata.FractionalSecondsPrecision = GetFractionalSecondsPrecision(typeMetadata.TypeName, typeMetadata.NumericPrecision);
+
         var definition = GetFormattedTypeName(typeMetadata);
         return new ColumnDataType(
             typeMetadata.TypeName,
@@ -50,7 +53,8 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             typeMetadata.ElementType,
             typeMetadata.EnumValues,
             typeMetadata.BaseType,
-            typeMetadata.IsUnsigned
+            typeMetadata.IsUnsigned,
+            fractionalSecondsPrecision: typeMetadata.FractionalSecondsPrecision
         );
     }
 
@@ -72,6 +76,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             IsFixedLength = otherType.IsFixedLength,
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
+            FractionalSecondsPrecision = otherType.FractionalSecondsPrecision,
             TypeName = null, // ignoring so we get a default name generated
             ElementType = otherType.ElementType,
             EnumValues = otherType.EnumValues,
@@ -149,6 +154,27 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     }
 
     /// <summary>
+    /// Gets the fractional seconds precision that a temporal type declares.
+    /// </summary>
+    /// <param name="typeName">A type name.</param>
+    /// <param name="numericPrecision">The precision and scale the catalog reports for the column.</param>
+    /// <returns>The number of digits kept after the decimal point in the seconds of a value of the type, for a temporal type; otherwise none.</returns>
+    /// <remarks>
+    /// SQL Server describes a temporal column with the same precision and scale columns it uses for a
+    /// numeric one, where the scale is the fractional seconds precision. The scale means nothing of
+    /// the sort for any other type, so only the temporal types report one.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
+    protected static LanguageExt.Option<int> GetFractionalSecondsPrecision(Identifier typeName, LanguageExt.Option<INumericPrecision> numericPrecision)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return TypeNamesWithFractionalSecondsPrecision.Contains(typeName)
+            ? numericPrecision.Map(static np => np.Scale)
+            : LanguageExt.Option<int>.None;
+    }
+
+    /// <summary>
     /// Gets the name of the formatted type.
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
@@ -170,6 +196,20 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
 
         if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
             return builder.GetStringAndRelease();
+
+        // a temporal type is annotated with the precision of its seconds; its precision and scale
+        // describe the same thing twice, so printing both would name a type that does not exist
+        if (TypeNamesWithFractionalSecondsPrecision.Contains(typeName))
+        {
+            typeMetadata.FractionalSecondsPrecision.IfSome(precision =>
+            {
+                builder.Append('(');
+                builder.Append(precision.ToString(CultureInfo.InvariantCulture));
+                builder.Append(')');
+            });
+
+            return builder.GetStringAndRelease();
+        }
 
         builder.Append('(');
 
@@ -277,6 +317,15 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         new("sys", "char"),
         new("sys", "nchar"),
         new("sys", "binary"),
+    }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
+
+    // datetime and smalldatetime are absent deliberately: their resolution is fixed by the type
+    // rather than declared with the column, so there is no precision of the column's own to report
+    private static readonly FrozenSet<Identifier> TypeNamesWithFractionalSecondsPrecision = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    {
+        new("sys", "datetime2"),
+        new("sys", "datetimeoffset"),
+        new("sys", "time"),
     }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
 
     private static readonly FrozenSet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)

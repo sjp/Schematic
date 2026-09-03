@@ -45,7 +45,8 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
             typeMetadata.ElementType,
             typeMetadata.EnumValues,
             typeMetadata.BaseType,
-            typeMetadata.IsUnsigned
+            typeMetadata.IsUnsigned,
+            fractionalSecondsPrecision: typeMetadata.FractionalSecondsPrecision
         );
     }
 
@@ -67,6 +68,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
             IsFixedLength = otherType.IsFixedLength,
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
+            FractionalSecondsPrecision = otherType.FractionalSecondsPrecision,
             TypeName = null, // ignoring so we get a default name generated
             ElementType = otherType.ElementType,
             EnumValues = otherType.EnumValues,
@@ -161,6 +163,19 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
 
         if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
             return builder.GetStringAndRelease();
+
+        // a time or timestamp is annotated with the precision of its seconds and with nothing else
+        if (TypeNamesWithFractionalSecondsPrecision.Contains(typeName))
+        {
+            typeMetadata.FractionalSecondsPrecision.IfSome(precision =>
+            {
+                builder.Append('(');
+                builder.Append(precision);
+                builder.Append(')');
+            });
+
+            return builder.GetStringAndRelease();
+        }
 
         var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
         if (npWithPrecisionOrScale.IsSome)
@@ -261,6 +276,20 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
     {
         new("pg_catalog", "bit"),
         new("pg_catalog", "char"),
+    }.ToFrozenSet(IdentifierComparer.Ordinal);
+
+    // information_schema spells out the time zone qualifier that pg_catalog abbreviates, and either
+    // spelling reaches here depending on which catalog described the column
+    private static readonly FrozenSet<Identifier> TypeNamesWithFractionalSecondsPrecision = new HashSet<Identifier>(IdentifierComparer.Ordinal)
+    {
+        new("pg_catalog", "time"),
+        new("pg_catalog", "time without time zone"),
+        new("pg_catalog", "timetz"),
+        new("pg_catalog", "time with time zone"),
+        new("pg_catalog", "timestamp"),
+        new("pg_catalog", "timestamp without time zone"),
+        new("pg_catalog", "timestamptz"),
+        new("pg_catalog", "timestamp with time zone"),
     }.ToFrozenSet(IdentifierComparer.Ordinal);
 
     private static readonly FrozenSet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.Ordinal)

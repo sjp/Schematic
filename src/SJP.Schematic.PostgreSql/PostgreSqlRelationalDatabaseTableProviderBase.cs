@@ -799,7 +799,10 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                         ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationCatalog, row.CollationSchema, row.CollationName))
                         : Option<Identifier>.None,
                     PostgreSqlColumnTypeMetadata.CreateMaxLength(row.CharacterMaximumLength, row.NumericPrecision, row.NumericPrecisionRadix),
-                    PostgreSqlColumnTypeMetadata.CreateNumericPrecision(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix));
+                    PostgreSqlColumnTypeMetadata.CreateNumericPrecision(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix),
+                    row.DatetimePrecision.HasValue
+                        ? Option<int>.Some(row.DatetimePrecision.Value)
+                        : Option<int>.None);
 
                 var columnType = TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

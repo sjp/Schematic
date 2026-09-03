@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -13,7 +13,8 @@ internal static class ColumnDataTypeTests
         string[] enumValues = null,
         Option<IDbType> baseType = default,
         bool isUnsigned = false,
-        DataType dataType = DataType.String
+        DataType dataType = DataType.String,
+        Option<int> fractionalSecondsPrecision = default
     )
     {
         return new ColumnDataType(
@@ -28,7 +29,8 @@ internal static class ColumnDataTypeTests
             elementType,
             enumValues ?? [],
             baseType,
-            isUnsigned
+            isUnsigned,
+            fractionalSecondsPrecision: fractionalSecondsPrecision
         );
     }
 
@@ -209,6 +211,25 @@ internal static class ColumnDataTypeTests
             Assert.That(dataType.EnumValues, Is.Empty);
             Assert.That(dataType.BaseType, Is.EqualTo(Option<IDbType>.None));
             Assert.That(dataType.IsUnsigned, Is.False);
+            Assert.That(dataType.FractionalSecondsPrecision, Is.EqualTo(Option<int>.None));
         }
+    }
+
+    [TestCase(0)]
+    [TestCase(3)]
+    [TestCase(9)]
+    public static void Ctor_GivenFractionalSecondsPrecision_DescribesGivenPrecision(int precision)
+    {
+        var dataType = CreateDataType(dataType: DataType.DateTime, fractionalSecondsPrecision: precision);
+
+        Assert.That(dataType.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(precision));
+    }
+
+    [Test]
+    public static void Ctor_GivenNegativeFractionalSecondsPrecision_ThrowsArgumentException()
+    {
+        Assert.That(
+            () => CreateDataType(dataType: DataType.DateTime, fractionalSecondsPrecision: -1),
+            Throws.ArgumentException);
     }
 }

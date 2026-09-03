@@ -367,6 +367,15 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             && column.Type.NumericPrecision.Match(static np => np.Precision > 0, static () => false);
     }
 
+    // EF Core's precision annotation describes a temporal property by the digits its seconds are
+    // kept to, which is a different number from the numeric precision the annotation otherwise carries
+    private static bool RequiresTemporalPrecisionAttribute(IDatabaseColumn column)
+    {
+        return column.Type.DataType is Core.DataType.DateTime or Core.DataType.DateTimeOffset
+                or Core.DataType.Time or Core.DataType.TimeOffset or Core.DataType.Interval
+            && column.Type.FractionalSecondsPrecision.IsSome;
+    }
+
     private static IEnumerable<AttributeListSyntax> BuildColumnAttributes(IDatabaseColumn column, string propertyName)
     {
         ArgumentNullException.ThrowIfNull(column);
@@ -397,6 +406,20 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                                 SingletonSeparatedList(
                                     AttributeArgument(
                                         LiteralExpression(SyntaxKind.FalseLiteralExpression))))))));
+        }
+
+        if (RequiresTemporalPrecisionAttribute(column))
+        {
+            column.Type.FractionalSecondsPrecision.IfSome(fsp =>
+                attributes.Add(
+                    AttributeList(
+                        SingletonSeparatedList(
+                            Attribute(
+                                SyntaxUtilities.AttributeName(nameof(PrecisionAttribute)),
+                                AttributeArgumentList(
+                                    SingletonSeparatedList(
+                                        AttributeArgument(
+                                            LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(fsp))))))))));
         }
 
         if (RequiresPrecisionAttribute(column))

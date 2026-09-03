@@ -54,6 +54,12 @@ public class ColumnTypeMetadata
     public Option<INumericPrecision> NumericPrecision { get; set; }
 
     /// <summary>
+    /// The number of digits kept after the decimal point in the seconds of a temporal value, if available.
+    /// </summary>
+    /// <value>The fractional seconds precision, for a time, timestamp or interval type that declares one; otherwise none.</value>
+    public Option<int> FractionalSecondsPrecision { get; set; }
+
+    /// <summary>
     /// The type of the elements stored by a collection type, if available.
     /// </summary>
     /// <value>The element type, for a <see cref="Core.DataType.Array"/> or <see cref="Core.DataType.Range"/> type; otherwise none.</value>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -36,13 +36,15 @@ internal static class PostgreSqlColumnTypeMetadata
     /// <param name="collation">The column's collation, if any.</param>
     /// <param name="maxLength">The column's maximum length.</param>
     /// <param name="numericPrecision">The column's numeric precision, if any.</param>
+    /// <param name="fractionalSecondsPrecision">The column's fractional seconds precision, for a temporal type; otherwise none.</param>
     /// <returns>Column type metadata.</returns>
     public static ColumnTypeMetadata Create(
         IDbTypeProvider typeProvider,
         CatalogTypeInfo source,
         Option<Identifier> collation,
         int maxLength,
-        Option<INumericPrecision> numericPrecision
+        Option<INumericPrecision> numericPrecision,
+        Option<int> fractionalSecondsPrecision
     )
     {
         ArgumentNullException.ThrowIfNull(typeProvider);
@@ -56,6 +58,7 @@ internal static class PostgreSqlColumnTypeMetadata
             Collation = collation,
             MaxLength = maxLength,
             NumericPrecision = numericPrecision,
+            FractionalSecondsPrecision = fractionalSecondsPrecision,
         };
 
         if (isArray)
@@ -85,6 +88,7 @@ internal static class PostgreSqlColumnTypeMetadata
                 TypeName = Identifier.CreateQualifiedIdentifier(PgCatalog, source.DataType),
                 MaxLength = maxLength,
                 NumericPrecision = numericPrecision,
+                FractionalSecondsPrecision = fractionalSecondsPrecision,
             }));
             // the column stores values of the underlying type, so the class of data is the same
             metadata.DataType = metadata.BaseType.MatchUnsafe(static t => t.DataType, static () => DataType.Unknown);

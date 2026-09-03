@@ -1,4 +1,4 @@
-namespace SJP.Schematic.PostgreSql.Queries;
+﻿namespace SJP.Schematic.PostgreSql.Queries;
 
 internal static class GetAllUserDefinedTypeAttributes
 {
@@ -37,6 +37,11 @@ internal static class GetAllUserDefinedTypeAttributes
 
         public required int NumericScale { get; init; }
 
+        /// <summary>
+        /// The fractional seconds precision of a temporal type, or <see langword="null"/> for any other type.
+        /// </summary>
+        public required int? DatetimePrecision { get; init; }
+
         public required string? CollationName { get; init; }
 
         public required string? IsNullable { get; init; }
@@ -62,6 +67,7 @@ select
     coalesce(a.numeric_precision, 0) as "{nameof(Result.NumericPrecision)}",
     coalesce(a.numeric_precision_radix, 0) as "{nameof(Result.NumericPrecisionRadix)}",
     coalesce(a.numeric_scale, 0) as "{nameof(Result.NumericScale)}",
+    a.datetime_precision as "{nameof(Result.DatetimePrecision)}",
     a.collation_name as "{nameof(Result.CollationName)}",
     a.is_nullable as "{nameof(Result.IsNullable)}",
     a.attribute_default as "{nameof(Result.AttributeDefault)}"

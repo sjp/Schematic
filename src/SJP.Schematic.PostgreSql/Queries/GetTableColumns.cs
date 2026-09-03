@@ -66,7 +66,7 @@ internal static class GetTableColumns
         /// <summary>
         /// If <see cref="DataType"/> identifies a date, time, timestamp, or interval type, this column contains the (declared or implicit) fractional seconds precision of the type for this column, that is, the number of decimal digits maintained following the decimal point in the seconds value. For all other data types, this column is null.
         /// </summary>
-        public int DatetimePrecision { get; init; }
+        public int? DatetimePrecision { get; init; }
 
         /// <summary>
         /// If <see cref="DataType"/> identifies an interval type, this column contains the specification which fields the intervals include for this column, e.g., <c>YEAR TO MONTH</c>, <c>DAY TO SECOND</c>, etc. If no field restrictions were specified (that is, the interval accepts all fields), and for all other data types, this field is null.

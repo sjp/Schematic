@@ -28,7 +28,10 @@ internal static class GetViewColumns
 
         public required int Scale { get; init; }
 
-        public required int DateTimePrecision { get; init; }
+        /// <summary>
+        /// The fractional seconds precision of a temporal type, or <see langword="null"/> for any other type.
+        /// </summary>
+        public required int? DateTimePrecision { get; init; }
 
         public required string? Collation { get; init; }
 

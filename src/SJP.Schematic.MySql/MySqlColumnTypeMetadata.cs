@@ -35,6 +35,7 @@ internal static class MySqlColumnTypeMetadata
     /// <param name="collation">The column's collation, if any.</param>
     /// <param name="maxLength">The column's maximum length.</param>
     /// <param name="numericPrecision">The column's numeric precision, if any.</param>
+    /// <param name="fractionalSecondsPrecision">The column's fractional seconds precision, for a temporal type; otherwise none.</param>
     /// <returns>Column type metadata.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="dataTypeName"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="dataTypeName"/> is empty or whitespace.</exception>
@@ -43,7 +44,8 @@ internal static class MySqlColumnTypeMetadata
         string? columnType,
         Option<Identifier> collation,
         int maxLength,
-        Option<INumericPrecision> numericPrecision
+        Option<INumericPrecision> numericPrecision,
+        Option<int> fractionalSecondsPrecision
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataTypeName);
@@ -54,6 +56,7 @@ internal static class MySqlColumnTypeMetadata
             Collation = collation,
             MaxLength = maxLength,
             NumericPrecision = numericPrecision,
+            FractionalSecondsPrecision = fractionalSecondsPrecision,
             IsUnsigned = columnType?.Contains(UnsignedSuffix, StringComparison.OrdinalIgnoreCase) == true,
         };
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 
@@ -18,7 +18,8 @@ internal static class DbTypeComparerTests
         Option<IDbType> elementType = default,
         string[] enumValues = null,
         Option<IDbType> baseType = default,
-        bool isUnsigned = false
+        bool isUnsigned = false,
+        Option<int> fractionalSecondsPrecision = default
     )
     {
         return new ColumnDataType(
@@ -33,7 +34,8 @@ internal static class DbTypeComparerTests
             elementType,
             enumValues ?? [],
             baseType,
-            isUnsigned
+            isUnsigned,
+            fractionalSecondsPrecision: fractionalSecondsPrecision
         );
     }
 
@@ -164,6 +166,49 @@ internal static class DbTypeComparerTests
         var withoutPrecision = CreateDataType(typeName: "numeric");
 
         Assert.That(DbTypeComparer.Structural.Equals(withPrecision, withoutPrecision), Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenTypesWithSameFractionalSecondsPrecision_ReturnsTrue()
+    {
+        var first = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 3);
+        var second = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 3);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(DbTypeComparer.Structural.Equals(first, second), Is.True);
+            Assert.That(DbTypeComparer.Structural.GetHashCode(first), Is.EqualTo(DbTypeComparer.Structural.GetHashCode(second)));
+        }
+    }
+
+    // a name that has had its arguments removed no longer distinguishes one precision from another,
+    // so the precision has to do it on its own
+    [Test]
+    public static void Equals_GivenTypesWithDifferentFractionalSecondsPrecisions_ReturnsFalse()
+    {
+        var milliseconds = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 3);
+        var nanoseconds = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 9);
+
+        Assert.That(DbTypeComparer.Structural.Equals(milliseconds, nanoseconds), Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenTypeWithFractionalSecondsPrecisionAndTypeWithout_ReturnsFalse()
+    {
+        var withPrecision = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 0);
+        var withoutPrecision = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime);
+
+        Assert.That(DbTypeComparer.Structural.Equals(withPrecision, withoutPrecision), Is.False);
+    }
+
+    // the name-only comparer is deliberately blind to everything the name does not say
+    [Test]
+    public static void Equals_GivenNameOnlyComparerAndTypesWithDifferentFractionalSecondsPrecisions_ReturnsTrue()
+    {
+        var milliseconds = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 3);
+        var nanoseconds = CreateDataType(typeName: "timestamp", dataType: DataType.DateTime, fractionalSecondsPrecision: 9);
+
+        Assert.That(DbTypeComparer.NameOnly.Equals(milliseconds, nanoseconds), Is.True);
     }
 
     [Test]

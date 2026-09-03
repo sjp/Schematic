@@ -137,6 +137,12 @@ public class SqliteColumnType : IDbType
     public Option<Identifier> Collation { get; }
 
     /// <summary>
+    /// The number of digits kept after the decimal point in the seconds of a temporal value, if available.
+    /// </summary>
+    /// <value>Always unavailable; SQLite has no temporal type, so nothing declares a fractional seconds precision.</value>
+    public Option<int> FractionalSecondsPrecision { get; } = Option<int>.None;
+
+    /// <summary>
     /// The type of the elements stored by a collection type, if available.
     /// </summary>
     /// <value>The element type. Always unavailable; SQLite has no collection types.</value>

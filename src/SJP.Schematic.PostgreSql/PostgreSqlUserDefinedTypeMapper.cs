@@ -100,7 +100,10 @@ internal static class PostgreSqlUserDefinedTypeMapper
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.CollationName))
                     : Option<Identifier>.None,
                 PostgreSqlColumnTypeMetadata.CreateMaxLength(row.CharacterMaximumLength, row.NumericPrecision, row.NumericPrecisionRadix),
-                PostgreSqlColumnTypeMetadata.CreateNumericPrecision(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix)
+                PostgreSqlColumnTypeMetadata.CreateNumericPrecision(row.NumericPrecision, row.NumericScale, row.NumericPrecisionRadix),
+                row.DatetimePrecision.HasValue
+                    ? Option<int>.Some(row.DatetimePrecision.Value)
+                    : Option<int>.None
             );
 
             var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);

@@ -1,6 +1,8 @@
-using System;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests;
 
@@ -225,5 +227,64 @@ internal static class OracleDbTypeProviderTests
         var comparableType = Provider.GetComparableColumnType(sourceType);
 
         Assert.That(comparableType.DataType, Is.EqualTo(sourceType.DataType));
+    }
+
+    // the arguments a type name carries describe the column, not the type, so the type is named
+    // without them and the precision they declared is reported in its own right
+    [TestCase("TIMESTAMP(6)", "TIMESTAMP", 6)]
+    [TestCase("TIMESTAMP(9) WITH TIME ZONE", "TIMESTAMP WITH TIME ZONE", 9)]
+    [TestCase("TIMESTAMP(3) WITH LOCAL TIME ZONE", "TIMESTAMP WITH LOCAL TIME ZONE", 3)]
+    [TestCase("TIMESTAMP(0)", "TIMESTAMP", 0)]
+    [TestCase("INTERVAL DAY(3) TO SECOND(6)", "INTERVAL DAY TO SECOND", 6)]
+    [TestCase("INTERVAL DAY TO SECOND(2)", "INTERVAL DAY TO SECOND", 2)]
+    public static void CreateColumnType_GivenTypeNameDeclaringFractionalSeconds_ReportsPrecisionAndUnargumentedName(
+        string typeName,
+        string expectedTypeName,
+        int expectedPrecision)
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", typeName), DataType = DataType.Unknown });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo(expectedTypeName));
+            Assert.That(columnType.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(expectedPrecision));
+        }
+    }
+
+    // a leading field precision is not a fractional seconds precision, and neither is the length or
+    // precision of any other type
+    [TestCase("INTERVAL YEAR(4) TO MONTH")]
+    [TestCase("INTERVAL YEAR TO MONTH")]
+    [TestCase("TIMESTAMP")]
+    [TestCase("TIMESTAMP WITH TIME ZONE")]
+    [TestCase("VARCHAR2")]
+    [TestCase("NUMBER")]
+    [TestCase("DATE")]
+    public static void CreateColumnType_GivenTypeNameWithoutFractionalSeconds_ReportsNoPrecision(string typeName)
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", typeName), DataType = DataType.Unknown });
+
+        Assert.That(columnType.FractionalSecondsPrecision, Is.EqualTo(Option<int>.None));
+    }
+
+    // the definition prints the precision itself, rather than a name that happens to contain it
+    [TestCase("TIMESTAMP(6)", "\"TIMESTAMP\"(6)")]
+    [TestCase("TIMESTAMP(9) WITH TIME ZONE", "\"TIMESTAMP WITH TIME ZONE\"(9)")]
+    [TestCase("TIMESTAMP", "\"TIMESTAMP\"")]
+    [TestCase("INTERVAL DAY(3) TO SECOND(6)", "\"INTERVAL DAY TO SECOND\"(6)")]
+    public static void CreateColumnType_GivenTemporalTypeName_ReturnsExpectedDefinition(string typeName, string expectedDefinition)
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", typeName), DataType = DataType.Unknown });
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [Test]
+    public static void GetComparableColumnType_GivenTypeWithFractionalSecondsPrecision_KeepsPrecision()
+    {
+        var sourceType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", "TIMESTAMP(3) WITH TIME ZONE"), DataType = DataType.Unknown });
+        var comparableType = Provider.GetComparableColumnType(sourceType);
+
+        Assert.That(comparableType.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(3));
     }
 }

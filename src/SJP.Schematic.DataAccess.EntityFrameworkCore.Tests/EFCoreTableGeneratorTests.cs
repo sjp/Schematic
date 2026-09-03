@@ -215,7 +215,8 @@ internal static class EFCoreTableGeneratorTests
         string typeName,
         DataType dataType,
         Type clrType,
-        Option<INumericPrecision> numericPrecision = default
+        Option<INumericPrecision> numericPrecision = default,
+        Option<int> fractionalSecondsPrecision = default
     ) => new(
         typeName,
         dataType,
@@ -224,7 +225,12 @@ internal static class EFCoreTableGeneratorTests
         false,
         0,
         numericPrecision,
-        Option<Identifier>.None
+        Option<Identifier>.None,
+        Option<IDbType>.None,
+        [],
+        Option<IDbType>.None,
+        false,
+        fractionalSecondsPrecision: fractionalSecondsPrecision
     );
 
     // a row version is maintained by the database and used for concurrency checks, which is exactly
@@ -287,6 +293,26 @@ internal static class EFCoreTableGeneratorTests
     public static void Generate_GivenNumericColumnWithoutPrecision_GeneratesNoPrecisionAttribute()
     {
         var result = GenerateForColumnType(CreateColumnDataType("decimal", DataType.Numeric, typeof(decimal)));
+
+        Assert.That(result, Does.Not.Contain("[Precision("));
+    }
+
+    // the precision annotation describes a temporal property by the digits its seconds are kept to,
+    // which is a single number rather than the precision and scale a numeric property carries
+    [TestCase(DataType.DateTime, "datetime2")]
+    [TestCase(DataType.DateTimeOffset, "datetimeoffset")]
+    [TestCase(DataType.Time, "time")]
+    public static void Generate_GivenTemporalColumnWithFractionalSecondsPrecision_GeneratesPrecisionAttribute(DataType dataType, string typeName)
+    {
+        var result = GenerateForColumnType(CreateColumnDataType(typeName, dataType, typeof(DateTime), fractionalSecondsPrecision: 3));
+
+        Assert.That(result, Does.Contain("[Precision(3)]"));
+    }
+
+    [Test]
+    public static void Generate_GivenTemporalColumnWithoutFractionalSecondsPrecision_GeneratesNoPrecisionAttribute()
+    {
+        var result = GenerateForColumnType(CreateColumnDataType("datetime", DataType.DateTime, typeof(DateTime)));
 
         Assert.That(result, Does.Not.Contain("[Precision("));
     }

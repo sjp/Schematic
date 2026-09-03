@@ -237,10 +237,6 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
         await foreach (var row in query.WithCancellation(cancellationToken))
         {
-            var precision = row.DateTimePrecision > 0
-                ? new NumericPrecision(row.DateTimePrecision, 0)
-                : new NumericPrecision(row.Precision, row.Scale);
-
             var typeMetadata = MySqlColumnTypeMetadata.Create(
                 row.DataTypeName,
                 row.ColumnType,
@@ -248,7 +244,10 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
                 row.CharacterMaxLength,
-                precision);
+                new NumericPrecision(row.Precision, row.Scale),
+                row.DateTimePrecision.HasValue
+                    ? Option<int>.Some(row.DateTimePrecision.Value)
+                    : Option<int>.None);
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);

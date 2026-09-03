@@ -45,7 +45,8 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             typeMetadata.ElementType,
             typeMetadata.EnumValues,
             typeMetadata.BaseType,
-            typeMetadata.IsUnsigned
+            typeMetadata.IsUnsigned,
+            fractionalSecondsPrecision: typeMetadata.FractionalSecondsPrecision
         );
     }
 
@@ -67,6 +68,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             IsFixedLength = otherType.IsFixedLength,
             MaxLength = otherType.MaxLength,
             NumericPrecision = otherType.NumericPrecision,
+            FractionalSecondsPrecision = otherType.FractionalSecondsPrecision,
             TypeName = null, // ignoring so we get a default name generated
             ElementType = otherType.ElementType,
             EnumValues = otherType.EnumValues,
@@ -172,6 +174,17 @@ public class MySqlDbTypeProvider : IDbTypeProvider
             }
             builder.Append(')');
         }
+        // a temporal type is declared with the precision of its seconds, and MySQL prints no
+        // annotation at all when a value resolves to the whole second
+        else if (TypeNamesWithFractionalSecondsPrecision.Contains(typeName))
+        {
+            typeMetadata.FractionalSecondsPrecision.Filter(static fsp => fsp > 0).IfSome(precision =>
+            {
+                builder.Append('(');
+                builder.Append(precision.ToString(CultureInfo.InvariantCulture));
+                builder.Append(')');
+            });
+        }
         else if (!TypeNamesWithNoLengthAnnotation.Contains(typeName))
         {
             var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
@@ -240,6 +253,13 @@ public class MySqlDbTypeProvider : IDbTypeProvider
     {
         "char",
         "binary",
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
+    private static readonly FrozenSet<string> TypeNamesWithFractionalSecondsPrecision = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "datetime",
+        "time",
+        "timestamp",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     private static readonly FrozenSet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)

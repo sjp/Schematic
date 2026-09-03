@@ -1128,6 +1128,33 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenTemporalColumnRoundTripped_PreservesFractionalSecondsPrecision()
+    {
+        var columnType = new ColumnDataType(
+            "timestamp",
+            DataType.DateTime,
+            "timestamp(3)",
+            typeof(DateTime),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None,
+            Option<IDbType>.None,
+            [],
+            Option<IDbType>.None,
+            false,
+            fractionalSecondsPrecision: 3
+        );
+        var db = CreateColumnTypeDatabase(columnType);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+
+        Assert.That(tables.Single().Columns.Single().Type.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(3));
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenPlainColumnRoundTripped_PreservesAbsentTypeDetail()
     {
         var columnType = new ColumnDataType(
@@ -1153,6 +1180,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Assert.That(importedType.EnumValues, Is.Empty);
             Assert.That(importedType.BaseType.IsNone, Is.True);
             Assert.That(importedType.IsUnsigned, Is.False);
+            Assert.That(importedType.FractionalSecondsPrecision.IsNone, Is.True);
         }
     }
 

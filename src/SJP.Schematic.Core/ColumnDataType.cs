@@ -59,8 +59,9 @@ public class ColumnDataType : IDbType
     /// <param name="baseType">The type that this type is defined in terms of, if any.</param>
     /// <param name="isUnsigned">Whether the type stores only non-negative values.</param>
     /// <param name="clrTypeName">The name of the .NET data type that the column maps to, or <see langword="null" /> to name <paramref name="clrType"/>. Give a name only when it is known more precisely than the resolved type, e.g. when <paramref name="clrType"/> stands in for a type that could not be resolved.</param>
+    /// <param name="fractionalSecondsPrecision">The number of digits kept after the decimal point in the seconds of a temporal value, if the type declares one.</param>
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/>, <paramref name="definition"/>, <paramref name="clrType"/> or <paramref name="enumValues"/> is <see langword="null" />, or <paramref name="enumValues"/> contains a <see langword="null" /> value.</exception>
-    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, <paramref name="clrTypeName"/> is empty or whitespace, or <paramref name="dataType"/> is not a valid enum.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, <paramref name="clrTypeName"/> is empty or whitespace, <paramref name="fractionalSecondsPrecision"/> is negative, or <paramref name="dataType"/> is not a valid enum.</exception>
     public ColumnDataType(
         Identifier typeName,
         DataType dataType,
@@ -74,7 +75,8 @@ public class ColumnDataType : IDbType
         IReadOnlyList<string> enumValues,
         Option<IDbType> baseType,
         bool isUnsigned,
-        string? clrTypeName = null
+        string? clrTypeName = null,
+        Option<int> fractionalSecondsPrecision = default
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
@@ -86,6 +88,8 @@ public class ColumnDataType : IDbType
             throw new ArgumentException($"The {nameof(DataType)} provided must be a valid enum.", nameof(dataType));
         if (clrTypeName != null && string.IsNullOrWhiteSpace(clrTypeName))
             throw new ArgumentException("The CLR type name must not be empty or whitespace. Provide a name, or null to name the given CLR type.", nameof(clrTypeName));
+        if (fractionalSecondsPrecision.Match(static p => p < 0, static () => false))
+            throw new ArgumentException("The fractional seconds precision must be non-negative.", nameof(fractionalSecondsPrecision));
 
         TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
         DataType = dataType;
@@ -96,6 +100,7 @@ public class ColumnDataType : IDbType
         MaxLength = maxLength;
         NumericPrecision = numericPrecision;
         Collation = collation;
+        FractionalSecondsPrecision = fractionalSecondsPrecision;
         ElementType = elementType;
         EnumValues = enumValues;
         BaseType = baseType;
@@ -155,6 +160,12 @@ public class ColumnDataType : IDbType
     /// </summary>
     /// <value>The collation.</value>
     public Option<Identifier> Collation { get; }
+
+    /// <summary>
+    /// The number of digits kept after the decimal point in the seconds of a temporal value, if available.
+    /// </summary>
+    /// <value>The fractional seconds precision, for a time, timestamp or interval type that declares one; otherwise none.</value>
+    public Option<int> FractionalSecondsPrecision { get; }
 
     /// <summary>
     /// The type of the elements stored by a collection type, if available.

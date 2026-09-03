@@ -53,6 +53,11 @@ public sealed record DbType
     public Identifier? Collation { get; init; }
 
     /// <summary>
+    /// The number of digits kept after the decimal point in the seconds of a temporal value, if the type declares one.
+    /// </summary>
+    public int? FractionalSecondsPrecision { get; init; }
+
+    /// <summary>
     /// The type of the elements stored by a collection type, if any.
     /// </summary>
     public DbType? ElementType { get; init; }

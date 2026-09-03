@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -83,6 +83,7 @@ public sealed class DbTypeComparer : IEqualityComparer<IDbType>
             && x.IsFixedLength == y.IsFixedLength
             && x.IsUnsigned == y.IsUnsigned
             && PrecisionsEqual(x.NumericPrecision, y.NumericPrecision)
+            && x.FractionalSecondsPrecision == y.FractionalSecondsPrecision
             && x.EnumValues.SequenceEqual(y.EnumValues, StringComparer.Ordinal)
             && Equals(GetInnerType(x.ElementType), GetInnerType(y.ElementType))
             && Equals(GetInnerType(x.BaseType), GetInnerType(y.BaseType));
@@ -121,6 +122,7 @@ public sealed class DbTypeComparer : IEqualityComparer<IDbType>
                 hashCode.Add(np.Precision);
                 hashCode.Add(np.Scale);
             });
+            obj.FractionalSecondsPrecision.IfSome(fsp => hashCode.Add(fsp));
         }
 
         return hashCode.ToHashCode();

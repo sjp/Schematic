@@ -30,6 +30,7 @@ public class DbTypeMapper
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var numericPrecisionMapper = MapperRegistry.GetMapper<Dto.NumericPrecision?, Option<INumericPrecision>>();
         var collationMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
+        var fractionalSecondsMapper = MapperRegistry.GetMapper<int?, Option<int>>();
 
         // an absent name means the source database did not know a CLR type for the column, and an
         // unresolvable one means this process cannot name the type the source database knew
@@ -51,7 +52,8 @@ public class DbTypeMapper
             source.EnumValues?.ToList() ?? (IReadOnlyList<string>)[],
             source.BaseType == null ? Option<IDbType>.None : Option<IDbType>.Some(Map(source.BaseType)),
             source.IsUnsigned,
-            clrTypeName
+            clrTypeName,
+            fractionalSecondsMapper.Map(source.FractionalSecondsPrecision)
         );
     }
 
@@ -65,6 +67,7 @@ public class DbTypeMapper
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var numericPrecisionMapper = MapperRegistry.GetMapper<Option<INumericPrecision>, Dto.NumericPrecision?>();
         var collationMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
+        var fractionalSecondsMapper = MapperRegistry.GetMapper<Option<int>, int?>();
 
         return new Dto.DbType
         {
@@ -78,6 +81,7 @@ public class DbTypeMapper
             MaxLength = source.MaxLength,
             NumericPrecision = numericPrecisionMapper.Map(source.NumericPrecision),
             Collation = collationMapper.Map(source.Collation),
+            FractionalSecondsPrecision = fractionalSecondsMapper.Map(source.FractionalSecondsPrecision),
             ElementType = source.ElementType.MatchUnsafe(Map, static () => (Dto.DbType?)null),
             // an empty collection is left out of the document rather than written as an empty array
             EnumValues = source.EnumValues.Count > 0 ? source.EnumValues.ToList() : null,

@@ -1,6 +1,7 @@
-using System;
+﻿using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests;
 
@@ -148,5 +149,64 @@ internal static class SqlServerDbTypeProviderTests
             Assert.That(comparableType.DataType, Is.EqualTo(DataType.Enum));
             Assert.That(comparableType.EnumValues, Is.EqualTo(new[] { "small", "large" }));
         }
+    }
+
+    // the catalog describes a temporal column with the precision and scale columns it uses for a
+    // numeric one, where the scale is the precision the seconds are kept to
+    [TestCase("datetime2", 27, 7, 7)]
+    [TestCase("datetimeoffset", 34, 3, 3)]
+    [TestCase("time", 16, 0, 0)]
+    public static void CreateColumnType_GivenTemporalTypeName_ReportsScaleAsFractionalSecondsPrecision(
+        string typeName,
+        int precision,
+        int scale,
+        int expectedPrecision)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = new Identifier("sys", typeName),
+            NumericPrecision = LanguageExt.Option<INumericPrecision>.Some(new NumericPrecision(precision, scale)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(expectedPrecision));
+    }
+
+    // a scale means nothing of the sort for any other type, and neither datetime nor smalldatetime
+    // declares a precision of its own -- their resolution is fixed by the type
+    [TestCase("decimal")]
+    [TestCase("numeric")]
+    [TestCase("float")]
+    [TestCase("datetime")]
+    [TestCase("smalldatetime")]
+    public static void CreateColumnType_GivenNumericTypeName_ReportsNoFractionalSecondsPrecision(string typeName)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = new Identifier("sys", typeName),
+            NumericPrecision = LanguageExt.Option<INumericPrecision>.Some(new NumericPrecision(10, 2)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.FractionalSecondsPrecision, Is.EqualTo(LanguageExt.Option<int>.None));
+    }
+
+    // printing both the precision and the scale would name a type that does not exist
+    [TestCase("datetime2", 27, 7, "[datetime2](7)")]
+    [TestCase("time", 16, 0, "[time](0)")]
+    public static void CreateColumnType_GivenTemporalTypeName_ReturnsExpectedDefinition(
+        string typeName,
+        int precision,
+        int scale,
+        string expectedDefinition)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = new Identifier("sys", typeName),
+            NumericPrecision = LanguageExt.Option<INumericPrecision>.Some(new NumericPrecision(precision, scale)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
     }
 }

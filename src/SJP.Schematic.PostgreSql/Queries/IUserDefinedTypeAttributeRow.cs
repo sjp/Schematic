@@ -1,4 +1,4 @@
-namespace SJP.Schematic.PostgreSql.Queries;
+﻿namespace SJP.Schematic.PostgreSql.Queries;
 
 /// <summary>
 /// The shape of an <c>information_schema.attributes</c> row describing one attribute of a composite
@@ -35,6 +35,11 @@ internal interface IUserDefinedTypeAttributeRow
     int NumericPrecisionRadix { get; }
 
     int NumericScale { get; }
+
+    /// <summary>
+    /// The fractional seconds precision of a temporal type, or <see langword="null"/> for any other type.
+    /// </summary>
+    int? DatetimePrecision { get; }
 
     string? CollationName { get; }
 

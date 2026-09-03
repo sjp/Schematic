@@ -69,6 +69,18 @@ public interface IDbType
     Option<Identifier> Collation { get; }
 
     /// <summary>
+    /// The number of digits kept after the decimal point in the seconds of a temporal value, if available.
+    /// </summary>
+    /// <value>The fractional seconds precision, for a time, timestamp or interval type that declares one; otherwise none.</value>
+    /// <remarks>
+    /// This is the <c>datetime_precision</c> of the SQL standard. It is not a numeric precision and
+    /// not a length: a <c>TIMESTAMP(3)</c> resolves to a millisecond whatever
+    /// <see cref="NumericPrecision"/> and <see cref="MaxLength"/> say about the storage its values
+    /// occupy.
+    /// </remarks>
+    Option<int> FractionalSecondsPrecision { get; }
+
+    /// <summary>
     /// The type of the elements stored by a collection type, if available.
     /// </summary>
     /// <value>The element type, for a <see cref="DataType.Array"/> or <see cref="DataType.Range"/> type; otherwise none.</value>

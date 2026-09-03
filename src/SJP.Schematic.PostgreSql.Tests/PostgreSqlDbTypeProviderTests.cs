@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -144,7 +144,7 @@ internal static class PostgreSqlDbTypeProviderTests
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
             "ARRAY", "pg_catalog", "_int4", null, null, "b", "pg_catalog", "int4", "b", null);
 
-        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None);
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -161,7 +161,7 @@ internal static class PostgreSqlDbTypeProviderTests
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
             "USER-DEFINED", "app", "size", null, null, "e", null, null, null, ["small", "large"]);
 
-        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None);
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -178,7 +178,7 @@ internal static class PostgreSqlDbTypeProviderTests
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
             "ARRAY", "app", "_size", null, null, "b", "app", "size", "e", ["small", "large"]);
 
-        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None);
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
         var elementType = columnType.ElementType.UnwrapSome();
 
@@ -199,7 +199,7 @@ internal static class PostgreSqlDbTypeProviderTests
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
             "USER-DEFINED", "app", "test_type", null, null, typeKind, null, null, null, null);
 
-        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None);
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         Assert.That(columnType.DataType, Is.EqualTo(expectedDataType));
@@ -213,7 +213,7 @@ internal static class PostgreSqlDbTypeProviderTests
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
             "character varying", "pg_catalog", "varchar", "app", "email_address", "b", null, null, null, null);
 
-        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 100, Option<INumericPrecision>.None);
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 100, Option<INumericPrecision>.None, Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -230,7 +230,7 @@ internal static class PostgreSqlDbTypeProviderTests
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
             "integer", "pg_catalog", "int4", null, null, "b", null, null, null, null);
 
-        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None);
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
         var columnType = Provider.CreateColumnType(metadata);
 
         using (Assert.EnterMultipleScope())
@@ -303,5 +303,39 @@ internal static class PostgreSqlDbTypeProviderTests
     public static void CreateNumericPrecision_GivenNegativePrecision_ThrowsArgumentOutOfRangeException()
     {
         Assert.That(() => PostgreSqlColumnTypeMetadata.CreateNumericPrecision(-1, 0, 10), Throws.TypeOf<ArgumentOutOfRangeException>());
+    }
+
+    // information_schema reports a datetime precision for the temporal types and null for the rest,
+    // and a temporal type has no numeric precision to be confused with it
+    [TestCase("timestamp without time zone", 6, "\"timestamp without time zone\"(6)")]
+    [TestCase("time with time zone", 0, "\"time with time zone\"(0)")]
+    public static void CreateTypeMetadata_GivenTemporalColumn_DescribesFractionalSecondsPrecision(
+        string dataType,
+        int datetimePrecision,
+        string expectedDefinition)
+    {
+        var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+            dataType, "pg_catalog", dataType, null, null, "b", null, null, null, null);
+
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, datetimePrecision);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(datetimePrecision));
+            Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+        }
+    }
+
+    [Test]
+    public static void CreateTypeMetadata_GivenColumnWithoutDatetimePrecision_DescribesNoFractionalSecondsPrecision()
+    {
+        var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+            "integer", "pg_catalog", "int4", null, null, "b", null, null, null, null);
+
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.FractionalSecondsPrecision, Is.EqualTo(Option<int>.None));
     }
 }
