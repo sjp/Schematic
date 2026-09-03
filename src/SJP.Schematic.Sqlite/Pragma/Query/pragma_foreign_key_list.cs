@@ -28,8 +28,9 @@ public sealed record pragma_foreign_key_list
 
     /// <summary>
     /// The name of the column that is referenced by <see cref="from"/> in the parent key constraint in <see cref="table"/>.
+    /// <see langword="null" /> when the constraint omitted the parent column list, which refers to the parent table's primary key.
     /// </summary>
-    public required string to { get; init; }
+    public required string? to { get; init; }
 
     /// <summary>
     /// The action to take when a referenced foreign key entity is updated.

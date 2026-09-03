@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
@@ -60,9 +60,17 @@ internal static class ParsedModelGuardTests
     }
 
     [Test]
-    public static void ForeignKeyCtor_GivenEmptyParentColumnNames_ThrowsArgumentException()
+    public static void ForeignKeyCtor_GivenEmptyParentColumnNames_DoesNotThrow()
     {
-        Assert.That(() => new ForeignKey(Option<string>.None, ["child_column"], "parent_table", []), Throws.ArgumentException);
+        // an omitted parent column list is valid SQLite and refers to the parent's primary key
+        Assert.That(() => new ForeignKey(Option<string>.None, ["child_column"], "parent_table", []), Throws.Nothing);
+    }
+
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void ForeignKeyCtor_GivenWhiteSpaceParentColumnName_ThrowsArgumentException(string parentColumnName)
+    {
+        Assert.That(() => new ForeignKey(Option<string>.None, ["child_column"], "parent_table", [parentColumnName]), Throws.ArgumentException);
     }
 
     [Test]

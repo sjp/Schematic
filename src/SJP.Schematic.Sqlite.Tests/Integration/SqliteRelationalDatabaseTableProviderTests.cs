@@ -287,6 +287,29 @@ create table deferrable_fk_child (
         match full deferrable initially deferred
 )", CancellationToken.None);
 
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_parent_1 (
+    test_column integer not null primary key
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_child_1 (
+    test_column integer,
+    constraint fk_implicit_fk_child_1 foreign key (test_column) references implicit_fk_parent_1
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_parent_2 (
+    first_name_parent text not null,
+    last_name_parent text not null,
+    constraint pk_implicit_fk_parent_2 primary key (first_name_parent, last_name_parent)
+)", CancellationToken.None);
+        await DbConnection.ExecuteAsync(@"
+create table implicit_fk_child_2 (
+    first_name_child text,
+    last_name_child text,
+    constraint fk_implicit_fk_child_2 foreign key (first_name_child, last_name_child) references implicit_fk_parent_2
+        deferrable initially deferred
+)", CancellationToken.None);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", CancellationToken.None);
         await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
@@ -386,6 +409,10 @@ end", CancellationToken.None);
 
         await DbConnection.ExecuteAsync("drop table deferrable_fk_child", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table deferrable_fk_parent", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_child_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_parent_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_child_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table implicit_fk_parent_2", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", CancellationToken.None);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", CancellationToken.None);
     }

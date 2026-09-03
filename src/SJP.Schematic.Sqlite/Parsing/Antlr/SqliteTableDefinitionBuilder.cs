@@ -175,10 +175,11 @@ internal static class SqliteTableDefinitionBuilder
             .Select(c => UnquoteIdentifier(c.GetText()))
             .ToList();
 
-        // The referenced columns may be omitted (implying the parent's primary key), in which
-        // case the relationship cannot be expressed by column name and is left for the database
-        // metadata to resolve.
-        if (parentColumns.Count == 0 || parentColumns.Count != childColumns.Count)
+        // The referenced columns may be omitted, in which case the constraint refers to the parent's
+        // primary key. The constraint is still returned with an empty parent column list so that its
+        // name, deferrability and match type survive; the provider resolves the parent columns from
+        // the database metadata.
+        if (parentColumns.Count > 0 && parentColumns.Count != childColumns.Count)
             return Option<ForeignKey>.None;
 
         return Option<ForeignKey>.Some(new ForeignKey(

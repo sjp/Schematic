@@ -332,4 +332,18 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         Assert.That(childTableNames, Is.EqualTo(expectedChildTableNames));
     }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildForeignKeyWithOmittedParentColumns_ContainsNamedConstraint()
+    {
+        var table = await GetTableAsync("implicit_fk_parent_1");
+        var foreignKey = table.ChildKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("implicit_fk_child_1"));
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_implicit_fk_child_1"));
+            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+        }
+    }
 }

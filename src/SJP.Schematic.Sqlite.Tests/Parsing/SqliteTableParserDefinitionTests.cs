@@ -144,6 +144,43 @@ internal static class SqliteTableParserDefinitionTests
     }
 
     [Test]
+    public static void Parse_GivenForeignKeyWithOmittedParentColumns_ReturnsForeignKeyWithoutParentColumns()
+    {
+        var result = Parse("create table t (a int, constraint fk_t foreign key (a) references p)");
+
+        var fk = result.ParentKeys.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(fk.Name.IfNone(string.Empty), Is.EqualTo("fk_t"));
+            Assert.That(fk.Columns, Is.EqualTo(new[] { "a" }));
+            Assert.That(fk.ParentTable.LocalName, Is.EqualTo("p"));
+            Assert.That(fk.ParentColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public static void Parse_GivenInlineForeignKeyWithOmittedParentColumns_ReturnsForeignKeyWithoutParentColumns()
+    {
+        var result = Parse("create table t (a int references p)");
+
+        var fk = result.ParentKeys.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(fk.Columns, Is.EqualTo(new[] { "a" }));
+            Assert.That(fk.ParentTable.LocalName, Is.EqualTo("p"));
+            Assert.That(fk.ParentColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public static void Parse_GivenForeignKeyWithMismatchedParentColumnCount_IgnoresForeignKey()
+    {
+        var result = Parse("create table t (a int, b int, foreign key (a, b) references p (c))");
+
+        Assert.That(result.ParentKeys, Is.Empty);
+    }
+
+    [Test]
     public static void Parse_GivenInlineForeignKey_ReturnsForeignKey()
     {
         var result = Parse("create table t (a int references p (b))");

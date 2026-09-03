@@ -19,7 +19,7 @@ public class ForeignKey
     /// <param name="constraintName">The constraint name.</param>
     /// <param name="columnName">The column name.</param>
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
-    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
+    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name, or empty when the constraint omitted the parent column list.</param>
     public ForeignKey(Option<string> constraintName, string columnName, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
         : this(constraintName, [columnName], parentTable, parentColumnNames)
     {
@@ -31,9 +31,9 @@ public class ForeignKey
     /// <param name="constraintName">The constraint name.</param>
     /// <param name="columnNames">The column names comprising this foreign key.</param>
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
-    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
+    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to, or empty when the constraint omitted the parent column list.</param>
     /// <exception cref="ArgumentNullException"><paramref name="parentTable"/>, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is <see langword="null" />, or <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains a <see langword="null" /> value.</exception>
-    /// <exception cref="ArgumentException"><paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is empty or contains an empty or whitespace value, or <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnNames"/> is empty, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains an empty or whitespace value, or a non-empty <paramref name="parentColumnNames"/> has a different number of elements to <paramref name="columnNames"/>.</exception>
     public ForeignKey(Option<string> constraintName, IReadOnlyCollection<string> columnNames, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
         : this(constraintName, columnNames, parentTable, parentColumnNames, ConstraintDeferrability.NotDeferrable, ForeignKeyMatchType.Simple)
     {
@@ -45,11 +45,11 @@ public class ForeignKey
     /// <param name="constraintName">The constraint name.</param>
     /// <param name="columnNames">The column names comprising this foreign key.</param>
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
-    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name.</param>
+    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to, or empty when the constraint omitted the parent column list.</param>
     /// <param name="deferrability">The declared <c>DEFERRABLE</c> behaviour.</param>
     /// <param name="matchType">The declared <c>MATCH</c> behaviour.</param>
     /// <exception cref="ArgumentNullException"><paramref name="parentTable"/>, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is <see langword="null" />, or <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains a <see langword="null" /> value.</exception>
-    /// <exception cref="ArgumentException"><paramref name="columnNames"/> or <paramref name="parentColumnNames"/> is empty or contains an empty or whitespace value, <paramref name="columnNames"/> and <paramref name="parentColumnNames"/> have a different number of elements, or <paramref name="deferrability"/> or <paramref name="matchType"/> is not a valid enum.</exception>
+    /// <exception cref="ArgumentException"><paramref name="columnNames"/> is empty, <paramref name="columnNames"/> or <paramref name="parentColumnNames"/> contains an empty or whitespace value, a non-empty <paramref name="parentColumnNames"/> has a different number of elements to <paramref name="columnNames"/>, or <paramref name="deferrability"/> or <paramref name="matchType"/> is not a valid enum.</exception>
     public ForeignKey(
         Option<string> constraintName,
         IReadOnlyCollection<string> columnNames,
@@ -65,9 +65,11 @@ public class ForeignKey
             throw new ArgumentNullException(nameof(parentColumnNames));
         if (columnNames.Empty() || columnNames.Any(static c => c.IsNullOrWhiteSpace()))
             throw new ArgumentException("A foreign key must have at least one column, and its column names must not be empty or whitespace.", nameof(columnNames));
-        if (parentColumnNames.Empty() || parentColumnNames.Any(static c => c.IsNullOrWhiteSpace()))
-            throw new ArgumentException("A foreign key must refer to at least one parent column, and its column names must not be empty or whitespace.", nameof(parentColumnNames));
-        if (columnNames.Count != parentColumnNames.Count)
+        if (parentColumnNames.Any(static c => c.IsNullOrWhiteSpace()))
+            throw new ArgumentException("The parent column names of a foreign key must not be empty or whitespace.", nameof(parentColumnNames));
+        // An omitted parent column list is valid SQLite and refers to the parent table's primary key,
+        // so an empty collection is accepted and only a mismatched non-empty list is rejected.
+        if (parentColumnNames.Count > 0 && columnNames.Count != parentColumnNames.Count)
             throw new ArgumentException($"The number of source columns ({columnNames.Count}) does not match the number of target columns ({parentColumnNames.Count}).", nameof(parentColumnNames));
         if (!deferrability.IsValid())
             throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
@@ -102,7 +104,8 @@ public class ForeignKey
     public Identifier ParentTable { get; }
 
     /// <summary>
-    /// The columns in the parent table that the foreign key refers to.
+    /// The columns in the parent table that the foreign key refers to. Empty when the constraint
+    /// omitted the parent column list, which refers to the parent table's primary key.
     /// </summary>
     /// <value>Columns names in the parent table.</value>
     public IEnumerable<string> ParentColumns { get; }

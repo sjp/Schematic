@@ -326,4 +326,42 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             Assert.That(foreignKey.SetNullColumns, Is.Empty);
         }
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenForeignKeyWithOmittedParentColumns_ResolvesParentPrimaryKey()
+    {
+        var table = await GetTableAsync("implicit_fk_child_1");
+        var foreignKey = table.ParentKeys.Single();
+
+        var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+        var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_implicit_fk_child_1"));
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("implicit_fk_parent_1"));
+            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(childColumns, Is.EqualTo(new[] { "test_column" }));
+            Assert.That(parentColumns, Is.EqualTo(new[] { "test_column" }));
+        }
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenCompositeForeignKeyWithOmittedParentColumns_ResolvesParentPrimaryKey()
+    {
+        var table = await GetTableAsync("implicit_fk_child_2");
+        var foreignKey = table.ParentKeys.Single();
+
+        var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+        var parentColumns = foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_implicit_fk_child_2"));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_implicit_fk_parent_2"));
+            Assert.That(childColumns, Is.EqualTo(new[] { "first_name_child", "last_name_child" }));
+            Assert.That(parentColumns, Is.EqualTo(new[] { "first_name_parent", "last_name_parent" }));
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+        }
+    }
 }

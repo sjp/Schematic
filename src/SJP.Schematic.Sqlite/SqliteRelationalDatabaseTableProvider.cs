@@ -920,21 +920,28 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         {
             var candidateParentTableName = Identifier.CreateQualifiedIdentifier(tableName.Schema, fkey.Key.ParentTableName);
             Identifier? parentTableName = null;
+            var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
+            var hasImplicitParentColumns = rows.Any(static row => row.to == null);
             await GetResolvedTableName(candidateParentTableName, cancellationToken)
                 .BindAsync(async name =>
                 {
                     parentTableName = name; // required for later binding
 
+                    var parentPrimaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken);
+
+                    // the pragma reports a null parent column when the constraint omitted the parent
+                    // column list, which in SQLite refers to the parent table's primary key
+                    if (hasImplicitParentColumns)
+                        return parentPrimaryKey.ToAsync();
+
                     var parentTableColumns = await queryCache.GetColumnsAsync(name, cancellationToken);
                     var parentTableColumnLookup = GetColumnLookup(parentTableColumns);
 
-                    var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
                     var parentColumns = rows
-                        .Where(row => parentTableColumnLookup.ContainsKey(row.to))
-                        .Select(row => parentTableColumnLookup[row.to])
+                        .Where(row => parentTableColumnLookup.ContainsKey(row.to!))
+                        .Select(row => parentTableColumnLookup[row.to!])
                         .ToList();
 
-                    var parentPrimaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken);
                     var pkColumnsEqual = parentPrimaryKey
                         .Match(
                             k => k.Columns.Select(static col => col.Name).SequenceEqual(parentColumns.Select(static col => col.Name)),
@@ -953,12 +960,16 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 })
                 .Map(key =>
                 {
-                    var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
+                    var childColumnNames = rows.Select(static row => row.from).ToList();
 
-                    // don't need to check for the parent schema as cross-schema references are not supported
+                    // don't need to check for the parent schema as cross-schema references are not supported.
+                    // A constraint that omitted its parent columns has none to match on, so the child
+                    // column list identifies it in the parsed definition instead.
                     var parsedConstraint = parsedTable.ParentKeys
                         .FirstOrDefault(fkc => string.Equals(fkc.ParentTable.LocalName, fkey.Key.ParentTableName, StringComparison.OrdinalIgnoreCase)
-                            && fkc.ParentColumns.SequenceEqual(rows.Select(static row => row.to), StringComparer.OrdinalIgnoreCase));
+                            && (hasImplicitParentColumns
+                                ? fkc.ParentColumns.Empty() && fkc.Columns.SequenceEqual(childColumnNames, StringComparer.OrdinalIgnoreCase)
+                                : fkc.ParentColumns.SequenceEqual(rows.Select(static row => row.to!), StringComparer.OrdinalIgnoreCase)));
                     var parsedConstraintOption = parsedConstraint != null
                         ? Option<ForeignKey>.Some(parsedConstraint)
                         : Option<ForeignKey>.None;
