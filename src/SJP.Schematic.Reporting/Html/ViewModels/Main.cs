@@ -104,7 +104,8 @@ public sealed class Main
             uint parentsCount,
             uint childrenCount,
             uint columnCount,
-            TableKind kind
+            TableKind kind,
+            Option<long> rowCount
         )
         {
             ArgumentNullException.ThrowIfNull(tableName);
@@ -116,6 +117,7 @@ public sealed class Main
             ChildrenCount = childrenCount;
             ColumnCount = columnCount;
             Kind = TableKindNames.GetName(kind);
+            RowCount = rowCount.MatchUnsafe(static count => count, static () => (long?)null);
         }
 
         public string Name { get; }
@@ -129,6 +131,12 @@ public sealed class Main
         public uint ColumnCount { get; }
 
         public string Kind { get; }
+
+        /// <summary>
+        /// The number of rows the database reports for the table, usually an estimate.
+        /// <see langword="null" /> when no statistics were available.
+        /// </summary>
+        public long? RowCount { get; }
     }
 
     /// <summary>

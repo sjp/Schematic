@@ -86,6 +86,39 @@ describe("TablesPage", () => {
     expect(link).toHaveAttribute("href", "/tables/actor-d4592e62");
   });
 
+  it("shows a row count column only when the report carries statistics", () => {
+    const table = {
+      name: "actor",
+      tableUrl: "#/tables/actor-d4592e62",
+      parentsCount: 0,
+      childrenCount: 2,
+      columnCount: 4,
+      kind: "",
+    };
+
+    mockUseSummary.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { tablesCount: 1, allTables: [table] },
+      error: null,
+    } as never);
+
+    const withoutCounts = render(<TablesPage />);
+    expect(screen.queryByText("Rows (approx.)")).not.toBeInTheDocument();
+    withoutCounts.unmount();
+
+    mockUseSummary.mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { tablesCount: 1, allTables: [{ ...table, rowCount: 1234 }] },
+      error: null,
+    } as never);
+
+    render(<TablesPage />);
+    expect(screen.getByText("Rows (approx.)")).toBeInTheDocument();
+    expect(screen.getByText((1234).toLocaleString())).toBeInTheDocument();
+  });
+
   it("shows the tables count in the heading", () => {
     mockUseSummary.mockReturnValue({
       isPending: false,

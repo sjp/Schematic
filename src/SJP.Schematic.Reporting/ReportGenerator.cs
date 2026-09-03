@@ -18,17 +18,18 @@ namespace SJP.Schematic.Reporting;
 
 public class ReportGenerator
 {
-    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, string directory)
-        : this(connection, databaseProvider, database, new DirectoryInfo(directory))
+    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, string directory, ITableStatisticsProvider? tableStatistics = null)
+        : this(connection, databaseProvider, database, new DirectoryInfo(directory), tableStatistics)
     {
     }
 
-    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, DirectoryInfo directory)
+    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, DirectoryInfo directory, ITableStatisticsProvider? tableStatistics = null)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         DatabaseProvider = databaseProvider ?? throw new ArgumentNullException(nameof(databaseProvider));
         Database = database ?? throw new ArgumentNullException(nameof(database));
         ExportDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
+        TableStatistics = tableStatistics;
     }
 
     protected ISchematicConnection Connection { get; }
@@ -38,6 +39,12 @@ public class ReportGenerator
     protected IRelationalDatabase Database { get; }
 
     protected DirectoryInfo ExportDirectory { get; }
+
+    /// <summary>
+    /// The statistics the database records for its tables, when the caller supplied a provider.
+    /// The report shows a row count for each table when they are available.
+    /// </summary>
+    protected ITableStatisticsProvider? TableStatistics { get; }
 
     public async Task GenerateAsync(CancellationToken cancellationToken = default)
     {
@@ -58,13 +65,14 @@ public class ReportGenerator
         ).WhenAll();
 
         var dbVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(cancellationToken);
+        var tableStatistics = await GetTableStatisticsAsync(cancellationToken);
 
-        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, schemas, dbVersion);
+        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, schemas, dbVersion, tableStatistics);
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
         // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
         // same payload string with the shared bundle.
-        var renderers = GetRenderers();
+        var renderers = GetRenderers(tableStatistics);
 
         // Render every section, isolating failures so one bad object/section doesn't hide the rest.
         var failures = new ConcurrentBag<RenderException>();
@@ -124,7 +132,8 @@ public class ReportGenerator
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyCollection<IDatabaseSchema> schemas,
-        string databaseVersion
+        string databaseVersion,
+        IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics
     )
     {
         ArgumentNullException.ThrowIfNull(tables);
@@ -148,18 +157,47 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, databaseVersion, referencedObjectTargets, synonymTargets);
+        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, databaseVersion, referencedObjectTargets, synonymTargets, tableStatistics);
+    }
+
+    // Statistics decorate the report rather than form it, and reading them needs privileges that a
+    // user able to read the schema may still not have, so a database that will not report them
+    // costs the report a column instead of the whole run.
+    private async Task<IReadOnlyDictionary<Identifier, ITableStatistics>> GetTableStatisticsAsync(CancellationToken cancellationToken)
+    {
+        if (TableStatistics == null)
+            return new Dictionary<Identifier, ITableStatistics>();
+
+        IReadOnlyCollection<ITableStatistics> statistics;
+        try
+        {
+            statistics = await TableStatistics.GetAllTableStatistics(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return new Dictionary<Identifier, ITableStatistics>();
+        }
+
+        return statistics
+            .GroupBy(static stat => stat.TableName, IdentifierComparer.OrdinalIgnoreCase)
+            .ToDictionary(static group => group.Key, static group => group.First(), IdentifierComparer.OrdinalIgnoreCase);
     }
 
     // The renderer list is fixed for every run: each renderer's constructor only takes genuine
     // collaborators (e.g. the dialect-specific linter) that wouldn't vary between calls. What to
     // render and where to write it flow in through RenderAsync instead — see IDataRenderer.
-    private IEnumerable<IDataRenderer> GetRenderers()
+    private IEnumerable<IDataRenderer> GetRenderers(IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics)
     {
         // Lint analysis produces data/lint.json from the default HTML rule set. Rules are taken at
         // their own default levels rather than being forced to a single one: the report's severity
-        // filter is only useful if the rules actually disagree about how serious they are.
-        var ruleProvider = new DefaultHtmlRuleProvider();
+        // filter is only useful if the rules actually disagree about how serious they are. The
+        // rules are handed the statistics the report already retrieved, so that they spend no
+        // queries of their own on them.
+        var ruleProvider = new DefaultHtmlRuleProvider(new PreloadedTableStatisticsProvider(tableStatistics));
         var rules = ruleProvider.GetRules(Connection);
         var linter = new RelationalDatabaseLinter(rules);
 

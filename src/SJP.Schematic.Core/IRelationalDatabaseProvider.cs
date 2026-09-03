@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Comments;
@@ -49,4 +49,15 @@ public interface IRelationalDatabaseProvider
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A comment provider.</returns>
     Task<IRelationalDatabaseCommentProvider> GetRelationalDatabaseCommentProviderAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Retrieves a table statistics provider for the underlying database connection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A table statistics provider, or <see cref="EmptyTableStatisticsProvider"/> when the engine records no statistics.</returns>
+    /// <remarks>
+    /// Statistics describe a database's contents rather than its structure, so they are kept out of
+    /// <see cref="IRelationalDatabase"/> and are retrieved on demand from a live connection.
+    /// </remarks>
+    Task<ITableStatisticsProvider> GetTableStatisticsProviderAsync(CancellationToken cancellationToken = default);
 }

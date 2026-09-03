@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Moq;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.Renderers;
@@ -21,7 +21,8 @@ internal static class ReportDataFactory
         IReadOnlyCollection<IDatabaseSchema> schemas = null!,
         string databaseVersion = null!,
         ReferencedObjectTargets referencedObjectTargets = null!,
-        SynonymTargets synonymTargets = null!)
+        SynonymTargets synonymTargets = null!,
+        IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics = null!)
     {
         return new ReportData(
             database ?? new Mock<IRelationalDatabase>().Object,
@@ -33,6 +34,7 @@ internal static class ReportDataFactory
             schemas ?? [],
             databaseVersion,
             referencedObjectTargets ?? new ReferencedObjectTargets(new Mock<IDependencyProvider>().Object, [], [], [], [], []),
-            synonymTargets ?? new SynonymTargets([], [], [], [], []));
+            synonymTargets ?? new SynonymTargets([], [], [], [], []),
+            tableStatistics ?? new Dictionary<Identifier, ITableStatistics>());
     }
 }

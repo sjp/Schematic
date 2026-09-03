@@ -1,8 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
+using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
@@ -19,7 +21,13 @@ internal sealed class TablesRenderer : IDataRenderer
 
         var tableViewModels = new List<Main.Table>();
         foreach (var table in data.Tables)
-            tableViewModels.Add(mapper.Map(table));
+        {
+            var statistics = data.TableStatistics.TryGetValue(table.Name, out var tableStatistics)
+                ? Option<ITableStatistics>.Some(tableStatistics)
+                : Option<ITableStatistics>.None;
+
+            tableViewModels.Add(mapper.Map(table, statistics));
+        }
 
         var tablesVm = new Tables(tableViewModels);
 

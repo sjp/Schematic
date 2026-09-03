@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
@@ -23,7 +23,8 @@ internal sealed class ReportData
         IReadOnlyCollection<IDatabaseSchema> schemas,
         string? databaseVersion,
         ReferencedObjectTargets referencedObjectTargets,
-        SynonymTargets synonymTargets
+        SynonymTargets synonymTargets,
+        IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics
     )
     {
         Database = database ?? throw new ArgumentNullException(nameof(database));
@@ -36,6 +37,7 @@ internal sealed class ReportData
         DatabaseVersion = databaseVersion;
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
+        TableStatistics = tableStatistics ?? throw new ArgumentNullException(nameof(tableStatistics));
     }
 
     public IRelationalDatabase Database { get; }
@@ -57,4 +59,10 @@ internal sealed class ReportData
     public ReferencedObjectTargets ReferencedObjectTargets { get; }
 
     public SynonymTargets SynonymTargets { get; }
+
+    /// <summary>
+    /// The statistics the database records for its tables, keyed by table name. Empty when no
+    /// statistics provider was given, or when the database records none.
+    /// </summary>
+    public IReadOnlyDictionary<Identifier, ITableStatistics> TableStatistics { get; }
 }

@@ -59,6 +59,11 @@ public static class Empty
         public static Task<IReadOnlyCollection<IDatabaseUserDefinedType>> UserDefinedTypes { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseUserDefinedType>>(FrozenSet<IDatabaseUserDefinedType>.Empty);
 
         /// <summary>
+        /// An empty collection of table statistics.
+        /// </summary>
+        public static Task<IReadOnlyCollection<ITableStatistics>> TableStatistics { get; } = Task.FromResult<IReadOnlyCollection<ITableStatistics>>(FrozenSet<ITableStatistics>.Empty);
+
+        /// <summary>
         /// An empty collection of schema comments.
         /// </summary>
         public static Task<IReadOnlyCollection<IDatabaseSchemaComments>> SchemaComments { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseSchemaComments>>(FrozenSet<IDatabaseSchemaComments>.Empty);

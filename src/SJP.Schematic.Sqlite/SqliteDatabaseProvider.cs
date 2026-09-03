@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
@@ -107,5 +107,16 @@ public class SqliteDatabaseProvider : IRelationalDatabaseProvider
     {
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore();
         return new EmptyRelationalDatabaseCommentProvider(identifierDefaults);
+    }
+
+    /// <summary>
+    /// Retrieves a table statistics provider for the underlying database connection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A table statistics provider.</returns>
+    public async Task<ITableStatisticsProvider> GetTableStatisticsProviderAsync(CancellationToken cancellationToken = default)
+    {
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore();
+        return new SqliteTableStatisticsProvider(Connection, new ConnectionPragma(Connection), identifierDefaults);
     }
 }

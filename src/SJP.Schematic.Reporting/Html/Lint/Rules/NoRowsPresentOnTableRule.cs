@@ -6,8 +6,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoRowsPresentOnTableRule : Schematic.Lint.Rules.NoRowsPresentOnTableRule
 {
-    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel? level = null)
-        : base(connection, level)
+    public NoRowsPresentOnTableRule(ISchematicConnection connection, RuleLevel? level = null, ITableStatisticsProvider? tableStatistics = null)
+        : base(connection, level, tableStatistics)
     {
     }
 

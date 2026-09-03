@@ -16,6 +16,10 @@ function keyFromUrl(tableUrl: string): string {
 export function TablesPage() {
   const { data, isPending, isError, error } = useSummary<TablesSummary>("tables");
 
+  // Row counts are only present when the report was generated with a table statistics provider,
+  // so the column is dropped entirely rather than shown as a column of blanks.
+  const hasRowCounts = data?.allTables.some((table) => table.rowCount != null) ?? false;
+
   const columns = useMemo<ColumnDef<AppTableFeatures, TableSummary>[]>(
     () => [
       {
@@ -31,6 +35,19 @@ export function TablesPage() {
           </Link>
         ),
       },
+      ...(hasRowCounts
+        ? [
+            {
+              accessorKey: "rowCount",
+              // every engine reports an estimate rather than a count, so the header says so
+              header: "Rows (approx.)",
+              cell: ({ getValue }) => {
+                const rowCount = getValue<number | null | undefined>();
+                return rowCount == null ? null : rowCount.toLocaleString();
+              },
+            } satisfies ColumnDef<AppTableFeatures, TableSummary>,
+          ]
+        : []),
       { accessorKey: "columnCount", header: "Columns" },
       { accessorKey: "parentsCount", header: "Parents" },
       { accessorKey: "childrenCount", header: "Children" },
@@ -47,7 +64,7 @@ export function TablesPage() {
         },
       },
     ],
-    [],
+    [hasRowCounts],
   );
 
   if (isPending) {

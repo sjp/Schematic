@@ -63,7 +63,11 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
 
         var snapshotDb = await database.SnapshotAsync(cancellationToken);
 
-        var reportGenerator = new ReportGenerator(connection, databaseProvider, snapshotDb, settings.OutputDirectory!.FullName);
+        // statistics describe the live database, so they are read from the provider rather than
+        // from the snapshot the rest of the report is built from
+        var tableStatistics = await databaseProvider.GetTableStatisticsProviderAsync(cancellationToken);
+
+        var reportGenerator = new ReportGenerator(connection, databaseProvider, snapshotDb, settings.OutputDirectory!.FullName, tableStatistics);
         await reportGenerator.GenerateAsync(cancellationToken);
 
         _console.Write("Report generated to: " + settings.OutputDirectory!.FullName);

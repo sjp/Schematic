@@ -41,6 +41,11 @@ export interface TableSummary {
   columnCount: number;
   /** Display name of the table kind, e.g. `History`. Empty for an ordinary table. */
   kind: string;
+  /**
+   * Rows the database reports for the table, almost always an estimate. Null when the report was
+   * generated without table statistics, or the database records none for this table.
+   */
+  rowCount?: number | null;
 }
 
 /** `data/tables.json`. */

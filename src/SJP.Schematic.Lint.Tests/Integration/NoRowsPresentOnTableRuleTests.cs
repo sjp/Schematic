@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -122,6 +123,66 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
     }
 
     [Test]
+    public async Task AnalyseTables_GivenStatisticsReportingRows_ProducesNoMessagesWithoutQuerying()
+    {
+        var database = GetSqliteDatabase();
+        var table = await database.GetTable("table_with_no_rows_1").UnwrapSomeAsync();
+
+        // the table really is empty, so a message is only avoided by the rule trusting the estimate
+        var statistics = new FakeTableStatisticsProvider(new TableStatistics(table.Name, Option<long>.Some(100), false, Option<long>.None, Option<long>.None));
+        var rule = new NoRowsPresentOnTableRule(Connection, RuleLevel.Error, statistics);
+
+        var messages = await rule.AnalyseTables([table]);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenEstimateOfNoRows_QueriesTheTableAnyway()
+    {
+        var database = GetSqliteDatabase();
+        var table = await database.GetTable("table_with_rows_1").UnwrapSomeAsync();
+
+        // an estimate of zero is what an unanalysed table reports too, so it must not be believed
+        var statistics = new FakeTableStatisticsProvider(new TableStatistics(table.Name, Option<long>.Some(0), false, Option<long>.None, Option<long>.None));
+        var rule = new NoRowsPresentOnTableRule(Connection, RuleLevel.Error, statistics);
+
+        var messages = await rule.AnalyseTables([table]);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenExactCountOfNoRows_ProducesMessagesWithoutQuerying()
+    {
+        var database = GetSqliteDatabase();
+        var table = await database.GetTable("table_with_rows_1").UnwrapSomeAsync();
+
+        // the table really does have rows, so a message is only produced by the rule trusting the
+        // exact count in place of a query
+        var statistics = new FakeTableStatisticsProvider(new TableStatistics(table.Name, Option<long>.Some(0), true, Option<long>.None, Option<long>.None));
+        var rule = new NoRowsPresentOnTableRule(Connection, RuleLevel.Error, statistics);
+
+        var messages = await rule.AnalyseTables([table]);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenStatisticsForAnotherTable_FallsBackToQuerying()
+    {
+        var database = GetSqliteDatabase();
+        var table = await database.GetTable("table_with_no_rows_1").UnwrapSomeAsync();
+
+        var statistics = new FakeTableStatisticsProvider(new TableStatistics("some_other_table", Option<long>.Some(100), false, Option<long>.None, Option<long>.None));
+        var rule = new NoRowsPresentOnTableRule(Connection, RuleLevel.Error, statistics);
+
+        var messages = await rule.AnalyseTables([table]);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
     public async Task AnalyseTables_GivenMoreTablesThanPermittedQueries_RunsNoMoreQueriesThanPermittedAtOnce()
     {
         var connectionFactory = new ConcurrencyTrackingDbConnectionFactory(DbConnection);
@@ -140,6 +201,32 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
         await rule.AnalyseTables(tables);
 
         Assert.That(connectionFactory.PeakConnectionsBeingOpened, Is.EqualTo(ProbeConcurrencyLimiter.MaxConcurrentQueries));
+    }
+
+    /// <summary>
+    /// A statistics provider returning a fixed set of statistics, standing in for the statistics a
+    /// database records for its tables.
+    /// </summary>
+    private sealed class FakeTableStatisticsProvider : ITableStatisticsProvider
+    {
+        public FakeTableStatisticsProvider(params ITableStatistics[] statistics)
+        {
+            _statistics = statistics;
+        }
+
+        public OptionAsync<ITableStatistics> GetTableStatistics(Identifier tableName, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            var statistics = _statistics.FirstOrDefault(s => s.TableName == tableName);
+            return statistics != null
+                ? OptionAsync<ITableStatistics>.Some(statistics)
+                : OptionAsync<ITableStatistics>.None;
+        }
+
+        public Task<IReadOnlyCollection<ITableStatistics>> GetAllTableStatistics(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<ITableStatistics>>(_statistics);
+
+        private readonly IReadOnlyCollection<ITableStatistics> _statistics;
     }
 
     /// <summary>

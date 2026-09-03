@@ -7,20 +7,24 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class MainModelMapper
 {
-    public Main.Table Map(IRelationalDatabaseTable table)
+    public Main.Table Map(IRelationalDatabaseTable table) => Map(table, Option<ITableStatistics>.None);
+
+    public Main.Table Map(IRelationalDatabaseTable table, Option<ITableStatistics> statistics)
     {
         ArgumentNullException.ThrowIfNull(table);
 
         var parentKeyCount = table.ParentKeys.UCount();
         var childKeyCount = table.ChildKeys.UCount();
         var columnCount = table.Columns.UCount();
+        var rowCount = statistics.Bind(static stat => stat.RowCount);
 
         return new Main.Table(
             table.Name,
             parentKeyCount,
             childKeyCount,
             columnCount,
-            table.Kind
+            table.Kind,
+            rowCount
         );
     }
 

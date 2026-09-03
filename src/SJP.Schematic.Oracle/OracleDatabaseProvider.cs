@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -146,5 +146,21 @@ public class OracleDatabaseProvider : IRelationalDatabaseProvider
         var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
         return new OracleDatabaseCommentProvider(connection.ConnectionFactory, identifierDefaults, identifierResolver);
+    }
+
+    /// <summary>
+    /// Retrieves a table statistics provider for the underlying database connection.
+    /// </summary>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A table statistics provider.</returns>
+    public Task<ITableStatisticsProvider> GetTableStatisticsProviderAsync(CancellationToken cancellationToken = default)
+    {
+        return GetTableStatisticsProviderAsyncCore(Connection, cancellationToken);
+    }
+
+    private static async Task<ITableStatisticsProvider> GetTableStatisticsProviderAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
+    {
+        var identifierDefaults = await GetIdentifierDefaultsAsyncCore(connection, cancellationToken);
+        return new OracleTableStatisticsProvider(connection.ConnectionFactory, identifierDefaults);
     }
 }

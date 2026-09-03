@@ -14,6 +14,30 @@ namespace SJP.Schematic.Reporting.Html.Lint;
 public sealed class DefaultHtmlRuleProvider : IRuleProvider
 {
     /// <summary>
+    /// Initializes a new instance of the <see cref="DefaultHtmlRuleProvider"/> class, whose rules query the
+    /// database for anything the schema does not tell them.
+    /// </summary>
+    public DefaultHtmlRuleProvider()
+        : this(null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DefaultHtmlRuleProvider"/> class.
+    /// </summary>
+    /// <param name="tableStatistics">The statistics the database records for its tables, given to the rules that can use them in place of a query. <see langword="null" /> when none are available.</param>
+    public DefaultHtmlRuleProvider(ITableStatisticsProvider? tableStatistics)
+    {
+        TableStatistics = tableStatistics;
+    }
+
+    /// <summary>
+    /// The statistics the database records for its tables, if any were supplied.
+    /// </summary>
+    /// <value>A table statistics provider.</value>
+    private ITableStatisticsProvider? TableStatistics { get; }
+
+    /// <summary>
     /// Retrieves the default set of rules used to analyze database objects.
     /// </summary>
     /// <param name="connection">A schematic connection.</param>
@@ -46,7 +70,7 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
 
     // One list serves both overloads: a null level means "leave each rule at its own
     // DefaultLevel", which is exactly what each rule's optional level parameter already does.
-    private static IEnumerable<IRule> BuildRules(ISchematicConnection connection, RuleLevel? level)
+    private IEnumerable<IRule> BuildRules(ISchematicConnection connection, RuleLevel? level)
     {
         return
         [
@@ -73,7 +97,7 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
             new InvalidViewDefinitionRule(connection, level),
             new NoIndexesPresentOnTableRule(level),
             new NoNonNullableColumnsPresentRule(level),
-            new NoRowsPresentOnTableRule(connection, level),
+            new NoRowsPresentOnTableRule(connection, level, TableStatistics),
             new NoSurrogatePrimaryKeyRule(level),
             new NoValueForNullableColumnRule(connection, level),
             new NullableBooleanColumnRule(level),
