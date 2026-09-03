@@ -43,6 +43,15 @@ public sealed record DatabaseColumn
     public bool IsComputed { get; init; }
 
     /// <summary>
+    /// Whether the column is omitted from the expansion of <c>SELECT *</c>.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before hidden columns were described still reads
+    /// back, as a visible column.
+    /// </remarks>
+    public bool IsHidden { get; init; }
+
+    /// <summary>
     /// The expression applied when no value is provided for the column, if any.
     /// </summary>
     public string? DefaultValue { get; init; }

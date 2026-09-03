@@ -732,7 +732,8 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     autoIncrement,
                     row.IsComputed,
                     computedColumnDefinition,
-                    computedStorage);
+                    computedStorage,
+                    row.IsHidden);
             })
             .ToListAsync(cancellationToken);
     }

@@ -306,7 +306,7 @@ public class EFCoreDbContextBuilder
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(navigationResolver);
 
-        var columnExprs = table.Columns
+        var columnExprs = table.GetMappedColumns()
             .Where(static c => c.IsComputed || c.Default.IsSome || c.AutoIncrement.IsSome)
             .Select(c => BuildTableColumnPropertyForBuilder(table, c));
         var primaryKeyExpr = table.PrimaryKey

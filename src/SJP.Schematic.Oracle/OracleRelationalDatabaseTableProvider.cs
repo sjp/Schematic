@@ -840,6 +840,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             var isNullable = !string.Equals(row.IsNullable, Constants.N, StringComparison.Ordinal);
             var isComputed = string.Equals(row.IsComputed, Constants.Yes, StringComparison.Ordinal);
+            // only a column the user declared INVISIBLE reaches this point; the query filters out
+            // the system-generated hidden columns that back function-based indexes and object types
+            var isHidden = string.Equals(row.IsHidden, Constants.Yes, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
                 ? Option<string>.Some(row.DefaultValue)
@@ -855,7 +858,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 isComputed ? Option<IAutoIncrement>.None : BuildAutoIncrement(row, tableName),
                 isComputed,
                 computedColumnDefinition,
-                ComputedColumnStorage.Virtual);
+                ComputedColumnStorage.Virtual,
+                isHidden);
 
             result.Add(column);
         }

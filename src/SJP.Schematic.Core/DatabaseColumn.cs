@@ -55,6 +55,34 @@ public class DatabaseColumn : IDatabaseColumn
         bool isComputed,
         Option<string> computedDefinition,
         ComputedColumnStorage computedStorage
+    ) : this(columnName, type, isNullable, defaultValue, autoIncrement, isComputed, computedDefinition, computedStorage, false)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DatabaseColumn"/> class.
+    /// </summary>
+    /// <param name="columnName">The name of the column. Only the local name is kept.</param>
+    /// <param name="type">The column data type.</param>
+    /// <param name="isNullable">Whether the column can hold <see langword="null" /> values.</param>
+    /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
+    /// <param name="autoIncrement">The auto-increment definition, if available.</param>
+    /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
+    /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
+    /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
+    /// <param name="isHidden">Whether the column is omitted from the expansion of <c>SELECT *</c>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" /></exception>
+    /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
+    public DatabaseColumn(
+        Identifier columnName,
+        IDbType type,
+        bool isNullable,
+        Option<IDatabaseDefaultValue> defaultValue,
+        Option<IAutoIncrement> autoIncrement,
+        bool isComputed,
+        Option<string> computedDefinition,
+        ComputedColumnStorage computedStorage,
+        bool isHidden
     )
     {
         ArgumentNullException.ThrowIfNull(columnName);
@@ -69,6 +97,7 @@ public class DatabaseColumn : IDatabaseColumn
         IsComputed = isComputed;
         ComputedDefinition = isComputed ? computedDefinition : Option<string>.None;
         ComputedStorage = isComputed ? computedStorage : ComputedColumnStorage.Unknown;
+        IsHidden = isHidden;
     }
 
     /// <summary>
@@ -100,6 +129,12 @@ public class DatabaseColumn : IDatabaseColumn
     /// </summary>
     /// <value>The storage applied to a computed column.</value>
     public ComputedColumnStorage ComputedStorage { get; }
+
+    /// <summary>
+    /// Determines whether the column is omitted from the expansion of <c>SELECT *</c>.
+    /// </summary>
+    /// <value><see langword="true" /> if this column is hidden from <c>SELECT *</c>; otherwise, <see langword="false" />.</value>
+    public bool IsHidden { get; }
 
     /// <summary>
     /// The name of a column within a table or view.

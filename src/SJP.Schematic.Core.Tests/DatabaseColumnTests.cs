@@ -298,6 +298,38 @@ internal static class DatabaseColumnTests
         Assert.That(result, Is.EqualTo(expectedResult));
     }
 
+    [Test]
+    public static void IsHidden_WhenNotGiven_EqualsFalse()
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+
+        var column = new DatabaseColumn(columnName, dbType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+
+        Assert.That(column.IsHidden, Is.False);
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public static void IsHidden_PropertyGet_EqualsCtorArg(bool isHidden)
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+
+        var column = new DatabaseColumn(
+            columnName,
+            dbType,
+            false,
+            Option<IDatabaseDefaultValue>.None,
+            Option<IAutoIncrement>.None,
+            false,
+            Option<string>.None,
+            ComputedColumnStorage.Unknown,
+            isHidden);
+
+        Assert.That(column.IsHidden, Is.EqualTo(isHidden));
+    }
+
     private static DatabaseColumn CreateComputedColumn(Option<string> computedDefinition, ComputedColumnStorage storage)
     {
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");

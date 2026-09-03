@@ -1108,6 +1108,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 ? ComputedColumnStorage.Stored
                 : ComputedColumnStorage.Virtual;
 
+            // the other hidden values describe a generated column, which SELECT * still expands to
+            var isHidden = tableInfo.hidden == HiddenColumnType.Hidden;
+
             var column = new DatabaseColumn(
                 tableInfo.name,
                 columnType,
@@ -1116,7 +1119,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 autoIncrement,
                 isComputed,
                 parsedColumnInfo?.ComputedDefinition,
-                computedStorage);
+                computedStorage,
+                isHidden);
             result.Add(column);
         }
 

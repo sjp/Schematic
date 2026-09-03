@@ -61,7 +61,9 @@ public class PocoTableGenerator : DatabaseTableGenerator
             ? Namespace + "." + schemaNamespace
             : Namespace;
 
-        var namespaces = table.Columns
+        var mappedColumns = table.GetMappedColumns().ToList();
+
+        var namespaces = mappedColumns
             .Select(static c => c.Type.ClrType.Namespace)
             .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
             .Select(static ns => ns!)
@@ -92,7 +94,7 @@ public class PocoTableGenerator : DatabaseTableGenerator
         ArgumentNullException.ThrowIfNull(table);
 
         var className = NameTranslator.TableToClassName(table.Name);
-        var properties = table.Columns
+        var properties = table.GetMappedColumns()
             .Select(c => BuildColumn(c, comment, className))
             .ToList();
 

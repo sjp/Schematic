@@ -86,6 +86,8 @@ export interface TableColumn {
   computedDefinition: string;
   /** `Stored`, `Virtual`, or empty when the database does not report how the values are kept. */
   computedStorage: string;
+  /** Whether the column is left out of the expansion of `SELECT *`. */
+  isHidden: boolean;
 }
 
 export interface KeyConstraint {

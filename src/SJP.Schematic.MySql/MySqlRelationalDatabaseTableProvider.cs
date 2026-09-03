@@ -805,6 +805,9 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     ? ComputedColumnStorage.Stored
                     : ComputedColumnStorage.Virtual;
 
+                // MySQL 8.0.23 and later report a column declared INVISIBLE in 'extra' as well.
+                var isHidden = row.ExtraInformation?.Contains(Constants.Invisible, StringComparison.OrdinalIgnoreCase) == true;
+
                 return new DatabaseColumn(
                     columnName,
                     columnType,
@@ -813,7 +816,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     autoIncrement,
                     isComputed,
                     computedColumnDefinition,
-                    computedStorage);
+                    computedStorage,
+                    isHidden);
             })
             .ToListAsync(cancellationToken);
     }
@@ -962,6 +966,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         public const string DescendingSort = "D";
 
         public const string Insert = "INSERT";
+
+        public const string Invisible = "INVISIBLE";
 
         public const string No = "NO";
 

@@ -207,7 +207,8 @@ public sealed class Table
             Option<IAutoIncrement> autoIncrement,
             bool isComputed,
             Option<string> computedDefinition,
-            ComputedColumnStorage computedStorage
+            ComputedColumnStorage computedStorage,
+            bool isHidden
         )
         {
             ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
@@ -235,6 +236,8 @@ public sealed class Table
             IsComputed = isComputed;
             ComputedDefinition = computedDefinition.Match(static def => def ?? string.Empty, static () => string.Empty);
             ComputedStorage = ComputedColumnStorageNames.GetName(computedStorage);
+
+            IsHidden = isHidden;
         }
 
         public int Ordinal { get; }
@@ -272,6 +275,8 @@ public sealed class Table
         public string ComputedDefinition { get; }
 
         public string ComputedStorage { get; }
+
+        public bool IsHidden { get; }
     }
 
     /// <summary>

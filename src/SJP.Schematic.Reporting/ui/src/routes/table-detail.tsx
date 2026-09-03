@@ -1,6 +1,6 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Check, Hash, KeyRound, Link2, Minus, ShieldCheck, Sigma } from "lucide-react";
+import { Check, EyeOff, Hash, KeyRound, Link2, Minus, ShieldCheck, Sigma } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { ConstraintStatus } from "@/components/ConstraintStatus";
@@ -139,6 +139,18 @@ function KeyIcons({
           }
         >
           <Sigma className="size-3.5 text-rose-500" aria-label="Computed value" />
+        </IconTooltip>
+      )}
+      {column.isHidden && (
+        <IconTooltip
+          label={
+            <>
+              <span className="font-medium">Hidden</span>
+              <div className="opacity-90">Left out of the expansion of SELECT *</div>
+            </>
+          }
+        >
+          <EyeOff className="size-3.5 text-amber-500" aria-label="Hidden column" />
         </IconTooltip>
       )}
     </span>

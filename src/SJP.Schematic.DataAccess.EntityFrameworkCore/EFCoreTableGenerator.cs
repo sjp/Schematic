@@ -64,7 +64,9 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             ? Namespace + "." + schemaNamespace
             : Namespace;
 
-        var namespaces = table.Columns
+        var mappedColumns = table.GetMappedColumns().ToList();
+
+        var namespaces = mappedColumns
             .Select(static c => c.Type.ClrType.Namespace)
             .Where(ns => ns != null && !string.Equals(ns, tableNamespace, StringComparison.Ordinal))
             .Select(static ns => ns!)
@@ -77,7 +79,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             // Unicode and Precision are EF Core's own attributes rather than data annotations, so
             // the namespace is only imported by a table that has a column needing one of them
             .Union(
-                table.Columns.Any(static c => RequiresUnicodeAttribute(c) || RequiresPrecisionAttribute(c))
+                mappedColumns.Any(static c => RequiresUnicodeAttribute(c) || RequiresPrecisionAttribute(c))
                     ? ["Microsoft.EntityFrameworkCore"]
                     : Array.Empty<string>(), StringComparer.Ordinal)
             .OrderNamespaces()
@@ -110,7 +112,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
         var className = NameTranslator.TableToClassName(table.Name);
         var navigations = navigationResolver.GetNavigations(table);
 
-        var columnProperties = table.Columns
+        var columnProperties = table.GetMappedColumns()
             .Select(c => BuildColumn(c, comment, className))
             .ToList();
         var parentKeyProperties = table.ParentKeys

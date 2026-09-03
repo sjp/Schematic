@@ -40,7 +40,8 @@ public class DatabaseColumnMapper
             autoIncrMapper.Map(source.AutoIncrement),
             source.IsComputed,
             optionalMapper.Map(source.Definition),
-            source.ComputedStorage
+            source.ComputedStorage,
+            source.IsHidden
         );
     }
 
@@ -68,6 +69,7 @@ public class DatabaseColumnMapper
             DefaultSequenceName = optionalIdentifierMapper.Map(source.Default.Bind(static def => def.SequenceName)),
             AutoIncrement = autoIncrMapper.Map(source.AutoIncrement),
             IsComputed = source.IsComputed,
+            IsHidden = source.IsHidden,
             Definition = optionalMapper.Map(source.ComputedDefinition),
             ComputedStorage = source.ComputedStorage,
         };

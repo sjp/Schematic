@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -55,6 +55,28 @@ internal sealed class SqliteRelationalDatabaseTableKindTests : SqliteTest
         var table = await TableProvider.GetTable("kind_test_fts").UnwrapSomeAsync();
 
         Assert.That(table.Kind, Is.EqualTo(TableKind.Virtual));
+    }
+
+    [Test]
+    public async Task GetTable_GivenVirtualTable_MarksTheColumnsHiddenFromSelectStar()
+    {
+        // fts5 adds a column named after the table and a 'rank' column, and hides both from SELECT *
+        var table = await TableProvider.GetTable("kind_test_fts").UnwrapSomeAsync();
+        var hiddenColumnNames = table.Columns.Where(static c => c.IsHidden).Select(static c => c.Name.LocalName).ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(hiddenColumnNames, Is.EquivalentTo(new[] { "kind_test_fts", "rank" }));
+            Assert.That(table.Columns.Single(static c => c.Name.LocalName == "test_column").IsHidden, Is.False);
+        }
+    }
+
+    [Test]
+    public async Task GetTable_GivenOrdinaryTable_MarksNoColumnAsHidden()
+    {
+        var table = await TableProvider.GetTable("kind_test_regular").UnwrapSomeAsync();
+
+        Assert.That(table.Columns.Any(static c => c.IsHidden), Is.False);
     }
 
     [Test]

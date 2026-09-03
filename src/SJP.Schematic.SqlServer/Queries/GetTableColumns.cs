@@ -29,6 +29,12 @@ internal static class GetTableColumns
 
         public required bool IsComputed { get; init; }
 
+        /// <summary>
+        /// Whether the column is omitted from <c>SELECT *</c>. Only the period columns of a
+        /// system-versioned table can be declared <c>HIDDEN</c>.
+        /// </summary>
+        public required bool IsHidden { get; init; }
+
         public required bool IsNullable { get; init; }
 
         public required bool HasDefaultValue { get; init; }
@@ -58,6 +64,7 @@ select
     c.scale as [{nameof(Result.Scale)}],
     c.collation_name as [{nameof(Result.Collation)}],
     c.is_computed as [{nameof(Result.IsComputed)}],
+    c.is_hidden as [{nameof(Result.IsHidden)}],
     c.is_nullable as [{nameof(Result.IsNullable)}],
     case when dc.object_id is null then 0 else 1 end as [{nameof(Result.HasDefaultValue)}],
     dc.definition as [{nameof(Result.DefaultValue)}],

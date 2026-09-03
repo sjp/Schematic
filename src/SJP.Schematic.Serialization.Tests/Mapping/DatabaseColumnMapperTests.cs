@@ -100,4 +100,46 @@ internal static class DatabaseColumnMapperTests
             Assert.That(result.ConstraintName, OptionIs.None);
         });
     }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public static void Map_GivenHiddenColumn_RoundTrips(bool isHidden)
+    {
+        var mapper = new DatabaseColumnMapper();
+        var column = new DatabaseColumn(
+            "test_column",
+            ColumnType,
+            true,
+            Option<IDatabaseDefaultValue>.None,
+            Option<IAutoIncrement>.None,
+            false,
+            Option<string>.None,
+            ComputedColumnStorage.Unknown,
+            isHidden
+        );
+
+        var result = mapper.Map(mapper.Map(column));
+
+        Assert.That(result.IsHidden, Is.EqualTo(isHidden));
+    }
+
+    [Test]
+    public static void Map_GivenDocumentWithoutHiddenColumns_ReadsBackAsVisible()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var identifierMapper = new IdentifierMapper();
+        var dbTypeMapper = new DbTypeMapper();
+
+        // a document written before hidden columns were described says nothing about visibility
+        var dto = new Dto.DatabaseColumn
+        {
+            ColumnName = identifierMapper.Map((Identifier)"test_column"),
+            Type = dbTypeMapper.Map(ColumnType),
+            IsNullable = true,
+        };
+
+        var result = mapper.Map(dto);
+
+        Assert.That(result.IsHidden, Is.False);
+    }
 }

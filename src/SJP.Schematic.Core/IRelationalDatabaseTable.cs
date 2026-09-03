@@ -18,6 +18,13 @@ public interface IRelationalDatabaseTable : IDatabaseQueryable
     /// <summary>
     /// The ordered list of columns in the table.
     /// </summary>
+    /// <remarks>
+    /// A column the user declared but the engine omits from <c>SELECT *</c> is listed, and reports
+    /// <see cref="IDatabaseColumn.IsHidden"/> as <see langword="true" />; it is still a column of the
+    /// table, and can be named by a key or an <c>INSERT</c>. Columns the engine created for its own
+    /// use, such as the ones Oracle stores behind a function-based index or SQLite keeps in the
+    /// shadow tables of a virtual table, are not listed at all.
+    /// </remarks>
     /// <value>The table columns.</value>
     IReadOnlyList<IDatabaseColumn> Columns { get; }
 

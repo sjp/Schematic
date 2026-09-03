@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -100,5 +100,57 @@ internal static class PocoTableGeneratorTests
         var generator = GetTableGenerator();
 
         Assert.That(() => generator.Generate([], null, Option<IRelationalDatabaseTableComments>.None), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void Generate_GivenHiddenColumn_DoesNotGenerateAPropertyForIt()
+    {
+        var generator = GetTableGenerator();
+
+        var table = new RelationalDatabaseTable(
+            "test_table",
+            [CreateColumn("visible_column", false), CreateColumn("hidden_column", true)],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result, Does.Contain("visible_column"));
+            Assert.That(result, Does.Not.Contain("hidden_column"));
+        });
+    }
+
+    private static IDatabaseColumn CreateColumn(Identifier columnName, bool isHidden)
+    {
+        var columnType = new ColumnDataType(
+            "varchar",
+            DataType.String,
+            "varchar(50)",
+            typeof(string),
+            false,
+            50,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        return new DatabaseColumn(
+            columnName,
+            columnType,
+            false,
+            Option<IDatabaseDefaultValue>.None,
+            Option<IAutoIncrement>.None,
+            false,
+            Option<string>.None,
+            ComputedColumnStorage.Unknown,
+            isHidden
+        );
     }
 }

@@ -112,7 +112,8 @@ internal sealed class TableModelMapper
                 tableColumn.Column.AutoIncrement,
                 tableColumn.Column.IsComputed,
                 tableColumn.Column.ComputedDefinition,
-                tableColumn.Column.ComputedStorage
+                tableColumn.Column.ComputedStorage,
+                tableColumn.Column.IsHidden
             );
             columns.Add(column);
         }

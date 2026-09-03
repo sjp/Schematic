@@ -29,6 +29,13 @@ internal static class GetTableColumns
 
         public required string? IsComputed { get; init; }
 
+        /// <summary>
+        /// <c>YES</c> when the column is omitted from <c>SELECT *</c>, else <c>NO</c>. Only a column
+        /// declared <c>INVISIBLE</c> reaches this query; the system-generated hidden columns behind
+        /// function-based indexes and object types are filtered out.
+        /// </summary>
+        public required string? IsHidden { get; init; }
+
         public required string? DefaultValue { get; init; }
 
         /// <summary>
@@ -76,6 +83,7 @@ select
     c.DATA_DEFAULT as "{nameof(Result.DefaultValue)}",
     c.CHARACTER_SET_NAME as "{nameof(Result.Collation)}",
     c.VIRTUAL_COLUMN as "{nameof(Result.IsComputed)}",
+    c.HIDDEN_COLUMN as "{nameof(Result.IsHidden)}",
     c.NULLABLE as "{nameof(Result.IsNullable)}",
     c.IDENTITY_COLUMN as "{nameof(Result.IsIdentity)}",
     c.DEFAULT_ON_NULL as "{nameof(Result.DefaultOnNull)}",
@@ -85,7 +93,8 @@ select
 from SYS.ALL_TAB_COLS c
 left join SYS.ALL_TAB_IDENTITY_COLS ic
     on ic.OWNER = c.OWNER and ic.TABLE_NAME = c.TABLE_NAME and ic.COLUMN_NAME = c.COLUMN_NAME
-where c.OWNER = :{nameof(Query.SchemaName)} and c.TABLE_NAME = :{nameof(Query.TableName)} and c.HIDDEN_COLUMN = 'NO'
-order by c.COLUMN_ID
+where c.OWNER = :{nameof(Query.SchemaName)} and c.TABLE_NAME = :{nameof(Query.TableName)}
+    and (c.HIDDEN_COLUMN = 'NO' or c.USER_GENERATED = 'YES')
+order by c.COLUMN_ID, c.INTERNAL_COLUMN_ID
 """;
 }

@@ -26,6 +26,14 @@ public interface IDatabaseColumn
     bool IsComputed { get; }
 
     /// <summary>
+    /// Determines whether the column is omitted from the expansion of <c>SELECT *</c>. Such a column
+    /// still exists and can be named explicitly, in an <c>INSERT</c> column list or a key, but a
+    /// projection shaped like a row of the table must leave it out.
+    /// </summary>
+    /// <value><see langword="true" /> if this column is hidden from <c>SELECT *</c>; otherwise, <see langword="false" />.</value>
+    bool IsHidden { get; }
+
+    /// <summary>
     /// The default applied to a column when omitted on an <c>INSERT</c> statement, including the
     /// name of the constraint carrying it and a classification of what its expression evaluates to.
     /// </summary>

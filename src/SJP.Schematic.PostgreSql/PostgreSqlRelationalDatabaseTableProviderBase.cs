@@ -854,6 +854,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     ? ComputedColumnStorage.Virtual
                     : ComputedColumnStorage.Stored;
 
+                // PostgreSQL has no way to declare a column invisible, so every column a table
+                // reports is one that SELECT * returns.
                 return new DatabaseColumn(
                     columnName,
                     columnType,
