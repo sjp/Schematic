@@ -95,6 +95,21 @@ internal static class ForeignKeyColumnCollationMismatchRuleTests
         Assert.That(messages, Is.Empty);
     }
 
+    // collation names are identifiers, so the same collation named in different cases is one collation
+    [Test]
+    public static async Task AnalyseTables_GivenCollationsDifferingOnlyInCase_ProducesNoMessages()
+    {
+        var rule = new ForeignKeyColumnCollationMismatchRule(RuleLevel.Error);
+        var childColumn = CreateColumn("name", "Latin1_General_CI_AS");
+        var parentColumn = CreateColumn("name", "latin1_general_ci_as");
+        var table = CreateChildTable(childColumn, parentColumn);
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
     [Test]
     public static async Task AnalyseTables_GivenMismatchingCollations_ProducesMessages()
     {

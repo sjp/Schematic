@@ -900,44 +900,70 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         );
     }
 
+    // a name this process cannot resolve is still the name the source database gave, so it is kept
+    // while the CLR type falls back to the type that says nothing about the column
     [Test]
-    public static void DeserializeAsync_WhenClrTypeNameUnresolvable_ThrowsExceptionNamingTypeName()
+    public static async Task DeserializeAsync_WhenClrTypeNameUnresolvable_KeepsNameAndDefaultsToObjectClrType()
     {
         var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("Some.Unresolvable.Type"), ValidChecksJson);
 
-        Assert.That(
-            async () => await DeserializeJsonAsync(json),
-            Throws.InvalidOperationException
-                .With.Message.Contains("Some.Unresolvable.Type")
-                .And.Message.Contains("test_type_name")
-        );
+        var importedDb = await DeserializeJsonAsync(json);
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.ClrTypeName, Is.EqualTo("Some.Unresolvable.Type"));
+            Assert.That(column.Type.ClrType, Is.EqualTo(typeof(object)));
+        }
     }
 
     [Test]
-    public static void DeserializeAsync_WhenClrTypeNameMalformed_ThrowsExceptionNamingTypeName()
+    public static async Task DeserializeAsync_WhenClrTypeNameMalformed_KeepsNameAndDefaultsToObjectClrType()
     {
         var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("a, b, c, d, e"), ValidChecksJson);
 
-        Assert.That(
-            async () => await DeserializeJsonAsync(json),
-            Throws.InvalidOperationException
-                .With.Message.Contains("a, b, c, d, e")
-                .And.Message.Contains("test_type_name")
-        );
+        var importedDb = await DeserializeJsonAsync(json);
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.ClrTypeName, Is.EqualTo("a, b, c, d, e"));
+            Assert.That(column.Type.ClrType, Is.EqualTo(typeof(object)));
+        }
     }
 
     // assemblies are never loaded on demand, so a document cannot name one to have it located and loaded
     [Test]
-    public static void DeserializeAsync_WhenClrTypeNameQualifiedByUnloadedAssembly_ThrowsExceptionNamingTypeName()
+    public static async Task DeserializeAsync_WhenClrTypeNameQualifiedByUnloadedAssembly_KeepsNameAndDefaultsToObjectClrType()
     {
         var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("System.String, Not.A.Loaded.Assembly"), ValidChecksJson);
 
-        Assert.That(
-            async () => await DeserializeJsonAsync(json),
-            Throws.InvalidOperationException
-                .With.Message.Contains("System.String, Not.A.Loaded.Assembly")
-                .And.Message.Contains("test_type_name")
-        );
+        var importedDb = await DeserializeJsonAsync(json);
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.ClrTypeName, Is.EqualTo("System.String, Not.A.Loaded.Assembly"));
+            Assert.That(column.Type.ClrType, Is.EqualTo(typeof(object)));
+        }
+    }
+
+    // a document read where the type cannot be resolved must be writable again without loss
+    [Test]
+    public static async Task SerializeDeserialize_WhenUnresolvableClrTypeNameRoundTripped_PreservesClrTypeName()
+    {
+        var json = CreateTableDatabaseJson(ValidTableNameJson, CreateClrTypeNameColumnsJson("Some.Unresolvable.Type"), ValidChecksJson);
+        var importedDb = await DeserializeJsonAsync(json);
+
+        var reimportedDb = await RoundTripAsync(importedDb);
+
+        var tables = await reimportedDb.GetAllTables();
+        var column = tables.Single().Columns.Single();
+
+        Assert.That(column.Type.ClrTypeName, Is.EqualTo("Some.Unresolvable.Type"));
     }
 
     [Test]
@@ -978,6 +1004,20 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var column = tables.Single().Columns.Single();
 
         Assert.That(column.Type.ClrType, Is.EqualTo(typeof(object)));
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenColumnRoundTripped_PreservesColumnType()
+    {
+        var db = CreateColumnClrTypeDatabase(typeof(string));
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var importedType = tables.Single().Columns.Single().Type;
+        var originalType = (await db.GetAllTables()).Single().Columns.Single().Type;
+
+        Assert.That(DbTypeComparer.Structural.Equals(importedType, originalType), Is.True);
     }
 
     [Test]

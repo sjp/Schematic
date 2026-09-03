@@ -48,12 +48,17 @@ public class ColumnTypeMismatchAcrossTablesRule : Rule, ITableRule
         var messages = new List<IRuleMessage>();
         foreach (var columnGroup in columnsByName)
         {
+            // Grouped by what each type describes rather than by its definition text, so that columns
+            // whose types differ only in how they were spelled do not read as a mismatch. Collation
+            // plays no part, as the definition naming a group does not carry one.
             // Ordered so that the largest group of agreeing tables reads first and any outlier reads
             // last. Ties and table names are ordered so that repeated runs produce identical messages.
             var typeGroups = columnGroup
-                .GroupBy(static tc => tc.Column.Type.Definition, StringComparer.Ordinal)
+                .GroupBy(static tc => tc.Column.Type, DbTypeComparer.StructuralIgnoringCollation)
                 .Select(static g => (
-                    TypeDefinition: g.Key,
+                    // a group's members may spell their type differently, so the spelling that names
+                    // the group is chosen the same way however the tables were ordered
+                    TypeDefinition: g.Select(static tc => tc.Column.Type.Definition).Order(StringComparer.Ordinal).First(),
                     TableNames: (IReadOnlyCollection<Identifier>)g.Select(static tc => tc.Table).Distinct().Order().ToList()
                 ))
                 .OrderByDescending(static g => g.TableNames.Count)

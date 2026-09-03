@@ -37,7 +37,8 @@ public sealed record DbType
     /// </summary>
     /// <remarks>
     /// The name is written without any assembly information, and is resolved on deserialization
-    /// against the assemblies that are already loaded.
+    /// against the assemblies that are already loaded. A name that cannot be resolved is still kept
+    /// as the type's name, so reading and writing a document does not discard it.
     /// </remarks>
     public string? ClrTypeName { get; init; }
 

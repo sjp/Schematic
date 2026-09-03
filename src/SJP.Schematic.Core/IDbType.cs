@@ -42,8 +42,19 @@ public interface IDbType
     /// <summary>
     /// The CLR data type used to store column data.
     /// </summary>
-    /// <value>A CLR type.</value>
+    /// <value>A CLR type. <see cref="object"/> when the type named by <see cref="ClrTypeName"/> could not be resolved.</value>
     Type ClrType { get; }
+
+    /// <summary>
+    /// The name of the CLR data type used to store column data.
+    /// </summary>
+    /// <value>A type name without any assembly information, e.g. <c>System.String</c>.</value>
+    /// <remarks>
+    /// This is the type as it was named by whatever described the column, so it survives being
+    /// written to and read back from a document, even in a process where the assembly declaring the
+    /// type is not loaded and <see cref="ClrType"/> is therefore <see cref="object"/>.
+    /// </remarks>
+    string ClrTypeName { get; }
 
     /// <summary>
     /// The numeric precision, if available.

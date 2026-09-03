@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using Moq;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint.Rules;
@@ -10,9 +10,22 @@ namespace SJP.Schematic.Lint.Tests.Rules;
 [TestFixture]
 internal static class ColumnTypeMismatchAcrossTablesRuleTests
 {
-    private static DatabaseColumn CreateColumn(string name, string typeDefinition)
+    // the rule compares what a type describes rather than how it was written, so a definition that
+    // stands alone also names the type, e.g. 'integer'
+    private static DatabaseColumn CreateColumn(string name, string typeDefinition) => CreateColumn(name, typeDefinition, typeDefinition);
+
+    private static DatabaseColumn CreateColumn(string name, string typeName, string typeDefinition, int maxLength = 0)
     {
-        var dbType = Mock.Of<IDbType>(t => t.Definition == typeDefinition);
+        var dbType = new ColumnDataType(
+            typeName,
+            DataType.Unknown,
+            typeDefinition,
+            typeof(object),
+            false,
+            maxLength,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
         return new DatabaseColumn(name, dbType, true, null, null);
     }
 
@@ -94,8 +107,8 @@ internal static class ColumnTypeMismatchAcrossTablesRuleTests
         var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
         var tables = new[]
         {
-            CreateTable("beta", CreateColumn("created_at", "datetime2(7)")),
-            CreateTable("alpha", CreateColumn("created_at", "datetime2(7)")),
+            CreateTable("beta", CreateColumn("created_at", "datetime2", "datetime2(7)")),
+            CreateTable("alpha", CreateColumn("created_at", "datetime2", "datetime2(7)")),
             CreateTable("gamma", CreateColumn("created_at", "datetime")),
         };
 
@@ -131,13 +144,61 @@ internal static class ColumnTypeMismatchAcrossTablesRuleTests
     public static async Task AnalyseTables_GivenTablesInDifferentOrder_ProducesIdenticalMessages()
     {
         var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
-        var alpha = CreateTable("alpha", CreateColumn("created_at", "datetime2(7)"));
-        var beta = CreateTable("beta", CreateColumn("created_at", "datetime2(7)"));
+        var alpha = CreateTable("alpha", CreateColumn("created_at", "datetime2", "datetime2(7)"));
+        var beta = CreateTable("beta", CreateColumn("created_at", "datetime2", "datetime2(7)"));
         var gamma = CreateTable("gamma", CreateColumn("created_at", "datetime"));
 
         var messages = await rule.AnalyseTables([alpha, beta, gamma]);
         var reorderedMessages = await rule.AnalyseTables([gamma, beta, alpha]);
 
         Assert.That(reorderedMessages.Single().Message, Is.EqualTo(messages.Single().Message));
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenSameTypeWrittenDifferently_ProducesNoMessages()
+    {
+        var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
+        var tables = new[]
+        {
+            CreateTable("first", CreateColumn("name", "varchar", "varchar(50)", 50)),
+            CreateTable("second", CreateColumn("name", "VARCHAR", "VARCHAR(50)", 50)),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenSameTypeNameWithDifferentLengths_ProducesMessages()
+    {
+        var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
+        var tables = new[]
+        {
+            CreateTable("first", CreateColumn("name", "varchar", "varchar(50)", 50)),
+            CreateTable("second", CreateColumn("name", "varchar", "varchar(100)", 100)),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Not.Empty);
+    }
+
+    [Test]
+    public static async Task AnalyseTables_GivenGroupWithDifferentlyWrittenDefinitions_NamesGroupIdenticallyWhateverTheTableOrder()
+    {
+        var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
+        var upper = CreateTable("first", CreateColumn("name", "varchar", "VARCHAR(50)", 50));
+        var lower = CreateTable("second", CreateColumn("name", "varchar", "varchar(50)", 50));
+        var other = CreateTable("third", CreateColumn("name", "text", "text"));
+
+        var messages = await rule.AnalyseTables([upper, lower, other]);
+        var reorderedMessages = await rule.AnalyseTables([lower, upper, other]);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messages.Single().Message, Does.Contain($"VARCHAR(50) in {Name("first")}, {Name("second")}"));
+            Assert.That(reorderedMessages.Single().Message, Is.EqualTo(messages.Single().Message));
+        }
     }
 }

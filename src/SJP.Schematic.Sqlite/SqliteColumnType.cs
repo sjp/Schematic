@@ -59,6 +59,7 @@ public class SqliteColumnType : IDbType
 
         DataType = AffinityTypeMap[typeAffinity];
         ClrType = AffinityClrTypeMap[typeAffinity];
+        ClrTypeName = ClrType.ToString();
     }
 
     /// <summary>
@@ -116,6 +117,12 @@ public class SqliteColumnType : IDbType
     /// </summary>
     /// <value>A CLR type.</value>
     public Type ClrType { get; }
+
+    /// <summary>
+    /// The name of the CLR data type used to store column data.
+    /// </summary>
+    /// <value>The name of <see cref="ClrType"/>, without any assembly information.</value>
+    public string ClrTypeName { get; }
 
     /// <summary>
     /// The numeric precision, if available.

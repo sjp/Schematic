@@ -61,13 +61,12 @@ public class ForeignKeyColumnTypeMismatchRule : Rule, ITableRule
         var foreignKeys = table.ParentKeys;
         foreach (var foreignKey in foreignKeys)
         {
-            var childColumns = foreignKey.ChildKey.Columns;
-            var parentColumns = foreignKey.ParentKey.Columns;
+            var childColumnTypes = foreignKey.ChildKey.Columns.Select(static c => c.Type);
+            var parentColumnTypes = foreignKey.ParentKey.Columns.Select(static c => c.Type);
 
-            var childColumnsInfo = childColumns.Select(c => c.Type.Definition).ToList();
-            var parentColumnsInfo = parentColumns.Select(c => c.Type.Definition).ToList();
-
-            var columnsEqual = childColumnsInfo.SequenceEqual(parentColumnsInfo, StringComparer.Ordinal);
+            // collations are compared by a rule of their own, so a difference in collation alone is
+            // not reported here as a difference of type
+            var columnsEqual = childColumnTypes.SequenceEqual(parentColumnTypes, DbTypeComparer.StructuralIgnoringCollation);
             if (columnsEqual)
                 continue;
 

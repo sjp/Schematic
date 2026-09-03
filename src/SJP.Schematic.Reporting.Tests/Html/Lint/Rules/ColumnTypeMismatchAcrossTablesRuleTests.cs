@@ -1,6 +1,6 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Moq;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
@@ -11,9 +11,22 @@ namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 [TestFixture]
 internal static class ColumnTypeMismatchAcrossTablesRuleTests
 {
-    private static DatabaseColumn CreateColumn(string name, string typeDefinition)
+    // the rule compares what a type describes rather than how it was written, so a definition that
+    // stands alone also names the type, e.g. 'integer'
+    private static DatabaseColumn CreateColumn(string name, string typeDefinition) => CreateColumn(name, typeDefinition, typeDefinition);
+
+    private static DatabaseColumn CreateColumn(string name, string typeName, string typeDefinition)
     {
-        var dbType = Mock.Of<IDbType>(t => t.Definition == typeDefinition);
+        var dbType = new ColumnDataType(
+            typeName,
+            DataType.Unknown,
+            typeDefinition,
+            typeof(object),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
         return new DatabaseColumn(name, dbType, true, null, null);
     }
 
@@ -71,8 +84,8 @@ internal static class ColumnTypeMismatchAcrossTablesRuleTests
         var rule = new ColumnTypeMismatchAcrossTablesRule(RuleLevel.Error);
         var tables = new[]
         {
-            CreateTable("beta", CreateColumn("created_at", "datetime2(7)")),
-            CreateTable("alpha", CreateColumn("created_at", "datetime2(7)")),
+            CreateTable("beta", CreateColumn("created_at", "datetime2", "datetime2(7)")),
+            CreateTable("alpha", CreateColumn("created_at", "datetime2", "datetime2(7)")),
             CreateTable("gamma", CreateColumn("created_at", "datetime")),
         };
 

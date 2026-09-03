@@ -72,12 +72,14 @@ public class ForeignKeyColumnCollationMismatchRule : Rule, ITableRule
         return result;
     }
 
+    // collation names are identifiers, so they are compared as identifiers are elsewhere, i.e. without
+    // regard to case; an uncollated column matches only another uncollated column
     private static bool CollationsEqual(IDatabaseColumn childColumn, IDatabaseColumn parentColumn)
     {
-        var childCollation = childColumn.Type.Collation.Match(static c => c.ToString(), static () => string.Empty);
-        var parentCollation = parentColumn.Type.Collation.Match(static c => c.ToString(), static () => string.Empty);
+        var childCollation = childColumn.Type.Collation.MatchUnsafe(static c => c, static () => (Identifier?)null);
+        var parentCollation = parentColumn.Type.Collation.MatchUnsafe(static c => c, static () => (Identifier?)null);
 
-        return string.Equals(childCollation, parentCollation, StringComparison.Ordinal);
+        return IdentifierComparer.OrdinalIgnoreCase.Equals(childCollation, parentCollation);
     }
 
     /// <summary>

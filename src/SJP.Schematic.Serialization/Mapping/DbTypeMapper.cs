@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Boxed.Mapping;
 using LanguageExt;
@@ -20,19 +19,24 @@ public class DbTypeMapper
     /// Maps a serialized column data type to its core representation.
     /// </summary>
     /// <param name="source">A serialized column data type.</param>
-    /// <returns>A column data type. Its CLR type is <see cref="object"/> when the serialized type does not name one.</returns>
-    /// <exception cref="InvalidOperationException">The serialized type names a CLR type that no loaded assembly declares.</exception>
+    /// <returns>
+    /// A column data type. Its <see cref="IDbType.ClrType"/> is <see cref="object"/> when the serialized
+    /// type does not name one, or names one that no loaded assembly declares; either way
+    /// <see cref="IDbType.ClrTypeName"/> is what the document said, so a document read in a process
+    /// missing the assembly can be written back out unchanged.
+    /// </returns>
     public IDbType Map(Dto.DbType source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var numericPrecisionMapper = MapperRegistry.GetMapper<Dto.NumericPrecision?, Option<INumericPrecision>>();
         var collationMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
 
-        // an absent name means the source database did not know a CLR type for the column
-        var clrType = string.IsNullOrWhiteSpace(source.ClrTypeName)
+        // an absent name means the source database did not know a CLR type for the column, and an
+        // unresolvable one means this process cannot name the type the source database knew
+        var clrTypeName = string.IsNullOrWhiteSpace(source.ClrTypeName) ? null : source.ClrTypeName;
+        var clrType = clrTypeName == null
             ? typeof(object)
-            : ClrTypeResolver.Resolve(source.ClrTypeName)
-                ?? throw new InvalidOperationException($"Unable to resolve the CLR type '{source.ClrTypeName}' given for the column type '{source.TypeName.LocalName}'. Types are only resolved from assemblies that are already loaded.");
+            : ClrTypeResolver.Resolve(clrTypeName) ?? typeof(object);
 
         return new ColumnDataType(
             identifierMapper.Map(source.TypeName),
@@ -46,7 +50,8 @@ public class DbTypeMapper
             source.ElementType == null ? Option<IDbType>.None : Option<IDbType>.Some(Map(source.ElementType)),
             source.EnumValues?.ToList() ?? (IReadOnlyList<string>)[],
             source.BaseType == null ? Option<IDbType>.None : Option<IDbType>.Some(Map(source.BaseType)),
-            source.IsUnsigned
+            source.IsUnsigned,
+            clrTypeName
         );
     }
 
@@ -68,7 +73,7 @@ public class DbTypeMapper
             Definition = source.Definition,
             // deliberately not an assembly-qualified name, which would pin an assembly version in the
             // document; resolution searches loaded assemblies for the name instead
-            ClrTypeName = source.ClrType.ToString(),
+            ClrTypeName = source.ClrTypeName,
             IsFixedLength = source.IsFixedLength,
             MaxLength = source.MaxLength,
             NumericPrecision = numericPrecisionMapper.Map(source.NumericPrecision),

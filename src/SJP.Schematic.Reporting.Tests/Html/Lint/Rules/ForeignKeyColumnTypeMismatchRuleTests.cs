@@ -1,7 +1,6 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
-using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
@@ -12,9 +11,19 @@ namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 [TestFixture]
 internal static class ForeignKeyColumnTypeMismatchRuleTests
 {
+    // a definition that stands alone also names the type, e.g. 'integer'
     private static DatabaseColumn CreateColumn(string name, string typeDefinition)
     {
-        var dbType = Mock.Of<IDbType>(t => t.Definition == typeDefinition);
+        var dbType = new ColumnDataType(
+            typeDefinition,
+            DataType.Unknown,
+            typeDefinition,
+            typeof(object),
+            false,
+            0,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
         return new DatabaseColumn(name, dbType, true, null, null);
     }
 

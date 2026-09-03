@@ -9,6 +9,10 @@ namespace SJP.Schematic.Core;
 /// <summary>
 /// A definition of column data type information.
 /// </summary>
+/// <remarks>
+/// Equality is by reference. To determine whether two types describe the same storage, compare them
+/// with <see cref="DbTypeComparer"/>, which ignores the definition text and the CLR type.
+/// </remarks>
 /// <seealso cref="IDbType" />
 public class ColumnDataType : IDbType
 {
@@ -54,8 +58,9 @@ public class ColumnDataType : IDbType
     /// <param name="enumValues">The values the type is restricted to, empty when it is not restricted.</param>
     /// <param name="baseType">The type that this type is defined in terms of, if any.</param>
     /// <param name="isUnsigned">Whether the type stores only non-negative values.</param>
+    /// <param name="clrTypeName">The name of the .NET data type that the column maps to, or <see langword="null" /> to name <paramref name="clrType"/>. Give a name only when it is known more precisely than the resolved type, e.g. when <paramref name="clrType"/> stands in for a type that could not be resolved.</param>
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/>, <paramref name="definition"/>, <paramref name="clrType"/> or <paramref name="enumValues"/> is <see langword="null" />, or <paramref name="enumValues"/> contains a <see langword="null" /> value.</exception>
-    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, or <paramref name="dataType"/> is not a valid enum.</exception>
+    /// <exception cref="ArgumentException"><paramref name="definition"/> is empty or whitespace, <paramref name="clrTypeName"/> is empty or whitespace, or <paramref name="dataType"/> is not a valid enum.</exception>
     public ColumnDataType(
         Identifier typeName,
         DataType dataType,
@@ -68,7 +73,8 @@ public class ColumnDataType : IDbType
         Option<IDbType> elementType,
         IReadOnlyList<string> enumValues,
         Option<IDbType> baseType,
-        bool isUnsigned
+        bool isUnsigned,
+        string? clrTypeName = null
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
@@ -78,11 +84,14 @@ public class ColumnDataType : IDbType
 
         if (!dataType.IsValid())
             throw new ArgumentException($"The {nameof(DataType)} provided must be a valid enum.", nameof(dataType));
+        if (clrTypeName != null && string.IsNullOrWhiteSpace(clrTypeName))
+            throw new ArgumentException("The CLR type name must not be empty or whitespace. Provide a name, or null to name the given CLR type.", nameof(clrTypeName));
 
         TypeName = typeName ?? throw new ArgumentNullException(nameof(typeName));
         DataType = dataType;
         Definition = definition;
         ClrType = clrType ?? throw new ArgumentNullException(nameof(clrType));
+        ClrTypeName = clrTypeName ?? ClrType.ToString();
         IsFixedLength = isFixedLength;
         MaxLength = maxLength;
         NumericPrecision = numericPrecision;
@@ -128,6 +137,12 @@ public class ColumnDataType : IDbType
     /// </summary>
     /// <value>A CLR type.</value>
     public Type ClrType { get; }
+
+    /// <summary>
+    /// The name of the CLR data type used to store column data.
+    /// </summary>
+    /// <value>A type name without any assembly information, e.g. <c>System.String</c>. Names <see cref="ClrType"/> unless a name was given instead.</value>
+    public string ClrTypeName { get; }
 
     /// <summary>
     /// The numeric precision, if available.

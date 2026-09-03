@@ -130,6 +130,63 @@ internal static class ColumnDataTypeTests
         Assert.That(dataType.IsUnsigned, Is.True);
     }
 
+    [Test]
+    public static void ClrTypeName_GivenNoClrTypeName_NamesClrType()
+    {
+        var dataType = CreateDataType();
+
+        Assert.That(dataType.ClrTypeName, Is.EqualTo("System.String"));
+    }
+
+    // a name is given when it is known more precisely than the type standing in for it, e.g. by a
+    // document naming a type that this process cannot resolve
+    [Test]
+    public static void ClrTypeName_GivenClrTypeName_ReturnsGivenName()
+    {
+        var dataType = new ColumnDataType(
+            "test_type",
+            DataType.String,
+            "test_type(10)",
+            typeof(object),
+            false,
+            10,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None,
+            Option<IDbType>.None,
+            [],
+            Option<IDbType>.None,
+            false,
+            "Some.Unresolvable.Type"
+        );
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dataType.ClrTypeName, Is.EqualTo("Some.Unresolvable.Type"));
+            Assert.That(dataType.ClrType, Is.EqualTo(typeof(object)));
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenWhiteSpaceClrTypeName_ThrowsArgumentException()
+    {
+        Assert.That(
+            () => new ColumnDataType(
+                "test_type",
+                DataType.String,
+                "test_type(10)",
+                typeof(string),
+                false,
+                10,
+                Option<INumericPrecision>.None,
+                Option<Identifier>.None,
+                Option<IDbType>.None,
+                [],
+                Option<IDbType>.None,
+                false,
+                "   "),
+            Throws.ArgumentException);
+    }
+
     // the shorter constructor is the one every existing caller uses, so it must keep describing a
     // type that has none of the additional detail
     [Test]
