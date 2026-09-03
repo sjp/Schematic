@@ -68,6 +68,11 @@ export interface TableColumn {
   identityGeneration: string;
   /** Empty when no named sequence backs the column. */
   identitySequenceName: string;
+  isComputed: boolean;
+  /** Empty when the database does not report the expression. */
+  computedDefinition: string;
+  /** `Stored`, `Virtual`, or empty when the database does not report how the values are kept. */
+  computedStorage: string;
 }
 
 export interface KeyConstraint {

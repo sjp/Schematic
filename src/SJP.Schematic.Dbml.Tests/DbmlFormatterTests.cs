@@ -263,6 +263,32 @@ internal static class DbmlFormatterTests
         Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
+    [TestCase(ComputedColumnStorage.Stored, "stored computed column: a + b")]
+    [TestCase(ComputedColumnStorage.Virtual, "virtual computed column: a + b")]
+    [TestCase(ComputedColumnStorage.Unknown, "computed column: a + b")]
+    public static void RenderTables_GivenComputedColumn_RendersDefinitionAsNote(ComputedColumnStorage storage, string expectedNote)
+    {
+        var column = CreateComputedColumn("test_column", "text", Option<string>.Some("a + b"), storage);
+        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        var expected = "Table test_table {\n    test_column text [not null, note: '" + expectedNote + "']\n}";
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
+    }
+
+    [Test]
+    public static void RenderTables_GivenComputedColumnWithoutDefinition_RendersStorageOnlyNote()
+    {
+        var column = CreateComputedColumn("test_column", "text", Option<string>.None, ComputedColumnStorage.Stored);
+        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+
+        var result = new DbmlFormatter().RenderTables([table]);
+
+        const string expected = "Table test_table {\n    test_column text [not null, note: 'stored computed column']\n}";
+        Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
+    }
+
     [Test]
     public static void RenderTables_GivenExpressionIndexColumns_RendersExpressionsInBackticks()
     {
@@ -621,6 +647,36 @@ internal static class DbmlFormatterTests
             isNullable,
             defaultValue,
             autoIncrement
+        );
+    }
+
+    private static IDatabaseColumn CreateComputedColumn(
+        Identifier columnName,
+        string typeDefinition,
+        Option<string> computedDefinition,
+        ComputedColumnStorage computedStorage
+    )
+    {
+        var columnType = new ColumnDataType(
+            "text",
+            DataType.String,
+            typeDefinition,
+            typeof(string),
+            false,
+            255,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        return new DatabaseColumn(
+            columnName,
+            columnType,
+            false,
+            Option<string>.None,
+            Option<IAutoIncrement>.None,
+            true,
+            computedDefinition,
+            computedStorage
         );
     }
 

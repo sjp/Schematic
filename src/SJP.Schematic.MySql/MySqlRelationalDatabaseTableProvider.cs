@@ -705,9 +705,20 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     ? Option<string>.Some(row.ComputedColumnDefinition!)
                     : Option<string>.None;
 
-                return isComputed
-                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedColumnDefinition)
-                    : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement) as IDatabaseColumn;
+                // 'extra' spells out how a generated column is kept, e.g. 'STORED GENERATED'.
+                var computedStorage = row.ExtraInformation?.Contains(Constants.StoredGenerated, StringComparison.OrdinalIgnoreCase) == true
+                    ? ComputedColumnStorage.Stored
+                    : ComputedColumnStorage.Virtual;
+
+                return new DatabaseColumn(
+                    columnName,
+                    columnType,
+                    isNullable,
+                    defaultValue,
+                    autoIncrement,
+                    isComputed,
+                    computedColumnDefinition,
+                    computedStorage);
             })
             .ToListAsync(cancellationToken);
     }
@@ -860,6 +871,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         public const string No = "NO";
 
         public const string PrimaryKey = "PRIMARY KEY";
+
+        public const string StoredGenerated = "STORED GENERATED";
 
         public const string Update = "UPDATE";
     }

@@ -105,7 +105,23 @@ public class DbmlFormatter : IDbmlFormatter
 
         column.DefaultValue.IfSome(def => builder.Append(", default: ").Append(def.ToDbmlDefaultValue()));
 
+        // DBML has no computed column syntax, so the expression is preserved as a column note
+        if (column.IsComputed)
+            builder.Append(", note: ").Append(BuildComputedColumnNote(column).ToDbmlStringLiteral());
+
         builder.AppendLine("]");
+    }
+
+    private static string BuildComputedColumnNote(IDatabaseColumn column)
+    {
+        var description = column.ComputedStorage switch
+        {
+            ComputedColumnStorage.Stored => "stored computed column",
+            ComputedColumnStorage.Virtual => "virtual computed column",
+            _ => "computed column"
+        };
+
+        return column.ComputedDefinition.Match(def => description + ": " + def, () => description);
     }
 
     private static void RenderIndexes(StringBuilder builder, IRelationalDatabaseTable table)

@@ -716,9 +716,21 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     ? Option<string>.Some(row.ComputedColumnDefinition)
                     : Option<string>.None;
 
-                return row.IsComputed
-                    ? new DatabaseComputedColumn(columnName, columnType, row.IsNullable, defaultValue, computedColumnDefinition)
-                    : new DatabaseColumn(columnName, columnType, row.IsNullable, defaultValue, autoIncrement);
+                // sys.computed_columns.is_persisted separates a computed column whose value is
+                // written with the row from one evaluated on every read.
+                var computedStorage = row.ComputedColumnIsPersisted == true
+                    ? ComputedColumnStorage.Stored
+                    : ComputedColumnStorage.Virtual;
+
+                return new DatabaseColumn(
+                    columnName,
+                    columnType,
+                    row.IsNullable,
+                    defaultValue,
+                    autoIncrement,
+                    row.IsComputed,
+                    computedColumnDefinition,
+                    computedStorage);
             })
             .ToListAsync(cancellationToken);
     }

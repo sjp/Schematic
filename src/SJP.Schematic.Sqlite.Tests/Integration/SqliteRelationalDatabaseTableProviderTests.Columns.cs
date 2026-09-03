@@ -193,8 +193,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var table = await GetTableAsync(tableName);
         var computedColumnDefinitions = table.Columns
             .Where(c => c.IsComputed)
-            .Select(c => c as IDatabaseComputedColumn)
-            .Select(c => c.Definition.Match(x => x, () => string.Empty))
+            .Select(c => c.ComputedDefinition.Match(x => x, () => string.Empty))
             .ToList();
 
         Assert.That(computedColumnDefinitions, Is.EqualTo(expectedDefinitions));

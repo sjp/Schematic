@@ -99,22 +99,11 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.IsNullable, Is.True);
+        Assert.That(column.IsComputed, Is.True);
     }
 
     [Test]
-    public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
-    {
-        const string tableName = "TABLE_TEST_TABLE_34";
-        var table = await GetTableAsync(tableName);
-        var column = table.Columns[table.Columns.Count - 1];
-
-        var computedColumn = column as IDatabaseComputedColumn;
-        Assert.That(computedColumn, Is.Not.Null);
-    }
-
-    [Test]
-    public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+    public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsCorrectDefinition()
     {
         const string tableName = "TABLE_TEST_TABLE_34";
         const string expectedDefinition = "\"TEST_COLUMN_1\"+\"TEST_COLUMN_2\"";
@@ -122,8 +111,17 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        var computedColumn = column as IDatabaseComputedColumn;
-        Assert.That(computedColumn.Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+        Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsVirtualStorage()
+    {
+        const string tableName = "TABLE_TEST_TABLE_34";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns[table.Columns.Count - 1];
+
+        Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
     }
 
     [Test]

@@ -228,7 +228,8 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync(@"create table table_test_table_34 (
     test_column_1 int,
     test_column_2 int,
-    test_column_3 as test_column_1 + test_column_2
+    test_column_3 as test_column_1 + test_column_2,
+    test_column_4 as test_column_1 * test_column_2 persisted
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column int identity (10, 5) primary key )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table table_test_table_36 ( test_column int not null )", CancellationToken.None);

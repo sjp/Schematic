@@ -100,7 +100,10 @@ internal sealed class TableModelMapper
                 isParentKey,
                 columnChildKeys,
                 columnParentKeys,
-                tableColumn.Column.AutoIncrement
+                tableColumn.Column.AutoIncrement,
+                tableColumn.Column.IsComputed,
+                tableColumn.Column.ComputedDefinition,
+                tableColumn.Column.ComputedStorage
             );
             columns.Add(column);
         }

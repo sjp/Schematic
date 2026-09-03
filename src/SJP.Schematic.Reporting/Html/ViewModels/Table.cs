@@ -105,7 +105,10 @@ public sealed class Table
             bool isForeignKeyColumn,
             IEnumerable<ChildKey> childKeys,
             IEnumerable<ParentKey> parentKeys,
-            Option<IAutoIncrement> autoIncrement
+            Option<IAutoIncrement> autoIncrement,
+            bool isComputed,
+            Option<string> computedDefinition,
+            ComputedColumnStorage computedStorage
         )
         {
             ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
@@ -129,6 +132,10 @@ public sealed class Table
             IdentitySequenceName = autoIncrement
                 .Bind(static incr => incr.SequenceName)
                 .Match(static name => name.ToVisibleName(), static () => string.Empty);
+
+            IsComputed = isComputed;
+            ComputedDefinition = computedDefinition.Match(static def => def ?? string.Empty, static () => string.Empty);
+            ComputedStorage = ComputedColumnStorageNames.GetName(computedStorage);
         }
 
         public int Ordinal { get; }
@@ -160,6 +167,12 @@ public sealed class Table
         public string IdentityGeneration { get; }
 
         public string IdentitySequenceName { get; }
+
+        public bool IsComputed { get; }
+
+        public string ComputedDefinition { get; }
+
+        public string ComputedStorage { get; }
     }
 
     /// <summary>

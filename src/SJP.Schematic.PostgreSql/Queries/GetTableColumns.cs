@@ -202,6 +202,11 @@ internal static class GetTableColumns
         /// If the column is a generated column, then the generation expression, else null.
         /// </summary>
         public string? GenerationExpression { get; init; }
+
+        /// <summary>
+        /// <c>s</c> when a generated column is stored, <c>v</c> when it is computed on read, otherwise an empty string. <c>information_schema</c> does not report this.
+        /// </summary>
+        public string? GenerationKind { get; init; }
     }
 
     // a little bit convoluted due to the quote_ident() being required.
@@ -247,7 +252,8 @@ select
     c.identity_minimum as "{nameof(Result.IdentityMinimum)}",
     c.identity_cycle as "{nameof(Result.IdentityCycle)}",
     c.is_generated as "{nameof(Result.IsGenerated)}",
-    c.generation_expression as "{nameof(Result.GenerationExpression)}"
+    c.generation_expression as "{nameof(Result.GenerationExpression)}",
+    att.attgenerated::text as "{nameof(Result.GenerationKind)}"
 from information_schema.columns c
 -- pg_get_serial_sequence() resolves a column's owning sequence through pg_depend, which covers both
 -- the sequence a serial default reads from and the one created for an identity column, so a single
@@ -264,6 +270,11 @@ cross join lateral (
 -- column's parameters have to come from the sequence itself.
 left join pg_catalog.pg_sequences s
     on s.schemaname = seq.parts[1] and s.sequencename = seq.parts[2]
+-- information_schema.columns reports that a column is generated, but not whether its value is
+-- stored with the row or computed on every read, which only pg_attribute.attgenerated says.
+left join pg_catalog.pg_namespace ns on ns.nspname = c.table_schema
+left join pg_catalog.pg_class cls on cls.relnamespace = ns.oid and cls.relname = c.table_name
+left join pg_catalog.pg_attribute att on att.attrelid = cls.oid and att.attname = c.column_name
 where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.TableName)}
 order by c.ordinal_position
 """;

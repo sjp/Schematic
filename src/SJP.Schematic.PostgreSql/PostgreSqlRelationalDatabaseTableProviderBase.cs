@@ -823,9 +823,21 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     ? Option<string>.Some(row.GenerationExpression ?? string.Empty)
                     : Option<string>.None;
 
-                return isComputed
-                    ? new DatabaseComputedColumn(columnName, columnType, isNullable, defaultValue, computedDefinition)
-                    : new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
+                // Generated columns were stored-only until virtual generated columns arrived, so a
+                // server that does not report the kind can only have stored ones.
+                var computedStorage = string.Equals(row.GenerationKind, Constants.VirtualGenerated, StringComparison.Ordinal)
+                    ? ComputedColumnStorage.Virtual
+                    : ComputedColumnStorage.Stored;
+
+                return new DatabaseColumn(
+                    columnName,
+                    columnType,
+                    isNullable,
+                    defaultValue,
+                    autoIncrement,
+                    isComputed,
+                    computedDefinition,
+                    computedStorage);
             })
             .ToListAsync(cancellationToken);
     }
@@ -1129,6 +1141,11 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// Determines whether a column is generated.
         /// </summary>
         public const string Always = "ALWAYS";
+
+        /// <summary>
+        /// The <c>pg_attribute.attgenerated</c> value given to a generated column that is computed on read.
+        /// </summary>
+        public const string VirtualGenerated = "v";
     }
 
     // pg_am.amname values for the access methods shipped with PostgreSQL. Anything else, e.g. an

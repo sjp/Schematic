@@ -1,6 +1,6 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { type ColumnDef } from "@tanstack/react-table";
-import { Check, Hash, KeyRound, Link2, Minus, ShieldCheck } from "lucide-react";
+import { Check, Hash, KeyRound, Link2, Minus, ShieldCheck, Sigma } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { ConstraintStatus } from "@/components/ConstraintStatus";
@@ -122,6 +122,23 @@ function KeyIcons({
           }
         >
           <Hash className="size-3.5 text-violet-500" aria-label="Generated value" />
+        </IconTooltip>
+      )}
+      {column.isComputed && (
+        <IconTooltip
+          label={
+            <>
+              <span className="font-medium">Computed</span>
+              {column.computedStorage && <> · {column.computedStorage}</>}
+              {column.computedDefinition && (
+                <div className="opacity-90">
+                  <code>{column.computedDefinition}</code>
+                </div>
+              )}
+            </>
+          }
+        >
+          <Sigma className="size-3.5 text-rose-500" aria-label="Computed value" />
         </IconTooltip>
       )}
     </span>

@@ -165,6 +165,113 @@ internal static class DatabaseColumnTests
         Assert.That(column.IsComputed, Is.False);
     }
 
+    [Test]
+    public static void Ctor_GivenInvalidComputedStorage_ThrowsArgumentException()
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+        const bool isNullable = false;
+        var defaultValue = Option<string>.None;
+        var autoIncrement = Option<IAutoIncrement>.None;
+        var definition = Option<string>.Some("1");
+        const ComputedColumnStorage storage = (ComputedColumnStorage)55;
+
+        Assert.That(() => new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement, true, definition, storage), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void IsComputed_GivenComputedCtorArg_EqualsTrue()
+    {
+        var column = CreateComputedColumn(Option<string>.Some("1"), ComputedColumnStorage.Stored);
+
+        Assert.That(column.IsComputed, Is.True);
+    }
+
+    [Test]
+    public static void ComputedDefinition_GivenSomeDefinition_EqualsCtorArg()
+    {
+        const string expression = "1";
+
+        var column = CreateComputedColumn(Option<string>.Some(expression), ComputedColumnStorage.Stored);
+
+        Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(expression));
+    }
+
+    [Test]
+    public static void ComputedDefinition_GivenNoneDefinition_EqualsNone()
+    {
+        var column = CreateComputedColumn(Option<string>.None, ComputedColumnStorage.Virtual);
+
+        Assert.That(column.ComputedDefinition, OptionIs.None);
+    }
+
+    [TestCase(ComputedColumnStorage.Unknown)]
+    [TestCase(ComputedColumnStorage.Virtual)]
+    [TestCase(ComputedColumnStorage.Stored)]
+    public static void ComputedStorage_PropertyGet_EqualsCtorArg(ComputedColumnStorage storage)
+    {
+        var column = CreateComputedColumn(Option<string>.Some("1"), storage);
+
+        Assert.That(column.ComputedStorage, Is.EqualTo(storage));
+    }
+
+    [Test]
+    public static void ComputedDefinition_WhenColumnIsNotComputed_EqualsNone()
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+        const bool isNullable = false;
+        var defaultValue = Option<string>.None;
+        var autoIncrement = Option<IAutoIncrement>.None;
+
+        var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement, false, Option<string>.Some("1"), ComputedColumnStorage.Stored);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.ComputedDefinition, OptionIs.None);
+            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Unknown));
+        }
+    }
+
+    [Test]
+    public static void ComputedDefinition_WhenNotProvidedToCtor_EqualsNone()
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+        const bool isNullable = false;
+        var defaultValue = Option<string>.Some("test_default_value");
+        var autoIncrement = Option<IAutoIncrement>.None;
+
+        var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.ComputedDefinition, OptionIs.None);
+            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Unknown));
+        }
+    }
+
+    [TestCase("test_column_1", "Computed Column: test_column_1")]
+    [TestCase("test_column_2", "Computed Column: test_column_2")]
+    public static void ToString_WhenGivenComputedColumn_ReturnsExpectedValues(string columnName, string expectedResult)
+    {
+        var dbType = Mock.Of<IDbType>();
+        const bool isNullable = false;
+
+        var column = new DatabaseColumn(Identifier.CreateQualifiedIdentifier(columnName), dbType, isNullable, Option<string>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
+        var result = column.ToString();
+
+        Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
+    private static DatabaseColumn CreateComputedColumn(Option<string> computedDefinition, ComputedColumnStorage storage)
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+
+        return new DatabaseColumn(columnName, dbType, false, Option<string>.None, Option<IAutoIncrement>.None, true, computedDefinition, storage);
+    }
+
     [TestCase("test_column_1", "Column: test_column_1")]
     [TestCase("test_column_2", "Column: test_column_2")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string columnName, string expectedResult)

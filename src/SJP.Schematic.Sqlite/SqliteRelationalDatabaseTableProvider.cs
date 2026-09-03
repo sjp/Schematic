@@ -1053,16 +1053,21 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 ? Option<string>.Some(tableInfo.dflt_value)
                 : Option<string>.None;
 
-            if (parsedColumnInfo.ComputedColumnType == SqliteGeneratedColumnType.None)
-            {
-                var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
-                result.Add(column);
-            }
-            else
-            {
-                var column = new DatabaseComputedColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, parsedColumnInfo.ComputedDefinition);
-                result.Add(column);
-            }
+            var isComputed = parsedColumnInfo.ComputedColumnType != SqliteGeneratedColumnType.None;
+            var computedStorage = parsedColumnInfo.ComputedColumnType == SqliteGeneratedColumnType.Stored
+                ? ComputedColumnStorage.Stored
+                : ComputedColumnStorage.Virtual;
+
+            var column = new DatabaseColumn(
+                tableInfo.name,
+                columnType,
+                !tableInfo.notnull,
+                defaultValue,
+                autoIncrement,
+                isComputed,
+                parsedColumnInfo.ComputedDefinition,
+                computedStorage);
+            result.Add(column);
         }
 
         return result;

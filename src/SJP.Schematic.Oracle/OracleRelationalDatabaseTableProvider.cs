@@ -787,9 +787,16 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 ? Option<string>.Some(row.DefaultValue)
                 : Option<string>.None;
 
-            var column = isComputed
-                ? new OracleDatabaseComputedColumn(columnName, columnType, isNullable, computedColumnDefinition)
-                : new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue, BuildAutoIncrement(row, tableName));
+            // Oracle evaluates a virtual column whenever it is read, so it is never stored.
+            var column = new OracleDatabaseColumn(
+                columnName,
+                columnType,
+                isNullable,
+                defaultValue,
+                isComputed ? Option<IAutoIncrement>.None : BuildAutoIncrement(row, tableName),
+                isComputed,
+                computedColumnDefinition,
+                ComputedColumnStorage.Virtual);
 
             result.Add(column);
         }

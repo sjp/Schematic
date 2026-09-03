@@ -414,8 +414,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(column.IsComputed, Is.True);
-            Assert.That(column, Is.InstanceOf<IDatabaseComputedColumn>());
-            Assert.That(((IDatabaseComputedColumn)column).Definition.UnwrapSome(), Is.EqualTo(definition));
+            Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(definition));
         }
     }
 
@@ -432,9 +431,23 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         using (Assert.EnterMultipleScope())
         {
             Assert.That(column.IsComputed, Is.True);
-            Assert.That(column, Is.InstanceOf<IDatabaseComputedColumn>());
-            Assert.That(((IDatabaseComputedColumn)column).Definition.IsNone, Is.True);
+            Assert.That(column.ComputedDefinition.IsNone, Is.True);
         }
+    }
+
+    [TestCase(ComputedColumnStorage.Stored)]
+    [TestCase(ComputedColumnStorage.Virtual)]
+    [TestCase(ComputedColumnStorage.Unknown)]
+    public static async Task SerializeDeserialize_WhenComputedColumnRoundTripped_PreservesComputedStorage(ComputedColumnStorage storage)
+    {
+        var db = CreateComputedColumnDatabase(Option<string>.Some("([first_name] + ' ' + [last_name])"), storage);
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var column = tables.Single().Columns.Single(c => c.Name.LocalName == "test_computed_column");
+
+        Assert.That(column.ComputedStorage, Is.EqualTo(storage));
     }
 
     [Test]
@@ -1058,6 +1071,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     private sealed class ColumnClrType;
 
     private static IRelationalDatabase CreateComputedColumnDatabase(Option<string> definition)
+        => CreateComputedColumnDatabase(definition, ComputedColumnStorage.Stored);
+
+    private static IRelationalDatabase CreateComputedColumnDatabase(Option<string> definition, ComputedColumnStorage storage)
     {
         var columnType = new ColumnDataType(
             "varchar",
@@ -1074,7 +1090,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var columns = new List<IDatabaseColumn>
         {
             firstNameColumn,
-            new DatabaseComputedColumn("test_computed_column", columnType, true, Option<string>.None, definition),
+            new DatabaseColumn("test_computed_column", columnType, true, Option<string>.None, Option<IAutoIncrement>.None, true, definition, storage),
         };
 
         var table = new RelationalDatabaseTable(

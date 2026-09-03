@@ -181,7 +181,8 @@ create table if not exists table_test_table_41 (
         await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_34 (
     test_column_1 int,
     test_column_2 int,
-    test_column_3 int as (test_column_1 + test_column_2)
+    test_column_3 int as (test_column_1 + test_column_2),
+    test_column_4 int as (test_column_1 * test_column_2) stored
 )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_35 ( test_column int not null primary key auto_increment )", CancellationToken.None);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_36 ( json_column json )", CancellationToken.None);

@@ -61,4 +61,13 @@ public sealed record DatabaseColumn
     /// The expression a computed column is defined by, if any.
     /// </summary>
     public string? Definition { get; init; }
+
+    /// <summary>
+    /// Whether a computed column's values are stored with the row or evaluated when the column is read.
+    /// </summary>
+    /// <remarks>
+    /// Not required, so that a document written before computed columns carried their storage still
+    /// reads back, as an unknown storage.
+    /// </remarks>
+    public Core.ComputedColumnStorage ComputedStorage { get; init; }
 }

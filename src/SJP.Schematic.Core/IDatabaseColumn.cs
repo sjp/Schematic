@@ -44,4 +44,20 @@ public interface IDatabaseColumn
     /// <value>An automatic increment definition, if available.
     /// </value>
     Option<IAutoIncrement> AutoIncrement { get; }
+
+    /// <summary>
+    /// The expression that computes the values of this column. Always <see cref="Option{A}.None"/>
+    /// when <see cref="IsComputed"/> is <see langword="false" />, and optional otherwise as some
+    /// providers (e.g. Oracle) allow the definition to be missing.
+    /// </summary>
+    /// <value>A computed column definition, if available.</value>
+    Option<string> ComputedDefinition { get; }
+
+    /// <summary>
+    /// Determines whether the computed values of this column are stored in the table or evaluated
+    /// when the column is read. Always <see cref="ComputedColumnStorage.Unknown"/> when
+    /// <see cref="IsComputed"/> is <see langword="false" />.
+    /// </summary>
+    /// <value>The storage applied to a computed column.</value>
+    ComputedColumnStorage ComputedStorage { get; }
 }

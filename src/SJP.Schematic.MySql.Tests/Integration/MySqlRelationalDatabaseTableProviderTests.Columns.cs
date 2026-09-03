@@ -96,33 +96,45 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     {
         const string tableName = "table_test_table_34";
         var table = await GetTableAsync(tableName);
-        var column = table.Columns[table.Columns.Count - 1];
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
 
-        Assert.That(column.IsNullable, Is.True);
+        Assert.That(column.IsComputed, Is.True);
     }
 
     [Test]
-    public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsNotNullObject()
-    {
-        const string tableName = "table_test_table_34";
-        var table = await GetTableAsync(tableName);
-        var column = table.Columns[table.Columns.Count - 1];
-
-        var computedColumn = column as IDatabaseComputedColumn;
-        Assert.That(computedColumn, Is.Not.Null);
-    }
-
-    [Test]
-    public async Task Columns_WhenGivenTableWithComputedColumnCastedToInterface_ReturnsCorrectDefinition()
+    public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsCorrectDefinition()
     {
         const string tableName = "table_test_table_34";
         const string expectedDefinition = "(`test_column_1` + `test_column_2`)";
 
         var table = await GetTableAsync(tableName);
-        var column = table.Columns[table.Columns.Count - 1];
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
 
-        var computedColumn = column as IDatabaseComputedColumn;
-        Assert.That(computedColumn.Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+        Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithVirtualComputedColumn_ReturnsVirtualStorage()
+    {
+        const string tableName = "table_test_table_34";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
+
+        Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithStoredComputedColumn_ReturnsStoredStorage()
+    {
+        const string tableName = "table_test_table_34";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_4", StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.IsComputed, Is.True);
+            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Stored));
+        }
     }
 
     [Test]

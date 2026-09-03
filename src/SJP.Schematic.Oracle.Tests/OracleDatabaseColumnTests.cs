@@ -106,6 +106,60 @@ internal static class OracleDatabaseColumnTests
         Assert.That(column.AutoIncrement.UnwrapSome(), Is.EqualTo(autoIncrement));
     }
 
+    [Test]
+    public static void Ctor_GivenInvalidComputedStorage_ThrowsArgumentException()
+    {
+        Identifier columnName = "test_column";
+        var columnType = Mock.Of<IDbType>();
+
+        Assert.That(() => new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), (ComputedColumnStorage)55), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void ComputedDefinition_GivenComputedCtorArgs_ReturnsCtorArgs()
+    {
+        Identifier columnName = "test_column";
+        var columnType = Mock.Of<IDbType>();
+        const string definition = "1 + 1";
+
+        var column = new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some(definition), ComputedColumnStorage.Virtual);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.IsComputed, Is.True);
+            Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(definition));
+            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
+        }
+    }
+
+    [Test]
+    public static void ComputedDefinition_WhenColumnIsNotComputed_ReturnsNone()
+    {
+        Identifier columnName = "test_column";
+        var columnType = Mock.Of<IDbType>();
+
+        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.ComputedDefinition, OptionIs.None);
+            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Unknown));
+        }
+    }
+
+    [TestCase("test_column_1", "Computed Column: test_column_1")]
+    [TestCase("test_column_2", "Computed Column: test_column_2")]
+    public static void ToString_WhenGivenComputedColumn_ReturnsExpectedValues(string name, string expectedResult)
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier(name);
+        var columnType = Mock.Of<IDbType>();
+
+        var column = new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
+        var result = column.ToString();
+
+        Assert.That(result, Is.EqualTo(expectedResult));
+    }
+
     [TestCase("test_column_1", "Column: test_column_1")]
     [TestCase("test_column_2", "Column: test_column_2")]
     public static void ToString_WhenInvoked_ReturnsExpectedValues(string name, string expectedResult)

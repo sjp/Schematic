@@ -60,12 +60,30 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         };
         var table = await GetTableAsync("table_test_table_37");
         var columns = table.Columns;
-        var definitions = columns.OfType<IDatabaseComputedColumn>()
-            .Select(c => c.Definition)
+        var definitions = columns.Where(c => c.IsComputed)
+            .Select(c => c.ComputedDefinition)
             .SelectMany(x => x)
             .ToList();
 
         var equalDefinitions = definitions.SequenceEqual(expectedDefinitions, System.StringComparer.Ordinal);
         Assert.That(equalDefinitions, Is.True);
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithComputedColumns_HasExpectedStorageForComputedColumns()
+    {
+        var expectedStorage = new[]
+        {
+            ComputedColumnStorage.Virtual,
+            ComputedColumnStorage.Stored,
+            ComputedColumnStorage.Virtual,
+        };
+        var table = await GetTableAsync("table_test_table_37");
+        var storage = table.Columns
+            .Where(c => c.IsComputed)
+            .Select(c => c.ComputedStorage)
+            .ToList();
+
+        Assert.That(storage, Is.EqualTo(expectedStorage));
     }
 }

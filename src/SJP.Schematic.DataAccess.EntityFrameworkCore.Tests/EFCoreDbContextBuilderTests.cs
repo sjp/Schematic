@@ -403,6 +403,32 @@ internal static class EFCoreDbContextBuilderTests
         Assert.That(result, Does.Not.Contain("ValueGeneratedOnAdd"));
     }
 
+    [TestCase(ComputedColumnStorage.Stored, """Property(t => t.address_id).HasComputedColumnSql("1 + 1", stored: true)""")]
+    [TestCase(ComputedColumnStorage.Virtual, """Property(t => t.address_id).HasComputedColumnSql("1 + 1", stored: false)""")]
+    [TestCase(ComputedColumnStorage.Unknown, """Property(t => t.address_id).HasComputedColumnSql("1 + 1")""")]
+    public static void Generate_GivenComputedColumn_ConfiguresComputedColumnSql(ComputedColumnStorage storage, string expectedConfiguration)
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var column = CreateComputedColumn("address_id", storage);
+        var table = new RelationalDatabaseTable(
+            "address",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([table], [], []);
+
+        Assert.That(result, Does.Contain(expectedConfiguration));
+    }
+
     private static IRelationalDatabaseTable CreateTable(Identifier tableName) =>
         new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
 
@@ -420,6 +446,22 @@ internal static class EFCoreDbContextBuilderTests
         );
 
         return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None);
+    }
+
+    private static IDatabaseColumn CreateComputedColumn(Identifier columnName, ComputedColumnStorage storage)
+    {
+        var columnType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(long),
+            false,
+            -1,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        return new DatabaseColumn(columnName, columnType, false, Option<string>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1 + 1"), storage);
     }
 
     private static IDatabaseColumn CreateIdentityColumn(Identifier columnName, IdentityGeneration generation)

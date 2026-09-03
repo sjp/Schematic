@@ -394,10 +394,32 @@ public class EFCoreDbContextBuilder
             }
         });
 
-        if (column.IsComputed && column is IDatabaseComputedColumn computedColumn)
+        if (column.IsComputed)
         {
-            computedColumn.Definition.IfSome(def =>
+            column.ComputedDefinition.IfSome(def =>
             {
+                var arguments = new List<ArgumentSyntax>
+                {
+                    Argument(
+                        LiteralExpression(
+                            SyntaxKind.StringLiteralExpression,
+                            Literal(def))),
+                };
+
+                // The 'stored' argument is nullable, so it is only supplied when the source database
+                // says how the computed values are kept; EF Core otherwise falls back to its
+                // provider default.
+                if (column.ComputedStorage != ComputedColumnStorage.Unknown)
+                {
+                    arguments.Add(
+                        Argument(
+                            LiteralExpression(
+                                column.ComputedStorage == ComputedColumnStorage.Stored
+                                    ? SyntaxKind.TrueLiteralExpression
+                                    : SyntaxKind.FalseLiteralExpression))
+                        .WithNameColon(NameColon(IdentifierName("stored"))));
+                }
+
                 property = InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -405,11 +427,7 @@ public class EFCoreDbContextBuilder
                         IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))))
                     .WithArgumentList(
                         ArgumentList(
-                            SingletonSeparatedList(
-                                Argument(
-                                    LiteralExpression(
-                                        SyntaxKind.StringLiteralExpression,
-                                        Literal(def))))));
+                            SeparatedList(arguments)));
             });
         }
 

@@ -292,8 +292,18 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_37";
         const string expectedDefinition = "(test_column_1 * 2)";
         var table = await GetTableAsync(tableName);
-        var computedColumn = table.Columns.Single(c => c.IsComputed) as IDatabaseComputedColumn;
+        var computedColumn = table.Columns.Single(c => c.IsComputed);
 
-        Assert.That(computedColumn.Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+        Assert.That(computedColumn.ComputedDefinition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsStoredComputedColumnStorage()
+    {
+        const string tableName = "table_test_table_37";
+        var table = await GetTableAsync(tableName);
+        var computedColumn = table.Columns.Single(c => c.IsComputed);
+
+        Assert.That(computedColumn.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Stored));
     }
 }
