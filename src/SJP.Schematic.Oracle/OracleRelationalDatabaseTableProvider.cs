@@ -472,9 +472,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     if (!parentKeyLookup.TryGetValue(childKeyName, out var childKey))
                         return OptionAsync<IDatabaseRelationalKey>.None;
 
-                    var deleteAction = childKeyRow.DeleteAction != null && ReferentialActionMapping.TryGetValue(childKeyRow.DeleteAction, out var mappedAction)
-                        ? mappedAction
-                        : ReferentialAction.NoAction;
+                    var deleteAction = OracleCatalogMapper.GetReferentialAction(childKeyRow.DeleteAction);
 
                     var relationalKey = new OracleRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction);
                     return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
@@ -690,11 +688,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     var deferrability = GetDeferrability(fkey.Key.Deferrable, fkey.Key.Deferred);
                     var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated, deferrability);
 
-                    // DELETE_RULE is null for a foreign key whose parent row cannot be deleted at all,
-                    // which is Oracle's NO ACTION behaviour. Matches the child key direction.
-                    var deleteAction = fkey.Key.DeleteAction != null && ReferentialActionMapping.TryGetValue(fkey.Key.DeleteAction, out var mappedDeleteAction)
-                        ? mappedDeleteAction
-                        : ReferentialAction.NoAction;
+                    var deleteAction = OracleCatalogMapper.GetReferentialAction(fkey.Key.DeleteAction);
                     return new OracleRelationalKey(tableName, childKey, resolvedParentTableName!, parentKey, deleteAction);
                 })
                 .IfSome(result.Add);
@@ -875,14 +869,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// A mapping from the referential actions as described in Oracle, to a <see cref="ReferentialAction"/> instance.
     /// </summary>
     /// <value>A mapping dictionary.</value>
-    protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
-    {
-        ["NO ACTION"] = ReferentialAction.NoAction,
-        ["RESTRICT"] = ReferentialAction.Restrict,
-        ["CASCADE"] = ReferentialAction.Cascade,
-        ["SET NULL"] = ReferentialAction.SetNull,
-        ["SET DEFAULT"] = ReferentialAction.SetDefault,
-    };
+    protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = OracleCatalogMapper.ReferentialActionMapping;
 
     /// <summary>
     /// A mapping from the trigger query timings as described in Oracle, to a <see cref="TriggerQueryTiming"/> instance.

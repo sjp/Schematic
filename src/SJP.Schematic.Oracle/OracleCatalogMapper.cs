@@ -130,6 +130,33 @@ internal static class OracleCatalogMapper
     }
 
     /// <summary>
+    /// Maps a <c>DELETE_RULE</c> value from the Oracle catalog onto a <see cref="ReferentialAction"/>.
+    /// </summary>
+    /// <param name="deleteRule">A <c>DELETE_RULE</c> value, which is <see langword="null" /> for any
+    /// constraint that is not a foreign key, and for a foreign key whose parent rows cannot be deleted
+    /// at all -- Oracle's <c>NO ACTION</c> behaviour.</param>
+    /// <returns>The mapped referential action, or <see cref="ReferentialAction.NoAction"/> when the value
+    /// is <see langword="null" /> or not one Oracle is known to report.</returns>
+    public static ReferentialAction GetReferentialAction(string? deleteRule)
+    {
+        return deleteRule != null && ReferentialActionMapping.TryGetValue(deleteRule, out var action)
+            ? action
+            : ReferentialAction.NoAction;
+    }
+
+    /// <summary>
+    /// A mapping from the referential actions as described in Oracle, to a <see cref="ReferentialAction"/> instance.
+    /// </summary>
+    public static IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["NO ACTION"] = ReferentialAction.NoAction,
+        ["RESTRICT"] = ReferentialAction.Restrict,
+        ["CASCADE"] = ReferentialAction.Cascade,
+        ["SET NULL"] = ReferentialAction.SetNull,
+        ["SET DEFAULT"] = ReferentialAction.SetDefault,
+    };
+
+    /// <summary>
     /// A mapping from the trigger query timings as described in Oracle, to a <see cref="TriggerQueryTiming"/> instance.
     /// </summary>
     public static IReadOnlyDictionary<string, TriggerQueryTiming> TimingMapping { get; } = new Dictionary<string, TriggerQueryTiming>(StringComparer.OrdinalIgnoreCase)
