@@ -141,7 +141,7 @@ export function DashboardPage() {
                     system
                   </span>
                 )}
-                <span className="tabular-nums text-muted-foreground">{schema.objectCount}</span>
+                <span className="text-muted-foreground tabular-nums">{schema.objectCount}</span>
               </li>
             ))}
           </ul>
