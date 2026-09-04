@@ -34,12 +34,35 @@ internal static class Config
         return new PostgreSqlConnectionFactory(builder.ConnectionString);
     });
 
+    /// <summary>
+    /// Disposes the shared pool. Only safe to call once every fixture has finished, so it is
+    /// driven by <see cref="ConnectionPoolTeardown"/> rather than by any individual fixture.
+    /// </summary>
+    internal static void DisposeConnectionPool()
+    {
+        if (ConnectionFactoryLoader.IsValueCreated && ConnectionFactoryLoader.Value is IDisposable disposable)
+            disposable.Dispose();
+    }
+
     private static string ConnectionString => Configuration.GetConnectionString("PostgreSql_TestDb");
 
     private static IConfigurationRoot Configuration => new ConfigurationBuilder()
         .AddEnvironmentVariables()
         .AddJsonFile("postgresql-test.config.json", optional: true)
         .Build();
+}
+
+/// <summary>
+/// Disposes the connection pool shared by every fixture in this namespace, once they have all
+/// finished. Ownership sits here rather than in a per-fixture <see cref="OneTimeTearDownAttribute"/>
+/// because the pool outlives any single fixture: the first fixture to finish must not tear it
+/// down while the others are still running.
+/// </summary>
+[SetUpFixture]
+internal sealed class ConnectionPoolTeardown
+{
+    [OneTimeTearDown]
+    public void DisposeConnectionPool() => Config.DisposeConnectionPool();
 }
 
 [Category("PostgreSqlDatabase")]
@@ -69,13 +92,6 @@ internal abstract class PostgreSqlTest
     private readonly Lazy<ISchematicConnection> _connection;
     private readonly Lazy<PostgreSqlDatabaseProvider> _databaseProvider;
     private readonly Lazy<IIdentifierDefaults> _defaults;
-
-    [OneTimeTearDown]
-    public void DisposeConnection()
-    {
-        if (_connection.IsValueCreated && _connection.Value.ConnectionFactory is IDisposable disposable)
-            disposable.Dispose();
-    }
 
     /// <summary>
     /// Executes multiple DDL statements as a single round-trip. Npgsql sends multi-statement
