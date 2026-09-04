@@ -1,4 +1,4 @@
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -15,8 +15,8 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     //
     // Before the GetTablePrimaryKey/GetTableUniqueKeys/GetTableParentKeys -> GetTableConstraints merge,
     // a table load issued 8 distinct queries (columns, checks, triggers, indexes, primary key, unique
-    // keys, parent keys, child keys); it now issues 6 (constraints merged into one). Plus one query to
-    // resolve the table's name up front, for 7 total.
+    // keys, parent keys, child keys); it now issues 6 (constraints merged into one), plus one for the
+    // table's storage options. Plus one query to resolve the table's name up front, for 8 total.
     [Test]
     public async Task GetTable_ForSingleTableWithOnlyAPrimaryKey_IssuesExpectedNumberOfRoundTrips()
     {
@@ -26,6 +26,6 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         _ = await tableProvider.GetTable("table_test_table_2", CancellationToken.None).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(7));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(8));
     }
 }
