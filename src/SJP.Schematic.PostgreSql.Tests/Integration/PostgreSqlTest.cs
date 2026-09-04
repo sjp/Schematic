@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using Npgsql;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -16,11 +17,22 @@ namespace SJP.Schematic.PostgreSql.Tests.Integration;
 
 internal static class Config
 {
-    public static IDbConnectionFactory ConnectionFactory => !ConnectionString.IsNullOrWhiteSpace()
-        ? new PostgreSqlConnectionFactory(ConnectionString)
-        : null;
+    public static IDbConnectionFactory ConnectionFactory => ConnectionFactoryLoader.Value;
 
     public static ISchematicConnection SchematicConnection => new SchematicConnection(ConnectionFactory, new PostgreSqlDialect());
+
+    private static readonly Lazy<IDbConnectionFactory> ConnectionFactoryLoader = new(static () =>
+    {
+        if (ConnectionString.IsNullOrWhiteSpace())
+            return null;
+
+        var builder = new NpgsqlConnectionStringBuilder(ConnectionString)
+        {
+            MaxPoolSize = 30
+        };
+
+        return new PostgreSqlConnectionFactory(builder.ConnectionString);
+    });
 
     private static string ConnectionString => Configuration.GetConnectionString("PostgreSql_TestDb");
 

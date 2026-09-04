@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using MySqlConnector;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -16,14 +17,25 @@ namespace SJP.Schematic.MySql.Tests.Integration;
 
 internal static class Config
 {
-    public static IDbConnectionFactory ConnectionFactory => !ConnectionString.IsNullOrWhiteSpace()
-        ? new MySqlConnectionFactory(ConnectionString)
-        : null;
+    public static IDbConnectionFactory ConnectionFactory => ConnectionFactoryLoader.Value;
 
     public static ISchematicConnection SchematicConnection => new SchematicConnection(
         ConnectionFactory,
         new MySqlDialect()
     );
+
+    private static readonly Lazy<IDbConnectionFactory> ConnectionFactoryLoader = new(static () =>
+    {
+        if (ConnectionString.IsNullOrWhiteSpace())
+            return null;
+
+        var builder = new MySqlConnectionStringBuilder(ConnectionString)
+        {
+            MaximumPoolSize = 30
+        };
+
+        return new MySqlConnectionFactory(builder.ConnectionString);
+    });
 
     private static string ConnectionString => Configuration.GetConnectionString("MySql_TestDb");
 
