@@ -32,7 +32,7 @@ function fileProtocolHtml(): Plugin {
 export default defineConfig({
   // Relative asset paths are mandatory for opening the report from `file://`.
   base: "./",
-  plugins: [react(), tailwindcss(), fileProtocolHtml()],
+  plugins: [react({ compiler: true }), tailwindcss(), fileProtocolHtml()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),
