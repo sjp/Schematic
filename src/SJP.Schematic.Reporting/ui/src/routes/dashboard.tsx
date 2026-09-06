@@ -6,6 +6,7 @@ import {
   ListOrdered,
   ListTree,
   Replace,
+  Shapes,
   ShieldCheck,
   SquareFunction,
   Table2,
@@ -78,6 +79,12 @@ export function DashboardPage() {
       icon: SquareFunction,
       href: "#/routines",
     },
+    {
+      label: "Types",
+      value: data.userDefinedTypesCount,
+      icon: Shapes,
+      href: "#/user-defined-types",
+    },
   ];
 
   if (lint !== undefined) {
@@ -123,25 +130,31 @@ export function DashboardPage() {
 
       {data.schemas.length > 0 && (
         <div className="space-y-2">
-          <h2 className="text-sm font-semibold text-muted-foreground">Schemas</h2>
+          <h2 className="text-sm font-semibold text-muted-foreground">
+            <a href="#/schemas" className="hover:underline">
+              Schemas
+            </a>
+          </h2>
           <ul className="flex flex-wrap gap-2">
             {data.schemas.map((schema) => (
-              <li
-                key={schema.name}
-                className="flex items-center gap-2 rounded-md border bg-card px-3 py-1.5 text-sm"
-              >
-                <span className="font-medium">{schema.name}</span>
-                {schema.isDefault && (
-                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
-                    default
-                  </span>
-                )}
-                {schema.isSystem && (
-                  <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                    system
-                  </span>
-                )}
-                <span className="text-muted-foreground tabular-nums">{schema.objectCount}</span>
+              <li key={schema.name}>
+                <a
+                  href={schema.schemaUrl}
+                  className="flex items-center gap-2 rounded-md border bg-card px-3 py-1.5 text-sm transition-colors hover:bg-accent/40"
+                >
+                  <span className="font-medium text-primary">{schema.name}</span>
+                  {schema.isDefault && (
+                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                      default
+                    </span>
+                  )}
+                  {schema.isSystem && (
+                    <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                      system
+                    </span>
+                  )}
+                  <span className="text-muted-foreground tabular-nums">{schema.objectCount}</span>
+                </a>
               </li>
             ))}
           </ul>

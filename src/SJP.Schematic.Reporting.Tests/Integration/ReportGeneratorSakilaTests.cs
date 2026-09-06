@@ -64,6 +64,8 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
             Assert.That(File.Exists(Path.Combine(dataDir, "tables.json")), Is.True);
             Assert.That(File.Exists(Path.Combine(dataDir, "lint.json")), Is.True);
             Assert.That(File.Exists(Path.Combine(dataDir, "search.json")), Is.True);
+            Assert.That(File.Exists(Path.Combine(dataDir, "schemas.json")), Is.True);
+            Assert.That(File.Exists(Path.Combine(dataDir, "userDefinedTypes.json")), Is.True);
         }
     }
 

@@ -54,20 +54,22 @@ public class ReportGenerator
             sequences,
             synonyms,
             routines,
-            schemas
+            schemas,
+            userDefinedTypes
         ) = await (
             Database.GetAllTables(cancellationToken),
             Database.GetAllViews(cancellationToken),
             Database.GetAllSequences(cancellationToken),
             Database.GetAllSynonyms(cancellationToken),
             Database.GetAllRoutines(cancellationToken),
-            Database.GetAllSchemas(cancellationToken)
+            Database.GetAllSchemas(cancellationToken),
+            Database.GetAllUserDefinedTypes(cancellationToken)
         ).WhenAll();
 
         var dbVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(cancellationToken);
         var tableStatistics = await GetTableStatisticsAsync(cancellationToken);
 
-        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, schemas, dbVersion, tableStatistics);
+        var reportData = BuildReportData(tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, dbVersion, tableStatistics);
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
         // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
@@ -132,6 +134,7 @@ public class ReportGenerator
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyCollection<IDatabaseSchema> schemas,
+        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes,
         string databaseVersion,
         IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics
     )
@@ -142,6 +145,7 @@ public class ReportGenerator
         ArgumentNullException.ThrowIfNull(synonyms);
         ArgumentNullException.ThrowIfNull(routines);
         ArgumentNullException.ThrowIfNull(schemas);
+        ArgumentNullException.ThrowIfNull(userDefinedTypes);
 
         // Referenced-object resolution (used by view detail) maps a dependency expression to the
         // owning object's hash route, across every object type.
@@ -157,7 +161,7 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
 
-        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, databaseVersion, referencedObjectTargets, synonymTargets, tableStatistics);
+        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, databaseVersion, referencedObjectTargets, synonymTargets, tableStatistics);
     }
 
     // Statistics decorate the report rather than form it, and reading them needs privileges that a
@@ -217,6 +221,11 @@ public class ReportGenerator
             new SequenceRenderer(),
             new SynonymsRenderer(),
             new SynonymRenderer(),
+            // Schemas & the types declared within them.
+            new SchemasRenderer(),
+            new SchemaRenderer(),
+            new UserDefinedTypesRenderer(),
+            new UserDefinedTypeRenderer(),
             // Summary-only pages: no per-object detail.
             new TriggersRenderer(),
             new ColumnsRenderer(),

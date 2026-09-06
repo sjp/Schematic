@@ -1,5 +1,6 @@
 import { HeadContent, Outlet, useRouterState } from "@tanstack/react-router";
 import {
+  Boxes,
   Columns3,
   Database,
   Eye,
@@ -9,6 +10,7 @@ import {
   ListTree,
   Replace,
   Search,
+  Shapes,
   ShieldCheck,
   Share2,
   SquareFunction,
@@ -36,6 +38,7 @@ type NavItem = {
 // later waves register the real routes; the links already point at them.
 const NAV: NavItem[] = [
   { href: "#/", path: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "#/schemas", path: "/schemas", label: "Schemas", icon: Boxes },
   { href: "#/tables", path: "/tables", label: "Tables", icon: Table2 },
   { href: "#/views", path: "/views", label: "Views", icon: Eye },
   {
@@ -50,6 +53,12 @@ const NAV: NavItem[] = [
     path: "/routines",
     label: "Routines",
     icon: SquareFunction,
+  },
+  {
+    href: "#/user-defined-types",
+    path: "/user-defined-types",
+    label: "Types",
+    icon: Shapes,
   },
   { href: "#/triggers", path: "/triggers", label: "Triggers", icon: Zap },
   { href: "#/columns", path: "/columns", label: "Columns", icon: Columns3 },

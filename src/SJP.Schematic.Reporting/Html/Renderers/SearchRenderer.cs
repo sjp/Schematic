@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Reporting.Html.ViewModels;
+using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
@@ -44,6 +45,25 @@ internal sealed class SearchRenderer : IDataRenderer
 
         foreach (var routine in data.Routines)
             entries.Add(new Search.SearchEntry(routine.Name.ToVisibleName(), "Routine", UrlRouter.GetRoutineUrl(routine.Name), null));
+
+        foreach (var userDefinedType in data.UserDefinedTypes)
+        {
+            var typeUrl = UrlRouter.GetUserDefinedTypeUrl(userDefinedType.Name);
+            var typeName = userDefinedType.Name.ToVisibleName();
+            entries.Add(new Search.SearchEntry(typeName, "Type", typeUrl, null));
+
+            // A composite or table type's attributes are as searchable as a table's columns, and
+            // are labelled distinctly so a hit leads to the type page rather than looking like a
+            // column of a table that does not exist.
+            foreach (var attribute in userDefinedType.Attributes)
+                entries.Add(new Search.SearchEntry(attribute.Name.LocalName, "Attribute", typeUrl, typeName));
+        }
+
+        // Schemas are resolved rather than read straight off data.Schemas, so that the palette
+        // lists exactly the schemas the report has a page for.
+        var schemaMapper = new SchemaModelMapper();
+        foreach (var schema in schemaMapper.GetSchemas(data))
+            entries.Add(new Search.SearchEntry(schema.Name.LocalName, "Schema", UrlRouter.GetSchemaUrl(schema.Name), null));
 
         var searchVm = new Search(entries);
 

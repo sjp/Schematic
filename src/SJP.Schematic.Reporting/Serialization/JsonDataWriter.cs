@@ -81,6 +81,12 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Sequence), TypeInfoPropertyName = "SequenceDetail")]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonyms))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Synonym), TypeInfoPropertyName = "SynonymDetail")]
+// Schemas & the types declared within them. "SchemaDetail"/"UserDefinedTypeDetail" disambiguate the
+// top-level detail payloads from the nested Main.Schema/Main.UserDefinedType summary rows.
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Schemas))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Schema), TypeInfoPropertyName = "SchemaDetail")]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.UserDefinedTypes))]
+[JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.UserDefinedType), TypeInfoPropertyName = "UserDefinedTypeDetail")]
 // Summary-only pages: each is a schema-wide list with no per-object detail.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Triggers))]
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Columns))]

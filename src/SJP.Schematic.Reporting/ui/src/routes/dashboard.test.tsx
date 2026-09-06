@@ -17,13 +17,29 @@ const MAIN: MainSummary = {
   columnsCount: 10,
   constraintsCount: 2,
   indexesCount: 3,
-  schemas: [{ name: "main", isDefault: true, isSystem: false, objectCount: 5 }],
+  schemas: [
+    {
+      name: "main",
+      schemaUrl: "#/schemas/main-1a2b3c4d",
+      owner: "",
+      isDefault: true,
+      isSystem: false,
+      tablesCount: 4,
+      viewsCount: 1,
+      sequencesCount: 0,
+      synonymsCount: 0,
+      routinesCount: 0,
+      userDefinedTypesCount: 0,
+      objectCount: 5,
+    },
+  ],
   schemasCount: 1,
   tablesCount: 4,
   viewsCount: 1,
   sequencesCount: 0,
   synonymsCount: 0,
   routinesCount: 0,
+  userDefinedTypesCount: 0,
 };
 
 const LINT: LintSummary = {

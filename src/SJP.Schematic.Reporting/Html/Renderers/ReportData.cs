@@ -21,6 +21,7 @@ internal sealed class ReportData
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyCollection<IDatabaseSchema> schemas,
+        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes,
         string? databaseVersion,
         ReferencedObjectTargets referencedObjectTargets,
         SynonymTargets synonymTargets,
@@ -34,6 +35,7 @@ internal sealed class ReportData
         Synonyms = synonyms ?? throw new ArgumentNullException(nameof(synonyms));
         Routines = routines ?? throw new ArgumentNullException(nameof(routines));
         Schemas = schemas ?? throw new ArgumentNullException(nameof(schemas));
+        UserDefinedTypes = userDefinedTypes ?? throw new ArgumentNullException(nameof(userDefinedTypes));
         DatabaseVersion = databaseVersion;
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
@@ -53,6 +55,8 @@ internal sealed class ReportData
     public IReadOnlyCollection<IDatabaseRoutine> Routines { get; }
 
     public IReadOnlyCollection<IDatabaseSchema> Schemas { get; }
+
+    public IReadOnlyCollection<IDatabaseUserDefinedType> UserDefinedTypes { get; }
 
     public string? DatabaseVersion { get; }
 

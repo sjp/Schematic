@@ -18,17 +18,121 @@ export interface MainSummary {
   sequencesCount: number;
   synonymsCount: number;
   routinesCount: number;
+  userDefinedTypesCount: number;
 }
 
-/** A schema declared by the database, as listed on the dashboard. */
+/** A row in `data/schemas.json`; also listed on the dashboard. */
 export interface SchemaSummary {
   name: string;
+  /** Hash route, e.g. `#/schemas/<safeKey>`. */
+  schemaUrl: string;
+  /** The principal owning the schema. Empty when the database records none. */
+  owner: string;
   /** Whether unqualified object names resolve to this schema. */
   isDefault: boolean;
   /** Whether the database declares this schema itself, e.g. `sys` or `pg_catalog`. */
   isSystem: boolean;
-  /** Tables, views, sequences, synonyms and routines the report holds for this schema. */
+  tablesCount: number;
+  viewsCount: number;
+  sequencesCount: number;
+  synonymsCount: number;
+  routinesCount: number;
+  userDefinedTypesCount: number;
+  /** The sum of the per-type counts, i.e. everything the report holds for this schema. */
   objectCount: number;
+}
+
+/** `data/schemas.json`. */
+export interface SchemasSummary {
+  schemasCount: number;
+  allSchemas: SchemaSummary[];
+}
+
+/** An object declared within a schema, as a link to its own page. */
+export interface SchemaObject {
+  name: string;
+  /** Hash route into the SPA. */
+  url: string;
+}
+
+/** `data/schemas/<safeKey>.json`. */
+export interface SchemaDetail {
+  name: string;
+  schemaUrl: string;
+  /** The principal owning the schema. Empty when the database records none. */
+  owner: string;
+  isDefault: boolean;
+  isSystem: boolean;
+  tables: SchemaObject[];
+  tablesCount: number;
+  views: SchemaObject[];
+  viewsCount: number;
+  sequences: SchemaObject[];
+  sequencesCount: number;
+  synonyms: SchemaObject[];
+  synonymsCount: number;
+  routines: SchemaObject[];
+  routinesCount: number;
+  userDefinedTypes: SchemaObject[];
+  userDefinedTypesCount: number;
+  objectCount: number;
+}
+
+/** A row in `data/userDefinedTypes.json`. */
+export interface UserDefinedTypeSummary {
+  name: string;
+  /** Hash route, e.g. `#/user-defined-types/<safeKey>`. */
+  typeUrl: string;
+  /** Display name of the kind of type, e.g. `Domain`. Empty when the database reports none. */
+  kind: string;
+  /** The type this one is defined in terms of. Empty when there is none, or it is not reported. */
+  baseType: string;
+  isNullable: boolean;
+  attributesCount: number;
+  enumValuesCount: number;
+}
+
+/** `data/userDefinedTypes.json`. */
+export interface UserDefinedTypesSummary {
+  userDefinedTypesCount: number;
+  allUserDefinedTypes: UserDefinedTypeSummary[];
+}
+
+/** A named attribute of a composite or table type. */
+export interface UserDefinedTypeAttribute {
+  ordinal: number;
+  attributeName: string;
+  isNullable: boolean;
+  type: string;
+  defaultValue: string;
+}
+
+/** A check constraint a value of a user-defined type must satisfy. */
+export interface UserDefinedTypeCheck {
+  /** Empty when the constraint is unnamed. */
+  constraintName: string;
+  definition: string;
+}
+
+/** `data/userDefinedTypes/<safeKey>.json`. */
+export interface UserDefinedTypeDetail {
+  name: string;
+  typeUrl: string;
+  /** Display name of the kind of type, e.g. `Domain`. Empty when the database reports none. */
+  kind: string;
+  /** The type this one is defined in terms of. Empty when there is none, or it is not reported. */
+  baseType: string;
+  isNullable: boolean;
+  /** The default for a column of this type. Empty when the type declares none. */
+  defaultValue: string;
+  /** The textual definition of the type. Empty when the database reports none. */
+  definition: string;
+  enumValues: string[];
+  enumValuesCount: number;
+  attributes: UserDefinedTypeAttribute[];
+  attributesCount: number;
+  checks: UserDefinedTypeCheck[];
+  checksCount: number;
 }
 
 /** A row in `data/tables.json`. */

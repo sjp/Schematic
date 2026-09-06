@@ -40,6 +40,21 @@ export async function loadSummary<T>(key: string): Promise<T> {
   return (await response.json()) as T;
 }
 
+/**
+ * Directory holding the `.json` files for each detail type. The generator keys the bundle by the
+ * singular type name but writes the files into a plural directory, so the http path cannot be
+ * derived from the bundle key; this is the one place that mapping lives.
+ */
+const DETAIL_DIRECTORIES: Record<string, string> = {
+  table: "tables",
+  view: "views",
+  sequence: "sequences",
+  synonym: "synonyms",
+  routine: "routines",
+  schema: "schemas",
+  userDefinedType: "userDefinedTypes",
+};
+
 /** Loads a per-object detail payload (e.g. type `table`, key `actor_a1b2c3d4`). */
 export async function loadDetail<T>(type: string, key: string): Promise<T> {
   if (fromDisk) {
@@ -55,9 +70,13 @@ export async function loadDetail<T>(type: string, key: string): Promise<T> {
     }
     return detail;
   }
-  const response = await fetch(`data/${type}/${key}.json`);
+  const directory = DETAIL_DIRECTORIES[type];
+  if (directory === undefined) {
+    throw new Error(`Unknown detail type "${type}".`);
+  }
+  const response = await fetch(`data/${directory}/${key}.json`);
   if (!response.ok) {
-    throw new Error(`Failed to load data/${type}/${key}.json (${response.status})`);
+    throw new Error(`Failed to load data/${directory}/${key}.json (${response.status})`);
   }
   return (await response.json()) as T;
 }

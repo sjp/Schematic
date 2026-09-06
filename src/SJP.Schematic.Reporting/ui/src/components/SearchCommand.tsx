@@ -1,11 +1,13 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
 import {
+  Boxes,
   Columns3,
   Eye,
   ListOrdered,
   Replace,
   Search as SearchIcon,
+  Shapes,
   SquareFunction,
   Table2,
 } from "lucide-react";
@@ -15,15 +17,28 @@ import { useSummary } from "@/hooks/useReportData";
 import type { SearchEntry, SearchSummary } from "@/types/report";
 
 // Stable display order for the grouped result sections.
-const TYPE_ORDER = ["Table", "View", "Sequence", "Synonym", "Routine", "Column"];
+const TYPE_ORDER = [
+  "Schema",
+  "Table",
+  "View",
+  "Sequence",
+  "Synonym",
+  "Routine",
+  "Type",
+  "Column",
+  "Attribute",
+];
 
 const TYPE_ICON: Record<string, typeof Table2> = {
+  Schema: Boxes,
   Table: Table2,
   View: Eye,
   Sequence: ListOrdered,
   Synonym: Replace,
   Routine: SquareFunction,
+  Type: Shapes,
   Column: Columns3,
+  Attribute: Columns3,
 };
 
 export function SearchCommand({

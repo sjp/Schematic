@@ -89,4 +89,18 @@ internal sealed class MainModelMapper
 
         return new Main.Routine(routine.Name, routine.RoutineType);
     }
+
+    public Main.UserDefinedType Map(IDatabaseUserDefinedType userDefinedType)
+    {
+        ArgumentNullException.ThrowIfNull(userDefinedType);
+
+        return new Main.UserDefinedType(
+            userDefinedType.Name,
+            userDefinedType.Kind,
+            userDefinedType.BaseType,
+            userDefinedType.IsNullable,
+            (uint)userDefinedType.Attributes.Count,
+            (uint)userDefinedType.EnumValues.Count
+        );
+    }
 }

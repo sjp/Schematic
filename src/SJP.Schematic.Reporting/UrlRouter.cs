@@ -11,6 +11,13 @@ namespace SJP.Schematic.Reporting;
 /// </summary>
 internal static class UrlRouter
 {
+    public static string GetSchemaUrl(Identifier schemaName)
+    {
+        ArgumentNullException.ThrowIfNull(schemaName);
+
+        return "#/schemas/" + schemaName.ToSafeKey();
+    }
+
     public static string GetTableUrl(Identifier tableName)
     {
         ArgumentNullException.ThrowIfNull(tableName);
@@ -44,6 +51,13 @@ internal static class UrlRouter
         ArgumentNullException.ThrowIfNull(routineName);
 
         return "#/routines/" + routineName.ToSafeKey();
+    }
+
+    public static string GetUserDefinedTypeUrl(Identifier typeName)
+    {
+        ArgumentNullException.ThrowIfNull(typeName);
+
+        return "#/user-defined-types/" + typeName.ToSafeKey();
     }
 
     public static string GetTriggerUrl(Identifier tableName, Identifier triggerName)

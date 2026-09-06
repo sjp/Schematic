@@ -45,7 +45,7 @@ describe("dataSource — served over http", () => {
     await expect(loadDetail("table", "actor_abc123")).resolves.toEqual({
       name: "actor",
     });
-    expect(fetch).toHaveBeenCalledWith("data/table/actor_abc123.json");
+    expect(fetch).toHaveBeenCalledWith("data/tables/actor_abc123.json");
   });
 
   it("loadDetail throws when the response is not ok", async () => {
@@ -53,8 +53,14 @@ describe("dataSource — served over http", () => {
 
     const { loadDetail } = await import("@/lib/dataSource");
     await expect(loadDetail("table", "missing")).rejects.toThrow(
-      "Failed to load data/table/missing.json (404)",
+      "Failed to load data/tables/missing.json (404)",
     );
+  });
+
+  it("loadDetail throws for a detail type it has no directory for", async () => {
+    const { loadDetail } = await import("@/lib/dataSource");
+    await expect(loadDetail("nonsense", "key")).rejects.toThrow('Unknown detail type "nonsense".');
+    expect(fetch).not.toHaveBeenCalled();
   });
 });
 

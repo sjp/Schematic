@@ -7,6 +7,36 @@ namespace SJP.Schematic.Reporting.Tests;
 internal static class UrlRouterTests
 {
     [Test]
+    public static void GetSchemaUrl_GivenNullSchemaName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => UrlRouter.GetSchemaUrl(null!), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetSchemaUrl_GivenValidSchemaName_ReturnsExpectedRoute()
+    {
+        Identifier schemaName = "test_schema";
+        var url = UrlRouter.GetSchemaUrl(schemaName);
+
+        Assert.That(url, Is.EqualTo("#/schemas/" + schemaName.ToSafeKey()));
+    }
+
+    [Test]
+    public static void GetUserDefinedTypeUrl_GivenNullTypeName_ThrowsArgumentNullException()
+    {
+        Assert.That(() => UrlRouter.GetUserDefinedTypeUrl(null!), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetUserDefinedTypeUrl_GivenValidTypeName_ReturnsExpectedRoute()
+    {
+        Identifier typeName = "test_type";
+        var url = UrlRouter.GetUserDefinedTypeUrl(typeName);
+
+        Assert.That(url, Is.EqualTo("#/user-defined-types/" + typeName.ToSafeKey()));
+    }
+
+    [Test]
     public static void GetTableUrl_GivenNullTableName_ThrowsArgumentNullException()
     {
         Assert.That(() => UrlRouter.GetTableUrl(null!), Throws.ArgumentNullException);

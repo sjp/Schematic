@@ -23,7 +23,8 @@ public sealed class Main
         uint viewsCount,
         uint sequencesCount,
         uint synonymsCount,
-        uint routinesCount
+        uint routinesCount,
+        uint userDefinedTypesCount
     )
     {
         DatabaseName = databaseName ?? "Unnamed Database";
@@ -41,6 +42,7 @@ public sealed class Main
         SequencesCount = sequencesCount;
         SynonymsCount = synonymsCount;
         RoutinesCount = routinesCount;
+        UserDefinedTypesCount = userDefinedTypesCount;
     }
 
     public string DatabaseName { get; }
@@ -67,29 +69,73 @@ public sealed class Main
 
     public uint RoutinesCount { get; }
 
+    public uint UserDefinedTypesCount { get; }
+
     /// <summary>
-    /// A schema declared by the database, as shown in the dashboard's schema list.
+    /// A row in the schemas summary list (<c>data/schemas.json</c>), also shown in the dashboard's
+    /// schema list. Shared by <see cref="Schemas"/>.
     /// </summary>
     public sealed class Schema
     {
-        public Schema(string name, bool isDefault, bool isSystem, uint objectCount)
+        public Schema(
+            Identifier schemaName,
+            Option<string> owner,
+            bool isDefault,
+            bool isSystem,
+            uint tablesCount,
+            uint viewsCount,
+            uint sequencesCount,
+            uint synonymsCount,
+            uint routinesCount,
+            uint userDefinedTypesCount
+        )
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(name);
+            ArgumentNullException.ThrowIfNull(schemaName);
 
-            Name = name;
+            // A schema is not itself qualified by another schema, so its identifier carries only a
+            // local name — ToVisibleName() would render the same string at more expense.
+            Name = schemaName.LocalName;
+            SchemaUrl = UrlRouter.GetSchemaUrl(schemaName);
+            Owner = owner.Match(static o => o ?? string.Empty, static () => string.Empty);
             IsDefault = isDefault;
             IsSystem = isSystem;
-            ObjectCount = objectCount;
+
+            TablesCount = tablesCount;
+            ViewsCount = viewsCount;
+            SequencesCount = sequencesCount;
+            SynonymsCount = synonymsCount;
+            RoutinesCount = routinesCount;
+            UserDefinedTypesCount = userDefinedTypesCount;
+
+            ObjectCount = tablesCount + viewsCount + sequencesCount + synonymsCount + routinesCount + userDefinedTypesCount;
         }
 
         public string Name { get; }
+
+        public string SchemaUrl { get; }
+
+        /// <summary>The principal that owns the schema. Empty when the database records none.</summary>
+        public string Owner { get; }
 
         public bool IsDefault { get; }
 
         public bool IsSystem { get; }
 
+        public uint TablesCount { get; }
+
+        public uint ViewsCount { get; }
+
+        public uint SequencesCount { get; }
+
+        public uint SynonymsCount { get; }
+
+        public uint RoutinesCount { get; }
+
+        public uint UserDefinedTypesCount { get; }
+
         /// <summary>
-        /// The number of tables, views, sequences, synonyms and routines the report holds for this schema.
+        /// The total number of objects the report holds for this schema, i.e. the sum of the
+        /// per-type counts.
         /// </summary>
         public uint ObjectCount { get; }
     }
@@ -264,5 +310,52 @@ public sealed class Main
         public string RoutineUrl { get; }
 
         public string RoutineType { get; }
+    }
+
+    /// <summary>
+    /// A row in the user-defined types summary list (<c>data/userDefinedTypes.json</c>).
+    /// Shared by <see cref="UserDefinedTypes"/>.
+    /// </summary>
+    public sealed class UserDefinedType
+    {
+        public UserDefinedType(
+            Identifier typeName,
+            UserDefinedTypeKind kind,
+            Option<IDbType> baseType,
+            bool isNullable,
+            uint attributesCount,
+            uint enumValuesCount
+        )
+        {
+            ArgumentNullException.ThrowIfNull(typeName);
+
+            Name = typeName.ToVisibleName();
+            TypeUrl = UrlRouter.GetUserDefinedTypeUrl(typeName);
+
+            Kind = UserDefinedTypeKindNames.GetName(kind);
+            BaseType = baseType.Match(static t => t.Definition, static () => string.Empty);
+            IsNullable = isNullable;
+            AttributesCount = attributesCount;
+            EnumValuesCount = enumValuesCount;
+        }
+
+        public string Name { get; }
+
+        public string TypeUrl { get; }
+
+        /// <summary>Display name of the kind of type, e.g. <c>Domain</c>. Empty when unknown.</summary>
+        public string Kind { get; }
+
+        /// <summary>
+        /// The type this type is defined in terms of. Empty when the type is not defined in terms
+        /// of another one, or the database does not report it.
+        /// </summary>
+        public string BaseType { get; }
+
+        public bool IsNullable { get; }
+
+        public uint AttributesCount { get; }
+
+        public uint EnumValuesCount { get; }
     }
 }

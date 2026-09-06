@@ -17,6 +17,8 @@ import { OrphansPage } from "@/routes/orphans";
 import { RelationshipsPage } from "@/routes/relationships";
 import { RoutineDetailPage } from "@/routes/routine-detail";
 import { RoutinesPage } from "@/routes/routines";
+import { SchemaDetailPage } from "@/routes/schema-detail";
+import { SchemasPage } from "@/routes/schemas";
 import { SequenceDetailPage } from "@/routes/sequence-detail";
 import { SequencesPage } from "@/routes/sequences";
 import { SynonymDetailPage } from "@/routes/synonym-detail";
@@ -24,14 +26,18 @@ import { SynonymsPage } from "@/routes/synonyms";
 import { TableDetailPage } from "@/routes/table-detail";
 import { TablesPage } from "@/routes/tables";
 import { TriggersPage } from "@/routes/triggers";
+import { UserDefinedTypeDetailPage } from "@/routes/user-defined-type-detail";
+import { UserDefinedTypesPage } from "@/routes/user-defined-types";
 import { ViewDetailPage } from "@/routes/view-detail";
 import { ViewsPage } from "@/routes/views";
 import type {
   MainSummary,
   RoutineDetail,
+  SchemaDetail,
   SequenceDetail,
   SynonymDetail,
   TableDetail,
+  UserDefinedTypeDetail,
   ViewDetail,
 } from "@/types/report";
 
@@ -139,6 +145,38 @@ const synonymDetailRoute = createRoute({
   head: ({ loaderData }) => titleMeta(loaderData?.name),
 });
 
+const schemasRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/schemas",
+  component: SchemasPage,
+  loader: () => ensureSummary("schemas"),
+  head: () => titleMeta("Schemas"),
+});
+
+const schemaDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/schemas/$schemaKey",
+  component: SchemaDetailPage,
+  loader: ({ params }) => ensureDetail<SchemaDetail>("schema", params.schemaKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
+});
+
+const userDefinedTypesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/user-defined-types",
+  component: UserDefinedTypesPage,
+  loader: () => ensureSummary("userDefinedTypes"),
+  head: () => titleMeta("User-Defined Types"),
+});
+
+const userDefinedTypeDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/user-defined-types/$typeKey",
+  component: UserDefinedTypeDetailPage,
+  loader: ({ params }) => ensureDetail<UserDefinedTypeDetail>("userDefinedType", params.typeKey),
+  head: ({ loaderData }) => titleMeta(loaderData?.name),
+});
+
 const triggersRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/triggers",
@@ -211,6 +249,10 @@ const routeTree = rootRoute.addChildren([
   sequenceDetailRoute,
   synonymsRoute,
   synonymDetailRoute,
+  schemasRoute,
+  schemaDetailRoute,
+  userDefinedTypesRoute,
+  userDefinedTypeDetailRoute,
   triggersRoute,
   columnsRoute,
   constraintsRoute,
