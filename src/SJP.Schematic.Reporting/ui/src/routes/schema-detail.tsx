@@ -1,12 +1,20 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 import { Eye, ListOrdered, Replace, Shapes, SquareFunction, Table2 } from "lucide-react";
 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useDetail } from "@/hooks/useReportData";
 import type { SchemaDetail, SchemaObject } from "@/types/report";
 
 const routeApi = getRouteApi("/schemas/$schemaKey");
 
-/** The object lists a schema page shows, in the order the sidebar lists their sections. */
+/** The object tables a schema page shows, in the order the sidebar lists their sections. */
 function objectGroups(data: SchemaDetail) {
   return [
     { label: "Tables", icon: Table2, objects: data.tables },
@@ -34,18 +42,26 @@ function ObjectGroup({
         {label}
         <span className="text-sm font-normal text-muted-foreground">({objects.length})</span>
       </h2>
-      <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2 lg:grid-cols-3">
-        {objects.map((object) => (
-          <li key={object.url}>
-            <a
-              href={object.url}
-              className="block truncate rounded-md border bg-card px-3 py-1.5 text-sm text-primary hover:bg-accent/40"
-            >
-              {object.name}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {objects.map((object) => (
+              <TableRow key={object.url}>
+                <TableCell>
+                  <a href={object.url} className="text-primary hover:underline">
+                    {object.name}
+                  </a>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </section>
   );
 }
