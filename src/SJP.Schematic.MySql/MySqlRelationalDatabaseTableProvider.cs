@@ -30,6 +30,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
         _supportsChecks = new AsyncLazy<bool>(LoadHasCheckSupport);
+        _supportsEnforcedColumn = new AsyncLazy<bool>(LoadHasEnforcedColumnSupport);
     }
 
     /// <summary>
@@ -639,8 +640,11 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (!hasCheckSupport)
             return [];
 
+        var hasEnforcedColumn = await _supportsEnforcedColumn;
+        var sql = hasEnforcedColumn ? GetTableCheckConstraints.Sql : GetTableCheckConstraints.SqlWithoutEnforced;
+
         return await DbConnection.QueryEnumerableAsync(
-                GetTableCheckConstraints.Sql,
+                sql,
                 new GetTableCheckConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
                 cancellationToken
             )
@@ -948,7 +952,17 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return DbConnection.ExecuteScalarAsync<bool>(sql, CancellationToken.None);
     }
 
+    // MariaDB's table_constraints has no 'enforced' column -- MariaDB has no NOT ENFORCED syntax,
+    // so a check constraint is always enforced. MySQL added the column alongside NOT ENFORCED in 8.0.16.
+    private Task<bool> LoadHasEnforcedColumnSupport()
+    {
+        const string sql = "select count(*) from information_schema.columns where table_schema = 'information_schema' and table_name = 'TABLE_CONSTRAINTS' and column_name = 'ENFORCED'";
+        return DbConnection.ExecuteScalarAsync<bool>(sql, CancellationToken.None);
+    }
+
     private readonly AsyncLazy<bool> _supportsChecks;
+
+    private readonly AsyncLazy<bool> _supportsEnforcedColumn;
 
     // information_schema.statistics.index_type values.
     private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.OrdinalIgnoreCase)

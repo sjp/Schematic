@@ -1,0 +1,77 @@
+name: mariadb
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore: &paths-ignore
+      - 'src/SJP.Schematic.Reporting/ui/**'
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '*.png'
+      - '*.svg'
+  pull_request:
+    branches: [ master ]
+    paths-ignore: *paths-ignore
+
+jobs:
+  db:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tag: ['10.11', '11.4', 'latest']
+    services:
+      mariadb:
+        image: mariadb:${{ matrix.tag }}
+        env:
+          MARIADB_ROOT_PASSWORD: Schematic1234
+          MARIADB_DATABASE: schematic
+        options: >-
+          --health-cmd "mariadb-admin ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 3306:3306
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v6
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('src/Directory.Packages.props') }}
+        restore-keys: nuget-${{ runner.os }}-
+
+    - name: Install dependencies
+      run: dotnet restore
+      working-directory: src/SJP.Schematic.MySql.Tests
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+      working-directory: src/SJP.Schematic.MySql.Tests
+
+    - name: Test
+      run: dotnet test --configuration Release --no-build --no-restore --verbosity normal -- --show-test-results failed --minimum-expected-tests 500 --coverage --coverage-settings ${{ github.workspace }}/src/coverage.settings.xml --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+      working-directory: src/SJP.Schematic.MySql.Tests
+      env:
+        ConnectionStrings__MySql_TestDb: Server=localhost; Port=3306; Database=schematic; Uid=root; Pwd=Schematic1234; ConnectionTimeout=2
+
+    - name: Coverage
+      uses: codecov/codecov-action@v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: mariadb

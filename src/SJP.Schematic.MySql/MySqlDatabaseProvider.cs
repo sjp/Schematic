@@ -61,8 +61,16 @@ public class MySqlDatabaseProvider : IRelationalDatabaseProvider
     private static async Task<string> GetDatabaseDisplayVersionAsyncCore(ISchematicConnection connection, CancellationToken cancellationToken)
     {
         var versionStr = await connection.ConnectionFactory.ExecuteScalarAsync<string>(DatabaseVersionQuerySql, cancellationToken);
-        return "MySQL " + versionStr;
+
+        return versionStr!.Contains("MariaDB", StringComparison.OrdinalIgnoreCase)
+            ? GetMariaDbDisplayVersion(versionStr)
+            : GetMySqlDisplayVersion(versionStr);
     }
+
+    // MariaDB's version() reports e.g. '10.11.6-MariaDB', which already identifies itself.
+    private static string GetMariaDbDisplayVersion(string versionStr) => versionStr;
+
+    private static string GetMySqlDisplayVersion(string versionStr) => "MySQL " + versionStr;
 
     /// <summary>
     /// Gets the database version.

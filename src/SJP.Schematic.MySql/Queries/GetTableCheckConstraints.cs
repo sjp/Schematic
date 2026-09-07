@@ -30,4 +30,17 @@ from information_schema.table_constraints tc
 inner join information_schema.check_constraints cc on tc.table_schema = cc.constraint_schema and tc.constraint_name = cc.constraint_name
 where tc.table_schema = @{nameof(Query.SchemaName)} and tc.table_name = @{nameof(Query.TableName)} and tc.constraint_type = 'CHECK'
 """;
+
+    // MariaDB's table_constraints has no 'enforced' column -- it has no NOT ENFORCED syntax, so a
+    // check constraint is always enforced. Used when GetTableConstraintsHasEnforcedColumn.Sql reports false.
+    internal const string SqlWithoutEnforced = $"""
+
+select
+    cc.constraint_name as `{nameof(Result.ConstraintName)}`,
+    cc.check_clause as `{nameof(Result.Definition)}`,
+    'YES' as `{nameof(Result.Enforced)}`
+from information_schema.table_constraints tc
+inner join information_schema.check_constraints cc on tc.table_schema = cc.constraint_schema and tc.constraint_name = cc.constraint_name
+where tc.table_schema = @{nameof(Query.SchemaName)} and tc.table_name = @{nameof(Query.TableName)} and tc.constraint_type = 'CHECK'
+""";
 }
