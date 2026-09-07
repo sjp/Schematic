@@ -53,13 +53,11 @@ SELECT DB_NAME() AS ThisDB", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop function routine_comment_tf_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop function routine_comment_tf_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure routine_comment_sp_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure routine_comment_sp_2", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop function routine_comment_tf_1",
+        "drop function routine_comment_tf_2",
+        "drop procedure routine_comment_sp_1",
+        "drop procedure routine_comment_sp_2");
 
     private Task AddCommentForFunction(string comment, string schemaName, string functionName)
     {

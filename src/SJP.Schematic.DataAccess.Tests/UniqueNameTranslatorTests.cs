@@ -3,7 +3,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.DataAccess.Tests;
 
-[TestFixture]
 internal static class UniqueNameTranslatorTests
 {
     [Test]

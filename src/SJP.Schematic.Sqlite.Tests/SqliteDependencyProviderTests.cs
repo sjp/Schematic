@@ -5,7 +5,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteDependencyProviderTests
 {
     [Test]

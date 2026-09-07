@@ -5,7 +5,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteDialectTests
 {
     [TestCase((string)null)]

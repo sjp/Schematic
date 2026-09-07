@@ -4,7 +4,6 @@ using SJP.Schematic.Sqlite.Exceptions;
 
 namespace SJP.Schematic.Sqlite.Tests.Exceptions;
 
-[TestFixture]
 internal static class SqliteTriggerParsingExceptionTests
 {
     [TestCase("", "test_table", "Unable to parse the TRIGGER statement for the table 'LocalName = test_table'.")]

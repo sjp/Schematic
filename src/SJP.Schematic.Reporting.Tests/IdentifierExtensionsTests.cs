@@ -5,7 +5,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Tests;
 
-[TestFixture]
 internal static partial class IdentifierExtensionsTests
 {
     [Test]

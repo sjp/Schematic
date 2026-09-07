@@ -5,7 +5,6 @@ using SequenceProvider = SJP.Schematic.PostgreSql.PostgreSqlDatabaseSequenceProv
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
-[TestFixture]
 internal static class PostgreSqlDatabaseSequenceProviderBaseTests
 {
     [Test]

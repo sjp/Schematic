@@ -5,7 +5,6 @@ using SJP.Schematic.SqlServer.Comments;
 
 namespace SJP.Schematic.SqlServer.Tests.Comments;
 
-[TestFixture]
 internal static class SqlServerUserDefinedTypeCommentProviderTests
 {
     [Test]

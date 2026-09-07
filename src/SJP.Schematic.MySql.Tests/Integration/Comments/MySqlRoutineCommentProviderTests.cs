@@ -56,10 +56,11 @@ END
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function comment_test_routine_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop function comment_test_routine_3", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_4", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop function comment_test_routine_1",
+            "drop function comment_test_routine_3",
+            "drop procedure comment_test_routine_2",
+            "drop procedure comment_test_routine_4");
     }
 
     private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

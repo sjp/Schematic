@@ -26,11 +26,9 @@ internal sealed class SqlServerSequenceCommentProviderTests : SqlServerTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_2", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop sequence sequence_comment_sequence_1",
+        "drop sequence sequence_comment_sequence_2");
 
     private Task AddCommentForSequence(string comment, string schemaName, string sequenceName)
     {

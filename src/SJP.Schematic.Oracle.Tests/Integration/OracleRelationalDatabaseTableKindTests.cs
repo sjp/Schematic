@@ -35,9 +35,10 @@ partition by range (part_key) (
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_kind_regular_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_kind_iot_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_kind_partitioned_1", TestContext.CurrentContext.CancellationToken);
+        await DropTablesAsync(
+            "table_kind_regular_1",
+            "table_kind_iot_1",
+            "table_kind_partitioned_1");
     }
 
     [Test]

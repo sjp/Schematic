@@ -6,7 +6,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests;
 
-[TestFixture]
 internal static class DefaultRuleProviderTests
 {
     private static IRuleProvider RuleProvider => new DefaultRuleProvider();

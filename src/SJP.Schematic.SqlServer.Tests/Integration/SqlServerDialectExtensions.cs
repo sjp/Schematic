@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests.Integration;
@@ -14,13 +12,11 @@ internal static class SqlServerDialectExtensions
     /// Determines whether the connected SQL Server instance supports the native <c>json</c> data type.
     /// </summary>
     /// <param name="databaseProvider">A SQL Server database provider.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns><see langword="true" /> if the native <c>json</c> data type is supported; otherwise <see langword="false" />.</returns>
-    public static async Task<bool> SupportsJsonDataType(this IRelationalDatabaseProvider databaseProvider, CancellationToken cancellationToken = default)
+    public static bool SupportsJsonDataType(this IRelationalDatabaseProvider databaseProvider)
     {
         ArgumentNullException.ThrowIfNull(databaseProvider);
 
-        var dbVersion = await databaseProvider.GetDatabaseVersionAsync(cancellationToken);
-        return dbVersion >= MinJsonDataTypeVersion;
+        return SqlServerIntegrationSetUp.DatabaseVersion >= MinJsonDataTypeVersion;
     }
 }

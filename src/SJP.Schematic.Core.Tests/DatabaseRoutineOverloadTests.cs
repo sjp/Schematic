@@ -6,7 +6,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class DatabaseRoutineOverloadTests
 {
     private const string Definition = "create function test_function(integer) ...";

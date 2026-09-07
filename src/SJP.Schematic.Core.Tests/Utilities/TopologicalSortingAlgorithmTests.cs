@@ -5,7 +5,6 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Utilities;
 
-[TestFixture]
 internal static class TopologicalSortingAlgorithmTests
 {
     private static AdjacencyGraph<string, SEquatableEdge<string>> CreateGraph()

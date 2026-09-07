@@ -27,12 +27,10 @@ internal sealed class SqlServerSynonymCommentProviderTests : SqlServerTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop view synonym_comment_view_1", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop synonym synonym_comment_synonym_1",
+        "drop synonym synonym_comment_synonym_2",
+        "drop view synonym_comment_view_1");
 
     private Task AddCommentForSynonym(string comment, string schemaName, string synonymName)
     {

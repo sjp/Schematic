@@ -13,7 +13,6 @@ using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Tests.Commands;
 
-[TestFixture]
 internal static class TestCommandTests
 {
     private static async Task<(int exitCode, string output)> RunTestCommandAsync(IDbConnectionFactory connectionFactory)

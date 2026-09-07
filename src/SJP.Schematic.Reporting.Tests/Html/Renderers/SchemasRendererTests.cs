@@ -10,7 +10,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Renderers;
 
-[TestFixture]
 internal static class SchemasRendererTests
 {
     [Test]

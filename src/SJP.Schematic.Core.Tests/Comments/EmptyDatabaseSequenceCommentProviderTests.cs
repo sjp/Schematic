@@ -5,7 +5,6 @@ using SJP.Schematic.Core.Comments;
 
 namespace SJP.Schematic.Core.Tests.Comments;
 
-[TestFixture]
 internal static class EmptyDatabaseSequenceCommentProviderTests
 {
     [Test]

@@ -27,11 +27,9 @@ internal sealed class SqlServerViewCommentProviderTests : SqlServerTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop view view_comment_view_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop view view_comment_view_2", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop view view_comment_view_1",
+        "drop view view_comment_view_2");
 
     private Task AddCommentForView(string comment, string schemaName, string viewName)
     {

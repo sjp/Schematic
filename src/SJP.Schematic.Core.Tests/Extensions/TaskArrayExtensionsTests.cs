@@ -4,7 +4,6 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
-[TestFixture]
 public static class TaskArrayExtensionsTests
 {
     [Test]

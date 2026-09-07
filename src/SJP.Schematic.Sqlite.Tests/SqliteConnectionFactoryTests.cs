@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteConnectionFactoryTests
 {
     [TestCase(null)]

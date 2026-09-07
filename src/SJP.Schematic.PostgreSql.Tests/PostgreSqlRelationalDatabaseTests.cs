@@ -6,7 +6,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
-[TestFixture]
 internal static class PostgreSqlRelationalDatabaseTests
 {
     private static IRelationalDatabase Database
@@ -79,7 +78,6 @@ internal static class PostgreSqlRelationalDatabaseTests
     }
 
     // testing that the behaviour is equivalent to an empty synonym provider
-    [TestFixture]
     internal static class SynonymTests
     {
         [Test]

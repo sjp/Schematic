@@ -84,13 +84,11 @@ CREATE TABLE table_comment_table_4
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_3", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_4", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => DropTablesAsync(
+        "table_comment_table_1",
+        "table_comment_table_2",
+        "table_comment_table_3",
+        "table_comment_table_4");
 
     private Task AddCommentForTable(string comment, string schemaName, string tableName)
     {

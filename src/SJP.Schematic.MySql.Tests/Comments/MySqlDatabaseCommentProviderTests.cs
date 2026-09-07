@@ -5,7 +5,6 @@ using SJP.Schematic.MySql.Comments;
 
 namespace SJP.Schematic.MySql.Tests.Comments;
 
-[TestFixture]
 internal static class MySqlDatabaseCommentProviderTests
 {
     [Test]

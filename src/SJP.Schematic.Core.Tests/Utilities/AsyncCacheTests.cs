@@ -8,7 +8,6 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Utilities;
 
-[TestFixture]
 internal static class AsyncCacheTests
 {
     [Test]

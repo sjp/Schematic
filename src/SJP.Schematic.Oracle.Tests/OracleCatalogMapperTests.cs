@@ -3,7 +3,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests;
 
-[TestFixture]
 internal static class OracleCatalogMapperTests
 {
     [TestCase("NO ACTION", ReferentialAction.NoAction)]

@@ -7,7 +7,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
-[TestFixture]
 internal static class PostgreSqlDatabaseTriggerTests
 {
     [Test]

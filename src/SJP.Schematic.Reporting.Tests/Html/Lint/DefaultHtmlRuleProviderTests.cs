@@ -8,7 +8,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint;
 
-[TestFixture]
 internal static class DefaultHtmlRuleProviderTests
 {
     [Test]

@@ -7,7 +7,6 @@ using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Tests.Commands;
 
-[TestFixture]
 internal static class CompletionCommandTests
 {
     [Test]

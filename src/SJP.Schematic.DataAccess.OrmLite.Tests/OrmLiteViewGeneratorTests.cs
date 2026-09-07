@@ -10,7 +10,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests;
 
-[TestFixture]
 internal static class OrmLiteViewGeneratorTests
 {
     private static IDatabaseViewGenerator GetViewGenerator() => new OrmLiteViewGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");

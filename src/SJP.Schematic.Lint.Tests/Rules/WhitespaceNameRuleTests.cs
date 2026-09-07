@@ -8,7 +8,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class WhitespaceNameRuleTests
 {
     [Test]

@@ -10,7 +10,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests;
 
-[TestFixture]
 internal static class PocoViewGeneratorTests
 {
     private static IDatabaseViewGenerator GetViewGenerator() => new PocoViewGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");

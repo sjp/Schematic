@@ -6,7 +6,6 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
-[TestFixture]
 internal static class RelationalDatabaseTableExtensionsTests
 {
     private static IRelationalDatabaseTable GetMockTable(Identifier tableName)

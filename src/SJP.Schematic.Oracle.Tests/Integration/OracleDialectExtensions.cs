@@ -1,6 +1,4 @@
 using System;
-using System.Threading;
-using System.Threading.Tasks;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests.Integration;
@@ -14,13 +12,11 @@ internal static class OracleDialectExtensions
     /// Determines whether the connected Oracle instance supports the native <c>JSON</c> data type.
     /// </summary>
     /// <param name="databaseProvider">An Oracle database provider.</param>
-    /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns><see langword="true" /> if the native <c>JSON</c> data type is supported; otherwise <see langword="false" />.</returns>
-    public static async Task<bool> SupportsJsonDataType(this IRelationalDatabaseProvider databaseProvider, CancellationToken cancellationToken = default)
+    public static bool SupportsJsonDataType(this IRelationalDatabaseProvider databaseProvider)
     {
         ArgumentNullException.ThrowIfNull(databaseProvider);
 
-        var dbVersion = await databaseProvider.GetDatabaseVersionAsync(cancellationToken);
-        return dbVersion >= MinJsonDataTypeVersion;
+        return OracleIntegrationSetUp.DatabaseVersion >= MinJsonDataTypeVersion;
     }
 }

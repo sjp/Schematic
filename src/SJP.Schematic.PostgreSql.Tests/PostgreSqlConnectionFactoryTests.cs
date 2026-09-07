@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
-[TestFixture]
 internal static class PostgreSqlConnectionFactoryTests
 {
     [TestCase(null)]

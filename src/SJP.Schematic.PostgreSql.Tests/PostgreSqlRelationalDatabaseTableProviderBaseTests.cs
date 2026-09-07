@@ -5,7 +5,6 @@ using TableProvider = SJP.Schematic.PostgreSql.PostgreSqlRelationalDatabaseTable
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
-[TestFixture]
 internal static class PostgreSqlRelationalDatabaseTableProviderBaseTests
 {
     [Test]

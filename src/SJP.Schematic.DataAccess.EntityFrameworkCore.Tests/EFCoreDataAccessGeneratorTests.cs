@@ -13,7 +13,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests;
 
-[TestFixture]
 internal static class EFCoreDataAccessGeneratorTests
 {
     private const string TestCsprojFileName = "DataAccessGeneratorTest.csproj";

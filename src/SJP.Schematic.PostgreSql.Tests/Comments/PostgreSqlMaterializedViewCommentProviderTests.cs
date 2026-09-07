@@ -5,7 +5,6 @@ using SJP.Schematic.PostgreSql.Comments;
 
 namespace SJP.Schematic.PostgreSql.Tests.Comments;
 
-[TestFixture]
 internal static class PostgreSqlMaterializedViewCommentProviderTests
 {
     [Test]

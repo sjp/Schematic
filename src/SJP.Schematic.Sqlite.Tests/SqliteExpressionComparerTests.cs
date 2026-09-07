@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteExpressionComparerTests
 {
     [Test]

@@ -60,14 +60,12 @@ SELECT @first", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_3", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_4", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_5", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop function db_test_routine_1",
+        "drop function db_test_routine_2",
+        "drop function db_test_routine_3",
+        "drop procedure db_test_routine_4",
+        "drop procedure db_test_routine_5");
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {

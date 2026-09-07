@@ -7,7 +7,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Reporting.Tests.Serialization;
 
-[TestFixture]
 internal static class BundleBuilderTests
 {
     [Test]

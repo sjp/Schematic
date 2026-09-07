@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.SqlServer.Tests;
 
-[TestFixture]
 internal static class SqlServerDependencyProviderTests
 {
     [Test]

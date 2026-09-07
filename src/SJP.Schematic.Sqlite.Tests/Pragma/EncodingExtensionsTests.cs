@@ -3,7 +3,6 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests.Pragma;
 
-[TestFixture]
 internal static class EncodingExtensionsTests
 {
     [Test]

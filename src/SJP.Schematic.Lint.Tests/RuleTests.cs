@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Lint.Tests;
 
-[TestFixture]
 internal static class RuleTests
 {
     [TestCase((string)null)]

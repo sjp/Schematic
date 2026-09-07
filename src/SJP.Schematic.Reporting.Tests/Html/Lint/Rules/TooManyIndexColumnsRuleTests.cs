@@ -10,7 +10,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class TooManyIndexColumnsRuleTests
 {
     private static IRelationalDatabaseTable CreateTableWithIndexColumnCount(Identifier tableName, int columnCount)

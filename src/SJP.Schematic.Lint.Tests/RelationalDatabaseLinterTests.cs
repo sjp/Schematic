@@ -7,7 +7,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Tests;
 
-[TestFixture]
 internal static class RelationalDatabaseLinterTests
 {
     private static IRelationalDatabaseLinter Linter { get; } = new RelationalDatabaseLinter([]);

@@ -11,7 +11,6 @@ using Spectre.Console.Cli;
 
 namespace SJP.Schematic.Tool.Tests.Commands;
 
-[TestFixture]
 internal static class OrmCommandsTests
 {
     private static async Task<int> RunOrmAsync(string subcommand, string projectPath)

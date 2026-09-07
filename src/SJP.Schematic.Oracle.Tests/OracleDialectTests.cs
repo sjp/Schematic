@@ -5,7 +5,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests;
 
-[TestFixture]
 internal static class OracleDialectTests
 {
     [TestCase((string)null)]

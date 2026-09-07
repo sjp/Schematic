@@ -7,7 +7,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
-[TestFixture]
 internal static class RelationalDatabaseSnapshotExtensionsTests
 {
     private static IRelationalDatabase EmptyDatabase => new RelationalDatabase(

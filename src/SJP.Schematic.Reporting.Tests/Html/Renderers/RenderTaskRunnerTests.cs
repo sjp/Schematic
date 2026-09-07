@@ -8,7 +8,6 @@ using SJP.Schematic.Reporting.Html.Renderers;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Renderers;
 
-[TestFixture]
 internal static class RenderTaskRunnerTests
 {
     [Test]

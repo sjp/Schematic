@@ -6,7 +6,6 @@ using SJP.Schematic.Lint.Serialization;
 
 namespace SJP.Schematic.Lint.Tests.Serialization;
 
-[TestFixture]
 internal static class SarifLintReportTests
 {
     [Test]

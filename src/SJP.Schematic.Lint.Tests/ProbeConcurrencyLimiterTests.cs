@@ -8,7 +8,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Tests;
 
-[TestFixture]
 internal static class ProbeConcurrencyLimiterTests
 {
     [Test]

@@ -5,7 +5,6 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Tests.Handlers;
 
-[TestFixture]
 internal static class ConnectionStringFactoryTests
 {
     [Test]

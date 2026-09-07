@@ -2,7 +2,6 @@
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class DatabaseSynonymTests
 {
     [Test]

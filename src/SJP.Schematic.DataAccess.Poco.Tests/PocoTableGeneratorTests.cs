@@ -11,7 +11,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Poco.Tests;
 
-[TestFixture]
 internal static class PocoTableGeneratorTests
 {
     private static IDatabaseTableGenerator GetTableGenerator() => new PocoTableGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");

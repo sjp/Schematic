@@ -9,7 +9,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class ForeignKeySetNullReferentialActionRuleTests
 {
     private static DatabaseColumn CreateColumn(string name, bool isNullable)

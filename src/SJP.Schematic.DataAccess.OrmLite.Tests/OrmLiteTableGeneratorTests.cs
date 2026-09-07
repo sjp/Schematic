@@ -11,7 +11,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests;
 
-[TestFixture]
 internal static class OrmLiteTableGeneratorTests
 {
     private static IDatabaseTableGenerator GetTableGenerator() => new OrmLiteTableGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");

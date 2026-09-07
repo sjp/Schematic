@@ -6,7 +6,6 @@ using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Utilities;
 
-[TestFixture]
 internal static class TableRelationshipOrdererTests
 {
     // creates tables where the foreign key path is a -> b -> c

@@ -8,7 +8,6 @@ using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
-[TestFixture]
 internal static class AsyncEnumerableExtensionsTests
 {
     [Test]

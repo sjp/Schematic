@@ -6,7 +6,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class NullableBooleanColumnRuleTests
 {
     private static DatabaseColumn CreateColumn(string name, DataType dataType, bool isNullable)

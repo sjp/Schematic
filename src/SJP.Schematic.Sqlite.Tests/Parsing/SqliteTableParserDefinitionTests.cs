@@ -6,7 +6,6 @@ using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing;
 
-[TestFixture]
 internal static class SqliteTableParserDefinitionTests
 {
     private static ParsedTableData Parse(string definition) => new SqliteTableParser().Parse(definition);

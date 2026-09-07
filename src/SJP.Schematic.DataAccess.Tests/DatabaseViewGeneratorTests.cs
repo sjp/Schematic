@@ -6,7 +6,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.Tests;
 
-[TestFixture]
 internal static class DatabaseViewGeneratorTests
 {
     private static FakeDatabaseViewGenerator GetViewGenerator() => new(new MockFileSystem(), new VerbatimNameTranslator());

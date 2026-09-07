@@ -9,7 +9,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class ForeignKeyIsPrimaryKeyRuleTests
 {
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, Identifier otherTableName)

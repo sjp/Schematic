@@ -4,7 +4,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.PostgreSql.Tests;
 
-[TestFixture]
 internal static class PostgreSqlDatabaseViewProviderTests
 {
     [Test]

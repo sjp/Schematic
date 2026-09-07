@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Tests.Utilities.Tests;
 
-[TestFixture]
 internal static class OptionsExtensionsTests
 {
     [Test]

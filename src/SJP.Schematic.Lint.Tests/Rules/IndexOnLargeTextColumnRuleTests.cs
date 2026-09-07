@@ -7,7 +7,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class IndexOnLargeTextColumnRuleTests
 {
     private static IRelationalDatabaseTable CreateTableWithIndexedColumnType(DataType dataType)

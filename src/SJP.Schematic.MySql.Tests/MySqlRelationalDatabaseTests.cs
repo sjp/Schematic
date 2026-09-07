@@ -6,7 +6,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests;
 
-[TestFixture]
 internal static class MySqlRelationalDatabaseTests
 {
     private static IRelationalDatabase Database
@@ -55,7 +54,6 @@ internal static class MySqlRelationalDatabaseTests
     }
 
     // testing that the behaviour is equivalent to an empty sequence provider
-    [TestFixture]
     internal static class SequenceTests
     {
         [Test]
@@ -91,7 +89,6 @@ internal static class MySqlRelationalDatabaseTests
     }
 
     // testing that the behaviour is equivalent to an empty synonym provider
-    [TestFixture]
     internal static class SynonymTests
     {
         [Test]

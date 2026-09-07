@@ -4,7 +4,6 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Tests.Handlers;
 
-[TestFixture]
 internal static class EnvironmentVariableSubstitutionTests
 {
     [Test]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
@@ -52,6 +53,8 @@ internal sealed class OracleIntegrationSetUp
 
     public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
 
+    public static Version DatabaseVersion { get; private set; } = null!;
+
     [OneTimeSetUp]
     public async Task InitAsync()
     {
@@ -60,6 +63,7 @@ internal sealed class OracleIntegrationSetUp
         Connection = Config.SchematicConnection;
         DatabaseProvider = new OracleDatabaseProvider(Connection);
         IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+        DatabaseVersion = await DatabaseProvider.GetDatabaseVersionAsync(TestContext.CurrentContext.CancellationToken);
     }
 }
 
@@ -83,5 +87,27 @@ internal abstract class OracleTest
 
     protected IIdentifierDefaults IdentifierDefaults => OracleIntegrationSetUp.IdentifierDefaults;
 
+    protected Version DatabaseVersion => OracleIntegrationSetUp.DatabaseVersion;
+
     protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
+
+    /// <summary>
+    /// Executes multiple DDL statements as a single round-trip. Oracle does not allow DDL directly
+    /// inside a PL/SQL block, so each statement is wrapped in <c>execute immediate</c> within an
+    /// anonymous block -- <c>create view</c>, <c>procedure</c>, <c>function</c> and <c>trigger</c>
+    /// statements contain their own embedded quotes and statement terminators, so keep those as
+    /// individual <see cref="DbConnection"/> calls.
+    /// </summary>
+    protected Task ExecuteBatchAsync(params string[] statements)
+    {
+        var body = string.Join('\n', statements.Select(static s => $"execute immediate '{s.Replace("'", "''")}';"));
+        return DbConnection.ExecuteAsync($"begin\n{body}\nend;", TestContext.CurrentContext.CancellationToken);
+    }
+
+    /// <summary>
+    /// Drops multiple tables in a single round-trip. Table names are dropped in the order given,
+    /// so pass them in dependency order (children before parents) exactly as with individual drops.
+    /// </summary>
+    protected Task DropTablesAsync(params string[] tableNames) =>
+        ExecuteBatchAsync([.. tableNames.Select(static t => "drop table " + t)]);
 }

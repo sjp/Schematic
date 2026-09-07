@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests;
 
-[TestFixture]
 internal static class MySqlConnectionFactoryTests
 {
     [TestCase(null)]

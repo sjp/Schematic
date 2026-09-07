@@ -11,7 +11,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests;
 
-[TestFixture]
 internal static class EFCoreTableGeneratorTests
 {
     private static IDatabaseTableGenerator GetTableGenerator() => new EFCoreTableGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");

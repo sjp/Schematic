@@ -42,9 +42,10 @@ END", TestContext.CurrentContext.CancellationToken);
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_3", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop function db_test_routine_1",
+            "drop procedure db_test_routine_2",
+            "drop procedure db_test_routine_3");
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

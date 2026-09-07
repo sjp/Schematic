@@ -9,7 +9,6 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace SJP.Schematic.DataAccess.Tests.CodeGeneration;
 
-[TestFixture]
 internal static class SyntaxUtilitiesTests
 {
     [Test]

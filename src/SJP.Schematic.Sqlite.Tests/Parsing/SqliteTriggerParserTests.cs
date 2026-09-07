@@ -7,7 +7,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing;
 
-[TestFixture]
 internal static class SqliteTriggerParserTests
 {
     [TestCase((string)null)]

@@ -9,7 +9,6 @@ using SJP.Schematic.Tool.Handlers;
 
 namespace SJP.Schematic.Tool.Tests.Handlers;
 
-[TestFixture]
 internal static class DatabaseCommandDependencyProviderTests
 {
     private static DatabaseCommandDependencyProvider CreateProvider(string? dialect, string? connectionString)

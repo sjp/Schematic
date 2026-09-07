@@ -7,7 +7,6 @@ using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Renderers;
 
-[TestFixture]
 internal static class ReportDataTests
 {
     [Test]

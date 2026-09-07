@@ -5,7 +5,6 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteRelationalDatabaseTableProviderTests
 {
     private static IRelationalDatabaseTableProvider TableProvider

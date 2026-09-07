@@ -7,7 +7,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteDatabaseIndexTests
 {
     [Test]

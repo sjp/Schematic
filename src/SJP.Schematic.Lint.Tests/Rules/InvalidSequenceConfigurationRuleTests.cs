@@ -7,7 +7,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class InvalidSequenceConfigurationRuleTests
 {
     // The concrete DatabaseSequence type validates most of these states at construction,

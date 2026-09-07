@@ -50,6 +50,8 @@ internal sealed class SqlServerIntegrationSetUp
 
     public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
 
+    public static Version DatabaseVersion { get; private set; } = null!;
+
     [OneTimeSetUp]
     public async Task InitAsync()
     {
@@ -58,6 +60,7 @@ internal sealed class SqlServerIntegrationSetUp
         Connection = Config.SchematicConnection;
         DatabaseProvider = new SqlServerDatabaseProvider(Connection);
         IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+        DatabaseVersion = await DatabaseProvider.GetDatabaseVersionAsync(TestContext.CurrentContext.CancellationToken);
     }
 }
 
@@ -78,6 +81,8 @@ internal abstract class SqlServerTest
     protected ISqlServerDatabaseProvider DatabaseProvider => SqlServerIntegrationSetUp.DatabaseProvider;
 
     protected IIdentifierDefaults IdentifierDefaults => SqlServerIntegrationSetUp.IdentifierDefaults;
+
+    protected Version DatabaseVersion => SqlServerIntegrationSetUp.DatabaseVersion;
 
     /// <summary>
     /// Executes multiple DDL statements as a single T-SQL batch, in one round-trip. Every

@@ -2,7 +2,6 @@
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteTypeAffinityParserTests
 {
     // TODO

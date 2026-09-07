@@ -24,7 +24,6 @@ internal static class SqliteRuleTestConfig
         .Build();
 }
 
-[TestFixture]
 internal abstract class SqliteRuleTestBase
 {
     protected ISchematicConnection Connection { get; } = SqliteRuleTestConfig.Connection;

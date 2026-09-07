@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class VerbatimIdentifierResolutionStrategyTests
 {
     [Test]

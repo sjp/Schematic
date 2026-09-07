@@ -7,7 +7,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class ForeignKeyIndexRuleTests
 {
     private static IDatabaseColumn GetColumn(Identifier columnName)

@@ -8,7 +8,6 @@ using SJP.Schematic.Core.Tests.Fakes;
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class CachingConnectionFactoryTests
 {
     private static Mock<IDbConnectionFactory> CreateFactoryReturning(params DbConnection[] connections)

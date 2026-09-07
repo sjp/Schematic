@@ -10,7 +10,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
-[TestFixture]
 internal static class ConnectionExtensionsRetryTests
 {
     private const string ThreeRowQuery = "select 'first' as dummy union all select 'second' as dummy union all select 'third' as dummy";

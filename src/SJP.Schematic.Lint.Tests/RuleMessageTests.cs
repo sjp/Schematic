@@ -5,7 +5,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Lint.Tests;
 
-[TestFixture]
 internal static class RuleMessageTests
 {
     [TestCase((string)null)]

@@ -3,7 +3,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Reporting.Tests;
 
-[TestFixture]
 internal static class RenderExceptionTests
 {
     [Test]

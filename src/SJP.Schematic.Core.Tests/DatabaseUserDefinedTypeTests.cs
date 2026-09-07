@@ -5,7 +5,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class DatabaseUserDefinedTypeTests
 {
     [Test]

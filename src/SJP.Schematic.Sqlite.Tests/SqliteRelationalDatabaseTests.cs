@@ -8,7 +8,6 @@ using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests;
 
-[TestFixture]
 internal static class SqliteRelationalDatabaseTests
 {
     private static ISqliteDatabase Database
@@ -63,7 +62,6 @@ internal static class SqliteRelationalDatabaseTests
     }
 
     // testing that the behaviour is equivalent to an empty sequence provider
-    [TestFixture]
     internal static class SequenceTests
     {
         [Test]
@@ -99,7 +97,6 @@ internal static class SqliteRelationalDatabaseTests
     }
 
     // testing that the behaviour is equivalent to an empty synonym provider
-    [TestFixture]
     internal static class SynonymTests
     {
         [Test]
@@ -135,7 +132,6 @@ internal static class SqliteRelationalDatabaseTests
     }
 
     // testing that the behaviour is equivalent to an empty routines provider
-    [TestFixture]
     internal static class RoutineTests
     {
         [Test]

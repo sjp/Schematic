@@ -3,7 +3,6 @@ using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing;
 
-[TestFixture]
 internal static class SqliteTableParserTests
 {
     [TestCase((string)null)]

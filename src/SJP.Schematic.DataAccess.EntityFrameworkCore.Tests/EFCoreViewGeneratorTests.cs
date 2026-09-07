@@ -10,7 +10,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests;
 
-[TestFixture]
 internal static class EFCoreViewGeneratorTests
 {
     private static IDatabaseViewGenerator GetViewGenerator() => new EFCoreViewGenerator(new MockFileSystem(), new VerbatimNameTranslator(), "SJP.Schematic.Test");

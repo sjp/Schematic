@@ -27,13 +27,13 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop synonym db_test_synonym_1", TestContext.CurrentContext.CancellationToken);
-
-        await DbConnection.ExecuteAsync("drop view synonym_test_view_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table synonym_test_table_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_3", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop synonym db_test_synonym_1",
+            "drop view synonym_test_view_1",
+            "drop table synonym_test_table_1",
+            "drop synonym synonym_test_synonym_1",
+            "drop synonym synonym_test_synonym_2",
+            "drop synonym synonym_test_synonym_3");
     }
 
     [Test]

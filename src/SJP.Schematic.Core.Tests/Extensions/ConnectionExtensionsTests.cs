@@ -11,7 +11,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Extensions;
 
-[TestFixture]
 internal static class ConnectionExtensionsTests
 {
     [Test]

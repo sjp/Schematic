@@ -8,7 +8,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class EmptyRoutineDefinitionRuleTests
 {
     private static IDatabaseRoutine CreateRoutine(Identifier name, string definition)

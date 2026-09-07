@@ -34,18 +34,19 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_3", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_4", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_5", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_6", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_7", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_8", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_9", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_10", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_11", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_12", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop sequence db_test_sequence_1",
+            "drop sequence db_test_sequence_2",
+            "drop sequence db_test_sequence_3",
+            "drop sequence db_test_sequence_4",
+            "drop sequence db_test_sequence_5",
+            "drop sequence db_test_sequence_6",
+            "drop sequence db_test_sequence_7",
+            "drop sequence db_test_sequence_8",
+            "drop sequence db_test_sequence_9",
+            "drop sequence db_test_sequence_10",
+            "drop sequence db_test_sequence_11",
+            "drop sequence db_test_sequence_12");
     }
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)

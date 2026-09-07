@@ -9,7 +9,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class InvalidSequenceConfigurationRuleTests
 {
     private static IDatabaseSequence CreateSequence(Identifier name, decimal start, decimal increment, Option<decimal> minValue, Option<decimal> maxValue, bool cycle)

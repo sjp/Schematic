@@ -5,7 +5,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.MySql.Tests;
 
-[TestFixture]
 internal static class MySqlCheckConstraintTests
 {
     [Test]

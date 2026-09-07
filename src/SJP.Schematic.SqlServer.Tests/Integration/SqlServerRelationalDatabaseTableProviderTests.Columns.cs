@@ -199,7 +199,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     [Test]
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
-        if (!await DatabaseProvider.SupportsJsonDataType())
+        if (!DatabaseProvider.SupportsJsonDataType())
             Assert.Ignore("Native json data type requires SQL Server 2025 (17.x) or later.");
 
         const string tableName = "table_test_table_37";

@@ -29,8 +29,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", TestContext.CurrentContext.CancellationToken);
+        await DropTablesAsync("table_comment_table_1", "table_comment_table_2");
     }
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)

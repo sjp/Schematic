@@ -6,7 +6,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.EntityFrameworkCore.Tests;
 
-[TestFixture]
 internal static class EFCoreDbContextBuilderTests
 {
     [Test]

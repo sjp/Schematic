@@ -8,7 +8,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class ColumnTypeMismatchAcrossTablesRuleTests
 {
     // the rule compares what a type describes rather than how it was written, so a definition that

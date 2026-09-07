@@ -2,7 +2,6 @@
 
 namespace SJP.Schematic.SqlServer.Tests;
 
-[TestFixture]
 internal static class CompatibilityLevelTests
 {
     [TestCase(-1)]

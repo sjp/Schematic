@@ -5,7 +5,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Comments;
 
-[TestFixture]
 internal static class DatabaseSynonymCommentsTests
 {
     [Test]

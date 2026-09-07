@@ -7,7 +7,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class ForeignKeyColumnTypeMismatchRuleTests
 {
     private static DatabaseColumn CreateColumn(string name, string typeName, string typeDefinition, int maxLength = 0, string collation = null)

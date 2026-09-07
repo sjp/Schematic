@@ -4,7 +4,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests;
 
-[TestFixture]
 internal static class DefaultOracleIdentifierResolutionStrategyTests
 {
     [Test]

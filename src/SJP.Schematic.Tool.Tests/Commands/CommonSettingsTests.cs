@@ -4,7 +4,6 @@ using SJP.Schematic.Tool.Commands;
 
 namespace SJP.Schematic.Tool.Tests.Commands;
 
-[TestFixture]
 internal static class CommonSettingsTests
 {
     private sealed class FakeSettings : CommonSettings

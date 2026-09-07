@@ -8,7 +8,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class ForeignKeyColumnTypeMismatchRuleTests
 {
     // a definition that stands alone also names the type, e.g. 'integer'

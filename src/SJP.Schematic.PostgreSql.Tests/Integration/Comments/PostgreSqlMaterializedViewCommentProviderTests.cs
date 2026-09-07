@@ -31,9 +31,10 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop materialized view matview_comment_matview_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop materialized view matview_comment_matview_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table matview_comment_table_1", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop materialized view matview_comment_matview_1",
+            "drop materialized view matview_comment_matview_2",
+            "drop table matview_comment_table_1");
     }
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)

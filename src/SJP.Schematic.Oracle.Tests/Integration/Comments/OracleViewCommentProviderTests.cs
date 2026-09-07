@@ -36,13 +36,12 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_2", TestContext.CurrentContext.CancellationToken);
-
-        await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_mview_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_mview_2", TestContext.CurrentContext.CancellationToken);
-
-        await DbConnection.ExecuteAsync("drop table wrapper_view_comment_table_1", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop view wrapper_view_comment_view_1",
+            "drop view wrapper_view_comment_view_2",
+            "drop materialized view wrapper_view_comment_mview_1",
+            "drop materialized view wrapper_view_comment_mview_2",
+            "drop table wrapper_view_comment_table_1");
     }
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)

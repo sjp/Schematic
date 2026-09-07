@@ -4,7 +4,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.MySql.Tests;
 
-[TestFixture]
 internal static class MySqlTableStatisticsProviderTests
 {
     [Test]

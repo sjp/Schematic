@@ -6,7 +6,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class EmptyRoutineDefinitionRuleTests
 {
     // The concrete DatabaseRoutine type rejects an empty definition at construction,

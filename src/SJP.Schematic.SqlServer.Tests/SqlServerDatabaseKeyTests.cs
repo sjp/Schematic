@@ -6,7 +6,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.SqlServer.Tests;
 
-[TestFixture]
 internal static class SqlServerDatabaseKeyTests
 {
     [Test]

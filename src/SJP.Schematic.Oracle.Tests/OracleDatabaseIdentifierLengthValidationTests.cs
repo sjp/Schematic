@@ -3,7 +3,6 @@ using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests;
 
-[TestFixture]
 internal static class OracleDatabaseIdentifierLengthValidationTests
 {
     private static IOracleDatabaseIdentifierValidation Validator => new OracleDatabaseIdentifierLengthValidation(30);

@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.SqlServer.Tests;
 
-[TestFixture]
 internal static class SqlServerDatabaseProviderTests
 {
     [Test]

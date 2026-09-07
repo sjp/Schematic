@@ -9,7 +9,6 @@ using SJP.Schematic.Reporting.Html.Lint.Rules;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
-[TestFixture]
 internal static class UnvalidatedConstraintsRuleTests
 {
     private static readonly Identifier TableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");

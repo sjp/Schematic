@@ -6,7 +6,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class DatabaseRoutineParameterTests
 {
     private static Option<Identifier> ParameterName => Option<Identifier>.Some("test_parameter");

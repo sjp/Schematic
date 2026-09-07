@@ -5,7 +5,6 @@ using SJP.Schematic.Oracle.Comments;
 
 namespace SJP.Schematic.Oracle.Tests.Comments;
 
-[TestFixture]
 internal static class OracleTableCommentProviderTests
 {
     [Test]

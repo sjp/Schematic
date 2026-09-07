@@ -153,7 +153,7 @@ create table table_test_table_32 (
     test_column_3 as (test_column_1 + test_column_2)
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column number primary key )", TestContext.CurrentContext.CancellationToken);
-        if (await DatabaseProvider.SupportsJsonDataType(TestContext.CurrentContext.CancellationToken))
+        if (DatabaseProvider.SupportsJsonDataType())
             await DbConnection.ExecuteAsync("create table table_test_table_36 ( json_column json )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_test_table_37 ( xml_column xmltype )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_test_table_38 ( geometry_column mdsys.sdo_geometry )", TestContext.CurrentContext.CancellationToken);
@@ -261,46 +261,51 @@ end trigger_test_table_1_trig_cmp;
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        var supportsJsonDataType = await DatabaseProvider.SupportsJsonDataType(TestContext.CurrentContext.CancellationToken);
+        var supportsJsonDataType = DatabaseProvider.SupportsJsonDataType();
 
-        await DbConnection.ExecuteAsync("drop table db_test_table_1", TestContext.CurrentContext.CancellationToken);
-
-        await DbConnection.ExecuteAsync("drop table table_test_table_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_2", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_3", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_4", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_5", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_6", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_7", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_8", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_9", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_13", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_14", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_16", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_17", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_24", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_25", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_27", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_28", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_30", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_31", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_15", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_32", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_33", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_34", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_35", TestContext.CurrentContext.CancellationToken);
+        List<string> tableNames = [
+            "db_test_table_1",
+            "table_test_table_1",
+            "table_test_table_2",
+            "table_test_table_3",
+            "table_test_table_4",
+            "table_test_table_5",
+            "table_test_table_6",
+            "table_test_table_7",
+            "table_test_table_8",
+            "table_test_table_9",
+            "table_test_table_13",
+            "table_test_table_14",
+            "table_test_table_16",
+            "table_test_table_17",
+            "table_test_table_24",
+            "table_test_table_25",
+            "table_test_table_27",
+            "table_test_table_28",
+            "table_test_table_30",
+            "table_test_table_31",
+            "table_test_table_15",
+            "table_test_table_32",
+            "table_test_table_33",
+            "table_test_table_34",
+            "table_test_table_35"
+        ];
         if (supportsJsonDataType)
-            await DbConnection.ExecuteAsync("drop table table_test_table_36", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_37", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_38", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_39", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_40", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_41", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table table_test_table_42", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table constraint_state_child", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table constraint_state_parent", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table trigger_test_table_1", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync("drop table trigger_test_table_2", TestContext.CurrentContext.CancellationToken);
+            tableNames.Add("table_test_table_36");
+        tableNames.AddRange([
+            "table_test_table_37",
+            "table_test_table_38",
+            "table_test_table_39",
+            "table_test_table_40",
+            "table_test_table_41",
+            "table_test_table_42",
+            "constraint_state_child",
+            "constraint_state_parent",
+            "trigger_test_table_1",
+            "trigger_test_table_2"
+        ]);
+
+        await DropTablesAsync([.. tableNames]);
     }
 
     private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)

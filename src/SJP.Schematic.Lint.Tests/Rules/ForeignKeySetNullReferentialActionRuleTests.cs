@@ -7,7 +7,6 @@ using SJP.Schematic.Lint.Rules;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
-[TestFixture]
 internal static class ForeignKeySetNullReferentialActionRuleTests
 {
     private static DatabaseColumn CreateColumn(string name, bool isNullable)

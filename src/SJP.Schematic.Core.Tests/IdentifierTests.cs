@@ -4,7 +4,6 @@ using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
 
-[TestFixture]
 internal static class IdentifierTests
 {
     [TestCase((string)null)]

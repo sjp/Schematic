@@ -13,7 +13,6 @@ using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.DataAccess.OrmLite.Tests;
 
-[TestFixture]
 internal static class OrmLiteDataAccessGeneratorTests
 {
     private const string TestCsprojFileName = "DataAccessGeneratorTest.csproj";

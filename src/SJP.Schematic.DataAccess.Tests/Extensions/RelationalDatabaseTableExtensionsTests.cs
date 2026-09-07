@@ -7,7 +7,6 @@ using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.Tests.Extensions;
 
-[TestFixture]
 internal static class RelationalDatabaseTableExtensionsTests
 {
     [Test]
