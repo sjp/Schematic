@@ -44,12 +44,16 @@ internal static class Config
             disposable.Dispose();
     }
 
-    private static string ConnectionString => Configuration.GetConnectionString("PostgreSql_TestDb");
+    private static string ConnectionString => ConnectionStringLoader.Value;
 
-    private static IConfigurationRoot Configuration => new ConfigurationBuilder()
+    private static readonly Lazy<string> ConnectionStringLoader = new(static () => Configuration.GetConnectionString("PostgreSql_TestDb"));
+
+    private static IConfigurationRoot Configuration => ConfigurationLoader.Value;
+
+    private static readonly Lazy<IConfigurationRoot> ConfigurationLoader = new(static () => new ConfigurationBuilder()
         .AddEnvironmentVariables()
         .AddJsonFile("postgresql-test.config.json", optional: true)
-        .Build();
+        .Build());
 }
 
 /// <summary>
