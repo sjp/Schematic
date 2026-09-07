@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -30,9 +31,16 @@ internal abstract class SqliteRuleTestBase
 
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = new SqliteDatabaseProvider(SqliteRuleTestConfig.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+    /// <summary>
+    /// Resolved once per process: every fixture shares the same cached value rather than issuing
+    /// its own blocking round-trip.
+    /// </summary>
+    protected IIdentifierDefaults IdentifierDefaults => IdentifierDefaultsLazy.Value;
 
     protected ISqliteConnectionPragma Pragma { get; } = new ConnectionPragma(SqliteRuleTestConfig.Connection);
 
     protected IRelationalDatabase GetSqliteDatabase() => new SqliteRelationalDatabase(SqliteRuleTestConfig.Connection, IdentifierDefaults, Pragma);
+
+    private static readonly Lazy<IIdentifierDefaults> IdentifierDefaultsLazy = new(static () =>
+        new SqliteDatabaseProvider(SqliteRuleTestConfig.Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult());
 }

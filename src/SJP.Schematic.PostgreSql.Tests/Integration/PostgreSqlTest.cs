@@ -57,8 +57,10 @@ internal static class Config
 }
 
 /// <summary>
-/// Probes for a live PostgreSQL instance once per run, and disposes the connection pool shared by
-/// every fixture in this namespace once they have all finished. Pool ownership sits here rather
+/// Probes for a live PostgreSQL instance once per run, resolves the values shared by every fixture
+/// beneath it, and disposes the connection pool shared by those fixtures once they have all
+/// finished. Identifier defaults cannot change within a run, so they are awaited here once rather
+/// than being resolved -- blocking -- once per fixture. Pool ownership sits here rather
 /// than in a per-fixture <see cref="OneTimeTearDownAttribute"/> because the pool outlives any
 /// single fixture: the first fixture to finish must not tear it down while the others are still
 /// running.
@@ -66,8 +68,21 @@ internal static class Config
 [SetUpFixture]
 internal sealed class PostgreSqlIntegrationSetUp
 {
+    public static ISchematicConnection Connection { get; private set; } = null!;
+
+    public static PostgreSqlDatabaseProvider DatabaseProvider { get; private set; } = null!;
+
+    public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
+
     [OneTimeSetUp]
-    public void ProbeDatabase() => DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No PostgreSQL DB available");
+    public async Task InitAsync()
+    {
+        DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No PostgreSQL DB available");
+
+        Connection = Config.SchematicConnection;
+        DatabaseProvider = new PostgreSqlDatabaseProvider(Connection);
+        IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+    }
 
     [OneTimeTearDown]
     public void DisposeConnectionPool() => Config.DisposeConnectionPool();
@@ -78,28 +93,17 @@ internal sealed class PostgreSqlIntegrationSetUp
 [Parallelizable(ParallelScope.Children)]
 internal abstract class PostgreSqlTest
 {
-    protected ISchematicConnection Connection => _connection.Value;
+    protected ISchematicConnection Connection => PostgreSqlIntegrationSetUp.Connection;
 
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected PostgreSqlDatabaseProvider DatabaseProvider => _databaseProvider.Value;
+    protected PostgreSqlDatabaseProvider DatabaseProvider => PostgreSqlIntegrationSetUp.DatabaseProvider;
 
-    protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
+    protected IIdentifierDefaults IdentifierDefaults => PostgreSqlIntegrationSetUp.IdentifierDefaults;
 
     protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultPostgreSqlIdentifierResolutionStrategy();
-
-    protected PostgreSqlTest()
-    {
-        _connection = new Lazy<ISchematicConnection>(() => Config.SchematicConnection);
-        _databaseProvider = new Lazy<PostgreSqlDatabaseProvider>(() => new PostgreSqlDatabaseProvider(Connection));
-        _defaults = new Lazy<IIdentifierDefaults>(() => new PostgreSqlDatabaseProvider(Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult());
-    }
-
-    private readonly Lazy<ISchematicConnection> _connection;
-    private readonly Lazy<PostgreSqlDatabaseProvider> _databaseProvider;
-    private readonly Lazy<IIdentifierDefaults> _defaults;
 
     /// <summary>
     /// Executes multiple DDL statements as a single round-trip. Npgsql sends multi-statement

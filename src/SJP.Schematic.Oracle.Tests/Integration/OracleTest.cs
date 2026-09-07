@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -38,13 +39,28 @@ internal static class Config
 
 /// <summary>
 /// Probes for a live Oracle instance once per run, ignoring every fixture in this namespace when
-/// one is not reachable.
+/// one is not reachable, and resolves the values shared by every fixture beneath it. Identifier
+/// defaults cannot change within a run, so they are awaited here once rather than being resolved
+/// -- blocking -- once per fixture.
 /// </summary>
 [SetUpFixture]
 internal sealed class OracleIntegrationSetUp
 {
+    public static ISchematicConnection Connection { get; private set; } = null!;
+
+    public static OracleDatabaseProvider DatabaseProvider { get; private set; } = null!;
+
+    public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
+
     [OneTimeSetUp]
-    public void ProbeDatabase() => DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No Oracle DB available");
+    public async Task InitAsync()
+    {
+        DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No Oracle DB available");
+
+        Connection = Config.SchematicConnection;
+        DatabaseProvider = new OracleDatabaseProvider(Connection);
+        IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+    }
 }
 
 [Category("OracleDatabase")]
@@ -52,15 +68,15 @@ internal sealed class OracleIntegrationSetUp
 [Parallelizable(ParallelScope.Children)]
 internal abstract class OracleTest
 {
-    protected ISchematicConnection Connection { get; } = Config.SchematicConnection;
+    protected ISchematicConnection Connection => OracleIntegrationSetUp.Connection;
 
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected OracleDatabaseProvider DatabaseProvider { get; } = new(Config.SchematicConnection);
+    protected OracleDatabaseProvider DatabaseProvider => OracleIntegrationSetUp.DatabaseProvider;
 
-    protected IIdentifierDefaults IdentifierDefaults { get; } = new OracleDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult();
+    protected IIdentifierDefaults IdentifierDefaults => OracleIntegrationSetUp.IdentifierDefaults;
 
     protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
 }

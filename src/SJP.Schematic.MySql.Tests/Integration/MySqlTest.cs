@@ -51,13 +51,28 @@ internal static class Config
 
 /// <summary>
 /// Probes for a live MySQL instance once per run, ignoring every fixture in this namespace when
-/// one is not reachable.
+/// one is not reachable, and resolves the values shared by every fixture beneath it. Identifier
+/// defaults cannot change within a run, so they are awaited here once rather than being resolved
+/// -- blocking -- once per fixture.
 /// </summary>
 [SetUpFixture]
 internal sealed class MySqlIntegrationSetUp
 {
+    public static ISchematicConnection Connection { get; private set; } = null!;
+
+    public static MySqlDatabaseProvider DatabaseProvider { get; private set; } = null!;
+
+    public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
+
     [OneTimeSetUp]
-    public void ProbeDatabase() => DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No MySQL DB available");
+    public async Task InitAsync()
+    {
+        DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No MySQL DB available");
+
+        Connection = Config.SchematicConnection;
+        DatabaseProvider = new MySqlDatabaseProvider(Connection);
+        IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+    }
 }
 
 [Category("MySqlDatabase")]
@@ -65,26 +80,15 @@ internal sealed class MySqlIntegrationSetUp
 [Parallelizable(ParallelScope.Children)]
 internal abstract class MySqlTest
 {
-    protected ISchematicConnection Connection => _connection.Value;
+    protected ISchematicConnection Connection => MySqlIntegrationSetUp.Connection;
 
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
-    protected MySqlDatabaseProvider DatabaseProvider => _databaseProvider.Value;
+    protected MySqlDatabaseProvider DatabaseProvider => MySqlIntegrationSetUp.DatabaseProvider;
 
-    protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
-
-    protected MySqlTest()
-    {
-        _connection = new Lazy<ISchematicConnection>(() => Config.SchematicConnection);
-        _databaseProvider = new Lazy<MySqlDatabaseProvider>(() => new MySqlDatabaseProvider(Connection));
-        _defaults = new Lazy<IIdentifierDefaults>(() => new MySqlDatabaseProvider(Connection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult());
-    }
-
-    private readonly Lazy<ISchematicConnection> _connection;
-    private readonly Lazy<MySqlDatabaseProvider> _databaseProvider;
-    private readonly Lazy<IIdentifierDefaults> _defaults;
+    protected IIdentifierDefaults IdentifierDefaults => MySqlIntegrationSetUp.IdentifierDefaults;
 
     /// <summary>
     /// Executes multiple DDL statements as a single round-trip. MySqlConnector natively supports

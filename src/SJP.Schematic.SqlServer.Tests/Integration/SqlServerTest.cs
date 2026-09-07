@@ -38,13 +38,28 @@ internal static class Config
 
 /// <summary>
 /// Probes for a live SQL Server instance once per run, ignoring every fixture in this namespace
-/// when one is not reachable.
+/// when one is not reachable, and resolves the values shared by every fixture beneath it.
+/// Identifier defaults cannot change within a run, so they are awaited here once rather than
+/// being resolved -- blocking -- once per fixture.
 /// </summary>
 [SetUpFixture]
 internal sealed class SqlServerIntegrationSetUp
 {
+    public static ISchematicConnection Connection { get; private set; } = null!;
+
+    public static ISqlServerDatabaseProvider DatabaseProvider { get; private set; } = null!;
+
+    public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
+
     [OneTimeSetUp]
-    public void ProbeDatabase() => DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No SQL Server DB available");
+    public async Task InitAsync()
+    {
+        DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No SQL Server DB available");
+
+        Connection = Config.SchematicConnection;
+        DatabaseProvider = new SqlServerDatabaseProvider(Connection);
+        IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+    }
 }
 
 [Category("SqlServerDatabase")]
@@ -52,17 +67,13 @@ internal sealed class SqlServerIntegrationSetUp
 [Parallelizable(ParallelScope.Children)]
 internal abstract class SqlServerTest
 {
-    protected ISchematicConnection Connection => _connection.Value;
+    protected ISchematicConnection Connection => SqlServerIntegrationSetUp.Connection;
 
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
-    protected ISqlServerDatabaseProvider DatabaseProvider => _databaseProvider.Value;
+    protected ISqlServerDatabaseProvider DatabaseProvider => SqlServerIntegrationSetUp.DatabaseProvider;
 
-    protected IIdentifierDefaults IdentifierDefaults => _defaults.Value;
-
-    private readonly Lazy<ISchematicConnection> _connection = new(() => Config.SchematicConnection);
-    private readonly Lazy<ISqlServerDatabaseProvider> _databaseProvider = new(() => new SqlServerDatabaseProvider(Config.SchematicConnection));
-    private readonly Lazy<IIdentifierDefaults> _defaults = new(() => new SqlServerDatabaseProvider(Config.SchematicConnection).GetIdentifierDefaultsAsync().GetAwaiter().GetResult());
+    protected IIdentifierDefaults IdentifierDefaults => SqlServerIntegrationSetUp.IdentifierDefaults;
 
     /// <summary>
     /// Executes multiple DDL statements as a single T-SQL batch, in one round-trip. Every
