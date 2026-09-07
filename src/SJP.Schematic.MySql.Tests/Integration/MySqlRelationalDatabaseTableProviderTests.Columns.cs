@@ -105,7 +105,10 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsCorrectDefinition()
     {
         const string tableName = "table_test_table_34";
-        const string expectedDefinition = "(`test_column_1` + `test_column_2`)";
+        // MySQL wraps a generation expression in parens when it reports it back, MariaDB doesn't
+        var expectedDefinition = IsMariaDb
+            ? "`test_column_1` + `test_column_2`"
+            : "(`test_column_1` + `test_column_2`)";
 
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
@@ -199,9 +202,12 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
         const string tableName = "table_test_table_36";
+        // MariaDB has no JSON type: JSON is an alias for LONGTEXT paired with a json_valid() check
+        var expectedDataType = IsMariaDb ? DataType.UnicodeText : DataType.Json;
+
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "json_column", StringComparison.Ordinal));
 
-        Assert.That(column.Type.DataType, Is.EqualTo(DataType.Json));
+        Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
     }
 }

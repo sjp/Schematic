@@ -9,6 +9,9 @@ internal static class MySqlDefaultValueParserTests
     [TestCase(null)]
     [TestCase("")]
     [TestCase("   ")]
+    // MariaDB reports a column with no default as the text 'NULL' rather than as SQL NULL
+    [TestCase("NULL")]
+    [TestCase("null")]
     public static void Parse_GivenMissingDefinition_ReturnsNone(string definition)
     {
         Assert.That(MySqlDefaultValueParser.Parse(definition, null), OptionIs.None);
@@ -30,7 +33,6 @@ internal static class MySqlDefaultValueParserTests
         });
     }
 
-    [TestCase("NULL", null, DefaultValueKind.Null)]
     [TestCase("0", null, DefaultValueKind.Literal)]
     // information_schema reports the value of a literal rather than the SQL that produced it
     [TestCase("unassigned", null, DefaultValueKind.Literal)]
