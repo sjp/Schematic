@@ -29,8 +29,19 @@ internal static class Config
         .Build();
 }
 
+/// <summary>
+/// Probes for a live Oracle instance once per run, ignoring every fixture in this namespace when
+/// one is not reachable.
+/// </summary>
+[SetUpFixture]
+internal sealed class OracleIntegrationSetUp
+{
+    [OneTimeSetUp]
+    public void ProbeDatabase() => DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No Oracle DB available");
+}
+
 [Category("OracleDatabase")]
-[DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No Oracle DB available")]
+[Category("SkipWhenLiveUnitTesting")]
 [Parallelizable(ParallelScope.Children)]
 internal abstract class OracleTest
 {

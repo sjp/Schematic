@@ -36,7 +36,7 @@ internal static class Config
 
     /// <summary>
     /// Disposes the shared pool. Only safe to call once every fixture has finished, so it is
-    /// driven by <see cref="ConnectionPoolTeardown"/> rather than by any individual fixture.
+    /// driven by <see cref="PostgreSqlIntegrationSetUp"/> rather than by any individual fixture.
     /// </summary>
     internal static void DisposeConnectionPool()
     {
@@ -53,20 +53,24 @@ internal static class Config
 }
 
 /// <summary>
-/// Disposes the connection pool shared by every fixture in this namespace, once they have all
-/// finished. Ownership sits here rather than in a per-fixture <see cref="OneTimeTearDownAttribute"/>
-/// because the pool outlives any single fixture: the first fixture to finish must not tear it
-/// down while the others are still running.
+/// Probes for a live PostgreSQL instance once per run, and disposes the connection pool shared by
+/// every fixture in this namespace once they have all finished. Pool ownership sits here rather
+/// than in a per-fixture <see cref="OneTimeTearDownAttribute"/> because the pool outlives any
+/// single fixture: the first fixture to finish must not tear it down while the others are still
+/// running.
 /// </summary>
 [SetUpFixture]
-internal sealed class ConnectionPoolTeardown
+internal sealed class PostgreSqlIntegrationSetUp
 {
+    [OneTimeSetUp]
+    public void ProbeDatabase() => DatabaseAvailability.EnsureAvailable(static () => Config.ConnectionFactory, "No PostgreSQL DB available");
+
     [OneTimeTearDown]
     public void DisposeConnectionPool() => Config.DisposeConnectionPool();
 }
 
 [Category("PostgreSqlDatabase")]
-[DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No PostgreSQL DB available")]
+[Category("SkipWhenLiveUnitTesting")]
 [Parallelizable(ParallelScope.Children)]
 internal abstract class PostgreSqlTest
 {
