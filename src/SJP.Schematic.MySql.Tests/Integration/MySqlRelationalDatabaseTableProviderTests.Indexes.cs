@@ -149,6 +149,9 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     [Test]
     public async Task Indexes_WhenGivenTableWithFunctionalIndex_ReturnsIndexWithExpressionColumn()
     {
+        if (!DatabaseProvider.SupportsFunctionalIndexes())
+            Assert.Ignore("Functional key parts require MySQL 8.0.13 or later; MariaDB has no equivalent syntax.");
+
         var table = await GetTableAsync("table_test_table_41");
         var index = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_41_2");
         var indexColumn = index.Columns.Single();

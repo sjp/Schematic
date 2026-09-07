@@ -168,12 +168,16 @@ create table if not exists table_test_table_37 (
     constraint pk_test_table_37 primary key (middle_name_child),
     constraint fk_test_table_37 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", TestContext.CurrentContext.CancellationToken);
-        await DbConnection.ExecuteAsync(@"
+        // MariaDB has no functional key parts (MySQL 8.0.13+): an index directly over an
+        // expression, with no backing generated column.
+        var functionalIndexClause = DatabaseProvider.SupportsFunctionalIndexes()
+            ? ",\n    index ix_test_table_41_2 ((lower(last_name)))"
+            : string.Empty;
+        await DbConnection.ExecuteAsync($@"
 create table if not exists table_test_table_41 (
     first_name varchar(50) not null,
     last_name varchar(50) not null,
-    index ix_test_table_41_1 (first_name desc),
-    index ix_test_table_41_2 ((lower(last_name))),
+    index ix_test_table_41_1 (first_name desc){functionalIndexClause},
     index ix_test_table_41_3 (last_name(10))
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_33 ( test_column int not null default 1 )", TestContext.CurrentContext.CancellationToken);

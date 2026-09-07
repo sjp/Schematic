@@ -63,6 +63,13 @@ internal sealed class MySqlIntegrationSetUp
 
     public static IIdentifierDefaults IdentifierDefaults { get; private set; } = null!;
 
+    /// <summary>
+    /// Whether the connected server identifies itself as MariaDB rather than MySQL. The two speak
+    /// the same wire protocol and share most DDL, but diverge on some MySQL-8-only syntax (e.g.
+    /// functional key parts), which integration tests need to skip or adapt for.
+    /// </summary>
+    public static bool IsMariaDb { get; private set; }
+
     [OneTimeSetUp]
     public async Task InitAsync()
     {
@@ -71,6 +78,9 @@ internal sealed class MySqlIntegrationSetUp
         Connection = Config.SchematicConnection;
         DatabaseProvider = new MySqlDatabaseProvider(Connection);
         IdentifierDefaults = await DatabaseProvider.GetIdentifierDefaultsAsync(TestContext.CurrentContext.CancellationToken);
+
+        var displayVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(TestContext.CurrentContext.CancellationToken);
+        IsMariaDb = displayVersion.Contains("MariaDB", StringComparison.OrdinalIgnoreCase);
     }
 }
 
@@ -93,6 +103,8 @@ internal abstract class MySqlTest
     protected MySqlDatabaseProvider DatabaseProvider => MySqlIntegrationSetUp.DatabaseProvider;
 
     protected IIdentifierDefaults IdentifierDefaults => MySqlIntegrationSetUp.IdentifierDefaults;
+
+    protected bool IsMariaDb => MySqlIntegrationSetUp.IsMariaDb;
 
     /// <summary>
     /// Executes multiple DDL statements as a single round-trip. MySqlConnector natively supports
