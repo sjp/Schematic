@@ -46,6 +46,14 @@
         <None Include="$(RootDirectory)/README.md" Pack="true" PackagePath="/" Visible="false" />
     </ItemGroup>
 
+    <!-- Microsoft.Testing.Platform reaches the test projects transitively through the NUnit
+         runner. Referencing it directly pins the version, which is what makes the
+         show-test-results option available: without it the per-test "skipped" lines from the
+         database projects' availability probe bury the rest of the CI log. -->
+    <ItemGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+        <PackageReference Include="Microsoft.Testing.Platform" />
+    </ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
         <PackageReference Include="Roslynator.Analyzers">

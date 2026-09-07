@@ -66,8 +66,14 @@ jobs:
       run: dotnet build --configuration Release --no-restore
       working-directory: src/SJP.Schematic.SqlServer.Tests
 
+    # --minimum-expected-tests fails the run when fewer tests actually execute than expected.
+    # Skipped tests do not count towards it, which is the point: an unreachable database --
+    # a wrong connection string, or a service container that died after passing its health
+    # check -- skips every integration test, and without this the job would still go green on
+    # the unit tests alone. The number is this project's unit plus integration total with a
+    # little headroom for version-gated skips, so raise it as tests are added.
     - name: Test
-      run: dotnet test --configuration Release --no-build --no-restore --verbosity normal -- --coverage --coverage-settings ${{ github.workspace }}/src/coverage.settings.xml --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
+      run: dotnet test --configuration Release --no-build --no-restore --verbosity normal -- --show-test-results failed --minimum-expected-tests 600 --coverage --coverage-settings ${{ github.workspace }}/src/coverage.settings.xml --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
       working-directory: src/SJP.Schematic.SqlServer.Tests
       env:
         ConnectionStrings__SqlServer_TestDb: Data Source=localhost,1433; User Id=sa; Password=Schematic0123!; MultipleActiveResultSets=True; TrustServerCertificate=True;
