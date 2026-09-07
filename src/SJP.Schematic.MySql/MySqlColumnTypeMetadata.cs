@@ -33,7 +33,7 @@ internal static class MySqlColumnTypeMetadata
     /// <param name="dataTypeName">The name of the column's type, from <c>data_type</c>.</param>
     /// <param name="columnType">The column's type as declared, from <c>column_type</c>.</param>
     /// <param name="collation">The column's collation, if any.</param>
-    /// <param name="maxLength">The column's maximum length.</param>
+    /// <param name="maxLength">The column's maximum length, as reported by the catalog.</param>
     /// <param name="numericPrecision">The column's numeric precision, if any.</param>
     /// <param name="fractionalSecondsPrecision">The column's fractional seconds precision, for a temporal type; otherwise none.</param>
     /// <returns>Column type metadata.</returns>
@@ -43,7 +43,7 @@ internal static class MySqlColumnTypeMetadata
         string dataTypeName,
         string? columnType,
         Option<Identifier> collation,
-        int maxLength,
+        long maxLength,
         Option<INumericPrecision> numericPrecision,
         Option<int> fractionalSecondsPrecision
     )
@@ -54,7 +54,7 @@ internal static class MySqlColumnTypeMetadata
         {
             TypeName = Identifier.CreateQualifiedIdentifier(dataTypeName),
             Collation = collation,
-            MaxLength = maxLength,
+            MaxLength = ClampMaxLength(maxLength),
             NumericPrecision = numericPrecision,
             FractionalSecondsPrecision = fractionalSecondsPrecision,
             IsUnsigned = columnType?.Contains(UnsignedSuffix, StringComparison.OrdinalIgnoreCase) == true,
@@ -74,6 +74,18 @@ internal static class MySqlColumnTypeMetadata
 
         return metadata;
     }
+
+    /// <summary>
+    /// Narrows a catalog length to the length column type metadata carries.
+    /// </summary>
+    /// <param name="maxLength">A maximum length, from <c>character_maximum_length</c>.</param>
+    /// <returns>The length, capped at <see cref="int.MaxValue"/>.</returns>
+    /// <remarks>
+    /// <c>longtext</c> and <c>longblob</c> report a length of 4294967295, which does not fit in the
+    /// <see cref="int"/> the metadata carries. Neither type prints a length annotation, so nothing
+    /// that reaches the cap is ever rendered.
+    /// </remarks>
+    public static int ClampMaxLength(long maxLength) => (int)Math.Min(maxLength, int.MaxValue);
 
     /// <summary>
     /// Reads the permitted values out of a declared enum or set type.

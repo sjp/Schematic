@@ -197,7 +197,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             Collation = !row.Collation.IsNullOrWhiteSpace()
                 ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                 : Option<Identifier>.None,
-            MaxLength = row.CharacterMaxLength,
+            MaxLength = MySqlColumnTypeMetadata.ClampMaxLength(row.CharacterMaxLength),
             NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
         };
 

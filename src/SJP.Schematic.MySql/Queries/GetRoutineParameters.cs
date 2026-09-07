@@ -28,7 +28,10 @@ internal static class GetRoutineParameters
 
         public required string DataTypeName { get; init; }
 
-        public required int CharacterMaxLength { get; init; }
+        /// <summary>
+        /// The parameter's maximum length in characters.
+        /// </summary>
+        public required long CharacterMaxLength { get; init; }
 
         public required int Precision { get; init; }
 

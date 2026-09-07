@@ -67,4 +67,24 @@ from information_schema.statistics
 where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
 order by index_name, seq_in_index
 """;
+
+    // MariaDB's statistics table has no 'expression' column -- it has no functional key parts, so an
+    // indexed expression is always backed by a generated column. Index visibility is instead reported
+    // by the inverted 'ignored' column (MariaDB 10.6+). Used when the 'expression' column is absent.
+    internal const string SqlWithoutExpression = $"""
+
+select
+    index_name as `{nameof(Result.IndexName)}`,
+    non_unique as `{nameof(Result.IsNonUnique)}`,
+    seq_in_index as `{nameof(Result.ColumnOrdinal)}`,
+    column_name as `{nameof(Result.ColumnName)}`,
+    cast(null as char) as `{nameof(Result.Expression)}`,
+    collation as `{nameof(Result.ColumnSort)}`,
+    sub_part as `{nameof(Result.PrefixLength)}`,
+    index_type as `{nameof(Result.IndexType)}`,
+    case when ignored = 'YES' then 'NO' else 'YES' end as `{nameof(Result.IsVisible)}`
+from information_schema.statistics
+where table_schema = @{nameof(Query.SchemaName)} and table_name = @{nameof(Query.TableName)}
+order by index_name, seq_in_index
+""";
 }

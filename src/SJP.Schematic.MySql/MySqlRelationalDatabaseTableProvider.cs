@@ -29,8 +29,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
-        _supportsChecks = new AsyncLazy<bool>(LoadHasCheckSupport);
-        _supportsEnforcedColumn = new AsyncLazy<bool>(LoadHasEnforcedColumnSupport);
+        _catalogFeatures = new AsyncLazy<GetCatalogFeatures.Result>(LoadCatalogFeatures);
     }
 
     /// <summary>
@@ -404,8 +403,11 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
+        var features = await _catalogFeatures;
+        var indexesSql = features.HasIndexExpressionColumn ? GetTableIndexes.Sql : GetTableIndexes.SqlWithoutExpression;
+
         var queryResult = await DbConnection.QueryAsync(
-            GetTableIndexes.Sql,
+            indexesSql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
@@ -636,12 +638,11 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var hasCheckSupport = await _supportsChecks;
-        if (!hasCheckSupport)
+        var features = await _catalogFeatures;
+        if (!features.HasCheckConstraints)
             return [];
 
-        var hasEnforcedColumn = await _supportsEnforcedColumn;
-        var sql = hasEnforcedColumn ? GetTableCheckConstraints.Sql : GetTableCheckConstraints.SqlWithoutEnforced;
+        var sql = features.HasConstraintEnforcedColumn ? GetTableCheckConstraints.Sql : GetTableCheckConstraints.SqlWithoutEnforced;
 
         return await DbConnection.QueryEnumerableAsync(
                 sql,
@@ -946,23 +947,12 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return result;
     }
 
-    private Task<bool> LoadHasCheckSupport()
-    {
-        const string sql = "select count(*) from information_schema.tables where table_schema = 'information_schema' and table_name = 'CHECK_CONSTRAINTS'";
-        return DbConnection.ExecuteScalarAsync<bool>(sql, CancellationToken.None);
-    }
+    // The catalog varies between MySQL and MariaDB releases, so the queries that depend on those
+    // differences are chosen from a single description of what the connected server provides.
+    private Task<GetCatalogFeatures.Result> LoadCatalogFeatures() =>
+        DbConnection.QuerySingleAsync<GetCatalogFeatures.Result>(GetCatalogFeatures.Sql, CancellationToken.None);
 
-    // MariaDB's table_constraints has no 'enforced' column -- MariaDB has no NOT ENFORCED syntax,
-    // so a check constraint is always enforced. MySQL added the column alongside NOT ENFORCED in 8.0.16.
-    private Task<bool> LoadHasEnforcedColumnSupport()
-    {
-        const string sql = "select count(*) from information_schema.columns where table_schema = 'information_schema' and table_name = 'TABLE_CONSTRAINTS' and column_name = 'ENFORCED'";
-        return DbConnection.ExecuteScalarAsync<bool>(sql, CancellationToken.None);
-    }
-
-    private readonly AsyncLazy<bool> _supportsChecks;
-
-    private readonly AsyncLazy<bool> _supportsEnforcedColumn;
+    private readonly AsyncLazy<GetCatalogFeatures.Result> _catalogFeatures;
 
     // information_schema.statistics.index_type values.
     private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.OrdinalIgnoreCase)

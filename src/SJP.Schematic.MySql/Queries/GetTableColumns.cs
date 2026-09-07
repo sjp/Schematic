@@ -22,7 +22,10 @@ internal static class GetTableColumns
         /// </summary>
         public required string ColumnType { get; init; }
 
-        public required int CharacterMaxLength { get; init; }
+        /// <summary>
+        /// The column's maximum length in characters.
+        /// </summary>
+        public required long CharacterMaxLength { get; init; }
 
         public required int Precision { get; init; }
 
