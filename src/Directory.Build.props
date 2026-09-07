@@ -51,7 +51,7 @@
          show-test-results option available: without it the per-test "skipped" lines from the
          database projects' availability probe bury the rest of the CI log. Every project that
          dotnet test launches needs the pin, otherwise it resolves an older platform, rejects
-         --show-test-results and runs zero tests (exit code 5) -- hence Contains rather than
+         show-test-results and runs zero tests (exit code 5), hence Contains rather than
          EndsWith, which would miss SJP.Schematic.Tests.Utilities. -->
     <ItemGroup Condition="$(MSBuildProjectName.Contains('.Tests'))">
         <PackageReference Include="Microsoft.Testing.Platform" />
