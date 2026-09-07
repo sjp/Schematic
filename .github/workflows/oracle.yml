@@ -27,21 +27,24 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # gvenzl/oracle-xe and gvenzl/oracle-free are the same test target (both expose
-        # localhost/XEPDB1 with the same credentials) - only the image family and tag differ.
+        # gvenzl/oracle-xe and gvenzl/oracle-free are the same test target with the same
+        # credentials, but they differ in the default pluggable database they expose:
+        # oracle-xe serves XEPDB1, oracle-free (23ai) serves FREEPDB1.
         include:
           - image: oracle-xe
             tag: 21
+            pdb: XEPDB1
           - image: oracle-free
             tag: 23
+            pdb: FREEPDB1
           - image: oracle-free
             tag: latest
+            pdb: FREEPDB1
     services:
       oracle:
         image: gvenzl/${{ matrix.image }}:${{ matrix.tag }}
         env:
           ORACLE_PASSWORD: schematic_root
-          ORACLE_DATABASE: schematic
           APP_USER: schematic
           APP_USER_PASSWORD: schematic
         options: >-
@@ -84,7 +87,7 @@ jobs:
       run: dotnet test --configuration Release --no-build --no-restore --verbosity normal -- --show-test-results failed --minimum-expected-tests 775 --coverage --coverage-settings ${{ github.workspace }}/src/coverage.settings.xml --coverage-output-format cobertura --coverage-output coverage.cobertura.xml
       working-directory: src/SJP.Schematic.Oracle.Tests
       env:
-        ConnectionStrings__Oracle_TestDb: Data Source=localhost/XEPDB1; User Id=schematic; Password=schematic
+        ConnectionStrings__Oracle_TestDb: Data Source=localhost/${{ matrix.pdb }}; User Id=schematic; Password=schematic
 
     - name: Coverage
       uses: codecov/codecov-action@v7
