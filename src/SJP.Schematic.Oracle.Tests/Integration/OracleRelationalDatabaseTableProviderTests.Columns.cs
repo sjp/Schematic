@@ -167,10 +167,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
         if (!await DatabaseProvider.SupportsJsonDataType())
-        {
-            Assert.Pass();
-            return;
-        }
+            Assert.Ignore("Native json data type requires Oracle Database 21c or later.");
 
         const string tableName = "TABLE_TEST_TABLE_36";
         var table = await GetTableAsync(tableName);

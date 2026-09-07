@@ -200,10 +200,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     public async Task Columns_WhenGivenTableWithJsonColumn_ReturnsColumnWithJsonDataType()
     {
         if (!await DatabaseProvider.SupportsJsonDataType())
-        {
-            Assert.Pass();
-            return;
-        }
+            Assert.Ignore("Native json data type requires SQL Server 2025 (17.x) or later.");
 
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName);
