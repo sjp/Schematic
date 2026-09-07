@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
@@ -12,53 +11,53 @@ internal sealed class ForeignKeyMissingRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table no_foreign_key_parent_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table NoForeignKeyParent1 ( Column1 integer not null primary key autoincrement )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table no_foreign_key_parent_1 ( column_1 integer not null primary key autoincrement )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table NoForeignKeyParent1 ( Column1 integer not null primary key autoincrement )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table no_foreign_key_child_with_key (
     column_1 integer,
     no_foreign_key_parent_1_id integer,
     constraint no_foreign_key_child_with_key_fk1 foreign key (no_foreign_key_parent_1_id) references no_foreign_key_parent_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table no_foreign_key_child_without_key (
     column_1 integer,
     no_foreign_key_parent_1_id integer
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table NoForeignKeyChildWithKey (
     Column1 integer,
     NoForeignKeyParent1Id integer,
     constraint NoForeignKeyChildWithKeyFk1 foreign key (NoForeignKeyParent1Id) references NoForeignKeyParent1 (Column1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table NoForeignKeyChildWithoutKey (
     Column1 integer,
     NoForeignKeyParent1Id integer
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table no_foreign_key_self_reference (
     column_1 integer not null primary key autoincrement,
     no_foreign_key_self_reference_id integer
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table no_foreign_key_child_mixed_case (
     column_1 integer,
     NOFOREIGNKEYPARENT1_id integer
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_mixed_case", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_self_reference", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_with_key", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_without_key", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithKey", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithoutKey", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table no_foreign_key_parent_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table NoForeignKeyParent1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_mixed_case", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_self_reference", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_with_key", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_child_without_key", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithKey", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table NoForeignKeyChildWithoutKey", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table no_foreign_key_parent_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table NoForeignKeyParent1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -20,23 +19,23 @@ internal sealed class MySqlTableCommentProviderTests : MySqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE TABLE table_comment_table_2
 (
     test_column_1 INT,
     test_column_2 INT COMMENT 'This is a column comment.',
     test_column_3 INT
-) COMMENT 'This is a test table comment.'", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_1 on table_comment_table_2 (test_column_2)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_2 on table_comment_table_2 (test_column_3) COMMENT 'This is an index comment.'", CancellationToken.None);
+) COMMENT 'This is a test table comment.'", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_1 on table_comment_table_2 (test_column_2)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index table_comment_table_2_ix_2 on table_comment_table_2 (test_column_3) COMMENT 'This is an index comment.'", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_2", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)

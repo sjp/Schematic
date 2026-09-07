@@ -66,6 +66,11 @@ internal static class Config
 /// </summary>
 [DatabaseTestFixture(typeof(Config), nameof(Config.ConnectionFactory), "No Sakila DB available")]
 [Parallelizable(ParallelScope.Children)]
+// A deadline, not a performance budget: generous enough that a slow CI image never trips it, but
+// tight enough that a wedged connection fails the test rather than holding the job open until the
+// CI timeout. Cooperative -- it only bites where the context's cancellation token is threaded
+// through to the database call.
+[CancelAfter(5 * 60 * 1000)]
 public abstract class SakilaTest
 {
     /// <summary>

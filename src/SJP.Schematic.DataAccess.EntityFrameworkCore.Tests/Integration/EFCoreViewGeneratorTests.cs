@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -34,15 +33,15 @@ create table test_view_table_1 (
     test_datetime datetime default CURRENT_TIMESTAMP,
     test_string text,
     test_string_with_default text default 'test'
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view test_view_1 as select * from test_view_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table test_view_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table test_view_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

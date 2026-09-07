@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
@@ -12,27 +11,27 @@ internal sealed class ForeignKeyColumnTypeMismatchRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table parent_table_with_int_key_column_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table parent_table_with_int_key_column_1 ( column_1 integer not null primary key autoincrement )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table child_table_with_int_key_column_1 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references parent_table_with_int_key_column_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table child_table_with_text_key_column_1 (
     column_1 integer,
     column_2 text,
     constraint test_valid_fk foreign key (column_2) references parent_table_with_int_key_column_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table parent_table_with_int_key_column_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table child_table_with_int_key_column_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table child_table_with_text_key_column_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table parent_table_with_int_key_column_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table child_table_with_int_key_column_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table child_table_with_text_key_column_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

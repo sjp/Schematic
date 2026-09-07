@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -20,8 +19,8 @@ internal sealed class SqlServerSequenceCommentProviderTests : SqlServerTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence sequence_comment_sequence_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence sequence_comment_sequence_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence sequence_comment_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence sequence_comment_sequence_2", TestContext.CurrentContext.CancellationToken);
 
         await AddCommentForSequence("This is a test sequence comment.", "dbo", "sequence_comment_sequence_2");
     }
@@ -29,8 +28,8 @@ internal sealed class SqlServerSequenceCommentProviderTests : SqlServerTest
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence sequence_comment_sequence_2", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task AddCommentForSequence(string comment, string schemaName, string sequenceName)
@@ -42,7 +41,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'SEQUENCE',
   @level1name = @SequenceName";
-        return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, SequenceName = sequenceName }, CancellationToken.None);
+        return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, SequenceName = sequenceName }, TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)

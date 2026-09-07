@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -15,7 +14,7 @@ internal sealed class MySqlRelationalDatabaseTableKindTests : MySqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_kind_regular_1 ( test_column int ) collate utf8mb4_general_ci", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_kind_regular_1 ( test_column int ) collate utf8mb4_general_ci", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_kind_partitioned_1 (
     part_key int not null,
@@ -25,7 +24,7 @@ create table table_kind_partitioned_1 (
 partition by range columns (part_key) (
     partition p0 values less than (100),
     partition p1 values less than (maxvalue)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]

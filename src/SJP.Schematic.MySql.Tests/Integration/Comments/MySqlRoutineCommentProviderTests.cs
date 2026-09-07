@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -27,13 +26,13 @@ CREATE FUNCTION comment_test_routine_1()
   DETERMINISTIC
 BEGIN
   RETURN 'test';
-END", CancellationToken.None);
+END", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_2()
 DETERMINISTIC
 BEGIN
    COMMIT;
-END", CancellationToken.None);
+END", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION comment_test_routine_3()
   RETURNS TEXT
@@ -43,7 +42,7 @@ CREATE FUNCTION comment_test_routine_3()
 BEGIN
   RETURN 'test';
 END
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE comment_test_routine_4()
   DETERMINISTIC
@@ -51,16 +50,16 @@ CREATE PROCEDURE comment_test_routine_4()
 BEGIN
    COMMIT;
 END
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function comment_test_routine_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop function comment_test_routine_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function comment_test_routine_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop function comment_test_routine_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure comment_test_routine_4", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)

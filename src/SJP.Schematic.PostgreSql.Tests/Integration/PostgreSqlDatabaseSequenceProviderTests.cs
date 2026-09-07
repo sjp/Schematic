@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -16,13 +15,13 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -24,7 +23,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
         var tableProvider = new OracleRelationalDatabaseTableProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
 
-        _ = await tableProvider.GetTable("table_test_table_2", CancellationToken.None).UnwrapSomeAsync();
+        _ = await tableProvider.GetTable("table_test_table_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
         Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(8));
     }

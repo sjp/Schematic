@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
@@ -12,36 +11,36 @@ internal sealed class ForeignKeyIndexRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table no_index_parent_table_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table no_index_parent_table_1 ( column_1 integer not null primary key autoincrement )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table indexed_child_table_1 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references no_index_parent_table_1 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_indexed_child_table_1 on indexed_child_table_1 (column_2)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_indexed_child_table_1 on indexed_child_table_1 (column_2)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table indexed_child_table_2 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references no_index_parent_table_1 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_indexed_child_table_2 on indexed_child_table_2 (column_2, column_1)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_indexed_child_table_2 on indexed_child_table_2 (column_2, column_1)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table not_indexed_child_table_1 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references no_index_parent_table_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table no_index_parent_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table indexed_child_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table indexed_child_table_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table not_indexed_child_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table no_index_parent_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table indexed_child_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table indexed_child_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table not_indexed_child_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

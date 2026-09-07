@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -26,7 +25,7 @@ AS
 BEGIN
      DECLARE @tmp int;
      RETURN(@tmp);
-END", CancellationToken.None);
+END", TestContext.CurrentContext.CancellationToken);
         // IF
         await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION dbo.db_test_routine_2()
@@ -35,7 +34,7 @@ AS
 RETURN
 (
     SELECT TOP 10 1 AS test_col
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         // TF
         await DbConnection.ExecuteAsync(@"
 CREATE FUNCTION dbo.db_test_routine_3()
@@ -47,27 +46,27 @@ AS
 BEGIN
    INSERT INTO @ret (test_col) VALUES (1);
    RETURN
-END", CancellationToken.None);
+END", TestContext.CurrentContext.CancellationToken);
         // P
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_4
 AS
-SELECT DB_NAME() AS ThisDB", CancellationToken.None);
+SELECT DB_NAME() AS ThisDB", TestContext.CurrentContext.CancellationToken);
         // P, with parameters
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_5
     @first int,
     @second nvarchar(50) OUTPUT
 AS
-SELECT @first", CancellationToken.None);
+SELECT @first", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_4", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_5", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_4", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_5", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

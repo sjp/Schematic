@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -18,35 +17,35 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_2 start with 20", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_3 start with 100 increment by 100", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_4 start with 1000 minvalue -99", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_5 start with 1000 nominvalue", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_6 start with 1 maxvalue 333", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_7 start with 1 nomaxvalue", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_8 cycle maxvalue 1000", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_9 nocycle", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_10 cache 10", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_11 nocache", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_12 order", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_2 start with 20", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_3 start with 100 increment by 100", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_4 start with 1000 minvalue -99", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_5 start with 1000 nominvalue", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_6 start with 1 maxvalue 333", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_7 start with 1 nomaxvalue", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_8 cycle maxvalue 1000", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_9 nocycle", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_10 cache 10", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_11 nocache", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence db_test_sequence_12 order", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_4", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_5", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_6", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_7", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_8", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_9", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_10", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_11", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_12", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_4", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_5", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_6", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_7", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_8", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_9", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_10", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_11", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_12", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)

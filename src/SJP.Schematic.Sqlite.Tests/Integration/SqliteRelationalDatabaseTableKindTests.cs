@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -20,17 +19,17 @@ internal sealed class SqliteRelationalDatabaseTableKindTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table kind_test_regular ( test_column integer )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table kind_test_without_rowid ( test_column integer not null primary key ) without rowid", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create virtual table kind_test_fts using fts5 ( test_column )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table kind_test_regular ( test_column integer )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table kind_test_without_rowid ( test_column integer not null primary key ) without rowid", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create virtual table kind_test_fts using fts5 ( test_column )", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table kind_test_regular", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table kind_test_without_rowid", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table kind_test_fts", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table kind_test_regular", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table kind_test_without_rowid", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table kind_test_fts", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

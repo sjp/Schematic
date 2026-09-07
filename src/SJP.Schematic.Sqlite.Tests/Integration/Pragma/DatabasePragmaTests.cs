@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -131,10 +130,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
 
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None);
-        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", TestContext.CurrentContext.CancellationToken);
 
         var fkCheck = await dbPragma.ForeignKeyCheckDatabaseAsync();
 
@@ -150,10 +149,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
 
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None);
-        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 2)", TestContext.CurrentContext.CancellationToken);
 
         var fkCheck = await dbPragma.ForeignKeyCheckTableAsync("test_child");
 
@@ -185,10 +184,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", CancellationToken.None);
-        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_parent ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("create table test_child ( id int, parent_id int constraint fk_test_parent references test_parent (id) )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test_parent (id, val) values (1, 'test')", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test_child (id, parent_id) values (1, 1)", TestContext.CurrentContext.CancellationToken);
 
         var fkList = await dbPragma.ForeignKeyListAsync("test_child");
 
@@ -247,8 +246,8 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
-        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", TestContext.CurrentContext.CancellationToken);
 
         var indexInfos = await dbPragma.IndexInfoAsync("ix_test_index");
         var indexInfo = indexInfos.Single();
@@ -266,8 +265,8 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
-        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", TestContext.CurrentContext.CancellationToken);
 
         var indexList = await dbPragma.IndexListAsync("test_table");
         var firstIndex = indexList.First();
@@ -304,8 +303,8 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
-        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("create index ix_test_index on test_table (val)", TestContext.CurrentContext.CancellationToken);
 
         var indexXInfos = await dbPragma.IndexXInfoAsync("ix_test_index");
         var indexXInfo = indexXInfos.First(info => info.cid >= 0);
@@ -356,7 +355,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
 
         var errors = await dbPragma.IntegrityCheckAsync("test_table");
 
@@ -617,7 +616,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
 
         var tableInfo = await dbPragma.TableInfoAsync("test_table");
 
@@ -649,7 +648,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
 
         var tableInfo = await dbPragma.TableListAsync();
 
@@ -662,7 +661,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
 
         var tableInfo = await dbPragma.TableListAsync("test_table");
 
@@ -675,7 +674,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create view test_view as select 1 as dummy", CancellationToken.None);
+        await connection.ExecuteAsync("create view test_view as select 1 as dummy", TestContext.CurrentContext.CancellationToken);
 
         var tableInfo = await dbPragma.TableListAsync("test_view");
 
@@ -707,7 +706,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
 
         var tableInfo = await dbPragma.TableXInfoAsync("test_table");
 

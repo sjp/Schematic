@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -23,33 +22,33 @@ RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
-LANGUAGE PLPGSQL", CancellationToken.None);
+LANGUAGE PLPGSQL", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2(IN val integer, OUT doubled integer)
 AS $$
 BEGIN
     doubled := val * 2;
 END; $$
-LANGUAGE PLPGSQL", CancellationToken.None);
+LANGUAGE PLPGSQL", TestContext.CurrentContext.CancellationToken);
         // two signatures under one name, which only PostgreSQL permits
         await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_3(val integer)
 RETURNS integer AS $$ SELECT val $$
-LANGUAGE SQL", CancellationToken.None);
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_3(val text)
 RETURNS text AS $$ SELECT val $$
-LANGUAGE SQL", CancellationToken.None);
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_4(val integer DEFAULT 42)
 RETURNS integer AS $$ SELECT val $$
-LANGUAGE SQL", CancellationToken.None);
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1(integer)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_3(integer)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_3(text)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop function db_test_routine_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_1(integer)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_3(integer)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_3(text)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_4", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

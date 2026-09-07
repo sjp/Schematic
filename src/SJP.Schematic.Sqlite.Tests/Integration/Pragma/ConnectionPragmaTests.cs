@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
 using NUnit.Framework;
@@ -118,20 +117,20 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        await connection.ExecuteAsync("create table test ( col text )", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test (col) values ('dummy')", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test (col) values ('DUMMY_DUMMY')", CancellationToken.None);
-        await connection.ExecuteAsync("insert into test (col) values ('DUMMY')", CancellationToken.None);
+        await connection.ExecuteAsync("create table test ( col text )", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test (col) values ('dummy')", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test (col) values ('DUMMY_DUMMY')", TestContext.CurrentContext.CancellationToken);
+        await connection.ExecuteAsync("insert into test (col) values ('DUMMY')", TestContext.CurrentContext.CancellationToken);
 
         const string query = "select count(*) from test where col like 'DUMMY%'";
         const int expectedInsensitive = 3;
         const int expectedSensitive = 2;
 
         await connPragma.CaseSensitiveLikeAsync(false);
-        var insensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None);
+        var insensitiveResult = await connection.ExecuteScalarAsync<int>(query, TestContext.CurrentContext.CancellationToken);
 
         await connPragma.CaseSensitiveLikeAsync(true);
-        var sensitiveResult = await connection.ExecuteScalarAsync<int>(query, CancellationToken.None);
+        var sensitiveResult = await connection.ExecuteScalarAsync<int>(query, TestContext.CurrentContext.CancellationToken);
 
         using (Assert.EnterMultipleScope())
         {
@@ -282,13 +281,13 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test ( col text, constraint col_ck check (col <> 'test') )", TestContext.CurrentContext.CancellationToken);
 
         await connPragma.IgnoreCheckConstraintsAsync(true);
-        await connection.ExecuteAsync("insert into test (col) values ('test')", CancellationToken.None);
+        await connection.ExecuteAsync("insert into test (col) values ('test')", TestContext.CurrentContext.CancellationToken);
 
         await connPragma.IgnoreCheckConstraintsAsync(false);
-        Assert.That(async () => await connection.ExecuteAsync("insert into test (col) values ('test')", CancellationToken.None), Throws.TypeOf<SqliteException>());
+        Assert.That(async () => await connection.ExecuteAsync("insert into test (col) values ('test')", TestContext.CurrentContext.CancellationToken), Throws.TypeOf<SqliteException>());
     }
 
     [Test]
@@ -427,7 +426,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", CancellationToken.None);
+        await connection.ExecuteAsync("create table test_table ( id int primary key, val text )", TestContext.CurrentContext.CancellationToken);
 
         var tableInfo = await connPragma.TableListAsync();
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -16,25 +15,25 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create synonym db_test_synonym_1 for sys.user_tables", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view synonym_test_view_1 as select 1 as test from dual", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table synonym_test_table_1 (table_id number primary key not null)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop synonym db_test_synonym_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop synonym db_test_synonym_1", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("drop view synonym_test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table synonym_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view synonym_test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table synonym_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop synonym synonym_test_synonym_3", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

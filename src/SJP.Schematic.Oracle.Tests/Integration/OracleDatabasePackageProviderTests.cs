@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -27,23 +26,23 @@ internal sealed class OracleDatabasePackageProviderTests : OracleTest
 
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_1 AS
     PROCEDURE test_proc();
-END db_test_package_1", CancellationToken.None);
+END db_test_package_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE BODY db_test_package_1 AS
     PROCEDURE test_proc() AS
     BEGIN
         SELECT 1 AS TEST_COL FROM DUAL;
     END test_proc;
-END db_test_package_1", CancellationToken.None);
+END db_test_package_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE PACKAGE db_test_package_2 AS
     PROCEDURE test_proc();
-END db_test_package_2", CancellationToken.None);
+END db_test_package_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop package db_test_package_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop package db_test_package_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop package db_test_package_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop package db_test_package_2", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IOracleDatabasePackage> GetPackageAsync(Identifier packageName)

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -20,8 +19,8 @@ internal sealed class SqlServerTableCommentProviderTests : SqlServerTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_comment_table_1 ( test_column_1 int )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_comment_table_2 ( test_column_1 int, constraint test_comment_table_2_pk primary key (test_column_1) )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE TABLE table_comment_table_3
 (
@@ -35,9 +34,9 @@ CREATE TABLE table_comment_table_3
     CONSTRAINT table_comment_table_3_ck_2 CHECK (test_column_1 < 1000),
     CONSTRAINT table_comment_table_3_fk_1 FOREIGN KEY (test_column_3) REFERENCES table_comment_table_3 (test_column_1),
     CONSTRAINT table_comment_table_3_fk_2 FOREIGN KEY (test_column_2) REFERENCES table_comment_table_3 (test_column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_1 on table_comment_table_3 (test_column_2)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index table_comment_table_3_ix_2 on table_comment_table_3 (test_column_3)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_1
 on table_comment_table_3
@@ -46,7 +45,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger table_comment_table_3_trigger_2
 on table_comment_table_3
@@ -55,7 +54,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
 
         await AddCommentForTable("This is a test table comment.", "dbo", "table_comment_table_3");
         await AddCommentForTableObject("This is a column comment.", "dbo", "table_comment_table_3", "COLUMN", "test_column_2");
@@ -78,8 +77,8 @@ CREATE TABLE table_comment_table_4
     test_column_1 INT,
     test_column_2 INT,
     CONSTRAINT table_comment_table_4_pk PRIMARY KEY (test_column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index table_comment_table_4_ix_1 on table_comment_table_4 (test_column_2)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index table_comment_table_4_ix_1 on table_comment_table_4 (test_column_2)", TestContext.CurrentContext.CancellationToken);
         await AddCommentForTableObject("This is a column comment for a column whose id collides with an index id.", "dbo", "table_comment_table_4", "COLUMN", "test_column_2");
         await AddCommentForTableObject("This is an index comment for an index whose id collides with a column id.", "dbo", "table_comment_table_4", "INDEX", "table_comment_table_4_ix_1");
     }
@@ -87,10 +86,10 @@ CREATE TABLE table_comment_table_4
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_comment_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_comment_table_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_comment_table_4", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task AddCommentForTable(string comment, string schemaName, string tableName)
@@ -102,7 +101,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'TABLE',
   @level1name = @TableName";
-        return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, TableName = tableName }, CancellationToken.None);
+        return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, TableName = tableName }, TestContext.CurrentContext.CancellationToken);
     }
 
     private Task AddCommentForTableObject(string comment, string schemaName, string tableName, string objectType, string objectName)
@@ -127,7 +126,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
                 ObjectType = objectType,
                 ObjectName = objectName,
             },
-            CancellationToken.None
+            TestContext.CurrentContext.CancellationToken
         );
     }
 

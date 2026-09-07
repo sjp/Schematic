@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -27,17 +26,17 @@ create or replace FUNCTION db_test_routine_1
       INTO test_col
       FROM dual;
       RETURN(test_col);
-END db_test_routine_1;", CancellationToken.None);
+END db_test_routine_1;", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_2
 IS
 BEGIN
     DBMS_OUTPUT.PUT_LINE('test');
-END;", CancellationToken.None);
+END;", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_3(first_arg IN NUMBER, second_arg OUT VARCHAR2)
 IS
 BEGIN
     second_arg := 'test';
-END;", CancellationToken.None);
+END;", TestContext.CurrentContext.CancellationToken);
 
         // Oracle creates a subprogram even when it fails to compile, and reports the failure only
         // as a warning. An invalid subprogram has no rows in ALL_ARGUMENTS, so a typo here would
@@ -49,7 +48,7 @@ END;", CancellationToken.None);
             where NAME in ('DB_TEST_ROUTINE_1', 'DB_TEST_ROUTINE_2', 'DB_TEST_ROUTINE_3')
             order by NAME, SEQUENCE
             """,
-            CancellationToken.None
+            TestContext.CurrentContext.CancellationToken
         );
         if (compilationErrors.Any())
             Assert.Fail("Test routines failed to compile:" + Environment.NewLine + compilationErrors.Join(Environment.NewLine));
@@ -58,9 +57,9 @@ END;", CancellationToken.None);
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_3", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

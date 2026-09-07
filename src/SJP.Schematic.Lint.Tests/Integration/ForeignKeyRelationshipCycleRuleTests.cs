@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
@@ -12,50 +11,50 @@ internal sealed class ForeignKeyRelationshipCycleRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("pragma foreign_keys = OFF", CancellationToken.None);
+        await DbConnection.ExecuteAsync("pragma foreign_keys = OFF", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table cycle_table_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references cycle_table_2 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table cycle_table_3 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references cycle_table_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table cycle_table_4 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references cycle_table_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table cycle_table_2 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references cycle_table_3 (column_1),
     constraint test_fk_2 foreign key (column_2) references cycle_table_4 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table no_cycle_table_1 ( column_1 integer not null primary key autoincrement )", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table no_cycle_table_1 ( column_1 integer not null primary key autoincrement )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table no_cycle_table_2 (
     column_1 integer,
     column_2 integer,
     constraint test_valid_fk foreign key (column_2) references no_cycle_table_1 (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("pragma foreign_keys = ON", CancellationToken.None);
+        await DbConnection.ExecuteAsync("pragma foreign_keys = ON", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table cycle_table_4", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table cycle_table_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table cycle_table_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table cycle_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table cycle_table_4", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table cycle_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table cycle_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table cycle_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -15,7 +14,7 @@ internal sealed class SqlServerRelationalDatabaseTableKindTests : SqlServerTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_kind_regular_1 ( test_column int )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_kind_regular_1 ( test_column int )", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"
 create table table_kind_temporal_1 (
@@ -23,7 +22,7 @@ create table table_kind_temporal_1 (
     valid_from datetime2 generated always as row start not null,
     valid_to datetime2 generated always as row end not null,
     period for system_time (valid_from, valid_to)
-) with (system_versioning = on (history_table = dbo.table_kind_temporal_1_history))", CancellationToken.None);
+) with (system_versioning = on (history_table = dbo.table_kind_temporal_1_history))", TestContext.CurrentContext.CancellationToken);
 
         await ExecuteBatchAsync(
             "create partition function pf_table_kind_1 (int) as range left for values (100)",
@@ -33,7 +32,7 @@ create table table_kind_temporal_1 (
 create table table_kind_partitioned_1 (
     part_key int not null,
     payload varchar(50)
-) on ps_table_kind_1 (part_key)", CancellationToken.None);
+) on ps_table_kind_1 (part_key)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]

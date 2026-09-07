@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -20,17 +19,17 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence comment_test_sequence_2", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on sequence comment_test_sequence_2 is 'This is a test sequence.'", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop sequence comment_test_sequence_2", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)

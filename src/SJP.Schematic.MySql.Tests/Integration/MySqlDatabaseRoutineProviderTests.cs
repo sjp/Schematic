@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -25,27 +24,27 @@ CREATE FUNCTION db_test_routine_1()
   DETERMINISTIC
 BEGIN
   RETURN 'test';
-END;", CancellationToken.None);
+END;", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE db_test_routine_2()
 DETERMINISTIC
 BEGIN
    COMMIT;
-END", CancellationToken.None);
+END", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 CREATE PROCEDURE db_test_routine_3(IN first_arg INT, OUT second_arg VARCHAR(50))
 DETERMINISTIC
 BEGIN
    SET second_arg = 'test';
-END", CancellationToken.None);
+END", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_test_routine_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop procedure db_test_routine_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function db_test_routine_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop procedure db_test_routine_3", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)

@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
@@ -14,21 +13,21 @@ internal sealed class SqliteTableStatisticsProviderTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_with_statistics ( column_1 integer not null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_table_with_statistics on table_with_statistics ( column_1 )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_with_statistics ( column_1 ) values (1), (2), (3)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_without_statistics ( column_1 integer not null )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_with_statistics ( column_1 integer not null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_table_with_statistics on table_with_statistics ( column_1 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_with_statistics ( column_1 ) values (1), (2), (3)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_without_statistics ( column_1 integer not null )", TestContext.CurrentContext.CancellationToken);
 
         // ANALYZE is what creates sqlite_stat1; table_without_statistics is created afterwards so
         // that it has no entry in it
-        await DbConnection.ExecuteAsync("analyze table_with_statistics", CancellationToken.None);
+        await DbConnection.ExecuteAsync("analyze table_with_statistics", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_with_statistics", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_without_statistics", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_with_statistics", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_without_statistics", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

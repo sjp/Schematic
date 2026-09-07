@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -26,31 +25,31 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_without_nullable_columns_1 ( column_1 integer not null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_1 ( column_1 integer not null, column_2 integer null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_2 ( column_1 integer not null, column_2 integer null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_3 ( column_1 integer not null, column_2 integer null, column_3 integer null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_3 ( column_1, column_2 ) values (1, 2)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_without_nullable_columns_1 ( column_1 integer not null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_1 ( column_1 integer not null, column_2 integer null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_2 ( column_1 integer not null, column_2 integer null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_3 ( column_1 integer not null, column_2 integer null, column_3 integer null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_3 ( column_1, column_2 ) values (1, 2)", TestContext.CurrentContext.CancellationToken);
 
         var wideColumnNames = Enumerable.Range(0, WideColumnCount).Select(static i => $"column_{i}").ToList();
         var wideColumnDefinitions = wideColumnNames.Select(static name => name + " integer null").Join(", ");
-        await DbConnection.ExecuteAsync($"create table table_for_nullable_columns_wide ( {wideColumnDefinitions} )", CancellationToken.None);
+        await DbConnection.ExecuteAsync($"create table table_for_nullable_columns_wide ( {wideColumnDefinitions} )", TestContext.CurrentContext.CancellationToken);
 
         var populatedColumnIndexes = Enumerable.Range(0, WideColumnCount).Where(static i => !AlwaysNullWideColumnIndexes.Contains(i)).ToList();
         var populatedColumnNames = populatedColumnIndexes.Select(i => wideColumnNames[i]).Join(", ");
         var populatedColumnValues = populatedColumnIndexes.Select(static i => i.ToString()).Join(", ");
-        await DbConnection.ExecuteAsync($"insert into table_for_nullable_columns_wide ( {populatedColumnNames} ) values ( {populatedColumnValues} )", CancellationToken.None);
+        await DbConnection.ExecuteAsync($"insert into table_for_nullable_columns_wide ( {populatedColumnNames} ) values ( {populatedColumnValues} )", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_without_nullable_columns_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_wide", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_without_nullable_columns_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_wide", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

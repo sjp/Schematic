@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -20,14 +19,14 @@ create table exists_probe_table_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint exists_probe_fk_1 foreign key (column_2) references exists_probe_table_1 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into exists_probe_table_1 (column_1, column_2) values (1, 1)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into exists_probe_table_1 (column_1, column_2) values (1, 1)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table exists_probe_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table exists_probe_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -30,15 +29,15 @@ internal sealed class PocoTableGeneratorTests : SqliteTest
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table test_table_2 ( test_column_1 integer )", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table test_table_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table test_table_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

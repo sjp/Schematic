@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -26,26 +25,26 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view valid_view_1 as select 1 as dummy", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view invalid_view_1 as select x from unknown_table", TestContext.CurrentContext.CancellationToken);
 
         for (var i = 0; i < BatchViewCount; i++)
         {
             var sql = InvalidBatchViewIndexes.Contains(i)
                 ? $"create view batch_view_{i} as select x from unknown_table_{i}"
                 : $"create view batch_view_{i} as select {i} as dummy";
-            await DbConnection.ExecuteAsync(sql, CancellationToken.None);
+            await DbConnection.ExecuteAsync(sql, TestContext.CurrentContext.CancellationToken);
         }
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view valid_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view invalid_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view valid_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view invalid_view_1", TestContext.CurrentContext.CancellationToken);
 
         for (var i = 0; i < BatchViewCount; i++)
-            await DbConnection.ExecuteAsync($"drop view batch_view_{i}", CancellationToken.None);
+            await DbConnection.ExecuteAsync($"drop view batch_view_{i}", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

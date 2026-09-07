@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -24,13 +23,13 @@ RETURNS integer AS $$
 BEGIN
     RETURN val + 1;
 END; $$
-LANGUAGE PLPGSQL", CancellationToken.None);
+LANGUAGE PLPGSQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

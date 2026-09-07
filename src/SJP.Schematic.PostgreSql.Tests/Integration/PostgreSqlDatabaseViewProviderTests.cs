@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -18,23 +17,23 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create materialized view view_test_matview_1 as select table_id as test from view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view view_test_matview_1 as select table_id as test from view_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view db_test_view_1", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop materialized view view_test_matview_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view view_test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view view_test_view_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop materialized view view_test_matview_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)

@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Lint.Rules;
@@ -12,28 +11,28 @@ internal sealed class RedundantIndexesRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table valid_table_1 ( column_1 integer )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table valid_table_2 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_1 on valid_table_2 ( column_2, column_3 )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table valid_table_4 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create unique index ix_valid_table_4_1 on valid_table_4 ( column_2 )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_4_2 on valid_table_4 ( column_2, column_3 )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table valid_table_5 ( column_1 integer, column_2 integer, column_3 integer )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_5_1 on valid_table_5 ( column_2 ) where column_3 > 0", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_valid_table_5_2 on valid_table_5 ( column_2, column_3 )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table valid_table_1 ( column_1 integer )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table valid_table_2 ( column_1 integer, column_2 integer, column_3 integer )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_1 on valid_table_2 ( column_2, column_3 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table valid_table_3 ( column_1 integer, column_2 integer, column_3 integer )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_3_1 on valid_table_3 ( column_2 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_3_2 on valid_table_3 ( column_2, column_3 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table valid_table_4 ( column_1 integer, column_2 integer, column_3 integer )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create unique index ix_valid_table_4_1 on valid_table_4 ( column_2 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_4_2 on valid_table_4 ( column_2, column_3 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table valid_table_5 ( column_1 integer, column_2 integer, column_3 integer )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_5_1 on valid_table_5 ( column_2 ) where column_3 > 0", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_valid_table_5_2 on valid_table_5 ( column_2, column_3 )", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table valid_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table valid_table_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table valid_table_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table valid_table_4", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table valid_table_5", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table valid_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table valid_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table valid_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table valid_table_4", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table valid_table_5", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -28,15 +27,15 @@ internal sealed class EFCoreDataAccessGeneratorTests : SqliteTest
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view dal_test_view_1 as select * from dal_test_table_1", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view dal_test_view_1 as select * from dal_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view dal_test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table dal_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view dal_test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table dal_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

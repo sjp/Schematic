@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -15,13 +14,13 @@ internal sealed class OracleRelationalDatabaseTableKindTests : OracleTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_kind_regular_1 ( test_column number )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_kind_regular_1 ( test_column number )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_kind_iot_1 (
     id number not null,
     payload varchar2(50),
     constraint pk_table_kind_iot_1 primary key (id)
-) organization index", CancellationToken.None);
+) organization index", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_kind_partitioned_1 (
     part_key number not null,
@@ -30,15 +29,15 @@ create table table_kind_partitioned_1 (
 partition by range (part_key) (
     partition p0 values less than (100),
     partition p1 values less than (maxvalue)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_kind_regular_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_kind_iot_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_kind_partitioned_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_kind_regular_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_kind_iot_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_kind_partitioned_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

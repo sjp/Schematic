@@ -66,6 +66,11 @@ internal sealed class OracleIntegrationSetUp
 [Category("OracleDatabase")]
 [Category("SkipWhenLiveUnitTesting")]
 [Parallelizable(ParallelScope.Children)]
+// A deadline, not a performance budget: generous enough that a slow CI image never trips it, but
+// tight enough that a wedged connection fails the test rather than holding the job open until the
+// CI timeout. Cooperative -- it only bites where the context's cancellation token is threaded
+// through to the database call.
+[CancelAfter(5 * 60 * 1000)]
 internal abstract class OracleTest
 {
     protected ISchematicConnection Connection => OracleIntegrationSetUp.Connection;

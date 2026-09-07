@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -30,23 +29,23 @@ select
     X'DEADBEEF' as testblob,
     CURRENT_TIMESTAMP as testdatetime,
     'test' as teststring
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create table view_test_table_1 (
     testint integer not null primary key autoincrement,
     testdecimal numeric default 2.45,
     testblob blob default X'DEADBEEF',
     testdatetime datetime default CURRENT_TIMESTAMP,
     teststring text default 'test'
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view test_view_2 as select * from view_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view test_view_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view test_view_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
@@ -65,6 +64,11 @@ internal sealed class SqlServerIntegrationSetUp
 [Category("SqlServerDatabase")]
 [Category("SkipWhenLiveUnitTesting")]
 [Parallelizable(ParallelScope.Children)]
+// A deadline, not a performance budget: generous enough that a slow CI image never trips it, but
+// tight enough that a wedged connection fails the test rather than holding the job open until the
+// CI timeout. Cooperative -- it only bites where the context's cancellation token is threaded
+// through to the database call.
+[CancelAfter(2 * 60 * 1000)]
 internal abstract class SqlServerTest
 {
     protected ISchematicConnection Connection => SqlServerIntegrationSetUp.Connection;
@@ -82,7 +86,7 @@ internal abstract class SqlServerTest
     /// own batch, so keep those as individual <see cref="DbConnection"/> calls.
     /// </summary>
     protected Task ExecuteBatchAsync(params string[] statements) =>
-        DbConnection.ExecuteAsync(string.Join(";\n", statements), CancellationToken.None);
+        DbConnection.ExecuteAsync(string.Join(";\n", statements), TestContext.CurrentContext.CancellationToken);
 
     /// <summary>
     /// Drops multiple tables in a single round-trip. Table names are dropped in the order given,

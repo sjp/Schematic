@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -20,9 +19,9 @@ internal sealed class SqlServerSynonymCommentProviderTests : SqlServerTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view synonym_comment_view_1 as select 1 as test_column_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_1 for synonym_comment_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_2 for synonym_comment_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view synonym_comment_view_1 as select 1 as test_column_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_1 for synonym_comment_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create synonym synonym_comment_synonym_2 for synonym_comment_view_1", TestContext.CurrentContext.CancellationToken);
 
         await AddCommentForSynonym("This is a test synonym comment.", "dbo", "synonym_comment_synonym_2");
     }
@@ -30,9 +29,9 @@ internal sealed class SqlServerSynonymCommentProviderTests : SqlServerTest
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view synonym_comment_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop synonym synonym_comment_synonym_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view synonym_comment_view_1", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task AddCommentForSynonym(string comment, string schemaName, string synonymName)
@@ -44,7 +43,7 @@ EXEC sys.sp_addextendedproperty @name = N'MS_Description',
   @level0name = @SchemaName,
   @level1type = N'SYNONYM',
   @level1name = @SynonymName";
-        return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, SynonymName = synonymName }, CancellationToken.None);
+        return DbConnection.ExecuteAsync(querySql, new { Comment = comment, SchemaName = schemaName, SynonymName = synonymName }, TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseSynonymComments> GetSynonymCommentsAsync(Identifier synonymName)

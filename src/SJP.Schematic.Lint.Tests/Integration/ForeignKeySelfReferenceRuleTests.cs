@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -20,20 +19,20 @@ internal sealed class ForeignKeySelfReferenceRuleTests : SqliteTest
 create table table_without_self_referencing_columns_1 (
     column_1 integer,
     column_2 integer
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
 
         // no self referencing foreign keys
         await DbConnection.ExecuteAsync(@"
 create table table_without_self_referencing_columns_2_parent (
     column_1 integer not null primary key autoincrement,
     column_2 integer
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_without_self_referencing_columns_2 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint test_fk_1 foreign key (column_2) references table_without_self_referencing_columns_2_parent (column_1)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
 
         // no rows for same-row self-reference
         await DbConnection.ExecuteAsync(@"
@@ -41,8 +40,8 @@ create table table_without_self_referencing_columns_3 (
     column_1 integer not null primary key autoincrement,
     column_2 integer null,
     constraint self_ref_fk_1 foreign key (column_2) references table_without_self_referencing_columns_3 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_without_self_referencing_columns_3 (column_1, column_2) values (1, NULL)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_without_self_referencing_columns_3 (column_1, column_2) values (1, NULL)", TestContext.CurrentContext.CancellationToken);
 
         // rows containing a same-row self-reference present
         await DbConnection.ExecuteAsync(@"
@@ -50,8 +49,8 @@ create table table_with_self_referencing_columns_1 (
     column_1 integer not null primary key autoincrement,
     column_2 integer,
     constraint self_ref_fk_1 foreign key (column_2) references table_with_self_referencing_columns_1 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_1 (column_1, column_2) values (1, 1)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_1 (column_1, column_2) values (1, 1)", TestContext.CurrentContext.CancellationToken);
 
         // self-referencing foreign key targeting a unique key, not the primary key
         await DbConnection.ExecuteAsync(@"
@@ -60,8 +59,8 @@ create table table_with_self_referencing_columns_2 (
     column_2 integer not null constraint self_ref_uk_2 unique,
     column_3 integer,
     constraint self_ref_fk_2 foreign key (column_3) references table_with_self_referencing_columns_2 (column_2)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_2 (column_1, column_2, column_3) values (1, 100, 100)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_2 (column_1, column_2, column_3) values (1, 100, 100)", TestContext.CurrentContext.CancellationToken);
 
         // no primary key, self-referencing foreign key targeting a unique key
         await DbConnection.ExecuteAsync(@"
@@ -69,20 +68,20 @@ create table table_with_self_referencing_columns_3 (
     column_1 integer not null constraint self_ref_uk_3 unique,
     column_2 integer,
     constraint self_ref_fk_3 foreign key (column_2) references table_with_self_referencing_columns_3 (column_1)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_3 (column_1, column_2) values (100, 100)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_with_self_referencing_columns_3 (column_1, column_2) values (100, 100)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2_parent", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_3", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_2_parent", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_without_self_referencing_columns_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_with_self_referencing_columns_3", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

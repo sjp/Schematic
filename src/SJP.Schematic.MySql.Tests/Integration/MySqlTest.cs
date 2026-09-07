@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
@@ -78,6 +77,11 @@ internal sealed class MySqlIntegrationSetUp
 [Category("MySqlDatabase")]
 [Category("SkipWhenLiveUnitTesting")]
 [Parallelizable(ParallelScope.Children)]
+// A deadline, not a performance budget: generous enough that a slow CI image never trips it, but
+// tight enough that a wedged connection fails the test rather than holding the job open until the
+// CI timeout. Cooperative -- it only bites where the context's cancellation token is threaded
+// through to the database call.
+[CancelAfter(2 * 60 * 1000)]
 internal abstract class MySqlTest
 {
     protected ISchematicConnection Connection => MySqlIntegrationSetUp.Connection;
@@ -95,7 +99,7 @@ internal abstract class MySqlTest
     /// multi-statement command text, so any mix of statements can be batched together.
     /// </summary>
     protected Task ExecuteBatchAsync(params string[] statements) =>
-        DbConnection.ExecuteAsync(string.Join(";\n", statements), CancellationToken.None);
+        DbConnection.ExecuteAsync(string.Join(";\n", statements), TestContext.CurrentContext.CancellationToken);
 
     /// <summary>
     /// Drops multiple tables in a single round-trip. Table names are dropped in the order given,

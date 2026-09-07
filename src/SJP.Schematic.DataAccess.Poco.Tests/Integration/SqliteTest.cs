@@ -25,6 +25,11 @@ internal static class Config
 }
 
 [TestFixture]
+// A deadline, not a performance budget: generous enough that a slow CI image never trips it, but
+// tight enough that a wedged connection fails the test rather than holding the job open until the
+// CI timeout. Cooperative -- it only bites where the context's cancellation token is threaded
+// through to the database call.
+[CancelAfter(2 * 60 * 1000)]
 internal abstract class SqliteTest
 {
     protected ISchematicConnection Connection { get; } = Config.Connection;

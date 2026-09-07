@@ -21,16 +21,16 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_with_no_rows_1 ( column_1 integer not null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_with_rows_1 ( column_1 integer not null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("insert into table_with_rows_1 ( column_1 ) values (1)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_with_no_rows_1 ( column_1 integer not null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_with_rows_1 ( column_1 integer not null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_with_rows_1 ( column_1 ) values (1)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop table table_with_no_rows_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table table_with_rows_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table table_with_no_rows_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_with_rows_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]

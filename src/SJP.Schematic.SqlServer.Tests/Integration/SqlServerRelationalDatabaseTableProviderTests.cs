@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -22,80 +21,80 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     {
         _getAllTables = new AsyncLazy<IReadOnlyCollection<IRelationalDatabaseTable>>(() => TableProvider.GetAllTables());
 
-        await DbConnection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table db_test_table_1 ( title nvarchar(200) )", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column int )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_2 ( test_column int not null primary key )", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table table_test_table_1 ( test_column int )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_2 ( test_column int not null primary key )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_3 (
     test_column int,
     constraint pk_test_table_3 primary key (test_column)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_4 (
     first_name nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50),
     constraint pk_test_table_4 primary key (first_name, last_name, middle_name)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_5 ( test_column int not null unique )", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_5 ( test_column int not null unique )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_6 (
     test_column int,
     constraint uk_test_table_6 unique (test_column)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_7 (
     first_name nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50),
     constraint uk_test_table_7 unique (first_name, last_name, middle_name)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_8 (
     test_column int,
     index ix_test_table_8 (test_column)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_9 (
     first_name nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50),
     index ix_test_table_9 (first_name, last_name, middle_name)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_10 (
     test_column int,
     test_column_2 int
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_test_table_10 on table_test_table_10 (test_column) include (test_column_2)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_test_table_10 on table_test_table_10 (test_column) include (test_column_2)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_11 (
     first_name nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_test_table_11 on table_test_table_11 (first_name) include (last_name, middle_name)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_test_table_11 on table_test_table_11 (first_name) include (last_name, middle_name)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_12 (
     first_name nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_test_table_12 on table_test_table_12 (first_name) include (last_name, middle_name)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("alter index ix_test_table_12 on table_test_table_12 disable", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_test_table_12 on table_test_table_12 (first_name) include (last_name, middle_name)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("alter index ix_test_table_12 on table_test_table_12 disable", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_13 (
     first_name nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create unique index ix_test_table_13 on table_test_table_13 (first_name, last_name, middle_name)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create unique index ix_test_table_13 on table_test_table_13 (first_name, last_name, middle_name)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_14 (
     test_column int not null,
     constraint ck_test_table_14 check ([test_column]>(1))
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_15 (
     first_name_parent nvarchar(50),
@@ -103,176 +102,176 @@ create table table_test_table_15 (
     last_name_parent nvarchar(50),
     constraint pk_test_table_15 primary key (first_name_parent),
     constraint uk_test_table_15 unique (last_name_parent, middle_name_parent)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_16 (
     first_name_child nvarchar(50),
     middle_name nvarchar(50),
     last_name nvarchar(50),
     constraint fk_test_table_16 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_17 (
     first_name nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_17 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_18 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_18 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on update cascade
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_19 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_19 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on update set null
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_20 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_20 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on update set default
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_21 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_21 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on update cascade
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_22 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_22 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on update set null
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_23 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_23 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on update set default
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_24 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_24 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete cascade
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_25 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_25 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete set null
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_26 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_26 foreign key (first_name_child) references table_test_table_15 (first_name_parent) on delete set default
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_27 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_27 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete cascade
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_28 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_28 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete set null
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_29 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_29 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent) on delete set default
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_30 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_30 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("alter table table_test_table_30 nocheck constraint fk_test_table_30", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("alter table table_test_table_30 nocheck constraint fk_test_table_30", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_31 (
     first_name_child nvarchar(50),
     middle_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_31 foreign key (last_name_child, middle_name_child) references table_test_table_15 (last_name_parent, middle_name_parent)
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("alter table table_test_table_31 nocheck constraint fk_test_table_31", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("alter table table_test_table_31 nocheck constraint fk_test_table_31", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_32 (
     test_column int not null,
     constraint ck_test_table_32 check ([test_column]>(1))
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("alter table table_test_table_32 nocheck constraint ck_test_table_32", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("alter table table_test_table_32 nocheck constraint ck_test_table_32", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_33 ( test_column int not null default 1 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create table table_test_table_34 (
     test_column_1 int,
     test_column_2 int,
     test_column_3 as test_column_1 + test_column_2,
     test_column_4 as test_column_1 * test_column_2 persisted
-)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column int identity (10, 5) primary key )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_36 ( test_column int not null )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create index ix_test_table_36 on table_test_table_36 (test_column) where test_column > 100", CancellationToken.None);
-        if (await DatabaseProvider.SupportsJsonDataType(CancellationToken.None))
-            await DbConnection.ExecuteAsync("create table table_test_table_37 ( json_column json )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_38 ( xml_column xml )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_39 ( geometry_column geometry )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_40 ( geography_column geography )", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table table_test_table_41 ( uniqueidentifier_column uniqueidentifier )", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_35 ( test_column int identity (10, 5) primary key )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_36 ( test_column int not null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_test_table_36 on table_test_table_36 (test_column) where test_column > 100", TestContext.CurrentContext.CancellationToken);
+        if (await DatabaseProvider.SupportsJsonDataType(TestContext.CurrentContext.CancellationToken))
+            await DbConnection.ExecuteAsync("create table table_test_table_37 ( json_column json )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_38 ( xml_column xml )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_39 ( geometry_column geometry )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_40 ( geography_column geography )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_41 ( uniqueidentifier_column uniqueidentifier )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_42 (
     first_name_parent nvarchar(50),
     last_name_parent nvarchar(50)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         // a unique index with no backing UNIQUE constraint -- a foreign key is still permitted to reference this
-        await DbConnection.ExecuteAsync("create unique index uk_test_table_42 on table_test_table_42 (first_name_parent, last_name_parent)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create unique index uk_test_table_42 on table_test_table_42 (first_name_parent, last_name_parent)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_43 (
     first_name_child nvarchar(50),
     last_name_child nvarchar(50),
     constraint fk_test_table_43 foreign key (first_name_child, last_name_child) references table_test_table_42 (first_name_parent, last_name_parent)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table untrusted_constraint_parent (
     a int not null,
     constraint pk_untrusted_constraint_parent primary key (a)
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table untrusted_constraint_child (
     a int
-)", CancellationToken.None);
+)", TestContext.CurrentContext.CancellationToken);
         // WITH NOCHECK leaves both constraints enabled but untrusted: SQL Server never verifies the
         // existing rows, so is_not_trusted stays set
         await DbConnection.ExecuteAsync(@"
 alter table untrusted_constraint_child with nocheck
-add constraint fk_untrusted_constraint_child foreign key (a) references untrusted_constraint_parent (a)", CancellationToken.None);
+add constraint fk_untrusted_constraint_child foreign key (a) references untrusted_constraint_parent (a)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 alter table untrusted_constraint_child with nocheck
-add constraint ck_untrusted_constraint_child check (a > 0)", CancellationToken.None);
+add constraint ck_untrusted_constraint_child check (a > 0)", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_1
 on trigger_test_table_1
@@ -281,7 +280,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_2
 on trigger_test_table_1
@@ -290,7 +289,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_3
 on trigger_test_table_1
@@ -299,7 +298,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_4
 on trigger_test_table_1
@@ -308,7 +307,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_5
 on trigger_test_table_1
@@ -317,7 +316,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_6
 on trigger_test_table_1
@@ -326,7 +325,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_7
 on trigger_test_table_1
@@ -335,7 +334,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_8
 on trigger_test_table_1
@@ -344,7 +343,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_9
 on trigger_test_table_1
@@ -353,7 +352,7 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger trigger_test_table_1_trigger_10
 on trigger_test_table_1
@@ -362,13 +361,13 @@ as
 begin
     declare @test int
 end
-", CancellationToken.None);
+", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        var supportsJsonDataType = await DatabaseProvider.SupportsJsonDataType(CancellationToken.None);
+        var supportsJsonDataType = await DatabaseProvider.SupportsJsonDataType(TestContext.CurrentContext.CancellationToken);
 
         List<string> tableNames = [
             "db_test_table_1",

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -18,25 +17,25 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view db_test_view_1 as select 1 as dummy", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view db_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view db_test_view_1", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("drop view view_test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view view_test_view_3", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table view_test_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view view_test_view_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view view_test_view_4", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view view_test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view view_test_view_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view view_test_view_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view view_test_view_4", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)

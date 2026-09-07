@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -18,21 +17,21 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create view query_db_test_view_1 as select 1 as dummy from dual", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view query_db_test_view_1 as select 1 as dummy from dual", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create view query_view_test_view_1 as select 1 as test from dual", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create table query_view_test_table_1 (table_id number)", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create materialized view query_view_test_view_2 as select table_id as test from query_view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_1 as select 1 as test from dual", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table query_view_test_table_1 (table_id number)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view query_view_test_view_2 as select table_id as test from query_view_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view query_db_test_view_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view query_db_test_view_1", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("drop view query_view_test_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop materialized view query_view_test_view_2", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop table query_view_test_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view query_view_test_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop materialized view query_view_test_view_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table query_view_test_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)

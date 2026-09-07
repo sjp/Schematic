@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Nito.AsyncEx;
 using NUnit.Framework;
@@ -21,32 +20,32 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     public async Task Init()
     {
         // regular views
-        await DbConnection.ExecuteAsync("create table wrapper_view_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create table wrapper_view_comment_table_1 (test_column_1 int primary key not null, test_column_2 int, test_column_3 int)", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("create view wrapper_view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create view wrapper_view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create view wrapper_view_comment_view_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view wrapper_view_comment_view_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("comment on view wrapper_view_comment_view_2 is 'This is a test view.'", CancellationToken.None);
-        await DbConnection.ExecuteAsync("comment on column wrapper_view_comment_view_2.test_column_2 is 'This is a test view column.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on view wrapper_view_comment_view_2 is 'This is a test view.'", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("comment on column wrapper_view_comment_view_2.test_column_2 is 'This is a test view column.'", TestContext.CurrentContext.CancellationToken);
 
         // matviews
-        await DbConnection.ExecuteAsync("create materialized view wrapper_view_comment_matview_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("create materialized view wrapper_view_comment_matview_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("create materialized view wrapper_view_comment_matview_1 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view wrapper_view_comment_matview_2 as select test_column_1, test_column_2, test_column_3 from wrapper_view_comment_table_1", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("comment on materialized view wrapper_view_comment_matview_2 is 'This is a test materialized view.'", CancellationToken.None);
-        await DbConnection.ExecuteAsync("comment on column wrapper_view_comment_matview_2.test_column_2 is 'This is a test materialized view column.'", CancellationToken.None);
+        await DbConnection.ExecuteAsync("comment on materialized view wrapper_view_comment_matview_2 is 'This is a test materialized view.'", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("comment on column wrapper_view_comment_matview_2.test_column_2 is 'This is a test materialized view column.'", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view wrapper_view_comment_view_2", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_1", CancellationToken.None);
-        await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_2", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop materialized view wrapper_view_comment_matview_2", TestContext.CurrentContext.CancellationToken);
 
-        await DbConnection.ExecuteAsync("drop table wrapper_view_comment_table_1", CancellationToken.None);
+        await DbConnection.ExecuteAsync("drop table wrapper_view_comment_table_1", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)
