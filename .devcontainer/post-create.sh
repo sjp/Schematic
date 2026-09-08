@@ -28,3 +28,11 @@ npm_root=$(npm root -g)
 if [ -d "$npm_root/@anthropic-ai" ]; then
     sudo chown -R "$(id -u):$(id -g)" "$npm_root/@anthropic-ai"
 fi
+
+# Language servers for Claude Code's LSP tool (C# and TS/JS). Both installs
+# are idempotent, and the corresponding claude-plugins-official LSP plugins
+# route .cs/.ts/.tsx/etc files to these binaries once they're on PATH.
+dotnet tool install --global csharp-ls
+npm install -g typescript-language-server typescript
+claude plugin install csharp-lsp@claude-plugins-official -y
+claude plugin install typescript-lsp@claude-plugins-official -y
