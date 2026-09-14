@@ -64,7 +64,8 @@ internal static class PostgreSqlCatalogMapper
                     row.IsNullsFirst,
                     row.IndexColumnCollation,
                     Expression = row.IndexColumnExpression,
-                    Column = row.IndexColumnExpression != null && columnLookup.TryGetValue(row.IndexColumnExpression, out var indexColumn)
+                    // looked up by the raw column name because the expression text is quoted where the name requires it
+                    Column = row.IndexColumnName != null && columnLookup.TryGetValue(row.IndexColumnName, out var indexColumn)
                         ? indexColumn
                         : null,
                 })
@@ -87,8 +88,8 @@ internal static class PostgreSqlCatalogMapper
             var includedCols = ResolveColumns(
                 sortedRows
                     .Skip(indexInfo.Key.KeyColumnCount)
-                    .Where(static row => row.IndexColumnExpression != null)
-                    .Select(static row => (Identifier)row.IndexColumnExpression!),
+                    .Where(static row => row.IndexColumnName != null)
+                    .Select(static row => (Identifier)row.IndexColumnName!),
                 columnLookup
             ).ToList();
 

@@ -214,4 +214,53 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         Assert.That(indexNames, Is.EqualTo(new[] { "ix_test_table_15" }));
     }
+
+    [Test]
+    public async Task Indexes_WhenGivenIndexOnColumnsRequiringQuoting_ReturnsIndexWithDependentColumns()
+    {
+        var expectedColumnNames = new[] { "Name", "order" };
+
+        var table = await GetTableAsync("table_test_table_44");
+        var index = table.Indexes.Single(ix => string.Equals(ix.Name.LocalName, "ix_test_table_44_quoted", StringComparison.Ordinal));
+        var indexColumns = index.Columns
+            .Select(c => c.DependentColumns.Single())
+            .Select(c => c.Name.LocalName)
+            .ToList();
+        var expressions = index.Columns.Select(c => c.Expression).ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumns, Is.EqualTo(expectedColumnNames));
+            Assert.That(expressions, Is.EqualTo(new[] { "\"Name\"", "\"order\"" }));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenIndexWithIncludedColumnRequiringQuoting_ReturnsIndexWithIncludedColumn()
+    {
+        var table = await GetTableAsync("table_test_table_44");
+        var index = table.Indexes.Single(ix => string.Equals(ix.Name.LocalName, "ix_test_table_44_quoted", StringComparison.Ordinal));
+        var includedColumns = index.IncludedColumns
+            .Select(c => c.Name.LocalName)
+            .ToList();
+
+        Assert.That(includedColumns, Is.EqualTo(new[] { "Id" }));
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenIndexMixingExpressionAndColumnRequiringQuoting_ReturnsExpressionAndColumnInOrder()
+    {
+        var table = await GetTableAsync("table_test_table_44");
+        var index = table.Indexes.Single(ix => string.Equals(ix.Name.LocalName, "ix_test_table_44_expression", StringComparison.Ordinal));
+        var columns = index.Columns.ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columns, Has.Exactly(2).Items);
+            Assert.That(columns[0].Expression, Is.EqualTo("lower(\"Name\")"));
+            Assert.That(columns[0].DependentColumns, Is.Empty);
+            Assert.That(columns[1].DependentColumns.Single().Name.LocalName, Is.EqualTo("Id"));
+            Assert.That(index.IncludedColumns, Is.Empty);
+        }
+    }
 }

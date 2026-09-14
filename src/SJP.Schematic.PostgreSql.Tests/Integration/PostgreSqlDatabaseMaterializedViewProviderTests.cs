@@ -26,6 +26,10 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
 
         await DbConnection.ExecuteAsync("create table matview_view_test_table_2 (test_varchar varchar(50), test_numeric numeric(12, 4), test_float float8)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view matview_view_test_matview_2 as select test_varchar, test_numeric, test_float from matview_view_test_table_2", TestContext.CurrentContext.CancellationToken);
+
+        await DbConnection.ExecuteAsync(@"create table matview_view_test_table_3 (""Id"" int, ""Name"" text, ""order"" int)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create materialized view matview_view_test_matview_3 as select ""Id"", ""Name"", ""order"" from matview_view_test_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create index ix_matview_view_test_matview_3 on matview_view_test_matview_3 (""Name"", ""order"") include (""Id"")", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -37,7 +41,9 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
             "drop view matview_view_test_view_2",
             "drop materialized view matview_view_test_matview_1",
             "drop materialized view matview_view_test_matview_2",
+            "drop materialized view matview_view_test_matview_3",
             "drop table matview_view_test_table_2",
+            "drop table matview_view_test_table_3",
             "drop table matview_view_test_table_1");
     }
 
@@ -300,6 +306,26 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         {
             Assert.That(column.Type.MaxLength, Is.EqualTo(16));
             Assert.That(precision.Precision, Is.EqualTo(16));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenIndexOnColumnsRequiringQuoting_ReturnsIndexWithDependentAndIncludedColumns()
+    {
+        var view = await GetViewAsync("matview_view_test_matview_3");
+        var index = view.Indexes.Single();
+        var indexColumns = index.Columns
+            .Select(c => c.DependentColumns.Single())
+            .Select(c => c.Name.LocalName)
+            .ToList();
+        var includedColumns = index.IncludedColumns
+            .Select(c => c.Name.LocalName)
+            .ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumns, Is.EqualTo(new[] { "Name", "order" }));
+            Assert.That(includedColumns, Is.EqualTo(new[] { "Id" }));
         }
     }
 }

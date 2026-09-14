@@ -28,6 +28,14 @@ select
         order by k
     )) as "{nameof(GetTableIndexes.Result.IndexColumnExpression)}",
     pg_catalog.unnest(array(
+        -- the raw column name, unlike pg_get_indexdef which quotes it where required; expression
+        -- columns are stored as attribute number 0, which matches no attribute and so gives null
+        select a.attname::text
+        from pg_catalog.generate_subscripts(idx.indkey, 1) k
+        left join pg_catalog.pg_attribute a on a.attrelid = idx.indrelid and a.attnum = idx.indkey[k]
+        order by k
+    )) as "{nameof(GetTableIndexes.Result.IndexColumnName)}",
+    pg_catalog.unnest(array(
         -- the property is null for included columns and for access methods without an ordering
         select coalesce(pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc'), false)
         from pg_catalog.generate_subscripts(idx.indkey, 1) k
