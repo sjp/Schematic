@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,6 +32,8 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
         : base(RuleId, RuleTitle, level ?? DefaultLevel)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
+
+        _probeLimiter = ProbeConcurrencyLimiter.GetForConnection(connection);
     }
 
     /// <summary>
@@ -42,6 +45,11 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// <summary>
     /// Analyses database views. Reports messages when invalid view definitions are discovered on views.
     /// </summary>
+    /// <remarks>
+    /// A view is reported only when the database rejects a query against it. A failure that says nothing
+    /// about the view itself, such as a timeout waiting for a pooled connection, a dropped connection or an
+    /// error the driver flags as transient, propagates to the caller instead.
+    /// </remarks>
     /// <param name="views">A set of database views.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
@@ -142,19 +150,44 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// </summary>
     /// <param name="probeQuery">A probe query, as built by <see cref="BuildProbeQuery(IReadOnlyList{IDatabaseView})"/>.</param>
     /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
-    /// <returns><see langword="true" /> if the probe query executed without error; otherwise <see langword="false" />.</returns>
+    /// <returns><see langword="true" /> if the probe query executed without error; <see langword="false" /> if the database rejected it.</returns>
+    /// <remarks>
+    /// A permit from the shared probe limiter is held only while the query runs, never while the halves of a
+    /// failed batch are awaited, so bisecting cannot deadlock by holding every permit while waiting for more.
+    /// </remarks>
     private async Task<bool> IsProbeQueryValidAsync(string probeQuery, CancellationToken cancellationToken)
     {
         try
         {
-            await Connection.ConnectionFactory.ExecuteScalarAsync<long>(probeQuery, cancellationToken);
+            await _probeLimiter.RunAsync(ct => Connection.ConnectionFactory.ExecuteScalarAsync<long>(probeQuery, ct), cancellationToken);
             return true;
         }
-        // A cancellation must propagate rather than being reported as an invalid view definition.
-        catch (Exception ex) when (ex is not OperationCanceledException && !cancellationToken.IsCancellationRequested)
+        // Drivers may surface a cancellation as a database error, which must propagate rather than being
+        // reported as an invalid view definition.
+        catch (DbException ex) when (IsStatementRejection(ex) && !cancellationToken.IsCancellationRequested)
         {
             return false;
         }
+    }
+
+    /// <summary>
+    /// Determines whether a database error means the database rejected the statement, as opposed to the
+    /// statement failing for reasons unrelated to what it queries.
+    /// </summary>
+    /// <remarks>
+    /// Deliberately conservative, because a view reported as invalid is reported as an error. Errors that
+    /// are not <see cref="DbException"/>s are never rejections: drivers report an exhausted connection pool
+    /// as an <see cref="InvalidOperationException"/>, and some report timeouts as a
+    /// <see cref="TimeoutException"/>. A <see cref="DbException"/> is not a rejection either when the driver
+    /// flags it as transient, or when it wraps a <see cref="TimeoutException"/>. Not every driver flags its
+    /// transient errors, so a command timeout from such a driver is still indistinguishable from a rejection.
+    /// </remarks>
+    /// <param name="exception">An error raised while executing a probe query.</param>
+    /// <returns><see langword="true" /> if <paramref name="exception"/> is the database rejecting the statement; otherwise <see langword="false" />.</returns>
+    private static bool IsStatementRejection(DbException exception)
+    {
+        return !exception.IsTransient
+            && exception.InnerException is not TimeoutException;
     }
 
     /// <summary>
@@ -162,6 +195,8 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     /// every supported dialect's limits on statement length and <c>union</c> branch count.
     /// </summary>
     private const int ProbeBatchSize = 32;
+
+    private readonly ProbeConcurrencyLimiter _probeLimiter;
 
     /// <summary>
     /// Builds the message used for reporting.
