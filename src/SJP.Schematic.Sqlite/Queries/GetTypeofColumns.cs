@@ -24,20 +24,24 @@ internal static class GetTypeofColumns
             throw new ArgumentException("At least one column name must be provided.", nameof(columnNames));
 
         var quotedViewName = dialect.QuoteName(viewName);
+        var quotedRowAlias = dialect.QuoteIdentifier("__schematic_row");
 
         // A single query is used to reduce this to one round-trip instead of one per column.
-        // Each column's type is read via its own scalar subquery, joined together with `union all`,
-        // rather than selecting every `typeof()` expression in one row, so that the result shape
-        // stays a fixed two-column (name, type) record regardless of how many columns are requested.
-        // SQLite doesn't allow parenthesising a branch of a compound select (unlike Postgres/MySQL),
-        // so `limit 1` is instead scoped per-column via a scalar subquery in the select list.
-        return columnNames
+        // The view's first row is pulled once into a CTE, which SQLite 3.35+ materializes because
+        // it's referenced more than once, so the view is evaluated a single time regardless of how
+        // many columns are requested. Each column's type is then read from that materialized row via
+        // its own scalar subquery, joined together with `union all`, so that the result shape stays a
+        // fixed two-column (name, type) record. On SQLite older than 3.35 the CTE may be inlined back
+        // into each branch, which is no worse than evaluating the view per column.
+        var branches = columnNames
             .Select(columnName =>
             {
                 var quotedColumnName = dialect.QuoteName(columnName);
                 var literalColumnName = columnName.Replace("'", "''", StringComparison.Ordinal);
-                return $"select '{literalColumnName}' as \"{nameof(Result.ColumnName)}\", (select typeof({quotedColumnName}) from {quotedViewName} limit 1) as \"{nameof(Result.TypeName)}\"";
+                return $"select '{literalColumnName}' as \"{nameof(Result.ColumnName)}\", (select typeof({quotedColumnName}) from {quotedRowAlias}) as \"{nameof(Result.TypeName)}\"";
             })
             .Join(Environment.NewLine + "union all" + Environment.NewLine);
+
+        return $"with {quotedRowAlias} as (select * from {quotedViewName} limit 1){Environment.NewLine}{branches}";
     }
 }
