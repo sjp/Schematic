@@ -20,10 +20,8 @@ internal sealed class SynonymsRenderer : IDataRenderer
         var synonymViewModels = data.Synonyms.Select(s => mapper.Map(s, data.SynonymTargets)).ToList();
         var synonymsVm = new Synonyms(synonymViewModels);
 
-        var json = context.JsonWriter.Serialize(synonymsVm);
-        context.Bundle.AddSummary("synonyms", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "synonyms.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, synonymsVm, cancellationToken);
+        context.Bundle.AddSummary("synonyms", outputFile);
     }
 }

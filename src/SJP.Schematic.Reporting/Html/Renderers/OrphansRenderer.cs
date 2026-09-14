@@ -25,10 +25,8 @@ internal sealed class OrphansRenderer : IDataRenderer
 
         var orphansVm = new Orphans(orphanedTableViewModels);
 
-        var json = context.JsonWriter.Serialize(orphansVm);
-        context.Bundle.AddSummary("orphans", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "orphans.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, orphansVm, cancellationToken);
+        context.Bundle.AddSummary("orphans", outputFile);
     }
 }

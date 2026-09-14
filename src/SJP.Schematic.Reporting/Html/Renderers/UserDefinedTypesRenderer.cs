@@ -20,10 +20,8 @@ internal sealed class UserDefinedTypesRenderer : IDataRenderer
         var typeViewModels = data.UserDefinedTypes.Select(mapper.Map).ToList();
         var typesVm = new UserDefinedTypes(typeViewModels);
 
-        var json = context.JsonWriter.Serialize(typesVm);
-        context.Bundle.AddSummary("userDefinedTypes", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "userDefinedTypes.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, typesVm, cancellationToken);
+        context.Bundle.AddSummary("userDefinedTypes", outputFile);
     }
 }

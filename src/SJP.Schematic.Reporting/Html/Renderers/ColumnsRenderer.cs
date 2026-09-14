@@ -28,10 +28,8 @@ internal sealed class ColumnsRenderer : IDataRenderer
 
         var columnsVm = new Columns(orderedColumns);
 
-        var json = context.JsonWriter.Serialize(columnsVm);
-        context.Bundle.AddSummary("columns", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "columns.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, columnsVm, cancellationToken);
+        context.Bundle.AddSummary("columns", outputFile);
     }
 }

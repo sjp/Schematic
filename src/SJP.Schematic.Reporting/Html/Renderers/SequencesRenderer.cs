@@ -20,10 +20,8 @@ internal sealed class SequencesRenderer : IDataRenderer
         var sequenceViewModels = data.Sequences.Select(mapper.Map).ToList();
         var sequencesVm = new Sequences(sequenceViewModels);
 
-        var json = context.JsonWriter.Serialize(sequencesVm);
-        context.Bundle.AddSummary("sequences", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "sequences.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, sequencesVm, cancellationToken);
+        context.Bundle.AddSummary("sequences", outputFile);
     }
 }

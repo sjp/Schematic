@@ -33,10 +33,8 @@ internal sealed class SchemaRenderer : IDataRenderer
         var viewModel = mapper.MapDetail(schema);
 
         var safeKey = schema.Name.ToSafeKey();
-        var json = context.JsonWriter.Serialize(viewModel);
-        context.Bundle.AddDetail("schema", safeKey, json);
-
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, viewModel, cancellationToken);
+        context.Bundle.AddDetail("schema", safeKey, outputFile);
     }
 }

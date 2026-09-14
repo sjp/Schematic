@@ -1,4 +1,10 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -96,5 +102,79 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
             Assert.That(bundleContent, Does.Contain("window.__schematic[\"tables\"]"));
             Assert.That(bundleContent, Does.Contain("window.__schematic[\"table\"]"));
         }
+    }
+
+    [Test]
+    public async Task GenerateAsync_GivenSakilaDatabase_BundlePayloadsAreByteIdenticalToEveryJsonFile()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var generator = new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath);
+
+        await generator.GenerateAsync();
+
+        var dataDir = Path.Combine(tempDir.DirectoryPath, "data");
+        var bundleBytes = await File.ReadAllBytesAsync(Path.Combine(dataDir, "bundle.js"));
+
+        // Every assignment in the bundle is on its own line: serialized JSON escapes newlines in
+        // strings and is written unindented. Summary payloads map to data/<key>.json and detail
+        // payloads to data/<typeKey>s/<safeKey>.json.
+        var payloadsByRelativePath = new Dictionary<string, byte[]>(StringComparer.Ordinal);
+        var assignment = new Regex("""^window\.__schematic\[("(?:[^"\\]|\\.)*")\](?:\[("(?:[^"\\]|\\.)*")\])? = """, RegexOptions.CultureInvariant);
+        var lines = SplitLines(bundleBytes);
+        foreach (var line in lines.Skip(1))
+        {
+            var text = Encoding.UTF8.GetString(line);
+            if (text.EndsWith(" || {};", StringComparison.Ordinal))
+                continue;
+
+            var match = assignment.Match(text);
+            Assert.That(match.Success, Is.True, $"Unexpected bundle line: {text[..Math.Min(text.Length, 80)]}");
+
+            var firstKey = JsonSerializer.Deserialize<string>(match.Groups[1].Value)!;
+            var relativePath = match.Groups[2].Success
+                ? Path.Combine(firstKey + "s", JsonSerializer.Deserialize<string>(match.Groups[2].Value)! + ".json")
+                : firstKey + ".json";
+
+            var prefixLength = Encoding.UTF8.GetByteCount(match.Value);
+            payloadsByRelativePath[relativePath] = line[prefixLength..^1]; // drop the trailing ';'
+        }
+
+        var jsonFiles = Directory.EnumerateFiles(dataDir, "*.json", SearchOption.AllDirectories)
+            .Select(f => Path.GetRelativePath(dataDir, f))
+            .ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(lines[0], Is.EqualTo("window.__schematic = window.__schematic || {};"u8.ToArray()));
+            Assert.That(payloadsByRelativePath.Keys, Is.EquivalentTo(jsonFiles));
+            Assert.That(jsonFiles, Has.Some.StartsWith("tables" + Path.DirectorySeparatorChar));
+
+            foreach (var jsonFile in jsonFiles)
+            {
+                var fileBytes = await File.ReadAllBytesAsync(Path.Combine(dataDir, jsonFile));
+                if (payloadsByRelativePath.TryGetValue(jsonFile, out var payload))
+                    Assert.That(payload, Is.EqualTo(fileBytes), jsonFile);
+            }
+        }
+    }
+
+    // Splits on '\n', dropping the empty remainder after the final newline.
+    private static List<byte[]> SplitLines(byte[] content)
+    {
+        var lines = new List<byte[]>();
+        var start = 0;
+        for (var i = 0; i < content.Length; i++)
+        {
+            if (content[i] != (byte)'\n')
+                continue;
+
+            lines.Add(content[start..i]);
+            start = i + 1;
+        }
+
+        if (start < content.Length)
+            lines.Add(content[start..]);
+
+        return lines;
     }
 }

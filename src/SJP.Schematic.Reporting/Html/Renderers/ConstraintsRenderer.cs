@@ -46,10 +46,8 @@ internal sealed class ConstraintsRenderer : IDataRenderer
             checkConstraintViewModels
         );
 
-        var json = context.JsonWriter.Serialize(constraintsVm);
-        context.Bundle.AddSummary("constraints", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "constraints.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, constraintsVm, cancellationToken);
+        context.Bundle.AddSummary("constraints", outputFile);
     }
 }

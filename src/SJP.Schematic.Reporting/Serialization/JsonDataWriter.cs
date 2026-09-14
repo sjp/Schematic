@@ -12,16 +12,47 @@ namespace SJP.Schematic.Reporting.Serialization;
 /// Serializes report viewmodels to canonical JSON and writes them to <c>.json</c> files.
 /// </summary>
 /// <remarks>
-/// Each payload is serialized exactly once via <see cref="Serialize"/>; the resulting string
-/// is written to the <c>.json</c> file with <see cref="WriteJsonAsync"/> and registered with
-/// the shared <see cref="BundleBuilder"/>. Producing the string once and writing it to both
-/// sinks is what guarantees the <c>.json</c> files and the <c>bundle.js</c> shim cannot drift.
+/// Each payload is serialized exactly once, straight into its <c>.json</c> file via
+/// <see cref="SerializeToFileAsync"/>, and that file is then registered with the shared
+/// <see cref="BundleBuilder"/>, which copies its bytes into <c>bundle.js</c>. Writing the payload
+/// once and reusing the file's bytes is what guarantees the <c>.json</c> files and the
+/// <c>bundle.js</c> shim cannot drift, without holding any payload in memory.
 /// </remarks>
 public sealed class JsonDataWriter
 {
     // UTF-8 without a BOM: the .json files are consumed by browsers (fetch) and by the bundle
     // shim, neither of which should see a byte-order mark.
     private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
+
+    /// <summary>
+    /// Serializes a viewmodel as canonical JSON directly into <paramref name="file"/> as UTF-8
+    /// (no BOM), creating the parent directory if necessary and replacing any existing file. The
+    /// runtime type of <paramref name="vm"/> must be registered with <see cref="ReportingJsonContext"/>.
+    /// </summary>
+    /// <remarks>
+    /// The output is byte-for-byte the UTF-8 encoding of <see cref="Serialize"/>, but the payload
+    /// is streamed to disk in chunks rather than materialized as a string first.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="file"/> or <paramref name="vm"/> is <see langword="null" />.</exception>
+    public async Task SerializeToFileAsync(FileInfo file, object vm, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(file);
+        ArgumentNullException.ThrowIfNull(vm);
+
+        if (file.Directory is { Exists: false } directory)
+            directory.Create();
+
+        // The serializer buffers its own output, so the file stream does not need a second buffer.
+        await using var stream = new FileStream(file.FullName, new FileStreamOptions
+        {
+            Mode = FileMode.Create,
+            Access = FileAccess.Write,
+            Share = FileShare.None,
+            Options = FileOptions.Asynchronous,
+            BufferSize = 0,
+        });
+        await JsonSerializer.SerializeAsync(stream, vm, vm.GetType(), ReportingJsonContext.Default, cancellationToken);
+    }
 
     /// <summary>
     /// Produces the canonical JSON string for a viewmodel. The runtime type of

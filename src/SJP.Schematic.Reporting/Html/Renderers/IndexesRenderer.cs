@@ -32,10 +32,8 @@ internal sealed class IndexesRenderer : IDataRenderer
 
         var indexesVm = new Indexes(indexes);
 
-        var json = context.JsonWriter.Serialize(indexesVm);
-        context.Bundle.AddSummary("indexes", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "indexes.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, indexesVm, cancellationToken);
+        context.Bundle.AddSummary("indexes", outputFile);
     }
 }

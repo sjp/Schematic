@@ -20,10 +20,8 @@ internal sealed class ViewsRenderer : IDataRenderer
         var viewViewModels = data.Views.Select(mapper.Map).ToList();
         var viewsVm = new Views(viewViewModels);
 
-        var json = context.JsonWriter.Serialize(viewsVm);
-        context.Bundle.AddSummary("views", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "views.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, viewsVm, cancellationToken);
+        context.Bundle.AddSummary("views", outputFile);
     }
 }

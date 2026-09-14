@@ -65,10 +65,8 @@ internal sealed class MainRenderer : IDataRenderer
             (uint)data.UserDefinedTypes.Count
         );
 
-        var json = context.JsonWriter.Serialize(mainModel);
-        context.Bundle.AddSummary("main", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "main.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, mainModel, cancellationToken);
+        context.Bundle.AddSummary("main", outputFile);
     }
 }

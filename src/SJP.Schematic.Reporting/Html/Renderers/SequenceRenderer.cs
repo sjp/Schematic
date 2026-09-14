@@ -34,10 +34,8 @@ internal sealed class SequenceRenderer : IDataRenderer
         var viewModel = mapper.Map(sequence);
 
         var safeKey = sequence.Name.ToSafeKey();
-        var json = context.JsonWriter.Serialize(viewModel);
-        context.Bundle.AddDetail("sequence", safeKey, json);
-
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, viewModel, cancellationToken);
+        context.Bundle.AddDetail("sequence", safeKey, outputFile);
     }
 }

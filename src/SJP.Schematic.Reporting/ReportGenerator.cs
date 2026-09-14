@@ -72,8 +72,8 @@ public class ReportGenerator
         var reportData = BuildReportData(tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, dbVersion, tableStatistics);
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
-        // Each renderer serializes its viewmodel(s), writes the .json file(s), and registers the
-        // same payload string with the shared bundle.
+        // Each renderer serializes its viewmodel(s) straight into .json file(s) and registers those
+        // files with the shared bundle, which copies them into bundle.js once rendering is done.
         var renderers = GetRenderers(tableStatistics);
 
         // Render every section, isolating failures so one bad object/section doesn't hide the rest.

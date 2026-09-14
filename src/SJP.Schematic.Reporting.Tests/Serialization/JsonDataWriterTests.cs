@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -87,6 +88,117 @@ internal static class JsonDataWriterTests
         var json = writer.Serialize(synonym);
 
         Assert.That(json, Does.Not.Contain("\n"));
+    }
+
+    [Test]
+    public static void SerializeToFileAsync_GivenNullFile_ThrowsArgumentNullException()
+    {
+        var writer = new JsonDataWriter();
+        var synonym = new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None);
+
+        Assert.That(() => writer.SerializeToFileAsync(null!, synonym), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void SerializeToFileAsync_GivenNullObject_ThrowsArgumentNullException()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "test.json"));
+
+        var writer = new JsonDataWriter();
+        Assert.That(() => writer.SerializeToFileAsync(file, null!), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task SerializeToFileAsync_GivenViewModel_WritesUtf8EncodingOfSerializedString()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "test.json"));
+
+        var writer = new JsonDataWriter();
+        var synonym = new Synonym(
+            new Identifier("café_synonym"),
+            new Identifier("test_target"),
+            Option<Uri>.Some(new Uri("#/tables/test-target-abcd1234", UriKind.Relative)));
+
+        await writer.SerializeToFileAsync(file, synonym);
+
+        var bytes = await File.ReadAllBytesAsync(file.FullName);
+        var expected = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false).GetBytes(writer.Serialize(synonym));
+        Assert.That(bytes, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static async Task SerializeToFileAsync_GivenPayloadLargerThanSerializerBuffer_WritesCompletePayload()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "columns.json"));
+
+        var columns = new Columns(Enumerable.Range(0, 5_000)
+            .Select(static i => new Columns.ColumnSummary(
+                new Identifier("test_table"),
+                Columns.ParentObjectType.Table,
+                "#/tables/test-table-abcd1234",
+                i,
+                "test_column_" + i,
+                "integer",
+                false,
+                Option<string>.None,
+                false,
+                false,
+                false))
+            .ToList());
+
+        var writer = new JsonDataWriter();
+        await writer.SerializeToFileAsync(file, columns);
+
+        var content = await File.ReadAllTextAsync(file.FullName);
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(file.Length, Is.GreaterThan(1024 * 1024 / 2));
+            Assert.That(content, Is.EqualTo(writer.Serialize(columns)));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeToFileAsync_GivenExistingLongerFile_ReplacesContent()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "test.json"));
+        await File.WriteAllTextAsync(file.FullName, new string('x', 10_000));
+
+        var writer = new JsonDataWriter();
+        var synonym = new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None);
+        await writer.SerializeToFileAsync(file, synonym);
+
+        var content = await File.ReadAllTextAsync(file.FullName);
+        Assert.That(content, Is.EqualTo(writer.Serialize(synonym)));
+    }
+
+    [Test]
+    public static async Task SerializeToFileAsync_GivenMissingParentDirectory_CreatesDirectory()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "nested", "data", "test.json"));
+
+        var writer = new JsonDataWriter();
+        await writer.SerializeToFileAsync(file, new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None));
+
+        Assert.That(File.Exists(file.FullName), Is.True);
+    }
+
+    [Test]
+    public static async Task SerializeToFileAsync_WritesFileAsUtf8WithoutBom()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "test.json"));
+
+        var writer = new JsonDataWriter();
+        await writer.SerializeToFileAsync(file, new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None));
+
+        var bytes = await File.ReadAllBytesAsync(file.FullName);
+        Assert.That(bytes, Is.Not.Empty);
+        Assert.That(bytes[0], Is.EqualTo((byte)'{'));
     }
 
     [Test]

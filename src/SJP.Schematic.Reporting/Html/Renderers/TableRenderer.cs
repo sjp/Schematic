@@ -39,10 +39,8 @@ internal sealed class TableRenderer : IDataRenderer
         // from the schema-wide relationships graph, so a table's payload does not grow with the number
         // of tables near it.
         var safeKey = table.Name.ToSafeKey();
-        var json = context.JsonWriter.Serialize(tableModel);
-        context.Bundle.AddDetail("table", safeKey, json);
-
         var outputFile = new FileInfo(Path.Combine(tablesDataDirectory.FullName, safeKey + ".json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, tableModel, cancellationToken);
+        context.Bundle.AddDetail("table", safeKey, outputFile);
     }
 }

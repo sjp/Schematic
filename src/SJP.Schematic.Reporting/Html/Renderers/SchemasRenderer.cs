@@ -20,10 +20,8 @@ internal sealed class SchemasRenderer : IDataRenderer
         var schemaViewModels = mapper.GetSchemas(data).Select(mapper.MapSummary).ToList();
         var schemasVm = new Schemas(schemaViewModels);
 
-        var json = context.JsonWriter.Serialize(schemasVm);
-        context.Bundle.AddSummary("schemas", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "schemas.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, schemasVm, cancellationToken);
+        context.Bundle.AddSummary("schemas", outputFile);
     }
 }

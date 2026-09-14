@@ -20,10 +20,8 @@ internal sealed class RoutinesRenderer : IDataRenderer
         var routineViewModels = data.Routines.Select(mapper.Map).ToList();
         var routinesVm = new Routines(routineViewModels);
 
-        var json = context.JsonWriter.Serialize(routinesVm);
-        context.Bundle.AddSummary("routines", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "routines.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, routinesVm, cancellationToken);
+        context.Bundle.AddSummary("routines", outputFile);
     }
 }

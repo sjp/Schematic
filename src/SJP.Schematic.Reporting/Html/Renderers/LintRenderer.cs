@@ -66,11 +66,9 @@ internal sealed class LintRenderer : IDataRenderer
 
         var lintVm = new LintResults(rules, messages);
 
-        var json = context.JsonWriter.Serialize(lintVm);
-        context.Bundle.AddSummary("lint", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "lint.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, lintVm, cancellationToken);
+        context.Bundle.AddSummary("lint", outputFile);
 
         await WriteSarifAsync(
             tableMessages.Concat(viewMessages).Concat(sequenceMessages).Concat(synonymMessages).Concat(routineMessages),
@@ -84,10 +82,8 @@ internal sealed class LintRenderer : IDataRenderer
     private static async Task WriteSarifAsync(IEnumerable<IRuleMessage> messages, RenderContext context, CancellationToken cancellationToken)
     {
         var sarif = SarifLintReport.Create(messages);
-        var sarifJson = context.JsonWriter.Serialize(sarif);
-
         var sarifFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "lint.sarif"));
-        await context.JsonWriter.WriteJsonAsync(sarifFile, sarifJson, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(sarifFile, sarif, cancellationToken);
     }
 
     private static IEnumerable<LintResults.LintMessage> ToViewModels(IEnumerable<IRuleMessage> messages, LintObjectType objectType)

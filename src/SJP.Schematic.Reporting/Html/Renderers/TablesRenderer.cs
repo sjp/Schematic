@@ -31,10 +31,8 @@ internal sealed class TablesRenderer : IDataRenderer
 
         var tablesVm = new Tables(tableViewModels);
 
-        var json = context.JsonWriter.Serialize(tablesVm);
-        context.Bundle.AddSummary("tables", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "tables.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, tablesVm, cancellationToken);
+        context.Bundle.AddSummary("tables", outputFile);
     }
 }

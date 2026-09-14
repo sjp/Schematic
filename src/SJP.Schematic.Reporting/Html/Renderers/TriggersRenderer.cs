@@ -25,10 +25,8 @@ internal sealed class TriggersRenderer : IDataRenderer
             .ToList();
         var triggersVm = new Triggers(triggers);
 
-        var json = context.JsonWriter.Serialize(triggersVm);
-        context.Bundle.AddSummary("triggers", json);
-
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "triggers.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, triggersVm, cancellationToken);
+        context.Bundle.AddSummary("triggers", outputFile);
     }
 }

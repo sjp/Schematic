@@ -18,11 +18,9 @@ internal sealed class RelationshipsRenderer : IDataRenderer
 
         // The diagram is now a graph payload laid out and drawn in the browser, so there is no SVG to
         // render here — just serialize the graph alongside the other report data.
-        var json = context.JsonWriter.Serialize(viewModel);
-        context.Bundle.AddSummary("relationships", json);
-
         var dataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data"));
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, "relationships.json"));
-        await context.JsonWriter.WriteJsonAsync(outputFile, json, cancellationToken);
+        await context.JsonWriter.SerializeToFileAsync(outputFile, viewModel, cancellationToken);
+        context.Bundle.AddSummary("relationships", outputFile);
     }
 }
