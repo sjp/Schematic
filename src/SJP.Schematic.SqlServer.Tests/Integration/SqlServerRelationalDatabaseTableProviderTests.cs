@@ -253,6 +253,17 @@ create table table_test_table_43 (
     constraint fk_test_table_43 foreign key (first_name_child, last_name_child) references table_test_table_42 (first_name_parent, last_name_parent)
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
+create table table_test_table_44 (
+    test_column int not null,
+    other_column int not null,
+    constraint pk_test_table_44_original primary key (test_column),
+    constraint uk_test_table_44_original unique (other_column)
+)", TestContext.CurrentContext.CancellationToken);
+        // the primary key is renamed through its constraint and the unique key through its index,
+        // SQL Server renames the other half of each pair to match
+        await DbConnection.ExecuteAsync($"exec sp_rename '{IdentifierDefaults.Schema}.pk_test_table_44_original', 'pk_test_table_44', 'OBJECT'", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("exec sp_rename 'table_test_table_44.uk_test_table_44_original', 'uk_test_table_44', 'INDEX'", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
 create table untrusted_constraint_parent (
     a int not null,
     constraint pk_untrusted_constraint_parent primary key (a)
@@ -419,6 +430,7 @@ end
             "table_test_table_41",
             "table_test_table_43",
             "table_test_table_42",
+            "table_test_table_44",
             "untrusted_constraint_child",
             "untrusted_constraint_parent",
             "trigger_test_table_1",

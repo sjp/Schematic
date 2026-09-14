@@ -65,6 +65,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache>(LoadUniqueKeysAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache>(LoadIndexesAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache>(LoadParentKeysAsync),
+        new AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache>((tableName, _, token) => LoadIndexRowsAsync(tableName, token)),
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache>(
             async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)))
     );
@@ -321,34 +322,18 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<Option<IDatabaseKey>> LoadPrimaryKeyAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var primaryKeyColumns = await DbConnection.QueryAsync(
-            GetTablePrimaryKey.Sql,
-            new GetTablePrimaryKey.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var indexRows = await queryCache.GetIndexRowsAsync(tableName, cancellationToken);
 
-        if (primaryKeyColumns.Empty())
+        var primaryKeyRows = indexRows.Where(static row => row.IsPrimaryKey).ToList();
+        if (primaryKeyRows.Empty())
             return Option<IDatabaseKey>.None;
 
-        var groupedByName = primaryKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDisabled });
-        var firstRow = groupedByName.First();
-        var constraintName = firstRow.Key.ConstraintName;
-        if (constraintName == null)
-            return Option<IDatabaseKey>.None;
+        var (columnLookup, indexes) = await (
+            queryCache.GetColumnLookupAsync(tableName, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken)
+        ).WhenAll();
 
-        var isEnabled = !firstRow.Key.IsDisabled;
-
-        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
-
-        var keyColumns = groupedByName
-            .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
-            .SelectMany(g => ResolveColumns(g.Value.Select(static row => (Identifier)row.ColumnName), columnLookup))
-            .ToList();
-
-        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
-        var backingIndex = GetBackingIndex(indexes, constraintName);
-
-        var primaryKey = new SqlServerDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex);
+        var primaryKey = CreateKeyFromIndexRows(primaryKeyRows, DatabaseKeyType.Primary, columnLookup, indexes);
         return Option<IDatabaseKey>.Some(primaryKey);
     }
 
@@ -370,18 +355,39 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<IReadOnlyCollection<IDatabaseIndex>> LoadIndexesAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
+        var indexRows = await queryCache.GetIndexRowsAsync(tableName, cancellationToken);
+        if (indexRows.Count == 0)
+            return [];
+
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
+
+        return SqlServerCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+    }
+
+    /// <summary>
+    /// Retrieves the raw index column rows for the given table. Indexes, the primary key and unique keys are
+    /// all built from these rows, because every primary key and unique constraint is enforced by an index.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of index column rows.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    internal Task<IReadOnlyList<GetTableIndexes.Result>> LoadIndexRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+
+        return LoadIndexRowsAsyncCore(tableName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<GetTableIndexes.Result>> LoadIndexRowsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    {
         var queryResult = await DbConnection.QueryAsync(
             GetTableIndexes.Sql,
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
 
-        if (queryResult.Empty())
-            return [];
-
-        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
-
-        return SqlServerCatalogMapper.MapIndexes(queryResult, columnLookup, Dialect);
+        return queryResult.ToList();
     }
 
     /// <summary>
@@ -402,39 +408,50 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueKeysAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var uniqueKeyColumns = await DbConnection.QueryAsync(
-            GetTableUniqueKeys.Sql,
-            new GetTableUniqueKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var indexRows = await queryCache.GetIndexRowsAsync(tableName, cancellationToken);
 
-        if (uniqueKeyColumns.Empty())
+        var uniqueKeyRows = indexRows
+            .Where(static row => row.IsUniqueConstraint)
+            .GroupAsDictionary(static row => row.IndexName, StringComparer.Ordinal);
+        if (uniqueKeyRows.Count == 0)
             return [];
 
-        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
+        var (columnLookup, indexes) = await (
+            queryCache.GetColumnLookupAsync(tableName, cancellationToken),
+            queryCache.GetIndexesAsync(tableName, cancellationToken)
+        ).WhenAll();
 
-        var groupedByName = uniqueKeyColumns.GroupAsDictionary(static row => new { row.ConstraintName, row.IsDisabled });
-        var constraintColumns = groupedByName
-            .Select(g => new
-            {
-                g.Key.ConstraintName,
-                Columns = ResolveColumns(g.Value.Select(static row => (Identifier)row.ColumnName), columnLookup).ToList(),
-                IsEnabled = !g.Key.IsDisabled,
-            })
-            .ToList();
-        if (constraintColumns.Empty())
-            return [];
+        var result = new List<IDatabaseKey>(uniqueKeyRows.Count);
+        foreach (var keyRows in uniqueKeyRows.Values)
+            result.Add(CreateKeyFromIndexRows(keyRows, DatabaseKeyType.Unique, columnLookup, indexes));
 
-        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
-
-        var result = new List<IDatabaseKey>(constraintColumns.Count);
-        foreach (var uk in constraintColumns)
-        {
-            var backingIndex = GetBackingIndex(indexes, uk.ConstraintName);
-            var uniqueKey = new SqlServerDatabaseKey(uk.ConstraintName, DatabaseKeyType.Unique, uk.Columns, uk.IsEnabled, backingIndex);
-            result.Add(uniqueKey);
-        }
         return result;
+    }
+
+    // Builds a primary or unique key from the rows of the index that enforces it. SQL Server always gives
+    // that index the same name as its constraint (renaming either renames both), so the index name is the
+    // constraint name and the index with that name is the key's backing index.
+    private static SqlServerDatabaseKey CreateKeyFromIndexRows(
+        IReadOnlyCollection<GetTableIndexes.Result> indexRows,
+        DatabaseKeyType keyType,
+        IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
+        IReadOnlyCollection<IDatabaseIndex> indexes
+    )
+    {
+        var firstRow = indexRows.First();
+        var constraintName = Identifier.CreateQualifiedIdentifier(firstRow.IndexName);
+        var isEnabled = !firstRow.IsDisabled;
+
+        var keyColumnNames = indexRows
+            .Where(static row => !row.IsIncludedColumn)
+            .OrderBy(static row => row.KeyOrdinal)
+            .ThenBy(static row => row.IndexColumnId)
+            .Select(static row => (Identifier)row.ColumnName);
+        var keyColumns = ResolveColumns(keyColumnNames, columnLookup).ToList();
+
+        var backingIndex = GetBackingIndex(indexes, constraintName);
+
+        return new SqlServerDatabaseKey(constraintName, keyType, keyColumns, isEnabled, backingIndex);
     }
 
     /// <summary>
@@ -889,6 +906,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache> _indexes;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> _foreignKeys;
+        private readonly AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache> _indexRows;
         private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache> _columnLookups;
 
         /// <summary>
@@ -900,15 +918,17 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
+        /// <param name="indexRowsLoader">A raw index column row cache.</param>
         /// <param name="columnLookupLoader">A column lookup cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
-        public SqlServerTableQueryCache(
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexRowsLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
+        internal SqlServerTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqlServerTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache> uniqueKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache> indexLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> foreignKeyLoader,
+            AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache> indexRowsLoader,
             AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache> columnLookupLoader
         )
         {
@@ -918,6 +938,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
+            _indexRows = indexRowsLoader ?? throw new ArgumentNullException(nameof(indexRowsLoader));
             _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
         }
 
@@ -1003,6 +1024,20 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _foreignKeys.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's raw index column rows from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of index column rows.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        internal Task<IReadOnlyList<GetTableIndexes.Result>> GetIndexRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _indexRows.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>

@@ -101,4 +101,19 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
             Assert.That(backingIndex.IsUnique, Is.True);
         }
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenTableWithRenamedPrimaryKey_ReturnsKeyAndBackingIndexWithNewName()
+    {
+        var table = await GetTableAsync("table_test_table_44");
+        var pk = table.PrimaryKey.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pk.Name.UnwrapSome().LocalName, Is.EqualTo("pk_test_table_44"));
+            Assert.That(pk.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "test_column" }));
+            Assert.That(pk.BackingIndex.UnwrapSome().Name.LocalName, Is.EqualTo("pk_test_table_44"));
+            Assert.That(table.Indexes, Is.Empty);
+        }
+    }
 }
