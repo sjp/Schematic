@@ -1,12 +1,12 @@
 using System;
 using System.Buffers;
+using System.Buffers.Text;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;
-using SJP.Schematic.Oracle.Parsing.Antlr;
 
 namespace SJP.Schematic.Oracle;
 
@@ -87,7 +87,10 @@ public static class OracleUnwrapper
     /// </summary>
     /// <param name="input">A potentially wrapped routine definition.</param>
     /// <returns><see langword="true" /> if the input appears to be a valid wrapped routine definition.</returns>
-    /// <remarks>This does not guarantee that unwrapping is successful, only that the input appears to be correct. For example, the obfuscated input may not pass a checksum.</remarks>
+    /// <remarks>
+    /// <para>This does not guarantee that unwrapping is successful, only that the input appears to be correct. For example, the obfuscated input may not pass a checksum.</para>
+    /// <para>Callers that intend to unwrap the definition should call <see cref="TryUnwrap(string, out string)"/> directly. It performs the same validation, so calling this method first would repeat that work.</para>
+    /// </remarks>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="input"/> is <see langword="null" />.</exception>
     public static bool IsWrappedDefinition(string input)
     {
@@ -110,31 +113,32 @@ public static class OracleUnwrapper
 
         // The scan below requires input.IndexOf(magicPrefix, currentIndex, Ordinal) >= 0 for some
         // currentIndex >= 0, which implies input.Contains(magicPrefix). Rejecting here therefore
-        // cannot change the result, and it keeps the (expensive) ANTLR lexer below off the reject
-        // path for the common case of a definition that was never wrapped in the first place.
+        // cannot change the result, and it is a single vectorised scan for the common case of a
+        // definition that was never wrapped in the first place.
         if (!input.Contains(magicPrefix, StringComparison.Ordinal))
             return false;
 
+        // The header is "<object type> <name> wrapped"; everything up to and including the last
+        // "wrapped" is treated as the header and is otherwise not inspected. The check is purely
+        // structural (no lexing): "wrapped" must be a whole word, and what follows it must have the
+        // exact shape that Oracle's wrap utility emits. This is deliberately lenient about the header
+        // itself. A false positive here can only lead to a payload that then fails base64 decoding or
+        // the SHA-1 checksum in DecodePayload, so Unwrap/TryUnwrap still return the correct result;
+        // it can never produce a wrong unwrapped definition. Note that currently we are not validating
+        // the object type. Valid object types are: FUNCTION, PROCEDURE, PACKAGE, PACKAGE BODY, TYPE,
+        // TYPE BODY.
         const string wrappedKeyword = "wrapped";
         var lastIndex = input.LastIndexOf(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
         if (lastIndex < 0)
             return false;
 
-        var textToTokenize = input[..(lastIndex + wrappedKeyword.Length)];
-        var tokens = OracleLexing.GetSignificantTokensSafe(textToTokenize);
-        if (tokens.Count == 0)
+        // whole word only, so that e.g. "unwrapped" does not qualify
+        if (lastIndex > 0 && !char.IsWhiteSpace(input[lastIndex - 1]))
             return false;
 
-        // Note that currently we are not validating the object type.
-        // Valid object types are: FUNCTION, PROCEDURE, PACKAGE, PACKAGE BODY, TYPE, TYPE BODY
-        // Comments are emitted on the hidden channel and so are already excluded.
-        var lastTokenValue = tokens[^1];
-        var hasWrappedToken = lastTokenValue.Text.Equals(wrappedKeyword, StringComparison.OrdinalIgnoreCase);
-        if (!hasWrappedToken)
-            return false;
-
+        var headerLength = lastIndex + wrappedKeyword.Length;
         var span = input.AsSpan();
-        var currentIndex = lastTokenValue.StopIndex + 1;
+        var currentIndex = headerLength;
 
         var magicPrefixIndex = span[currentIndex..].IndexOf(magicPrefix);
         if (magicPrefixIndex < 0)
@@ -257,22 +261,10 @@ public static class OracleUnwrapper
         return fieldCount == 2;
     }
 
+    // Base64.IsValid skips the same whitespace as Convert.TryFromBase64Chars and succeeds exactly
+    // when it would, but validates in place without a decode buffer.
     private static bool IsValidBase64(ReadOnlySpan<char> payload)
-    {
-        if (payload.IsEmpty)
-            return false;
-
-        var maxByteCount = Math.Max(payload.Length / 4 * 3, 1);
-        var rented = ArrayPool<byte>.Shared.Rent(maxByteCount);
-        try
-        {
-            return Convert.TryFromBase64Chars(payload, rented, out _);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(rented);
-        }
-    }
+        => !payload.IsEmpty && Base64.IsValid(payload);
 
     private enum DecodeStatus
     {
@@ -325,17 +317,58 @@ public static class OracleUnwrapper
 
             using var reader = new MemoryStream(rented, deflateOffset, deflateLength, writable: false);
             using var unzipper = new DeflateStream(reader, CompressionMode.Decompress);
-            using var writer = new MemoryStream(deflateLength);
-            unzipper.CopyTo(writer);
 
-            var decompressed = writer.GetBuffer().AsSpan(0, (int)writer.Length);
-            var trimmed = decompressed.TrimEnd((byte)0); // remove trailing NUL bytes
-            decoded = Encoding.UTF8.GetString(trimmed);
-            return DecodeStatus.Success;
+            var decompressedLength = Inflate(unzipper, deflateLength, out var decompressed);
+            try
+            {
+                var trimmed = decompressed.AsSpan(0, decompressedLength).TrimEnd((byte)0); // remove trailing NUL bytes
+                decoded = Encoding.UTF8.GetString(trimmed);
+                return DecodeStatus.Success;
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(decompressed);
+            }
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(rented);
+        }
+    }
+
+    // Reads the stream to its end into a pooled buffer, returning the number of bytes read. The
+    // caller owns (and must return) the buffer. PL/SQL source typically inflates several-fold, so
+    // the initial buffer is sized well above the compressed length to avoid regrowing.
+    private static int Inflate(Stream stream, int compressedLength, out byte[] buffer)
+    {
+        const int minimumBufferSize = 256;
+        const int expectedInflationRatio = 4;
+
+        buffer = ArrayPool<byte>.Shared.Rent(Math.Max(compressedLength * expectedInflationRatio, minimumBufferSize));
+        var length = 0;
+        try
+        {
+            while (true)
+            {
+                if (length == buffer.Length)
+                {
+                    var larger = ArrayPool<byte>.Shared.Rent(buffer.Length * 2);
+                    buffer.AsSpan(0, length).CopyTo(larger);
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    buffer = larger;
+                }
+
+                var read = stream.Read(buffer, length, buffer.Length - length);
+                if (read == 0)
+                    return length;
+
+                length += read;
+            }
+        }
+        catch
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+            throw;
         }
     }
 

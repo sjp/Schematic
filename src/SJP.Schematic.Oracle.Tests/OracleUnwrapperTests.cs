@@ -257,12 +257,30 @@ internal static class OracleUnwrapperTests
     [Test]
     public static void IsWrappedDefinition_GivenDefinitionEndingInWrappedComment_ReturnsFalse()
     {
-        // "wrapped" only occurs inside a trailing comment here, i.e. on ANTLR's hidden channel. The
-        // last *significant* token is therefore not "wrapped", and this must not be treated as wrapped
-        // even though the literal substring "wrapped" is the last occurrence in the input.
+        // "wrapped" only occurs inside a trailing comment here and nothing follows it, so none of the
+        // wrap structure (magic prefix, filler lines, payload) is present after it. This must not be
+        // treated as wrapped even though "wrapped" is the last word in the input and "a000000" appears.
         var isWrapped = OracleUnwrapper.IsWrappedDefinition(DefinitionEndingInWrappedCommentExample);
 
         Assert.That(isWrapped, Is.False);
+    }
+
+    [Test]
+    public static void IsWrappedDefinition_GivenUnwrappedKeywordInsteadOfWrapped_ReturnsFalse()
+    {
+        // "wrapped" must be a whole word: the tail of "unwrapped" does not count, even though
+        // everything after it has the correct structure.
+        var isWrapped = OracleUnwrapper.IsWrappedDefinition(UnwrappedKeywordExample);
+
+        Assert.That(isWrapped, Is.False);
+    }
+
+    [Test]
+    public static void Unwrap_GivenUnwrappedKeywordInsteadOfWrapped_ReturnsInputUnchanged()
+    {
+        var result = OracleUnwrapper.Unwrap(UnwrappedKeywordExample);
+
+        Assert.That(result, Is.EqualTo(UnwrappedKeywordExample));
     }
 
     [Test]
@@ -353,7 +371,9 @@ internal static class OracleUnwrapperTests
         Assert.That(result, Is.False);
     }
 
-    private const string WrappedExample = @"PROCEDURE wrap_it wrapped
+    private const string WrappedExample = "PROCEDURE wrap_it wrapped" + WrappedExampleAfterHeader;
+
+    private const string WrappedExampleAfterHeader = @"
 a000000
 b2
 abcd
@@ -378,6 +398,8 @@ pdRvlWrC2UeKeKiS2uzT80HMAvKIMOYhjXZT4CrU98zgprrwl4jKnFKvFljUAnGx8GHexDSU
 XRa3oykCJIUWEovu72mqAm0vttgZB9E/9E6y2HhxKdu1k8arcrHegHYAvF1pwn1e6sCFJg04
 QGsN1g1JLYIklPGBDEEZInWt0w==
 ";
+
+    private const string UnwrappedKeywordExample = "PROCEDURE wrap_it unwrapped" + WrappedExampleAfterHeader;
 
     private const string ExpectedUnwrappedExample = @"PROCEDURE WRAP_IT (SEED_IN NUMBER)
 IS
