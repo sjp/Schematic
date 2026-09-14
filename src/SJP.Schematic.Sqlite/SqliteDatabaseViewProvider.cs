@@ -37,22 +37,22 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
-
-        _databaseList = new AsyncLazy<IReadOnlyList<pragma_database_list>>(LoadDatabaseListAsync);
     }
 
     /// <summary>
-    /// Loads the list of databases attached to the current connection. The result is cached for the
-    /// lifetime of this provider instance, as it only changes as a result of an explicit
-    /// <c>ATTACH</c>/<c>DETACH</c> against the underlying connection.
+    /// Creates a loader for the list of databases attached to the current connection, which runs the
+    /// query at most once. A loader is created for each call rather than kept for the lifetime of the
+    /// provider, because <c>ATTACH</c> and <c>DETACH</c> on the same connection can change the list
+    /// between calls.
     /// </summary>
-    private async Task<IReadOnlyList<pragma_database_list>> LoadDatabaseListAsync()
+    private AsyncLazy<IReadOnlyList<pragma_database_list>> CreateDatabaseListLoader(CancellationToken cancellationToken)
     {
-        var databaseList = await ConnectionPragma.DatabaseListAsync();
-        return databaseList.ToList();
+        return new AsyncLazy<IReadOnlyList<pragma_database_list>>(async () =>
+        {
+            var databaseList = await ConnectionPragma.DatabaseListAsync(cancellationToken);
+            return databaseList.ToList();
+        });
     }
-
-    private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
 
     /// <summary>
     /// A database connection that is specific to a given SQLite database.
@@ -91,7 +91,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await _databaseList.Task;
+        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -127,7 +127,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <returns>A collection of database views.</returns>
     public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await _databaseList.Task;
+        var dbNamesQuery = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -170,15 +170,16 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<Option<IDatabaseView>> GetViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
+        var databaseList = CreateDatabaseListLoader(cancellationToken);
         if (viewName.Schema != null)
-            return await LoadView(viewName, cancellationToken).ToOption();
+            return await LoadView(viewName, databaseList, cancellationToken).ToOption();
 
-        var dbNamesResult = await _databaseList.Task;
+        var dbNamesResult = await databaseList;
         var dbNames = dbNamesResult.OrderBy(static l => l.seq).Select(static l => l.name).ToList();
         foreach (var dbName in dbNames)
         {
             var qualifiedViewName = Identifier.CreateQualifiedIdentifier(dbName, viewName.LocalName);
-            var view = LoadView(qualifiedViewName, cancellationToken);
+            var view = LoadView(qualifiedViewName, databaseList, cancellationToken);
 
             var viewIsSome = await view.IsSome;
             if (viewIsSome)
@@ -199,10 +200,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return GetResolvedViewNameAsyncCore(viewName, cancellationToken).ToAsync();
+        return GetResolvedViewNameAsyncCore(viewName, CreateDatabaseListLoader(cancellationToken), cancellationToken).ToAsync();
     }
 
-    private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, AsyncLazy<IReadOnlyList<pragma_database_list>> databaseList, CancellationToken cancellationToken)
     {
         if (viewName.Schema != null)
         {
@@ -215,7 +216,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
             if (viewLocalName != null)
             {
-                var dbList = await _databaseList.Task;
+                var dbList = await databaseList;
                 var viewSchemaName = dbList
                     .OrderBy(static s => s.seq)
                     .Select(static s => s.name)
@@ -227,7 +228,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             }
         }
 
-        var dbNamesResult = await _databaseList.Task;
+        var dbNamesResult = await databaseList;
         var dbNames = dbNamesResult
             .OrderBy(static l => l.seq)
             .Select(static l => l.name)
@@ -259,8 +260,13 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
+        return LoadView(viewName, CreateDatabaseListLoader(cancellationToken), cancellationToken);
+    }
+
+    private OptionAsync<IDatabaseView> LoadView(Identifier viewName, AsyncLazy<IReadOnlyList<pragma_database_list>> databaseList, CancellationToken cancellationToken)
+    {
         var candidateViewName = QualifyViewName(viewName);
-        return GetResolvedViewName(candidateViewName, cancellationToken)
+        return GetResolvedViewNameAsyncCore(candidateViewName, databaseList, cancellationToken).ToAsync()
             .MapAsync(name => LoadViewAsyncCore(name, cancellationToken));
     }
 

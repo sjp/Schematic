@@ -42,7 +42,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
         _dbVersion = new AsyncLazy<Version>(LoadDbVersionAsync);
-        _databaseList = new AsyncLazy<IReadOnlyList<pragma_database_list>>(LoadDatabaseListAsync);
     }
 
     /// <summary>
@@ -79,8 +78,15 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Creates a query cache for a given query context
     /// </summary>
     /// <returns>A query cache.</returns>
+    /// <remarks>
+    /// The attached databases and each schema's table list are cached here rather than for the
+    /// lifetime of the provider, because <c>ATTACH</c>, <c>DETACH</c> and DDL on the same connection
+    /// can change them between calls.
+    /// </remarks>
     protected SqliteTableQueryCache CreateQueryCache() => new(
-        new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>((tableName, _, token) => GetParsedTableDefinitionAsync(tableName, token)),
+        LoadDatabaseListAsync,
+        new AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache>((schema, _, token) => LoadTableListAsync(schema, token)),
+        new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>(GetParsedTableDefinitionAsync),
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync),
         new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync),
@@ -97,7 +103,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A collection of database tables.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await _databaseList.Task;
+        var queryCache = CreateQueryCache();
+
+        var dbNamesQuery = await queryCache.GetDatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -116,11 +124,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             qualifiedTableNames.AddRange(names);
         }
 
-        var tableNames = (await FilterShadowTablesAsync(qualifiedTableNames))
+        var tableNames = (await FilterShadowTablesAsync(qualifiedTableNames, queryCache, cancellationToken))
             .OrderBy(static name => name.Schema, StringComparer.Ordinal)
             .ThenBy(static name => name.LocalName, StringComparer.Ordinal);
 
-        var queryCache = CreateQueryCache();
         var tables = tableNames.SelectOrderedPrefetchAsync(
             (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
             Math.Max(1, DbConnection.MaxConcurrentQueries),
@@ -137,7 +144,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A collection of database tables.</returns>
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var dbNamesQuery = await _databaseList.Task;
+        var queryCache = CreateQueryCache();
+
+        var dbNamesQuery = await queryCache.GetDatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -155,12 +164,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .ToArray()
             .WhenAll();
 
-        var tableNames = (await FilterShadowTablesAsync(qualifiedTableNames.SelectMany(static tn => tn)))
+        var tableNames = (await FilterShadowTablesAsync(qualifiedTableNames.SelectMany(static tn => tn), queryCache, cancellationToken))
             .OrderBy(static name => name.Schema, StringComparer.Ordinal)
             .ThenBy(static name => name.LocalName, StringComparer.Ordinal)
             .ToArray();
-
-        var queryCache = CreateQueryCache();
 
         return await tableNames.SelectBoundedAsync(
             (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
@@ -187,15 +194,16 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (IsReservedTableName(tableName))
             return Option<IRelationalDatabaseTable>.None;
 
+        var queryCache = CreateQueryCache();
         if (tableName.Schema != null)
-            return await LoadTable(tableName, cancellationToken).ToOption();
+            return await LoadTable(tableName, queryCache, cancellationToken).ToOption();
 
-        var dbNamesResult = await _databaseList.Task;
+        var dbNamesResult = await queryCache.GetDatabaseListAsync(cancellationToken);
         var dbNames = dbNamesResult.OrderBy(static l => l.seq).Select(static l => l.name).ToList();
         foreach (var dbName in dbNames)
         {
             var qualifiedTableName = Identifier.CreateQualifiedIdentifier(dbName, tableName.LocalName);
-            var table = LoadTable(qualifiedTableName, cancellationToken);
+            var table = LoadTable(qualifiedTableName, queryCache, cancellationToken);
 
             var tableIsSome = await table.IsSome;
             if (tableIsSome)
@@ -209,17 +217,19 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
     /// </summary>
     /// <param name="tableName">A table name that will be resolved.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    protected OptionAsync<Identifier> GetResolvedTableName(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
-        return GetResolvedTableNameAsyncCore(tableName, cancellationToken).ToAsync();
+        return GetResolvedTableNameAsyncCore(tableName, queryCache, cancellationToken).ToAsync();
     }
 
-    private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<Option<Identifier>> GetResolvedTableNameAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         if (IsReservedTableName(tableName))
             return Option<Identifier>.None;
@@ -235,7 +245,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             if (queryResult != null)
             {
-                var dbList = await _databaseList.Task;
+                var dbList = await queryCache.GetDatabaseListAsync(cancellationToken);
                 var tableSchemaName = dbList
                     .OrderBy(static s => s.seq)
                     .Select(static s => s.name)
@@ -244,12 +254,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
 
                 var resolvedName = Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult);
-                if (!await IsShadowTableAsync(resolvedName))
+                if (!await IsShadowTableAsync(resolvedName, queryCache, cancellationToken))
                     return Option<Identifier>.Some(resolvedName);
             }
         }
 
-        var dbNamesResult = await _databaseList.Task;
+        var dbNamesResult = await queryCache.GetDatabaseListAsync(cancellationToken);
         var dbNames = dbNamesResult
             .OrderBy(static l => l.seq)
             .Select(static l => l.name)
@@ -266,7 +276,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             if (tableLocalName != null)
             {
                 var resolvedName = Identifier.CreateQualifiedIdentifier(dbName, tableLocalName);
-                if (!await IsShadowTableAsync(resolvedName))
+                if (!await IsShadowTableAsync(resolvedName, queryCache, cancellationToken))
                     return Option<Identifier>.Some(resolvedName);
             }
         }
@@ -298,7 +308,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ArgumentNullException.ThrowIfNull(queryCache);
 
         var candidateTableName = QualifyTableName(tableName);
-        return GetResolvedTableName(candidateTableName, cancellationToken)
+        return GetResolvedTableName(candidateTableName, queryCache, cancellationToken)
             .MapAsync(name => LoadTableAsyncCore(name, queryCache, cancellationToken));
     }
 
@@ -317,13 +327,13 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ) = await (
             queryCache.GetParsedTableAsync(tableName, cancellationToken),
             queryCache.GetColumnsAsync(tableName, cancellationToken),
-            LoadTriggersAsync(tableName, cancellationToken),
+            LoadTriggersAsync(tableName, queryCache, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             LoadIndexesAsync(tableName, queryCache, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken),
-            LoadTableKindAsync(tableName, cancellationToken)
+            LoadTableKindAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
         var checks = LoadChecks(parsedTable);
 
@@ -347,10 +357,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         );
     }
 
-    private async Task<TableKind> LoadTableKindAsync(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<TableKind> LoadTableKindAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var isTemporary = string.Equals(tableName.Schema, TempSchemaName, StringComparison.OrdinalIgnoreCase);
-        var tableListEntry = await GetTableListEntryAsync(tableName, cancellationToken);
+        var tableListEntry = await GetTableListEntryAsync(tableName, queryCache, cancellationToken);
 
         // a WITHOUT ROWID table is stored in the structure of its primary key index
         return tableListEntry != null && string.Equals(tableListEntry.type, VirtualTableType, StringComparison.OrdinalIgnoreCase)
@@ -382,7 +392,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return Option<IDatabaseKey>.None;
@@ -436,14 +446,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(queryCache);
 
-        return LoadIndexListAsyncCore(tableName, cancellationToken);
+        return LoadIndexListAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private async Task<IReadOnlyCollection<pragma_index_list>> LoadIndexListAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<pragma_index_list>> LoadIndexListAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -475,7 +485,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -747,7 +757,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -838,7 +848,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -846,7 +856,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         // schema name must match, no cross-schema FKs allowed
-        var dbList = await _databaseList.Task;
+        var dbList = await queryCache.GetDatabaseListAsync(cancellationToken);
         var schemaName = dbList
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
@@ -903,7 +913,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .Where(static result => !IsReservedTableName(result.TableName))
             .Select(result => Identifier.CreateQualifiedIdentifier(schemaName, result.TableName))
             .ToListAsync(cancellationToken);
-        var childTableNames = await FilterShadowTablesAsync(tableNames);
+        var childTableNames = await FilterShadowTablesAsync(tableNames, queryCache, cancellationToken);
 
         var parentChildPairs = new List<(string ParentTableName, Identifier ChildTableName)>();
         var parentTableNames = new StringHashSet(StringComparer.OrdinalIgnoreCase);
@@ -971,7 +981,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -1003,7 +1013,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             Identifier? parentTableName = null;
             var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
             var hasImplicitParentColumns = rows.Any(static row => row.to == null);
-            await GetResolvedTableName(candidateParentTableName, cancellationToken)
+            await GetResolvedTableName(candidateParentTableName, queryCache, cancellationToken)
                 .BindAsync(async name =>
                 {
                     parentTableName = name; // required for later binding
@@ -1094,14 +1104,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(queryCache);
 
-        return LoadForeignKeyListAsyncCore(tableName, cancellationToken);
+        return LoadForeignKeyListAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private async Task<IReadOnlyList<pragma_foreign_key_list>> LoadForeignKeyListAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<IReadOnlyList<pragma_foreign_key_list>> LoadForeignKeyListAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -1141,7 +1151,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -1215,7 +1225,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -1307,21 +1317,23 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Retrieves all triggers defined on a table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
-        return LoadTriggersAsyncCore(tableName, cancellationToken);
+        return LoadTriggersAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return [];
@@ -1385,21 +1397,23 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Gets the parsed table definition from a <c>CREATE TABLE</c> definition.
     /// </summary>
     /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>Parsed table data.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<ParsedTableData> GetParsedTableDefinitionAsync(Identifier tableName, CancellationToken cancellationToken)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    protected Task<ParsedTableData> GetParsedTableDefinitionAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
 
-        return GetParsedTableDefinitionAsyncCore(tableName, cancellationToken);
+        return GetParsedTableDefinitionAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private async Task<ParsedTableData> GetParsedTableDefinitionAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<ParsedTableData> GetParsedTableDefinitionAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return ParsedTableData.Empty($"Table '{tableName.LocalName}' does not exist.");
@@ -1416,7 +1430,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         // a virtual table is declared with CREATE VIRTUAL TABLE ... USING <module>(...), whose
         // arguments are the module's business rather than column definitions, so there is nothing
         // here for the CREATE TABLE parser to read
-        var tableListEntry = await GetTableListEntryAsync(tableName, cancellationToken);
+        var tableListEntry = await GetTableListEntryAsync(tableName, queryCache, cancellationToken);
         if (tableListEntry != null && string.Equals(tableListEntry.type, VirtualTableType, StringComparison.OrdinalIgnoreCase))
             return ParsedTableData.Empty(tableSql!);
 
@@ -1493,40 +1507,32 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private Task<Version> LoadDbVersionAsync() => new SqliteDatabaseProvider(Connection).GetDatabaseVersionAsync();
 
     /// <summary>
-    /// Retrieves what <c>pragma table_list</c> reports for a table, if anything. The result is
-    /// cached per schema for the lifetime of this provider instance.
+    /// Retrieves what <c>pragma table_list</c> reports for a table, if anything.
     /// </summary>
-    private async Task<pragma_table_list?> GetTableListEntryAsync(Identifier tableName, CancellationToken cancellationToken)
+    private async Task<pragma_table_list?> GetTableListEntryAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         if (tableName.Schema == null)
         {
-            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
                 .MatchUnsafe(static name => name, static () => (Identifier?)null);
             if (resolvedName == null)
                 return null;
             tableName = resolvedName;
         }
 
-        var tableList = await GetTableListAsync(tableName.Schema!);
+        var tableList = await queryCache.GetTableListAsync(tableName.Schema!, cancellationToken);
         return tableList.GetValueOrDefault(tableName.LocalName);
-    }
-
-    private Task<IReadOnlyDictionary<string, pragma_table_list>> GetTableListAsync(string schema)
-    {
-        return _tableListCache
-            .GetOrAdd(schema, s => new AsyncLazy<IReadOnlyDictionary<string, pragma_table_list>>(() => LoadTableListAsync(s)))
-            .Task;
     }
 
     // pragma table_list arrived in SQLite 3.37.0; on anything earlier nothing is known about a
     // table beyond its presence in sqlite_master.
-    private async Task<IReadOnlyDictionary<string, pragma_table_list>> LoadTableListAsync(string schema)
+    private async Task<IReadOnlyDictionary<string, pragma_table_list>> LoadTableListAsync(string schema, CancellationToken cancellationToken)
     {
         var version = await _dbVersion.Task;
         if (version < TableListPragmaVersion)
             return new Dictionary<string, pragma_table_list>(StringComparer.OrdinalIgnoreCase);
 
-        var tableList = await GetDatabasePragma(schema).TableListAsync();
+        var tableList = await GetDatabasePragma(schema).TableListAsync(cancellationToken);
         return tableList
             .GroupBy(static t => t.name, StringComparer.OrdinalIgnoreCase)
             .ToDictionary(static g => g.Key, static g => g.First(), StringComparer.OrdinalIgnoreCase);
@@ -1537,19 +1543,19 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// virtual table. Shadow tables are an implementation detail of the virtual table they belong
     /// to, so they are not reported as tables in their own right.
     /// </summary>
-    private async Task<bool> IsShadowTableAsync(Identifier tableName)
+    private static async Task<bool> IsShadowTableAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var tableList = await GetTableListAsync(tableName.Schema!);
+        var tableList = await queryCache.GetTableListAsync(tableName.Schema!, cancellationToken);
         var entry = tableList.GetValueOrDefault(tableName.LocalName);
         return entry != null && string.Equals(entry.type, ShadowTableType, StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task<IReadOnlyList<Identifier>> FilterShadowTablesAsync(IEnumerable<Identifier> tableNames)
+    private static async Task<IReadOnlyList<Identifier>> FilterShadowTablesAsync(IEnumerable<Identifier> tableNames, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var result = new List<Identifier>();
         foreach (var tableName in tableNames)
         {
-            if (!await IsShadowTableAsync(tableName))
+            if (!await IsShadowTableAsync(tableName, queryCache, cancellationToken))
                 result.Add(tableName);
         }
 
@@ -1557,23 +1563,19 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
-    /// Loads the list of databases attached to the current connection. The result is cached for the
-    /// lifetime of this provider instance, as it only changes as a result of an explicit
-    /// <c>ATTACH</c>/<c>DETACH</c> against the underlying connection.
+    /// Loads the list of databases attached to the current connection.
     /// </summary>
-    private async Task<IReadOnlyList<pragma_database_list>> LoadDatabaseListAsync()
+    private async Task<IReadOnlyList<pragma_database_list>> LoadDatabaseListAsync(CancellationToken cancellationToken)
     {
-        var databaseList = await ConnectionPragma.DatabaseListAsync();
+        var databaseList = await ConnectionPragma.DatabaseListAsync(cancellationToken);
         return databaseList.ToList();
     }
 
     private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, AsyncLazy<IReadOnlyDictionary<string, pragma_table_list>>> _tableListCache = new(StringComparer.OrdinalIgnoreCase);
 
     private readonly AsyncLazy<Version> _dbVersion;
-    private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
 
     private static readonly FrozenDictionary<string, ReferentialAction> RelationalUpdateMapping = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
     {
@@ -1619,6 +1621,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// </summary>
     protected class SqliteTableQueryCache
     {
+        private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
+        private readonly AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache> _tableLists;
         private readonly AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> _parsedTables;
         private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> _columns;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> _primaryKeys;
@@ -1631,6 +1635,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteTableQueryCache"/> class.
         /// </summary>
+        /// <param name="databaseListLoader">Loads the databases attached to the connection.</param>
+        /// <param name="tableListLoader">A cache of table list pragma results, keyed by schema name.</param>
         /// <param name="parsedTableLoader">A table parsing result cache.</param>
         /// <param name="columnLoader">A column cache.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
@@ -1639,8 +1645,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="indexListLoader">An index list pragma cache.</param>
         /// <param name="foreignKeyListLoader">A foreign key list pragma cache.</param>
         /// <param name="childTableLookupLoader">A cache of child table lookups, keyed by schema name.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
         public SqliteTableQueryCache(
+            Func<CancellationToken, Task<IReadOnlyList<pragma_database_list>>> databaseListLoader,
+            AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache> tableListLoader,
             AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> parsedTableLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> primaryKeyLoader,
@@ -1651,6 +1659,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             AsyncCache<string, ILookup<string, Identifier>, SqliteTableQueryCache> childTableLookupLoader
         )
         {
+            ArgumentNullException.ThrowIfNull(databaseListLoader);
+
+            // shared by every caller in this context, so no one caller's token may cancel the load
+            _databaseList = new AsyncLazy<IReadOnlyList<pragma_database_list>>(() => databaseListLoader(CancellationToken.None), AsyncLazyFlags.RetryOnFailure);
+            _tableLists = tableListLoader ?? throw new ArgumentNullException(nameof(tableListLoader));
             _parsedTables = parsedTableLoader ?? throw new ArgumentNullException(nameof(parsedTableLoader));
             _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
@@ -1659,6 +1672,30 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _indexLists = indexListLoader ?? throw new ArgumentNullException(nameof(indexListLoader));
             _foreignKeyLists = foreignKeyListLoader ?? throw new ArgumentNullException(nameof(foreignKeyListLoader));
             _childTableLookups = childTableLookupLoader ?? throw new ArgumentNullException(nameof(childTableLookupLoader));
+        }
+
+        /// <summary>
+        /// Retrieves the databases attached to the connection from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The database list pragma results.</returns>
+        public Task<IReadOnlyList<pragma_database_list>> GetDatabaseListAsync(CancellationToken cancellationToken)
+        {
+            return _databaseList.Task.WaitAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a schema's table list pragma results from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="schemaName">A schema name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>The table list pragma results for the schema, keyed by table name, matched case-insensitively.</returns>
+        /// <exception cref="ArgumentException"><paramref name="schemaName"/> is <see langword="null" />, empty or whitespace.</exception>
+        public Task<IReadOnlyDictionary<string, pragma_table_list>> GetTableListAsync(string schemaName, CancellationToken cancellationToken)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
+
+            return _tableLists.GetByKeyAsync(schemaName, this, cancellationToken);
         }
 
         /// <summary>
