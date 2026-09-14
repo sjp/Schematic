@@ -41,7 +41,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
             typeMetadata.FractionalSecondsPrecision = GetFractionalSecondsPrecision(typeMetadata.TypeName, typeMetadata.NumericPrecision);
 
         var definition = GetFormattedTypeName(typeMetadata);
-        return new ColumnDataType(
+        return _typeCache.GetOrCreate(
             typeMetadata.TypeName,
             typeMetadata.DataType,
             definition,
@@ -435,4 +435,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         [new Identifier("sys", "vector")] = typeof(object),
         [new Identifier("sys", "xml")] = typeof(string),
     }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
+
+    // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy
+    private readonly DbTypeCache _typeCache = new();
 }

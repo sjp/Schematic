@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using LanguageExt;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
 
@@ -144,6 +145,48 @@ internal static class SqliteDbTypeProviderTests
         {
             Assert.That(columnType.TypeName.LocalName, Is.EqualTo("BLOB"));
             Assert.That(columnType.DataType, Is.EqualTo(DataType.LargeBinary));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenEqualMetadataTwice_ReturnsSameInstance()
+    {
+        var provider = new SqliteDbTypeProvider();
+
+        var first = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = "VARCHAR(50)", Collation = Option<Identifier>.Some("NOCASE") });
+        var second = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = "VARCHAR(50)", Collation = Option<Identifier>.Some("NOCASE") });
+
+        Assert.That(second, Is.SameAs(first));
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenMetadataDifferingInCollation_ReturnsDifferentTypes()
+    {
+        var provider = new SqliteDbTypeProvider();
+
+        var noCase = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = "VARCHAR(50)", Collation = Option<Identifier>.Some("NOCASE") });
+        var binary = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = "VARCHAR(50)", Collation = Option<Identifier>.Some("BINARY") });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(binary, Is.Not.SameAs(noCase));
+            Assert.That(noCase.Collation.UnwrapSome().LocalName, Is.EqualTo("NOCASE"));
+            Assert.That(binary.Collation.UnwrapSome().LocalName, Is.EqualTo("BINARY"));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenCollationForNonTextTypeAfterTypeWithoutCollation_ReturnsSameInstanceWithoutCollation()
+    {
+        var provider = new SqliteDbTypeProvider();
+
+        var withoutCollation = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = "INTEGER" });
+        var withCollation = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = "INTEGER", Collation = Option<Identifier>.Some("NOCASE") });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(withCollation, Is.SameAs(withoutCollation));
+            Assert.That(withCollation.Collation, OptionIs.None);
         }
     }
 }

@@ -64,7 +64,7 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName);
 
         var definition = GetFormattedTypeName(typeMetadata);
-        return new ColumnDataType(
+        return _typeCache.GetOrCreate(
             typeMetadata.TypeName,
             typeMetadata.DataType,
             definition,
@@ -498,4 +498,7 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         ["VECTOR"] = typeof(object),
         ["XMLTYPE"] = typeof(string),
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+
+    // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy
+    private readonly DbTypeCache _typeCache = new();
 }

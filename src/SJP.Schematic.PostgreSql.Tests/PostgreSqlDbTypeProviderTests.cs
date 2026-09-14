@@ -337,4 +337,31 @@ internal static class PostgreSqlDbTypeProviderTests
 
         Assert.That(columnType.FractionalSecondsPrecision, Is.EqualTo(Option<int>.None));
     }
+
+    [Test]
+    public static void CreateColumnType_GivenEqualMetadataTwice_ReturnsSameInstance()
+    {
+        var provider = new PostgreSqlDbTypeProvider();
+
+        var first = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("pg_catalog", "varchar"), DataType = DataType.Unknown, MaxLength = 100 });
+        var second = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("pg_catalog", "varchar"), DataType = DataType.Unknown, MaxLength = 100 });
+
+        Assert.That(second, Is.SameAs(first));
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenMetadataDifferingInLength_ReturnsDifferentTypes()
+    {
+        var provider = new PostgreSqlDbTypeProvider();
+
+        var shorter = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("pg_catalog", "varchar"), DataType = DataType.Unknown, MaxLength = 100 });
+        var longer = provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("pg_catalog", "varchar"), DataType = DataType.Unknown, MaxLength = 200 });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(longer, Is.Not.SameAs(shorter));
+            Assert.That(shorter.MaxLength, Is.EqualTo(100));
+            Assert.That(longer.MaxLength, Is.EqualTo(200));
+        }
+    }
 }

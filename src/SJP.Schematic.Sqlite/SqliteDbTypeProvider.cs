@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite;
@@ -35,9 +38,24 @@ public class SqliteDbTypeProvider : IDbTypeProvider
         );
 
         // a collation only applies to a text column, so one given for any other affinity is dropped
-        return collation == SqliteCollation.None || affinity != SqliteTypeAffinity.Text
+        if (affinity != SqliteTypeAffinity.Text)
+            collation = SqliteCollation.None;
+
+        var key = new SqliteColumnTypeKey(typeName, affinity, collation);
+        if (_columnTypes.TryGetValue(key, out var cached))
+            return cached;
+
+        var created = collation == SqliteCollation.None
             ? new SqliteColumnType(typeName, affinity)
             : new SqliteColumnType(typeName, affinity, collation);
+        if (Volatile.Read(ref _columnTypeCount) >= DbTypeCache.DefaultCapacity)
+            return created;
+
+        var shared = _columnTypes.GetOrAdd(key, created);
+        if (ReferenceEquals(shared, created))
+            Interlocked.Increment(ref _columnTypeCount);
+
+        return shared;
     }
 
     /// <summary>
@@ -93,4 +111,12 @@ public class SqliteDbTypeProvider : IDbTypeProvider
     protected static SqliteTypeAffinity GetAffinity(string typeName) => AffinityParser.ParseTypeName(typeName);
 
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
+
+    // columns repeat a few declared types many times over, so identical types are shared rather than
+    // each column holding its own copy; adding stops at a bound because a provider can live for the
+    // whole process
+    private readonly ConcurrentDictionary<SqliteColumnTypeKey, SqliteColumnType> _columnTypes = new();
+    private int _columnTypeCount;
+
+    private readonly record struct SqliteColumnTypeKey(string TypeName, SqliteTypeAffinity Affinity, SqliteCollation Collation);
 }

@@ -33,7 +33,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName);
 
         var definition = GetFormattedTypeName(typeMetadata);
-        return new ColumnDataType(
+        return _typeCache.GetOrCreate(
             typeMetadata.TypeName,
             typeMetadata.DataType,
             definition,
@@ -463,4 +463,7 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
         [new Identifier("pg_catalog", "txid_snapshot")] = typeof(object),
         [new Identifier("pg_catalog", "uuid")] = typeof(Guid),
     }.ToFrozenDictionary(IdentifierComparer.Ordinal);
+
+    // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy
+    private readonly DbTypeCache _typeCache = new();
 }

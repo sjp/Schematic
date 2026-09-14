@@ -3,6 +3,7 @@ using System.Linq;
 using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Serialization.Mapping;
 
@@ -39,7 +40,7 @@ public class DbTypeMapper
             ? typeof(object)
             : ClrTypeResolver.Resolve(clrTypeName) ?? typeof(object);
 
-        return new ColumnDataType(
+        return _typeCache.GetOrCreate(
             identifierMapper.Map(source.TypeName),
             source.DataType,
             source.Definition,
@@ -108,4 +109,8 @@ public class DbTypeMapper
     {
         return source.MatchUnsafe(Map, static () => (Dto.DbType?)null);
     }
+
+    // a document repeats a few types across many columns, so identical types are shared rather than
+    // each column holding its own copy
+    private readonly DbTypeCache _typeCache = new();
 }

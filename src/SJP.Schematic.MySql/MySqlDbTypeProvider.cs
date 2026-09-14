@@ -33,7 +33,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName.LocalName);
 
         var definition = GetFormattedTypeName(typeMetadata);
-        return new ColumnDataType(
+        return _typeCache.GetOrCreate(
             typeMetadata.TypeName,
             typeMetadata.DataType,
             definition,
@@ -374,4 +374,7 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["multipolygon"] = typeof(object),
         ["geometrycollection"] = typeof(object),
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+
+    // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy
+    private readonly DbTypeCache _typeCache = new();
 }
