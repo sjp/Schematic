@@ -28,11 +28,11 @@ internal static class SyntaxUtilitiesTests
     {
         var source = BuildSourceWithComment("Amount in EUR & cents, must be < 100 > 0");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("Amount in EUR &amp; cents, must be &lt; 100 &gt; 0"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -40,11 +40,11 @@ internal static class SyntaxUtilitiesTests
     {
         var source = BuildSourceWithComment("</summary> public sealed class Injected { } <summary>");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("/// &lt;/summary&gt; public sealed class Injected { } &lt;summary&gt;"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -52,11 +52,11 @@ internal static class SyntaxUtilitiesTests
     {
         var source = BuildSourceWithComment("\r\ncomment text\n");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("/// comment text"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -64,11 +64,11 @@ internal static class SyntaxUtilitiesTests
     {
         var source = BuildSourceWithComment("\npublic sealed class Injected { }");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("/// public sealed class Injected { }"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -76,12 +76,12 @@ internal static class SyntaxUtilitiesTests
     {
         var source = BuildSourceWithComment("first & line\r\nsecond <line>");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("<para>first &amp; line</para>"));
             Assert.That(source, Does.Contain("<para>second &lt;line&gt;</para>"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -89,11 +89,11 @@ internal static class SyntaxUtilitiesTests
     {
         var source = BuildSourceWithComment("before\u0001after");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("/// beforeafter"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -159,11 +159,11 @@ internal static class SyntaxUtilitiesTests
         ]);
         var source = BuildSource(trivia);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(source, Does.Contain("<c>evil public sealed class Injected { } //</c>"));
             Assert.That(GetSyntaxErrors(source), Is.Empty);
-        });
+        }
     }
 
     private static string BuildSourceWithComment(string comment) => BuildSource(SyntaxUtilities.BuildCommentTrivia(comment));

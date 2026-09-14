@@ -166,11 +166,11 @@ internal static class SqliteDatabaseTriggerTests
 
         var trigger = new SqliteDatabaseTrigger(triggerName, definition, timing, events);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.Condition, OptionIs.None);
             Assert.That(trigger.UpdateColumns, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -192,11 +192,11 @@ internal static class SqliteDatabaseTriggerTests
             updateColumns
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.Condition.UnwrapSome(), Is.EqualTo(condition));
             Assert.That(trigger.UpdateColumns.Select(static c => c.LocalName), Is.EqualTo(new[] { "first_col" }));
-        });
+        }
     }
 
     [TestCase("test_trigger", "Trigger: test_trigger")]

@@ -26,12 +26,12 @@ internal static class UserDefinedTypesRendererTests
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "userDefinedTypes.json");
         var content = await File.ReadAllTextAsync(outputFile);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(content, Does.Contain("\"userDefinedTypesCount\":2"));
             Assert.That(content, Does.Contain("\"kind\":\"Alias\""));
             Assert.That(content, Does.Contain("\"baseType\":\"bigint\""));
-        });
+        }
     }
 
     [Test]

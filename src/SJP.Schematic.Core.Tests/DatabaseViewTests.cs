@@ -225,11 +225,11 @@ internal static class DatabaseViewTests
 
         var view = new DatabaseView(viewName, definition, columns, [], [], ViewCheckOption.Cascaded, true);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Cascaded));
             Assert.That(view.IsUpdatable, Is.True);
-        });
+        }
     }
 
     [Test]

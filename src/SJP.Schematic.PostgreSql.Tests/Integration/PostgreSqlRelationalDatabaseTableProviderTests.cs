@@ -662,11 +662,11 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         Assert.That(table.ParentKeys, Has.Exactly(1).Items);
 
         var parentKey = table.ParentKeys.Single().ParentKey;
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(parentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
             Assert.That(parentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
-        });
+        }
     }
 
     [Test]
@@ -677,10 +677,10 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         Assert.That(table.ChildKeys, Has.Exactly(1).Items);
 
         var childKey = table.ChildKeys.Single();
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(childKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
             Assert.That(childKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
-        });
+        }
     }
 }

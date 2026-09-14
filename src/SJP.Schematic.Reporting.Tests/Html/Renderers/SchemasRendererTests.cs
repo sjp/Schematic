@@ -64,14 +64,14 @@ internal static class SchemasRendererTests
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "schemas.json");
         var content = await File.ReadAllTextAsync(outputFile);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // A schema a user declared is listed even when it holds nothing; a system schema
             // the report covers nothing in only adds noise.
             Assert.That(content, Does.Contain("\"schemasCount\":1"));
             Assert.That(content, Does.Contain("\"name\":\"app\""));
             Assert.That(content, Does.Not.Contain("\"name\":\"sys\""));
-        });
+        }
     }
 
     [Test]
@@ -90,13 +90,13 @@ internal static class SchemasRendererTests
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "schemas.json");
         var content = await File.ReadAllTextAsync(outputFile);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             // A dialect with no schema provider still gets a schema list, built from object names.
             Assert.That(content, Does.Contain("\"name\":\"undeclared\""));
             Assert.That(content, Does.Contain("\"sequencesCount\":1"));
             Assert.That(content, Does.Contain("\"objectCount\":1"));
-        });
+        }
     }
 
     private static IRelationalDatabase Database()

@@ -19,11 +19,11 @@ internal static class SqlServerDefaultValueParserTests
     {
         var result = SqlServerDefaultValueParser.Parse("((0))", "df_test").UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo("((0))"));
             Assert.That(result.ConstraintName.UnwrapSome(), Is.EqualTo(Identifier.CreateQualifiedIdentifier("df_test")));
-        });
+        }
     }
 
     [TestCase("   ")]

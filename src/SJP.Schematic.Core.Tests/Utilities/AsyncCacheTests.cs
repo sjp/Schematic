@@ -66,11 +66,11 @@ internal static class AsyncCacheTests
 
         var results = await Task.WhenAll(tasks);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(counter, Is.EqualTo(1));
             Assert.That(results, Is.All.EqualTo("test"));
-        });
+        }
     }
 
     [Test]
@@ -89,11 +89,11 @@ internal static class AsyncCacheTests
 
         var result = await cache.GetByKeyAsync("a", "cache_ignore");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.EqualTo("test"));
             Assert.That(counter, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -135,10 +135,10 @@ internal static class AsyncCacheTests
 
         var result = await cache.GetByKeyAsync("a", "cache_ignore");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.EqualTo("test"));
             Assert.That(factoryTokens, Has.Exactly(1).Items.And.All.EqualTo(CancellationToken.None));
-        });
+        }
     }
 }

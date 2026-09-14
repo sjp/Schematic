@@ -180,13 +180,13 @@ internal static class AutoIncrementTests
     {
         var autoIncrement = new AutoIncrement(1, 1);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(autoIncrement.MinValue, OptionIs.None);
             Assert.That(autoIncrement.MaxValue, OptionIs.None);
             Assert.That(autoIncrement.SequenceName, OptionIs.None);
             Assert.That(autoIncrement.Cycle, Is.False);
-        });
+        }
     }
 
     [Test]
@@ -203,14 +203,14 @@ internal static class AutoIncrementTests
             Option<Identifier>.Some(sequenceName)
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.Always));
             Assert.That(autoIncrement.MinValue.UnwrapSome(), Is.EqualTo(-100));
             Assert.That(autoIncrement.MaxValue.UnwrapSome(), Is.EqualTo(100));
             Assert.That(autoIncrement.Cycle, Is.True);
             Assert.That(autoIncrement.SequenceName.UnwrapSome(), Is.EqualTo(sequenceName));
-        });
+        }
     }
 
     [Test]
@@ -239,12 +239,12 @@ internal static class AutoIncrementTests
         var differentMax = new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.Some(1), Option<decimal>.Some(200), false, Option<Identifier>.None);
         var differentCycle = new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.Some(1), Option<decimal>.Some(100), true, Option<Identifier>.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(a, Is.Not.EqualTo(differentMin));
             Assert.That(a, Is.Not.EqualTo(differentMax));
             Assert.That(a, Is.Not.EqualTo(differentCycle));
-        });
+        }
     }
 
     [Test]

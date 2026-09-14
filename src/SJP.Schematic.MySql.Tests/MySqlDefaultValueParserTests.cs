@@ -24,13 +24,13 @@ internal static class MySqlDefaultValueParserTests
 
         var result = MySqlDefaultValueParser.Parse(definition, null).UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo(definition));
             // MySQL has neither named default constraints nor sequences
             Assert.That(result.ConstraintName, OptionIs.None);
             Assert.That(result.SequenceName, OptionIs.None);
-        });
+        }
     }
 
     [TestCase("0", null, DefaultValueKind.Literal)]

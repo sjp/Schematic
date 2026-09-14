@@ -85,7 +85,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         var userDefinedType = new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Alias, Option<IDbType>.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(userDefinedType.Kind, Is.EqualTo(UserDefinedTypeKind.Alias));
             Assert.That(userDefinedType.BaseType, OptionIs.None);
@@ -95,7 +95,7 @@ internal static class DatabaseUserDefinedTypeTests
             Assert.That(userDefinedType.IsNullable, Is.True);
             Assert.That(userDefinedType.DefaultValue, OptionIs.None);
             Assert.That(userDefinedType.Definition, OptionIs.None);
-        });
+        }
     }
 
     [Test]
@@ -117,7 +117,7 @@ internal static class DatabaseUserDefinedTypeTests
             Option<string>.Some("'abc'"),
             Option<string>.Some("create type ..."));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(userDefinedType.Kind, Is.EqualTo(UserDefinedTypeKind.Domain));
             Assert.That(userDefinedType.BaseType.UnwrapSome(), Is.EqualTo(baseType));
@@ -127,7 +127,7 @@ internal static class DatabaseUserDefinedTypeTests
             Assert.That(userDefinedType.IsNullable, Is.False);
             Assert.That(userDefinedType.DefaultValue.UnwrapSome(), Is.EqualTo("'abc'"));
             Assert.That(userDefinedType.Definition.UnwrapSome(), Is.EqualTo("create type ..."));
-        });
+        }
     }
 
     [TestCase("", "test_type", "Type: test_type")]

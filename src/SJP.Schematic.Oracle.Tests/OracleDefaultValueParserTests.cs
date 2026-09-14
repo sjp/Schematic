@@ -22,12 +22,12 @@ internal static class OracleDefaultValueParserTests
 
         var result = OracleDefaultValueParser.Parse(definition).UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo(definition));
             // Oracle has no named default constraints
             Assert.That(result.ConstraintName, OptionIs.None);
-        });
+        }
     }
 
     [TestCase("NULL", DefaultValueKind.Null)]

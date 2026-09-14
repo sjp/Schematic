@@ -228,12 +228,12 @@ internal static class DatabaseTriggerTests
 
         var trigger = new DatabaseTrigger(triggerName, definition, timing, events, true);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Unknown));
             Assert.That(trigger.Condition, OptionIs.None);
             Assert.That(trigger.UpdateColumns, Is.Empty);
-        });
+        }
     }
 
     [Test]

@@ -21,12 +21,12 @@ internal static class PostgreSqlDefaultValueParserTests
 
         var result = PostgreSqlDefaultValueParser.Parse(definition).UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo(definition));
             // PostgreSQL has no named default constraints
             Assert.That(result.ConstraintName, OptionIs.None);
-        });
+        }
     }
 
     [TestCase("NULL", DefaultValueKind.Null)]

@@ -37,7 +37,7 @@ internal static class DatabaseViewMapperTests
 
         var result = mapper.Map(mapper.Map(view));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.IsMaterialized, Is.False);
             Assert.That(result.CheckOption, Is.EqualTo(ViewCheckOption.Cascaded));
@@ -46,7 +46,7 @@ internal static class DatabaseViewMapperTests
             Assert.That(result.Triggers, Has.Count.EqualTo(1));
             Assert.That(result.Triggers.Single().Name.LocalName, Is.EqualTo("test_trigger"));
             Assert.That(result.Triggers.Single().QueryTiming, Is.EqualTo(TriggerQueryTiming.InsteadOf));
-        });
+        }
     }
 
     [Test]
@@ -87,7 +87,7 @@ internal static class DatabaseViewMapperTests
 
         var result = mapper.Map(mapper.Map(view));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.IsMaterialized, Is.True);
             Assert.That(result, Is.InstanceOf<IDatabaseMaterializedView>());
@@ -98,7 +98,7 @@ internal static class DatabaseViewMapperTests
             Assert.That(materializedView.RefreshMode, Is.EqualTo(MaterializedViewRefreshMode.OnDemand));
             Assert.That(materializedView.RefreshMethod.UnwrapSome(), Is.EqualTo("COMPLETE"));
             Assert.That(materializedView.IsPopulated, Is.True);
-        });
+        }
     }
 
     [Test]
@@ -116,12 +116,12 @@ internal static class DatabaseViewMapperTests
 
         var result = mapper.Map(dto);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Triggers, Is.Empty);
             Assert.That(result.Indexes, Is.Empty);
             Assert.That(result.CheckOption, Is.EqualTo(ViewCheckOption.None));
             Assert.That(result.IsUpdatable, Is.False);
-        });
+        }
     }
 }

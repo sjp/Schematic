@@ -140,12 +140,12 @@ internal static class DatabaseColumnTests
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(column.Default.UnwrapSome(), Is.SameAs(columnDefault));
             // the string form stays available as a convenience over the default's definition
             Assert.That(column.DefaultValue.UnwrapSome(), Is.EqualTo("((0))"));
-        });
+        }
     }
 
     [Test]

@@ -203,11 +203,11 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
     {
         var routine = await GetRoutineAsync("db_test_routine_1");
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(routine.Definition, Does.StartWith("CREATE OR REPLACE FUNCTION public.db_test_routine_1(val integer)"));
             Assert.That(routine.Definition, Does.Contain("RETURN val + 1;"));
-        });
+        }
     }
 
     [TestCase("db_test_routine_1", RoutineType.Function)]

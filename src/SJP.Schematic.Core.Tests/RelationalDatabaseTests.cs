@@ -1041,11 +1041,11 @@ internal static class RelationalDatabaseTests
         _ = await database.GetTable(testTableName).ToOption();
         _ = await database.GetTable("missing_table_name").ToOption();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(enumerationCountAfterCtor, Is.EqualTo(1));
             Assert.That(tables.EnumerationCount, Is.EqualTo(enumerationCountAfterCtor));
-        });
+        }
     }
 
     [Test]

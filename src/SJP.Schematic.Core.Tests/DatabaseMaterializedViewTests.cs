@@ -106,14 +106,14 @@ internal static class DatabaseMaterializedViewTests
 
         var view = new DatabaseMaterializedView(viewName, definition, columns);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(view.RefreshMode, Is.EqualTo(MaterializedViewRefreshMode.Unknown));
             Assert.That(view.RefreshMethod, OptionIs.None);
             Assert.That(view.IsPopulated, Is.False);
             Assert.That(view.Triggers, Is.Empty);
             Assert.That(view.Indexes, Is.Empty);
-        });
+        }
     }
 
     [Test]
@@ -135,13 +135,13 @@ internal static class DatabaseMaterializedViewTests
             true
         );
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(view.RefreshMode, Is.EqualTo(MaterializedViewRefreshMode.OnCommit));
             Assert.That(view.RefreshMethod.UnwrapSome(), Is.EqualTo("FAST"));
             Assert.That(view.IsPopulated, Is.True);
             Assert.That(view.Indexes, Is.EqualTo(indexes));
-        });
+        }
     }
 
     [Test]
@@ -167,11 +167,11 @@ internal static class DatabaseMaterializedViewTests
 
         var view = new DatabaseMaterializedView(viewName, definition, columns);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.None));
             Assert.That(view.IsUpdatable, Is.False);
-        });
+        }
     }
 
     [TestCase("", "test_view", "Materialized View: test_view")]

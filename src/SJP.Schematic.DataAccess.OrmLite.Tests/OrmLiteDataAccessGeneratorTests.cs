@@ -109,13 +109,13 @@ internal static class OrmLiteDataAccessGeneratorTests
 
         var currentTablePath = Path.Combine(tempDir.DirectoryPath, "Tables", "current_table.cs");
         var currentViewPath = Path.Combine(tempDir.DirectoryPath, "Views", "current_view.cs");
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(mockFs.File.Exists(staleTablePath), Is.False);
             Assert.That(mockFs.File.Exists(staleViewPath), Is.False);
             Assert.That(mockFs.File.Exists(currentTablePath), Is.True);
             Assert.That(mockFs.File.Exists(currentViewPath), Is.True);
-        });
+        }
     }
 
     [Test]
@@ -151,11 +151,11 @@ internal static class OrmLiteDataAccessGeneratorTests
             .Single(static e => e.Attribute("Include")?.Value == "ServiceStack.OrmLite")
             .Attribute("Version")?.Value;
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(version, Is.Not.Null.And.Not.Empty);
             Assert.That(version, Does.Not.Contain("+"));
-        });
+        }
     }
 
     private static IRelationalDatabase CreateDatabase(Identifier tableName, Identifier viewName)

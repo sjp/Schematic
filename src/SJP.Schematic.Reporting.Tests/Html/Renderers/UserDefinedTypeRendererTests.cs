@@ -85,7 +85,7 @@ internal static class UserDefinedTypeRendererTests
         var outputFile = Path.Combine(tempDir.DirectoryPath, "data", "userDefinedTypes", typeName.ToSafeKey() + ".json");
         var content = await File.ReadAllTextAsync(outputFile);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(content, Does.Contain("\"kind\":\"Composite\""));
             Assert.That(content, Does.Contain("\"attributeName\":\"attr_one\""));
@@ -93,6 +93,6 @@ internal static class UserDefinedTypeRendererTests
             Assert.That(content, Does.Contain("\"enumValues\":[\"alpha\",\"beta\"]"));
             Assert.That(content, Does.Contain("\"constraintName\":\"ck_positive\""));
             Assert.That(content, Does.Contain("\"checksCount\":1"));
-        });
+        }
     }
 }

@@ -120,11 +120,11 @@ internal static class PocoTableGeneratorTests
 
         var result = generator.Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Does.Contain("visible_column"));
             Assert.That(result, Does.Not.Contain("hidden_column"));
-        });
+        }
     }
 
     private static IDatabaseColumn CreateColumn(Identifier columnName, bool isHidden)

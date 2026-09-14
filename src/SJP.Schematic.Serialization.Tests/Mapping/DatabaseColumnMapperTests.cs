@@ -44,13 +44,13 @@ internal static class DatabaseColumnMapperTests
 
         var result = mapper.Map(mapper.Map(column)).Default.UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo("((0))"));
             Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.Literal));
             Assert.That(result.ConstraintName.UnwrapSome(), Is.EqualTo(Identifier.CreateQualifiedIdentifier("df_test_column")));
             Assert.That(result.SequenceName, OptionIs.None);
-        });
+        }
     }
 
     [Test]
@@ -68,11 +68,11 @@ internal static class DatabaseColumnMapperTests
 
         var result = mapper.Map(mapper.Map(column)).Default.UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.SequenceNextValue));
             Assert.That(result.SequenceName.UnwrapSome(), Is.EqualTo(sequenceName));
-        });
+        }
     }
 
     [Test]
@@ -93,12 +93,12 @@ internal static class DatabaseColumnMapperTests
 
         var result = mapper.Map(dto).Default.UnwrapSome();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo("((0))"));
             Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.Unknown));
             Assert.That(result.ConstraintName, OptionIs.None);
-        });
+        }
     }
 
     [TestCase(true)]

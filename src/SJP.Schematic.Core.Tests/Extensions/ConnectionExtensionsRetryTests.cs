@@ -22,11 +22,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var results = await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(results, Is.EqualTo(new[] { "first", "second", "third" }));
             Assert.That(injector.ExecutionCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -36,12 +36,12 @@ internal static class ConnectionExtensionsRetryTests
         var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
         var results = new List<string>();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(async () => await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None), results), Throws.InstanceOf<TimeoutException>());
             Assert.That(results, Is.EqualTo(new[] { "first" }));
             Assert.That(injector.ExecutionCount, Is.EqualTo(1));
-        });
+        }
     }
 
     [Test]
@@ -53,11 +53,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var results = await CollectAsync(connectionFactory.QueryEnumerableAsync("select @Test as dummy", param, CancellationToken.None));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(results, Is.EqualTo(new[] { "test" }));
             Assert.That(injector.ExecutionCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -68,11 +68,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var result = await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.UnwrapSome(), Is.EqualTo("test"));
             Assert.That(injector.ExecutionCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -81,11 +81,11 @@ internal static class ConnectionExtensionsRetryTests
         var injector = new FaultInjector(rowsBeforeFailure: 1, failureCount: 1);
         var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(async () => await connectionFactory.QuerySingleOrNone<string>(ThreeRowQuery, CancellationToken.None).ToOption(), Throws.InstanceOf<TimeoutException>());
             Assert.That(injector.ExecutionCount, Is.EqualTo(1));
-        });
+        }
     }
 
     [Test]
@@ -105,11 +105,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var results = await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(results, Is.EqualTo(new[] { "first", "second", "third" }));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -121,11 +121,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var results = await connectionFactory.QueryAsync("select @Test as dummy", param, CancellationToken.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(results, Is.EqualTo(new[] { "test" }));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -136,11 +136,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var results = await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None));
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(results, Is.EqualTo(new[] { "first", "second", "third" }));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -151,11 +151,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var result = await connectionFactory.ExecuteScalarAsync<string>("select 'test' as dummy", CancellationToken.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.EqualTo("test"));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -177,11 +177,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var result = await connectionFactory.QueryFirstOrNone<string>(ThreeRowQuery, CancellationToken.None).ToOption();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.UnwrapSome(), Is.EqualTo("first"));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -192,11 +192,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var result = await connectionFactory.QuerySingleAsync<string>("select 'test' as dummy", CancellationToken.None);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result, Is.EqualTo("test"));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]
@@ -207,11 +207,11 @@ internal static class ConnectionExtensionsRetryTests
 
         var result = await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption();
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(result.UnwrapSome(), Is.EqualTo("test"));
             Assert.That(injector.OpenCount, Is.EqualTo(2));
-        });
+        }
     }
 
     [Test]

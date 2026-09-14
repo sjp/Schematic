@@ -124,11 +124,11 @@ internal static class MySqlDatabaseTriggerTests
 
         var trigger = new MySqlDatabaseTrigger(triggerName, definition, timing, events);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Row));
             Assert.That(trigger.Condition, OptionIs.None);
             Assert.That(trigger.UpdateColumns, Is.Empty);
-        });
+        }
     }
 }
