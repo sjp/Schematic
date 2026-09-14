@@ -222,7 +222,18 @@ public static class SyntaxUtilities
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        return Formatter.Format(node, FormattingWorkspace).ToFullString();
+        // Formatter.Format slows down quadratically when it has to insert whitespace between most tokens, as it
+        // must for SyntaxFactory-built trees, so a large method body could take minutes. Normalizing the outermost
+        // blocks first avoids that. Member-level trivia is left alone: NormalizeWhitespace would rewrite
+        // documentation comments, and the formatter handles members quickly anyway. The end-of-line is explicit
+        // because NormalizeWhitespace defaults to CRLF and the formatter keeps existing line endings.
+        var blocks = node.DescendantNodes(static n => n is not BlockSyntax).OfType<BlockSyntax>();
+        var normalized = node.ReplaceNodes(blocks, static (original, rewritten) => rewritten
+            .NormalizeWhitespace(eol: Environment.NewLine)
+            .WithLeadingTrivia(original.GetLeadingTrivia())
+            .WithTrailingTrivia(original.GetTrailingTrivia()));
+
+        return Formatter.Format(normalized, FormattingWorkspace).ToFullString();
     }
 
     /// <summary>
