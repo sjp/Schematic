@@ -18,6 +18,7 @@ using SJP.Schematic.Sqlite.Parsing.Antlr;
 using SJP.Schematic.Sqlite.Pragma;
 using SJP.Schematic.Sqlite.Pragma.Query;
 using SJP.Schematic.Sqlite.Queries;
+using StringHashSet = System.Collections.Generic.HashSet<string>;
 
 namespace SJP.Schematic.Sqlite;
 
@@ -84,7 +85,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache>(LoadParentKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache>(LoadIndexListAsync)
+        new AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache>(LoadIndexListAsync),
+        new AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache>(LoadForeignKeyListAsync),
+        new AsyncCache<string, ILookup<string, Identifier>, SqliteTableQueryCache>(LoadChildTableLookupAsync)
     );
 
     /// <summary>
@@ -837,39 +840,84 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             tableName = resolvedName;
         }
 
+        // schema name must match, no cross-schema FKs allowed
         var dbList = await _databaseList.Task;
-        var dbNames = dbList
-            .Where(d => string.Equals(tableName.Schema, d.name, StringComparison.OrdinalIgnoreCase)) // schema name must match, no cross-schema FKs allowed
+        var schemaName = dbList
             .OrderBy(static d => d.seq)
             .Select(static d => d.name)
-            .ToList();
+            .FirstOrDefault(name => string.Equals(tableName.Schema, name, StringComparison.OrdinalIgnoreCase));
+        if (schemaName == null)
+            return [];
 
-        var qualifiedChildTableNames = new List<Identifier>();
-
-        foreach (var dbName in dbNames)
-        {
-            var sql = GetAllTableNames.Sql(Dialect, dbName);
-            var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(sql, cancellationToken)
-                .Where(static result => !IsReservedTableName(result.TableName))
-                .Select(result => Identifier.CreateQualifiedIdentifier(dbName, result.TableName))
-                .ToListAsync(cancellationToken);
-
-            qualifiedChildTableNames.AddRange(tableNames);
-        }
-
+        var childTableLookup = await queryCache.GetChildTableLookupAsync(schemaName, cancellationToken);
         var result = new List<IDatabaseRelationalKey>();
 
-        foreach (var childTableName in qualifiedChildTableNames)
+        foreach (var childTableName in childTableLookup[tableName.LocalName])
         {
             var childTableParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-            var matchingParentKeys = childTableParentKeys
-                .Where(fk => string.Equals(tableName.Schema, fk.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(tableName.LocalName, fk.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            result.AddRange(matchingParentKeys);
+            foreach (var parentKey in childTableParentKeys)
+            {
+                if (string.Equals(tableName.Schema, parentKey.ParentTable.Schema, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(tableName.LocalName, parentKey.ParentTable.LocalName, StringComparison.OrdinalIgnoreCase))
+                {
+                    result.Add(parentKey);
+                }
+            }
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Retrieves, for every table in a schema, the tables whose foreign keys name it as their parent.
+    /// </summary>
+    /// <param name="schemaName">A schema name, as reported by the database list.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A lookup from a parent table's local name, matched case-insensitively, to the names of its child tables.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="queryCache"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentException"><paramref name="schemaName"/> is <see langword="null" />, empty or whitespace.</exception>
+    /// <remarks>
+    /// SQLite has no reverse foreign key lookup, so the lookup is built once from the raw
+    /// <c>pragma foreign_key_list</c> rows of every table. The parent names are as written in each
+    /// constraint, so a child table found here may still reference a parent that does not exist;
+    /// its fully loaded foreign keys decide whether a relationship is reported.
+    /// </remarks>
+    protected Task<ILookup<string, Identifier>> LoadChildTableLookupAsync(string schemaName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
+        ArgumentNullException.ThrowIfNull(queryCache);
+
+        return LoadChildTableLookupAsyncCore(schemaName, queryCache, cancellationToken);
+    }
+
+    private async Task<ILookup<string, Identifier>> LoadChildTableLookupAsyncCore(string schemaName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var sql = GetAllTableNames.Sql(Dialect, schemaName);
+        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(sql, cancellationToken)
+            .Where(static result => !IsReservedTableName(result.TableName))
+            .Select(result => Identifier.CreateQualifiedIdentifier(schemaName, result.TableName))
+            .ToListAsync(cancellationToken);
+        var childTableNames = await FilterShadowTablesAsync(tableNames);
+
+        var parentChildPairs = new List<(string ParentTableName, Identifier ChildTableName)>();
+        var parentTableNames = new StringHashSet(StringComparer.OrdinalIgnoreCase);
+
+        // a child table is listed once per parent, in table name order, however many of its
+        // constraints reference that parent
+        foreach (var childTableName in childTableNames)
+        {
+            var foreignKeyRows = await queryCache.GetForeignKeyListAsync(childTableName, cancellationToken);
+
+            parentTableNames.Clear();
+            foreach (var row in foreignKeyRows)
+            {
+                if (parentTableNames.Add(row.table))
+                    parentChildPairs.Add((row.table, childTableName));
+            }
+        }
+
+        return parentChildPairs.ToLookup(static pair => pair.ParentTableName, static pair => pair.ChildTableName, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -925,8 +973,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             tableName = resolvedName;
         }
 
-        var pragma = GetDatabasePragma(tableName.Schema!);
-        var queryResult = await pragma.ForeignKeyListAsync(tableName, cancellationToken);
+        var queryResult = await queryCache.GetForeignKeyListAsync(tableName, cancellationToken);
         if (queryResult.Empty())
             return [];
 
@@ -1027,6 +1074,38 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Retrieves the foreign key list pragma result for a given table.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The foreign key list pragma rows for the table.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    protected Task<IReadOnlyList<pragma_foreign_key_list>> LoadForeignKeyListAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
+
+        return LoadForeignKeyListAsyncCore(tableName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<pragma_foreign_key_list>> LoadForeignKeyListAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    {
+        if (tableName.Schema == null)
+        {
+            var resolvedName = await GetResolvedTableName(tableName, cancellationToken)
+                .MatchUnsafe(static name => name, static () => (Identifier?)null);
+            if (resolvedName == null)
+                return [];
+            tableName = resolvedName;
+        }
+
+        var pragma = GetDatabasePragma(tableName.Schema!);
+        var foreignKeyList = await pragma.ForeignKeyListAsync(tableName, cancellationToken);
+        return foreignKeyList.ToList();
     }
 
     /// <summary>
@@ -1541,6 +1620,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> _foreignKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache> _indexLists;
+        private readonly AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache> _foreignKeyLists;
+        private readonly AsyncCache<string, ILookup<string, Identifier>, SqliteTableQueryCache> _childTableLookups;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SqliteTableQueryCache"/> class.
@@ -1551,14 +1632,18 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="indexListLoader">An index list pragma cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/> or <paramref name="indexListLoader"/> are <see langword="null" />.</exception>
+        /// <param name="foreignKeyListLoader">A foreign key list pragma cache.</param>
+        /// <param name="childTableLookupLoader">A cache of child table lookups, keyed by schema name.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
         public SqliteTableQueryCache(
             AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> parsedTableLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> uniqueKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> foreignKeyLoader,
-            AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache> indexListLoader
+            AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache> indexListLoader,
+            AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache> foreignKeyListLoader,
+            AsyncCache<string, ILookup<string, Identifier>, SqliteTableQueryCache> childTableLookupLoader
         )
         {
             _parsedTables = parsedTableLoader ?? throw new ArgumentNullException(nameof(parsedTableLoader));
@@ -1567,6 +1652,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             _indexLists = indexListLoader ?? throw new ArgumentNullException(nameof(indexListLoader));
+            _foreignKeyLists = foreignKeyListLoader ?? throw new ArgumentNullException(nameof(foreignKeyListLoader));
+            _childTableLookups = childTableLookupLoader ?? throw new ArgumentNullException(nameof(childTableLookupLoader));
         }
 
         /// <summary>
@@ -1651,6 +1738,34 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _indexLists.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's foreign key list pragma result from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of foreign key list pragma results.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyList<pragma_foreign_key_list>> GetForeignKeyListAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _foreignKeyLists.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a schema's child table lookup from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="schemaName">A schema name, as reported by the database list.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A lookup from a parent table's local name to the names of the tables that reference it.</returns>
+        /// <exception cref="ArgumentException"><paramref name="schemaName"/> is <see langword="null" />, empty or whitespace.</exception>
+        public Task<ILookup<string, Identifier>> GetChildTableLookupAsync(string schemaName, CancellationToken cancellationToken)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(schemaName);
+
+            return _childTableLookups.GetByKeyAsync(schemaName, this, cancellationToken);
         }
     }
 }
