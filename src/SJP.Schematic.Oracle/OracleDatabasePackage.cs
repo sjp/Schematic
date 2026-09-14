@@ -66,7 +66,7 @@ public class OracleDatabasePackage : IOracleDatabasePackage
     /// <summary>
     /// The kind of routine a package represents.
     /// </summary>
-    /// <value>Always <see cref="Core.RoutineType.Package"/>.</value>
+    /// <value>Always <see cref="RoutineType.Package"/>.</value>
     public RoutineType RoutineType { get; } = RoutineType.Package;
 
     /// <summary>

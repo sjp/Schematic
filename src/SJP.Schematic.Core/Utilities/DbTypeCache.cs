@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core.Utilities;
 /// A type is shared only when every value it exposes is identical, including the definition text, the CLR type and the CLR type name. Types are immutable, so sharing one is not observable except through reference equality.
 /// </para>
 /// <para>
-/// Types that have an element type, a base type or enum values, or whose numeric precision is not a <see cref="Core.NumericPrecision"/>, are always created afresh and never shared.
+/// Types that have an element type, a base type or enum values, or whose numeric precision is not a <see cref="NumericPrecision"/>, are always created afresh and never shared.
 /// </para>
 /// <para>
 /// The cache holds on to the types it shares for its own lifetime. Once it holds about <see cref="Capacity"/> types it stops adding more, and types it does not already hold are created afresh. This keeps a cache owned by a long-lived object bounded.

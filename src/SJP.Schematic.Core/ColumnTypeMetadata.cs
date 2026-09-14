@@ -62,13 +62,13 @@ public class ColumnTypeMetadata
     /// <summary>
     /// The type of the elements stored by a collection type, if available.
     /// </summary>
-    /// <value>The element type, for a <see cref="Core.DataType.Array"/> or <see cref="Core.DataType.Range"/> type; otherwise none.</value>
+    /// <value>The element type, for a <see cref="DataType.Array"/> or <see cref="DataType.Range"/> type; otherwise none.</value>
     public Option<IDbType> ElementType { get; set; }
 
     /// <summary>
     /// The values a value of this type is restricted to.
     /// </summary>
-    /// <value>The permitted values, for a <see cref="Core.DataType.Enum"/> or <see cref="Core.DataType.Set"/> type; otherwise empty.</value>
+    /// <value>The permitted values, for a <see cref="DataType.Enum"/> or <see cref="DataType.Set"/> type; otherwise empty.</value>
     public IReadOnlyList<string> EnumValues { get; set; } = [];
 
     /// <summary>

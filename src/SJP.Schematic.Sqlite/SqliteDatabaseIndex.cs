@@ -79,7 +79,7 @@ public class SqliteDatabaseIndex : IDatabaseIndex
     /// <summary>
     /// The physical structure used to implement the index.
     /// </summary>
-    /// <value>Always <see cref="Core.IndexType.BTree"/>. Every SQLite index is a b-tree.</value>
+    /// <value>Always <see cref="IndexType.BTree"/>. Every SQLite index is a b-tree.</value>
     public IndexType IndexType { get; } = IndexType.BTree;
 
     /// <summary>

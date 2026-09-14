@@ -18,7 +18,7 @@ public interface IDatabaseRoutine : IDatabaseEntity
     /// <summary>
     /// The kind of routine, e.g. a procedure or a function.
     /// </summary>
-    /// <value>A routine kind, or <see cref="Core.RoutineType.Unknown"/> when the database does not record one.</value>
+    /// <value>A routine kind, or <see cref="RoutineType.Unknown"/> when the database does not record one.</value>
     RoutineType RoutineType { get; }
 
     /// <summary>

@@ -95,7 +95,7 @@ public class Column
     /// Describes what the default value expression evaluates to, taken from the token the parser
     /// matched after <c>DEFAULT</c>.
     /// </summary>
-    /// <value>A default value classification, or <see cref="Core.DefaultValueKind.Unknown"/> when the column has no default.</value>
+    /// <value>A default value classification, or <see cref="DefaultValueKind.Unknown"/> when the column has no default.</value>
     public DefaultValueKind DefaultValueKind { get; }
 
     /// <summary>

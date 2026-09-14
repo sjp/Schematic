@@ -68,7 +68,7 @@ public class PostgreSqlDatabaseIndex : IDatabaseIndex
         if (includedColumns.NullOrAnyNull())
             throw new ArgumentNullException(nameof(includedColumns));
         if (!indexType.IsValid())
-            throw new ArgumentException($"The {nameof(Core.IndexType)} provided must be a valid enum.", nameof(indexType));
+            throw new ArgumentException($"The {nameof(IndexType)} provided must be a valid enum.", nameof(indexType));
 
         Name = name.LocalName;
         IsUnique = isUnique;

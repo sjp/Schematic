@@ -67,7 +67,7 @@ public class DatabaseIndex : IDatabaseIndex
             throw new ArgumentException("An index must have at least one column.", nameof(columns));
         var indexIncludedColumns = includedColumns.ToDefensiveCopy(nameof(includedColumns));
         if (!indexType.IsValid())
-            throw new ArgumentException($"The {nameof(Core.IndexType)} provided must be a valid enum.", nameof(indexType));
+            throw new ArgumentException($"The {nameof(IndexType)} provided must be a valid enum.", nameof(indexType));
 
         Name = name.LocalName;
         IsUnique = isUnique;
@@ -119,7 +119,7 @@ public class DatabaseIndex : IDatabaseIndex
     /// <summary>
     /// The physical structure used to implement the index.
     /// </summary>
-    /// <value>An index structure, or <see cref="Core.IndexType.Unknown"/> when the database does not report one.</value>
+    /// <value>An index structure, or <see cref="IndexType.Unknown"/> when the database does not report one.</value>
     public IndexType IndexType { get; }
 
     /// <summary>

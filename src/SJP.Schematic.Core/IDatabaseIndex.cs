@@ -41,7 +41,7 @@ public interface IDatabaseIndex : IDatabaseOptional
     /// <summary>
     /// The physical structure used to implement the index.
     /// </summary>
-    /// <value>An index structure, or <see cref="Core.IndexType.Unknown"/> when the database does not report one.</value>
+    /// <value>An index structure, or <see cref="IndexType.Unknown"/> when the database does not report one.</value>
     IndexType IndexType { get; }
 
     /// <summary>

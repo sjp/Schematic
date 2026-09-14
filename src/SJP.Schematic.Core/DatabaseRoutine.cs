@@ -77,7 +77,7 @@ public class DatabaseRoutine : IDatabaseRoutine
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (!routineType.IsValid())
-            throw new ArgumentException($"The {nameof(Core.RoutineType)} provided must be a valid enum.", nameof(routineType));
+            throw new ArgumentException($"The {nameof(RoutineType)} provided must be a valid enum.", nameof(routineType));
         if (parameters.NullOrAnyNull())
             throw new ArgumentNullException(nameof(parameters));
         if (overloads.NullOrAnyNull())
