@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -18,7 +19,7 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
     // Chosen so that the columns span exactly two 64-column probe batches, with always-null columns
     // planted at the first and last position of each -- the positions most likely to reveal an
-    // off-by-one when counts are mapped back onto the columns that requested them.
+    // off-by-one when results are mapped back onto the columns that requested them.
     private const int WideColumnCount = 128;
     private static readonly IReadOnlyCollection<int> AlwaysNullWideColumnIndexes = [0, 63, 64, 127];
 
@@ -31,6 +32,8 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
         await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_2 ( column_1 ) values (1)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_for_nullable_columns_3 ( column_1 integer not null, column_2 integer null, column_3 integer null )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_3 ( column_1, column_2 ) values (1, 2)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_for_nullable_columns_sparse ( column_1 integer not null, column_2 integer null )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("insert into table_for_nullable_columns_sparse ( column_1, column_2 ) values (1, null), (2, null), (3, 3)", TestContext.CurrentContext.CancellationToken);
 
         var wideColumnNames = Enumerable.Range(0, WideColumnCount).Select(static i => $"column_{i}").ToList();
         var wideColumnDefinitions = wideColumnNames.Select(static name => name + " integer null").Join(", ");
@@ -49,6 +52,7 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
         await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_2", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_sparse", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table table_for_nullable_columns_wide", TestContext.CurrentContext.CancellationToken);
     }
 
@@ -139,6 +143,59 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteTest
 
         Assert.That(messages, Has.Count.EqualTo(1));
         Assert.That(messages.Single().Message, Does.Contain("column_3"));
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenColumnWithValueOnlyInALaterRow_ProducesNoMessages()
+    {
+        var rule = new NoValueForNullableColumnRule(Connection, RuleLevel.Error);
+        var database = GetSqliteDatabase();
+
+        var tables = new[]
+        {
+            await database.GetTable("table_for_nullable_columns_sparse").UnwrapSomeAsync(),
+        };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenExactCountOfNoRows_ProducesNoMessagesWithoutQuerying()
+    {
+        var countingFactory = new CountingDbConnectionFactory(DbConnection);
+        var countingConnection = new SchematicConnection(countingFactory, Connection.Dialect);
+        var database = GetSqliteDatabase();
+        var table = await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync();
+
+        // the table really has rows and an always-null column, so a message is only avoided by the
+        // rule trusting the exact count in place of a query
+        var statistics = new FakeTableStatisticsProvider(new TableStatistics(table.Name, Option<long>.Some(0), true, Option<long>.None, Option<long>.None));
+        var rule = new NoValueForNullableColumnRule(countingConnection, RuleLevel.Error, statistics);
+
+        var messages = await rule.AnalyseTables([table]);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(messages, Is.Empty);
+            Assert.That(countingFactory.QueryCount, Is.Zero);
+        }
+    }
+
+    [Test]
+    public async Task AnalyseTables_GivenEstimateOfNoRows_QueriesTheTableAnyway()
+    {
+        var database = GetSqliteDatabase();
+        var table = await database.GetTable("table_for_nullable_columns_2").UnwrapSomeAsync();
+
+        // an estimate of zero is what an unanalysed table reports too, so it must not be believed
+        var statistics = new FakeTableStatisticsProvider(new TableStatistics(table.Name, Option<long>.Some(0), false, Option<long>.None, Option<long>.None));
+        var rule = new NoValueForNullableColumnRule(Connection, RuleLevel.Error, statistics);
+
+        var messages = await rule.AnalyseTables([table]);
+
+        Assert.That(messages, Is.Not.Empty);
     }
 
     [Test]

@@ -6,8 +6,8 @@ namespace SJP.Schematic.Reporting.Html.Lint.Rules;
 
 internal sealed class NoValueForNullableColumnRule : Schematic.Lint.Rules.NoValueForNullableColumnRule
 {
-    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel? level = null)
-        : base(connection, level)
+    public NoValueForNullableColumnRule(ISchematicConnection connection, RuleLevel? level = null, ITableStatisticsProvider? tableStatistics = null)
+        : base(connection, level, tableStatistics)
     {
     }
 

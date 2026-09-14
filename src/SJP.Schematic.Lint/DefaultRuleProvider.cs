@@ -98,7 +98,7 @@ public class DefaultRuleProvider : IRuleProvider
             new NoNonNullableColumnsPresentRule(level),
             new NoRowsPresentOnTableRule(connection, level, TableStatistics),
             new NoSurrogatePrimaryKeyRule(level),
-            new NoValueForNullableColumnRule(connection, level),
+            new NoValueForNullableColumnRule(connection, level, TableStatistics),
             new NullableBooleanColumnRule(level),
             new OnlyOneColumnPresentRule(level),
             new OrphanedTableRule(level),

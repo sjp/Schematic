@@ -204,32 +204,6 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
     }
 
     /// <summary>
-    /// A statistics provider returning a fixed set of statistics, standing in for the statistics a
-    /// database records for its tables.
-    /// </summary>
-    private sealed class FakeTableStatisticsProvider : ITableStatisticsProvider
-    {
-        public FakeTableStatisticsProvider(params ITableStatistics[] statistics)
-        {
-            _statistics = statistics;
-        }
-
-        public OptionAsync<ITableStatistics> GetTableStatistics(Identifier tableName, CancellationToken cancellationToken = default)
-        {
-            ArgumentNullException.ThrowIfNull(tableName);
-
-            var statistics = _statistics.FirstOrDefault(s => s.TableName == tableName);
-            return statistics != null
-                ? OptionAsync<ITableStatistics>.Some(statistics)
-                : OptionAsync<ITableStatistics>.None;
-        }
-
-        public Task<IReadOnlyCollection<ITableStatistics>> GetAllTableStatistics(CancellationToken cancellationToken = default) => Task.FromResult<IReadOnlyCollection<ITableStatistics>>(_statistics);
-
-        private readonly IReadOnlyCollection<ITableStatistics> _statistics;
-    }
-
-    /// <summary>
     /// A connection factory decorator recording the largest number of connections being opened at once.
     /// Each query opens exactly one connection, and holds it for the duration of the query, so this
     /// measures how many queries a rule runs concurrently.
