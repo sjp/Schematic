@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Threading.Tasks;
 using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests;
@@ -17,7 +18,7 @@ internal static class MySqlConnectionFactoryTests
     [Test]
     public static void CreateConnection_WhenInvoked_ReturnsConnectionInClosedState()
     {
-        var factory = new MySqlConnectionFactory("Server=127.0.0.1;");
+        using var factory = new MySqlConnectionFactory("Server=127.0.0.1;");
         using var connection = factory.CreateConnection();
 
         Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
@@ -26,7 +27,7 @@ internal static class MySqlConnectionFactoryTests
     [Test]
     public static void CreateConnection_GivenNoConnectionConfiguration_DoesNotThrow()
     {
-        var factory = new MySqlConnectionFactory("Server=127.0.0.1;", connectionConfiguration: null);
+        using var factory = new MySqlConnectionFactory("Server=127.0.0.1;", connectionConfiguration: null);
 
         Assert.That(() => factory.CreateConnection(), Throws.Nothing);
     }
@@ -35,7 +36,7 @@ internal static class MySqlConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
-        var factory = new MySqlConnectionFactory(
+        using var factory = new MySqlConnectionFactory(
             "Server=127.0.0.1;",
             connection => wasInvoked = true);
 
@@ -48,7 +49,7 @@ internal static class MySqlConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_AppliesConfigurationToReturnedConnection()
     {
         const string expectedConnectionString = "Server=127.0.0.1;Database=other;";
-        var factory = new MySqlConnectionFactory(
+        using var factory = new MySqlConnectionFactory(
             "Server=127.0.0.1;",
             connection => connection.ConnectionString = expectedConnectionString);
 
@@ -60,8 +61,35 @@ internal static class MySqlConnectionFactoryTests
     [Test]
     public static void MaxConcurrentQueries_GivenMaximumPoolSize_ReturnsMaximumPoolSize()
     {
-        var factory = new MySqlConnectionFactory("Server=127.0.0.1;Maximum Pool Size=7;");
+        using var factory = new MySqlConnectionFactory("Server=127.0.0.1;Maximum Pool Size=7;");
 
         Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(7));
+    }
+
+    [Test]
+    public static void Dispose_WhenInvokedTwice_DoesNotThrow()
+    {
+        var factory = new MySqlConnectionFactory("Server=127.0.0.1;");
+        factory.Dispose();
+
+        Assert.That(factory.Dispose, Throws.Nothing);
+    }
+
+    [Test]
+    public static void OpenConnection_AfterDispose_ThrowsObjectDisposedException()
+    {
+        var factory = new MySqlConnectionFactory("Server=127.0.0.1;");
+        factory.Dispose();
+
+        Assert.That(() => factory.OpenConnection(), Throws.InstanceOf<ObjectDisposedException>());
+    }
+
+    [Test]
+    public static async Task OpenConnectionAsync_AfterDisposeAsync_ThrowsObjectDisposedException()
+    {
+        var factory = new MySqlConnectionFactory("Server=127.0.0.1;");
+        await factory.DisposeAsync();
+
+        Assert.That(async () => await factory.OpenConnectionAsync(), Throws.InstanceOf<ObjectDisposedException>());
     }
 }

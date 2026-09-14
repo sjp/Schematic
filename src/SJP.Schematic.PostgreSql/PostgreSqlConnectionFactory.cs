@@ -18,7 +18,10 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
     /// <summary>
     /// Initializes a new instance of the <see cref="PostgreSqlConnectionFactory"/> class.
     /// </summary>
-    /// <param name="connectionString">The connection string.</param>
+    /// <param name="connectionString">
+    /// The connection string. Its settings are used as given: pool size, connection timeout and
+    /// command timeout all fall back to Npgsql's defaults when the connection string does not set them.
+    /// </param>
     /// <param name="connectionConfiguration">
     /// An optional callback used to configure each <see cref="NpgsqlConnection"/> before it is opened.
     /// Use this to authenticate via a mechanism other than the connection string, e.g. from an
@@ -30,16 +33,9 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        var connectionStringBuilder = new NpgsqlConnectionStringBuilder(connectionString)
-        {
-            MaxPoolSize = 10,
-            Timeout = 300,
-            CommandTimeout = 30
-        };
-
-        DataSource = new NpgsqlDataSourceBuilder(connectionStringBuilder.ConnectionString).Build();
+        DataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
         ConnectionConfiguration = connectionConfiguration;
-        MaxConcurrentQueries = connectionStringBuilder.MaxPoolSize;
+        MaxConcurrentQueries = new NpgsqlConnectionStringBuilder(connectionString).MaxPoolSize;
     }
 
     /// <summary>

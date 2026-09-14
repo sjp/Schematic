@@ -13,7 +13,7 @@ namespace SJP.Schematic.MySql;
 /// A connection factory that provides MySQL connections.
 /// </summary>
 /// <seealso cref="IDbConnectionFactory" />
-public class MySqlConnectionFactory : IDbConnectionFactory
+public class MySqlConnectionFactory : IDbConnectionFactory, IDisposable, IAsyncDisposable
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="MySqlConnectionFactory"/> class.
@@ -107,6 +107,18 @@ public class MySqlConnectionFactory : IDbConnectionFactory
     /// </summary>
     /// <value>The connection string's effective <c>Maximum Pool Size</c>.</value>
     public int MaxConcurrentQueries { get; }
+
+    /// <summary>
+    /// Disposes the connection pool (<see cref="MySqlDataSource"/>) dedicated to this factory
+    /// instance, releasing any connections it is holding open.
+    /// </summary>
+    public void Dispose() => DataSource.Dispose();
+
+    /// <summary>
+    /// Disposes the connection pool (<see cref="MySqlDataSource"/>) dedicated to this factory
+    /// instance, releasing any connections it is holding open.
+    /// </summary>
+    public ValueTask DisposeAsync() => DataSource.DisposeAsync();
 
     private static bool IsTransientError(MySqlException mysqlEx)
     {

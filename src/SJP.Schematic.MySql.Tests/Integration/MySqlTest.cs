@@ -36,6 +36,16 @@ internal static class Config
         return new MySqlConnectionFactory(builder.ConnectionString);
     });
 
+    /// <summary>
+    /// Disposes the shared pool. Only safe to call once every fixture has finished, so it is
+    /// driven by <see cref="MySqlIntegrationSetUp"/> rather than by any individual fixture.
+    /// </summary>
+    internal static void DisposeConnectionPool()
+    {
+        if (ConnectionFactoryLoader.IsValueCreated && ConnectionFactoryLoader.Value is IDisposable disposable)
+            disposable.Dispose();
+    }
+
     private static string ConnectionString => ConnectionStringLoader.Value;
 
     private static readonly Lazy<string> ConnectionStringLoader = new(static () => Configuration.GetConnectionString("MySql_TestDb"));
@@ -50,9 +60,12 @@ internal static class Config
 
 /// <summary>
 /// Probes for a live MySQL instance once per run, ignoring every fixture in this namespace when
-/// one is not reachable, and resolves the values shared by every fixture beneath it. Identifier
-/// defaults cannot change within a run, so they are awaited here once rather than being resolved
-/// -- blocking -- once per fixture.
+/// one is not reachable, resolves the values shared by every fixture beneath it, and disposes the
+/// connection pool shared by those fixtures once they have all finished. Identifier defaults cannot
+/// change within a run, so they are awaited here once rather than being resolved -- blocking -- once
+/// per fixture. Pool ownership sits here rather than in a per-fixture
+/// <see cref="OneTimeTearDownAttribute"/> because the pool outlives any single fixture: the first
+/// fixture to finish must not tear it down while the others are still running.
 /// </summary>
 [SetUpFixture]
 internal sealed class MySqlIntegrationSetUp
@@ -82,6 +95,9 @@ internal sealed class MySqlIntegrationSetUp
         var displayVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(TestContext.CurrentContext.CancellationToken);
         IsMariaDb = displayVersion.Contains("MariaDB", StringComparison.OrdinalIgnoreCase);
     }
+
+    [OneTimeTearDown]
+    public void DisposeConnectionPool() => Config.DisposeConnectionPool();
 }
 
 [Category("MySqlDatabase")]

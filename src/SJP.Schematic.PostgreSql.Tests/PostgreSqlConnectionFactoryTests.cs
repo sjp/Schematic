@@ -17,7 +17,7 @@ internal static class PostgreSqlConnectionFactoryTests
     [Test]
     public static void CreateConnection_WhenInvoked_ReturnsConnectionInClosedState()
     {
-        var factory = new PostgreSqlConnectionFactory("Server=127.0.0.1;");
+        using var factory = new PostgreSqlConnectionFactory("Server=127.0.0.1;");
         using var connection = factory.CreateConnection();
 
         Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
@@ -26,7 +26,7 @@ internal static class PostgreSqlConnectionFactoryTests
     [Test]
     public static void CreateConnection_GivenNoConnectionConfiguration_DoesNotThrow()
     {
-        var factory = new PostgreSqlConnectionFactory("Server=127.0.0.1;", connectionConfiguration: null);
+        using var factory = new PostgreSqlConnectionFactory("Server=127.0.0.1;", connectionConfiguration: null);
 
         Assert.That(() => factory.CreateConnection(), Throws.Nothing);
     }
@@ -35,7 +35,7 @@ internal static class PostgreSqlConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
-        var factory = new PostgreSqlConnectionFactory(
+        using var factory = new PostgreSqlConnectionFactory(
             "Server=127.0.0.1;",
             connection => wasInvoked = true);
 
@@ -48,7 +48,7 @@ internal static class PostgreSqlConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_AppliesConfigurationToReturnedConnection()
     {
         const string expectedConnectionString = "Server=127.0.0.1;Database=other;";
-        var factory = new PostgreSqlConnectionFactory(
+        using var factory = new PostgreSqlConnectionFactory(
             "Server=127.0.0.1;",
             connection => connection.ConnectionString = expectedConnectionString);
 
@@ -65,6 +65,48 @@ internal static class PostgreSqlConnectionFactoryTests
         var dataSourcePoolSize = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString).MaxPoolSize;
 
         Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(dataSourcePoolSize));
+    }
+
+    [Test]
+    public static void Ctor_GivenPoolAndTimeoutSettings_KeepsSettingsOnDataSource()
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Host=127.0.0.1;Maximum Pool Size=37;Timeout=7;Command Timeout=45;");
+
+        var dataSourceSettings = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dataSourceSettings.MaxPoolSize, Is.EqualTo(37));
+            Assert.That(dataSourceSettings.Timeout, Is.EqualTo(7));
+            Assert.That(dataSourceSettings.CommandTimeout, Is.EqualTo(45));
+            Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(37));
+        }
+    }
+
+    [TestCase("Maximum Pool Size=37;")]
+    [TestCase("MaxPoolSize=37;")]
+    public static void MaxConcurrentQueries_GivenPoolSizeSynonym_ReturnsGivenPoolSize(string poolSizeSetting)
+    {
+        using var factory = new PostgreSqlConnectionFactory("Host=127.0.0.1;" + poolSizeSetting);
+
+        Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(37));
+    }
+
+    [Test]
+    public static void Ctor_GivenNoPoolOrTimeoutSettings_UsesNpgsqlDefaults()
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Host=127.0.0.1;");
+
+        var dataSourceSettings = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString);
+        var npgsqlDefaults = new Npgsql.NpgsqlConnectionStringBuilder();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dataSourceSettings.MaxPoolSize, Is.EqualTo(npgsqlDefaults.MaxPoolSize));
+            Assert.That(dataSourceSettings.Timeout, Is.EqualTo(npgsqlDefaults.Timeout));
+            Assert.That(dataSourceSettings.CommandTimeout, Is.EqualTo(npgsqlDefaults.CommandTimeout));
+            Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(npgsqlDefaults.MaxPoolSize));
+        }
     }
 
     private sealed class DataSourceExposingConnectionFactory(string connectionString) : PostgreSqlConnectionFactory(connectionString)
