@@ -409,6 +409,7 @@ internal static class ConnectionExtensionsTests
         var factoryMock = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
         factoryMock.Setup(f => f.OpenConnectionAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("the connection is closed"));
         factoryMock.Setup(f => f.RetryPolicy).Returns(Policy.Handle<TimeoutException>());
+        factoryMock.Setup(f => f.MaxConcurrentQueries).Returns(1);
 
         return factoryMock.Object;
     }

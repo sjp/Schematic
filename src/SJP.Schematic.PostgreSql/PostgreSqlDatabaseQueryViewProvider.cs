@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -65,12 +66,17 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
+        var viewNames = await DbConnection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(LoadViewAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = viewNames.SelectOrderedPrefetchAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -85,10 +91,7 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
             .Select(QualifyViewName)
             .ToListAsync(cancellationToken);
 
-        return await viewNames
-            .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await viewNames.SelectBoundedAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

@@ -41,5 +41,7 @@ public sealed class CountingDbConnectionFactory : IDbConnectionFactory
 
     public PolicyBuilder RetryPolicy => InnerFactory.RetryPolicy;
 
+    public int MaxConcurrentQueries => InnerFactory.MaxConcurrentQueries;
+
     private int _queryCount;
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -54,12 +55,17 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of view comments.</returns>
-    public IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
+        var viewNames = await Connection.QueryEnumerableAsync<GetAllViewNames.Result>(GetAllViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
-            .SelectAwait(LoadViewCommentsAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = viewNames.SelectOrderedPrefetchAsync(LoadViewCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -74,10 +80,7 @@ public class OracleQueryViewCommentProvider : IDatabaseViewCommentProvider
             .Select(QualifyViewName)
             .ToListAsync(cancellationToken);
 
-        return await viewNames
-            .Select(viewName => LoadViewCommentsAsyncCore(viewName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await viewNames.SelectBoundedAsync(LoadViewCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

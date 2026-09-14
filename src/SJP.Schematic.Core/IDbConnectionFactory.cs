@@ -40,4 +40,15 @@ public interface IDbConnectionFactory
     /// </summary>
     /// <value>A retry policy builder.</value>
     PolicyBuilder RetryPolicy { get; }
+
+    /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>The maximum number of queries to run at once. Defaults to 16.</value>
+    /// <remarks>
+    /// Every query opened via this factory (including a streaming query, for as long as it is being enumerated)
+    /// holds one slot for its duration. Implementations backed by a connection pool should return the pool's
+    /// effective size so that fan-out over many objects cannot exhaust it and turn a slow response into an outright failure.
+    /// </remarks>
+    int MaxConcurrentQueries => 16;
 }

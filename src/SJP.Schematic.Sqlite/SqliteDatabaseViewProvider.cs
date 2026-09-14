@@ -114,8 +114,10 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             .OrderBy(static v => v.Schema, StringComparer.Ordinal)
             .ThenBy(static v => v.LocalName, StringComparer.Ordinal);
 
-        foreach (var viewName in orderedViewNames)
-            yield return await LoadViewAsyncCore(viewName, cancellationToken);
+        var views = orderedViewNames.SelectOrderedPrefetchAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var view in views.WithCancellation(cancellationToken))
+            yield return view;
     }
 
     /// <summary>
@@ -149,10 +151,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             .ThenBy(static v => v.LocalName, StringComparer.Ordinal)
             .ToArray();
 
-        return await orderedViewNames
-            .Select(viewName => LoadViewAsyncCore(viewName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await orderedViewNames.SelectBoundedAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

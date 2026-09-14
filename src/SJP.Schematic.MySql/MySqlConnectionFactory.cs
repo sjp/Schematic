@@ -32,6 +32,7 @@ public class MySqlConnectionFactory : IDbConnectionFactory
 
         DataSource = new MySqlDataSource(connectionString);
         ConnectionConfiguration = connectionConfiguration;
+        MaxConcurrentQueries = int.CreateSaturating(new MySqlConnectionStringBuilder(connectionString).MaximumPoolSize);
     }
 
     /// <summary>
@@ -100,6 +101,12 @@ public class MySqlConnectionFactory : IDbConnectionFactory
     public PolicyBuilder RetryPolicy => Policy
         .Handle<MySqlException>(IsTransientError)
         .Or<TimeoutException>();
+
+    /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>The connection string's effective <c>Maximum Pool Size</c>.</value>
+    public int MaxConcurrentQueries { get; }
 
     private static bool IsTransientError(MySqlException mysqlEx)
     {

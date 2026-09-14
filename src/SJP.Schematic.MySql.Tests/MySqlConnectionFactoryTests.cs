@@ -56,4 +56,12 @@ internal static class MySqlConnectionFactoryTests
 
         Assert.That(connection.ConnectionString, Is.EqualTo(expectedConnectionString));
     }
+
+    [Test]
+    public static void MaxConcurrentQueries_GivenMaximumPoolSize_ReturnsMaximumPoolSize()
+    {
+        var factory = new MySqlConnectionFactory("Server=127.0.0.1;Maximum Pool Size=7;");
+
+        Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(7));
+    }
 }

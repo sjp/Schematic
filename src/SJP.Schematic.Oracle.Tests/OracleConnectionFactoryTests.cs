@@ -56,4 +56,12 @@ internal static class OracleConnectionFactoryTests
 
         Assert.That(connection.ConnectionString, Is.EqualTo(expectedConnectionString));
     }
+
+    [Test]
+    public static void MaxConcurrentQueries_GivenMaxPoolSize_ReturnsMaxPoolSize()
+    {
+        var factory = new OracleConnectionFactory("Data Source=127.0.0.1/orcl; User Id=SYSTEM; Password=oracle; Max Pool Size=7");
+
+        Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(7));
+    }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -52,12 +53,17 @@ public class SqlServerUserDefinedTypeCommentProvider : IDatabaseUserDefinedTypeC
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database user-defined type comments.</returns>
-    public IAsyncEnumerable<IDatabaseUserDefinedTypeComments> EnumerateAllUserDefinedTypeComments(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseUserDefinedTypeComments> EnumerateAllUserDefinedTypeComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllUserDefinedTypeNames.Result>(GetAllUserDefinedTypeNames.Sql, cancellationToken)
+        var typeNames = await Connection.QueryEnumerableAsync<GetAllUserDefinedTypeNames.Result>(GetAllUserDefinedTypeNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TypeName))
             .Select(QualifyUserDefinedTypeName)
-            .SelectAwait(LoadUserDefinedTypeCommentsAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = typeNames.SelectOrderedPrefetchAsync(LoadUserDefinedTypeCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -72,10 +78,7 @@ public class SqlServerUserDefinedTypeCommentProvider : IDatabaseUserDefinedTypeC
             .Select(QualifyUserDefinedTypeName)
             .ToListAsync(cancellationToken);
 
-        return await typeNames
-            .Select(typeName => LoadUserDefinedTypeCommentsAsyncCore(typeName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await typeNames.SelectBoundedAsync(LoadUserDefinedTypeCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

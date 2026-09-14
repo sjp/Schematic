@@ -78,6 +78,15 @@ internal static class CachingConnectionFactoryTests
     }
 
     [Test]
+    public static void MaxConcurrentQueries_PropertyGet_IsOne()
+    {
+        var factory = new Mock<IDbConnectionFactory>(MockBehavior.Strict);
+        using var cachingFactory = new CachingConnectionFactory(factory.Object);
+
+        Assert.That(cachingFactory.MaxConcurrentQueries, Is.EqualTo(1));
+    }
+
+    [Test]
     public static async Task OpenConnectionAsync_WhenCalledConcurrently_OpensConnectionOnceWithoutOverlapping()
     {
         using var connection = new FakeDbConnection();

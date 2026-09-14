@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -51,12 +52,17 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
+        var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(LoadRoutineAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var routines = routineNames.SelectOrderedPrefetchAsync(LoadRoutineAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var routine in routines.WithCancellation(cancellationToken))
+            yield return routine;
     }
 
     /// <summary>
@@ -71,10 +77,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
 
-        return await routineNames
-            .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await routineNames.SelectBoundedAsync(LoadRoutineAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

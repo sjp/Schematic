@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -57,16 +58,21 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return DbConnection.QueryEnumerableAsync(
+        var routineNames = await DbConnection.QueryEnumerableAsync(
                 GetAllRoutineNames.Sql,
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             )
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(LoadRoutineAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = routineNames.SelectOrderedPrefetchAsync(LoadRoutineAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -85,10 +91,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
 
-        return await routineNames
-            .Select(routineName => LoadRoutineAsyncCore(routineName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await routineNames.SelectBoundedAsync(LoadRoutineAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

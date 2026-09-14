@@ -56,4 +56,19 @@ internal static class PostgreSqlConnectionFactoryTests
 
         Assert.That(connection.ConnectionString, Is.EqualTo(expectedConnectionString));
     }
+
+    [Test]
+    public static void MaxConcurrentQueries_WhenInvoked_ReturnsMaxPoolSizeOfDataSource()
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Server=127.0.0.1;Maximum Pool Size=7;");
+
+        var dataSourcePoolSize = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString).MaxPoolSize;
+
+        Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(dataSourcePoolSize));
+    }
+
+    private sealed class DataSourceExposingConnectionFactory(string connectionString) : PostgreSqlConnectionFactory(connectionString)
+    {
+        public string DataSourceConnectionString => DataSource.ConnectionString;
+    }
 }

@@ -59,4 +59,20 @@ internal static class SqlServerConnectionFactoryTests
 
         Assert.That(connection.AccessTokenCallback, Is.EqualTo(accessTokenCallback));
     }
+
+    [Test]
+    public static void MaxConcurrentQueries_GivenMaxPoolSize_ReturnsMaxPoolSize()
+    {
+        var factory = new SqlServerConnectionFactory("Server=127.0.0.1;Max Pool Size=7;");
+
+        Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(7));
+    }
+
+    [Test]
+    public static void MaxConcurrentQueries_GivenNoMaxPoolSize_ReturnsDefaultPoolSize()
+    {
+        var factory = new SqlServerConnectionFactory("Server=127.0.0.1;");
+
+        Assert.That(factory.MaxConcurrentQueries, Is.EqualTo(new SqlConnectionStringBuilder().MaxPoolSize));
+    }
 }

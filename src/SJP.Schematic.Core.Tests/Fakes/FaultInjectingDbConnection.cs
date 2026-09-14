@@ -97,6 +97,8 @@ internal sealed class FaultInjectingConnectionFactory : IDbConnectionFactory
 
     public PolicyBuilder RetryPolicy => _innerFactory.RetryPolicy;
 
+    public int MaxConcurrentQueries => _innerFactory.MaxConcurrentQueries;
+
     private readonly IDbConnectionFactory _innerFactory;
     private readonly FaultInjector _injector;
 }

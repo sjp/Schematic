@@ -121,8 +121,13 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             .ThenBy(static name => name.LocalName, StringComparer.Ordinal);
 
         var queryCache = CreateQueryCache();
-        foreach (var tableName in tableNames)
-            yield return await LoadTableAsyncCore(tableName, queryCache, cancellationToken);
+        var tables = tableNames.SelectOrderedPrefetchAsync(
+            (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
+            Math.Max(1, DbConnection.MaxConcurrentQueries),
+            cancellationToken);
+
+        await foreach (var table in tables.WithCancellation(cancellationToken))
+            yield return table;
     }
 
     /// <summary>
@@ -157,10 +162,10 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var queryCache = CreateQueryCache();
 
-        return await tableNames
-            .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await tableNames.SelectBoundedAsync(
+            (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
+            Math.Max(1, DbConnection.MaxConcurrentQueries),
+            cancellationToken);
     }
 
     /// <summary>

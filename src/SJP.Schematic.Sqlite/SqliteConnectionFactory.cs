@@ -98,4 +98,10 @@ public class SqliteConnectionFactory : IDbConnectionFactory
     /// </summary>
     /// <value>A retry policy builder.</value>
     public PolicyBuilder RetryPolicy => Policy.Handle<TimeoutException>();
+
+    /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>A multiple of the machine's processor count, since SQLite has no server-side connection pool to size against.</value>
+    public int MaxConcurrentQueries { get; } = Math.Max(Environment.ProcessorCount * 4, 16);
 }

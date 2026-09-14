@@ -56,4 +56,12 @@ internal static class SqliteConnectionFactoryTests
 
         Assert.That(connection.ConnectionString, Is.EqualTo(expectedConnectionString));
     }
+
+    [Test]
+    public static void MaxConcurrentQueries_WhenInvoked_ReturnsAtLeastDefaultLimit()
+    {
+        var factory = new SqliteConnectionFactory("Data Source=:memory:");
+
+        Assert.That(factory.MaxConcurrentQueries, Is.GreaterThanOrEqualTo(16));
+    }
 }

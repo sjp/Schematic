@@ -39,6 +39,7 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
 
         DataSource = new NpgsqlDataSourceBuilder(connectionStringBuilder.ConnectionString).Build();
         ConnectionConfiguration = connectionConfiguration;
+        MaxConcurrentQueries = connectionStringBuilder.MaxPoolSize;
     }
 
     /// <summary>
@@ -107,6 +108,12 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
     public PolicyBuilder RetryPolicy => Policy
         .Handle<PostgresException>(IsTransientError)
         .Or<TimeoutException>();
+
+    /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>The connection string's effective <c>Max Pool Size</c>.</value>
+    public int MaxConcurrentQueries { get; }
 
     /// <summary>
     /// Disposes the connection pool (<see cref="NpgsqlDataSource"/>) dedicated to this factory

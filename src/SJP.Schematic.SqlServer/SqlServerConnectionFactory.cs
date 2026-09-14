@@ -35,6 +35,7 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
 
         ConnectionString = connectionString;
         ConnectionConfiguration = connectionConfiguration;
+        MaxConcurrentQueries = new SqlConnectionStringBuilder(connectionString).MaxPoolSize;
     }
 
     /// <summary>
@@ -104,6 +105,12 @@ public class SqlServerConnectionFactory : IDbConnectionFactory
         .Handle<SqlException>(IsTransientError)
         .Or<TimeoutException>()
         .OrInner<Win32Exception>(IsTransientError);
+
+    /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>The connection string's effective <c>Max Pool Size</c>.</value>
+    public int MaxConcurrentQueries { get; }
 
     private static bool IsTransientError(SqlException ex)
     {

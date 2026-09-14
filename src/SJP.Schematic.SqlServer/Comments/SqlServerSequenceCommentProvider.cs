@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -52,12 +53,17 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database sequence comments.</returns>
-    public IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseSequenceComments> EnumerateAllSequenceComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
+        var sequenceNames = await Connection.QueryEnumerableAsync<GetAllSequenceNames.Result>(GetAllSequenceNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.SequenceName))
             .Select(QualifySequenceName)
-            .SelectAwait(LoadSequenceCommentsAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = sequenceNames.SelectOrderedPrefetchAsync(LoadSequenceCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -72,10 +78,7 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
             .Select(QualifySequenceName)
             .ToListAsync(cancellationToken);
 
-        return await sequenceNames
-            .Select(sequenceName => LoadSequenceCommentsAsyncCore(sequenceName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await sequenceNames.SelectBoundedAsync(LoadSequenceCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

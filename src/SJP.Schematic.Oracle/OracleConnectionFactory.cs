@@ -32,6 +32,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
 
         ConnectionString = connectionString;
         ConnectionConfiguration = connectionConfiguration;
+        MaxConcurrentQueries = new OracleConnectionStringBuilder(connectionString).MaxPoolSize;
     }
 
     /// <summary>
@@ -100,6 +101,12 @@ public class OracleConnectionFactory : IDbConnectionFactory
     public PolicyBuilder RetryPolicy { get; } = Policy
         .Handle<OracleException>(IsTransientError)
         .Or<TimeoutException>();
+
+    /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>The connection string's effective <c>Max Pool Size</c>.</value>
+    public int MaxConcurrentQueries { get; }
 
     private static bool IsTransientError(OracleException oraEx)
     {

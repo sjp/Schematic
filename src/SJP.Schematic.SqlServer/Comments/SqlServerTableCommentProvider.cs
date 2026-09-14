@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -53,12 +54,17 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database table comments, where available.</returns>
-    public IAsyncEnumerable<IRelationalDatabaseTableComments> EnumerateAllTableComments(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IRelationalDatabaseTableComments> EnumerateAllTableComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+        var tableNames = await Connection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait(LoadTableCommentsAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var comments = tableNames.SelectOrderedPrefetchAsync(LoadTableCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var comment in comments.WithCancellation(cancellationToken))
+            yield return comment;
     }
 
     /// <summary>
@@ -73,10 +79,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
             .Select(QualifyTableName)
             .ToListAsync(cancellationToken);
 
-        return await tableNames
-            .Select(tableName => LoadTableCommentsAsyncCore(tableName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await tableNames.SelectBoundedAsync(LoadTableCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

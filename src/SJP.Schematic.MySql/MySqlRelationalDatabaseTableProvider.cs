@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -76,18 +77,23 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database tables.</returns>
-    public IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryCache = CreateQueryCache();
 
-        return DbConnection.QueryEnumerableAsync(
+        var tableNames = await DbConnection.QueryEnumerableAsync(
                 GetAllTableNames.Sql,
                 new GetAllTableNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             )
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
             .Select(QualifyTableName)
-            .SelectAwait((tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct));
+            .ToListAsync(cancellationToken);
+
+        var results = tableNames.SelectOrderedPrefetchAsync((tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct), Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -108,10 +114,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             .Select(QualifyTableName)
             .ToListAsync(cancellationToken);
 
-        return await tableNames
-            .Select(tableName => LoadTableAsyncCore(tableName, queryCache, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await tableNames.SelectBoundedAsync((tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct), Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

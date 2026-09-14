@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -54,12 +55,17 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// </summary>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A collection of database routine comments, where available.</returns>
-    public IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
+        var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
-            .SelectAwait(LoadRoutineCommentsAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = routineNames.SelectOrderedPrefetchAsync(LoadRoutineCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -74,10 +80,7 @@ public class PostgreSqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
 
-        return await routineNames
-            .Select(routineName => LoadRoutineCommentsAsyncCore(routineName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await routineNames.SelectBoundedAsync(LoadRoutineCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

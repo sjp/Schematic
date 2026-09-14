@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -53,12 +54,17 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database packages.</returns>
-    public IAsyncEnumerable<IOracleDatabasePackage> EnumerateAllPackages(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IOracleDatabasePackage> EnumerateAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
+        var packageNames = await Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
             .Select(QualifyPackageName)
-            .SelectAwait(LoadPackageAsyncCore);
+            .ToListAsync(cancellationToken);
+
+        var results = packageNames.SelectOrderedPrefetchAsync(LoadPackageAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var result in results.WithCancellation(cancellationToken))
+            yield return result;
     }
 
     /// <summary>
@@ -73,10 +79,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             .Select(QualifyPackageName)
             .ToListAsync(cancellationToken);
 
-        return await packageNames
-            .Select(packageName => LoadPackageAsyncCore(packageName, cancellationToken))
-            .ToArray()
-            .WhenAll();
+        return await packageNames.SelectBoundedAsync(LoadPackageAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>

@@ -116,6 +116,12 @@ public sealed class CachingConnectionFactory : IDbConnectionFactory, IDisposable
     public PolicyBuilder RetryPolicy => _connectionFactory.RetryPolicy;
 
     /// <summary>
+    /// Gets the maximum number of queries that may run concurrently against this factory.
+    /// </summary>
+    /// <value>Always 1, since every query shares the single cached connection.</value>
+    public int MaxConcurrentQueries => 1;
+
+    /// <summary>
     /// Releases the cached connection, if one was created.
     /// </summary>
     public void Dispose()

@@ -445,22 +445,49 @@ public static class ConnectionExtensions
     }
 
     /// <summary>
+    /// Gets the semaphore that limits how many queries may run concurrently against a given factory.
+    /// </summary>
+    /// <remarks>
+    /// Keyed on the factory instance, so a decorator (e.g. one that caches or counts connections) gets its own
+    /// limiter, separate from the factory it wraps.
+    /// </remarks>
+    private static SemaphoreSlim GetQuerySemaphore(IDbConnectionFactory connectionFactory)
+        => QuerySemaphores.GetValue(connectionFactory, static factory =>
+        {
+            var maxConcurrentQueries = Math.Max(1, factory.MaxConcurrentQueries);
+            return new SemaphoreSlim(maxConcurrentQueries, maxConcurrentQueries);
+        });
+
+    private static readonly ConditionalWeakTable<IDbConnectionFactory, SemaphoreSlim> QuerySemaphores = [];
+
+    /// <summary>
     /// Opens a connection and runs a query against it, retrying both as a single unit.
     /// </summary>
     /// <remarks>
     /// Acquiring a connection is as prone to transient failure as running the query itself, so each attempt
-    /// obtains its own connection and releases it before the next attempt begins.
+    /// obtains its own connection and releases it before the next attempt begins. The factory's query slot is
+    /// held only while a connection is open, not while a failed attempt is backing off, so backoff sleeps don't
+    /// starve other callers.
     /// </remarks>
     private static Task<TResult> ExecuteWithRetryAsync<TResult>(IDbConnectionFactory connectionFactory, Func<DbConnection, Task<TResult>> query, CancellationToken cancellationToken)
     {
         var retryPolicy = BuildRetryPolicy(connectionFactory);
+        var querySemaphore = GetQuerySemaphore(connectionFactory);
 
         return retryPolicy.ExecuteAsync(async _ =>
         {
-            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-            await using var connectionDisposer = connection.WithDispose(connectionFactory);
+            await querySemaphore.WaitAsync(cancellationToken);
+            try
+            {
+                var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+                await using var connectionDisposer = connection.WithDispose(connectionFactory);
 
-            return await query(connection);
+                return await query(connection);
+            }
+            finally
+            {
+                querySemaphore.Release();
+            }
         }, cancellationToken);
     }
 
@@ -494,12 +521,17 @@ public static class ConnectionExtensions
 
     private static async Task<(IAsyncDisposable ConnectionDisposer, IAsyncEnumerator<T> Enumerator, bool HasFirstResult)> StartEnumerationAsync<T>(IDbConnectionFactory connectionFactory, Func<DbConnection, IAsyncEnumerable<T>> query, CancellationToken cancellationToken)
     {
-        var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
-        var connectionDisposer = connection.WithDispose(connectionFactory);
+        // held for as long as the connection is open, i.e. until enumeration completes, not just for this attempt
+        var querySemaphore = GetQuerySemaphore(connectionFactory);
+        await querySemaphore.WaitAsync(cancellationToken);
 
+        IAsyncDisposable? connectionDisposer = null;
         IAsyncEnumerator<T>? enumerator = null;
         try
         {
+            var connection = await connectionFactory.OpenConnectionAsync(cancellationToken);
+            connectionDisposer = new SemaphoreReleasingDisposable(connection.WithDispose(connectionFactory), querySemaphore);
+
             enumerator = query(connection).GetAsyncEnumerator(cancellationToken);
             return (connectionDisposer, enumerator, await enumerator.MoveNextAsync());
         }
@@ -508,7 +540,12 @@ public static class ConnectionExtensions
             // a failed attempt must release its resources before another attempt starts
             if (enumerator != null)
                 await enumerator.DisposeAsync();
-            await connectionDisposer.DisposeAsync();
+
+            if (connectionDisposer != null)
+                await connectionDisposer.DisposeAsync();
+            else
+                querySemaphore.Release();
+
             throw;
         }
     }
@@ -546,5 +583,34 @@ public static class ConnectionExtensions
         private bool _disposed;
         private readonly IDbConnection _connection;
         private readonly bool _shouldDispose;
+    }
+
+    private sealed class SemaphoreReleasingDisposable : IAsyncDisposable
+    {
+        public SemaphoreReleasingDisposable(IAsyncDisposable inner, SemaphoreSlim semaphore)
+        {
+            _inner = inner ?? throw new ArgumentNullException(nameof(inner));
+            _semaphore = semaphore ?? throw new ArgumentNullException(nameof(semaphore));
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            // releasing twice would permanently raise the factory's query limit
+            if (Interlocked.Exchange(ref _disposed, 1) != 0)
+                return;
+
+            try
+            {
+                await _inner.DisposeAsync();
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        private int _disposed;
+        private readonly IAsyncDisposable _inner;
+        private readonly SemaphoreSlim _semaphore;
     }
 }
