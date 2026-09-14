@@ -312,4 +312,89 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
     }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildTableWithForeignKey_ReturnsValidatedNotDeferrableAndSimpleMatch()
+    {
+        var table = await GetTableAsync("table_test_table_15");
+        var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "table_test_table_17", StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.True);
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.NotDeferrable));
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Simple));
+            Assert.That(foreignKey.SetNullColumns, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenNotValidDeferrableMatchFullForeignKey_ReturnsDeclaredConstraintState()
+    {
+        var table = await GetTableAsync("constraint_state_fk_parent");
+        var foreignKey = table.ChildKeys.Single();
+
+        var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+        var expectedChildColumns = new[] { "a", "b" };
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("constraint_state_child"));
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_constraint_state_child"));
+            Assert.That(childColumns, Is.EqualTo(expectedChildColumns));
+            Assert.That(foreignKey.ChildKey.IsValidated, Is.False);
+            Assert.That(foreignKey.ChildKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyImmediate));
+            Assert.That(foreignKey.MatchType, Is.EqualTo(ForeignKeyMatchType.Full));
+        }
+    }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenForeignKeyWithSetNullColumnSubset_ReturnsOnlyThoseColumns()
+    {
+        var version = await DatabaseProvider.GetDatabaseVersionAsync(TestContext.CurrentContext.CancellationToken);
+        if (version.Major < 15)
+            Assert.Ignore("ON DELETE SET NULL with a column subset requires PostgreSQL 15 or later.");
+
+        var table = await GetTableAsync("fk_set_null_subset_parent");
+        var foreignKey = table.ChildKeys.Single();
+
+        var childColumns = foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName);
+        var setNullColumns = foreignKey.SetNullColumns.Select(c => c.Name.LocalName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.DeleteAction, Is.EqualTo(ReferentialAction.SetNull));
+            Assert.That(childColumns, Is.EqualTo(new[] { "a", "b" }));
+            Assert.That(setNullColumns, Is.EqualTo(new[] { "b" }));
+        }
+    }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildTableWithForeignKeyToBareUniqueIndex_ContainsConstraintWithIndexAsParentKey()
+    {
+        var table = await GetTableAsync("fk_bare_unique_parent");
+        var foreignKey = table.ChildKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("fk_bare_unique_child"));
+            Assert.That(foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "a" }));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
+            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+        }
+    }
+
+    [Test]
+    public async Task ChildKeys_WhenChildTableReferencesAnotherTable_OnlyContainsKeysReferencingThisTable()
+    {
+        var table = await GetTableAsync("child_key_round_trip_parent");
+        var foreignKey = table.ChildKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("child_key_round_trip_child"));
+            Assert.That(foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "parent_id" }));
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("child_key_round_trip_parent"));
+        }
+    }
 }

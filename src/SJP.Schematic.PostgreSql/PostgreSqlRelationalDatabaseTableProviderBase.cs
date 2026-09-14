@@ -534,20 +534,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         if (queryResult.Empty())
             return [];
 
-        var groupedChildKeys = queryResult.GroupAsDictionary(static row =>
-        new
-        {
-            row.ChildTableSchema,
-            row.ChildTableName,
-            row.ChildKeyName,
-            row.ParentKeyName,
-            row.ParentKeyType,
-            row.DeleteAction,
-            row.UpdateAction,
-        }).ToList();
-        if (groupedChildKeys.Empty())
-            return [];
-
         var (primaryKey, uniqueKeys, indexes) = await (
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
@@ -556,56 +542,67 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
         var uniqueIndexLookup = GetUniqueIndexLookup(indexes);
 
-        // memoises the child table's foreign-key lookup across grouped child-key rows that share the
-        // same child table, instead of rebuilding it (and re-querying the cache) once per row.
-        var childParentKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseRelationalKey>>(IdentifierComparer.Ordinal);
-
-        var result = new List<IDatabaseRelationalKey>(groupedChildKeys.Count);
-
-        foreach (var groupedChildKey in groupedChildKeys)
+        // Resolve the key each foreign key references on this table first, so that a child table whose
+        // foreign keys reference nothing that can be resolved is never queried at all.
+        var childTables = new Dictionary<(string Schema, string Name), List<ChildForeignKey>>();
+        foreach (var foreignKey in queryResult.GroupAsDictionary(static row => new { row.ChildTableSchema, row.ChildTableName, row.ChildKeyName, row.ParentKeyName, row.ParentKeyType }))
         {
-            // ensure we have a key to begin with
             IDatabaseKey? parentKey = null;
-            if (string.Equals(groupedChildKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                await primaryKey.IfSomeAsync(k => parentKey = k);
-            else if (uniqueKeyLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueKey))
+            if (string.Equals(foreignKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
+                primaryKey.IfSome(k => parentKey = k);
+            else if (uniqueKeyLookup.TryGetValue(foreignKey.Key.ParentKeyName, out var uniqueKey))
                 parentKey = uniqueKey;
-            else if (uniqueIndexLookup.TryGetValue(groupedChildKey.Key.ParentKeyName, out var uniqueIndex))
+            else if (uniqueIndexLookup.TryGetValue(foreignKey.Key.ParentKeyName, out var uniqueIndex))
                 // the foreign key references a unique index with no backing UNIQUE constraint
                 parentKey = CreateKeyFromUniqueIndex(uniqueIndex);
 
             if (parentKey == null)
                 continue;
 
-            var candidateChildTableName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildTableSchema, groupedChildKey.Key.ChildTableName);
-            var childTableNameOption = queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken);
-
-            await childTableNameOption
-                .BindAsync(async childTableName =>
-                {
-                    if (!childParentKeyLookups.TryGetValue(childTableName, out var parentKeyLookup))
-                    {
-                        var childParentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-                        parentKeyLookup = GetRelationalKeyLookup(childParentKeys);
-                        childParentKeyLookups[childTableName] = parentKeyLookup;
-                    }
-
-                    var childKeyName = Identifier.CreateQualifiedIdentifier(groupedChildKey.Key.ChildKeyName);
-                    if (!parentKeyLookup.TryGetValue(childKeyName, out var childRelationalKey))
-                        return OptionAsync<IDatabaseRelationalKey>.None;
-
-                    var deleteAction = ReferentialActionMapping[groupedChildKey.Key.DeleteAction];
-                    var updateAction = ReferentialActionMapping[groupedChildKey.Key.UpdateAction];
-                    // the match type and ON DELETE SET NULL column subset describe the same constraint
-                    // as seen from the child table, so they are taken from the child's own relational key
-                    var relationalKey = new DatabaseRelationalKey(childTableName, childRelationalKey.ChildKey, tableName, parentKey, deleteAction, updateAction, childRelationalKey.MatchType, childRelationalKey.SetNullColumns);
-                    return OptionAsync<IDatabaseRelationalKey>.Some(relationalKey);
-                })
-                .IfSome(result.Add);
+            var childTableKey = (foreignKey.Key.ChildTableSchema, foreignKey.Key.ChildTableName);
+            if (!childTables.TryGetValue(childTableKey, out var childForeignKeys))
+            {
+                childForeignKeys = [];
+                childTables[childTableKey] = childForeignKeys;
+            }
+            childForeignKeys.Add(new ChildForeignKey(parentKey, foreignKey.Value));
         }
 
-        return result;
+        if (childTables.Count == 0)
+            return [];
+
+        // Each child table only needs its name and columns to build its side of the foreign key, so the
+        // child tables are independent of one another and are loaded concurrently.
+        var childTableKeys = await childTables.ToList().SelectBoundedAsync(
+            (childTable, ct) => LoadChildTableKeysAsync(tableName, childTable.Key.Schema, childTable.Key.Name, childTable.Value, queryCache, ct),
+            Math.Max(1, DbConnection.MaxConcurrentQueries),
+            cancellationToken);
+
+        return childTableKeys.SelectMany(static keys => keys).ToList();
     }
+
+    private async Task<IReadOnlyList<IDatabaseRelationalKey>> LoadChildTableKeysAsync(
+        Identifier tableName,
+        string childTableSchema,
+        string childTableLocalName,
+        IReadOnlyCollection<ChildForeignKey> foreignKeys,
+        PostgreSqlTableQueryCache queryCache,
+        CancellationToken cancellationToken)
+    {
+        var candidateChildTableName = Identifier.CreateQualifiedIdentifier(childTableSchema, childTableLocalName);
+        var resolvedChildTableName = await queryCache.GetTableNameAsync(candidateChildTableName, cancellationToken);
+        var childTableName = resolvedChildTableName.MatchUnsafe(static name => name, static () => (Identifier?)null);
+        if (childTableName == null)
+            return [];
+
+        var childColumnLookup = await queryCache.GetColumnLookupAsync(childTableName, cancellationToken);
+
+        return foreignKeys
+            .Select(fk => CreateRelationalKey(childTableName, childColumnLookup, tableName, fk.ParentKey, fk.Rows))
+            .ToList();
+    }
+
+    private sealed record ChildForeignKey(IDatabaseKey ParentKey, IReadOnlyCollection<GetTableChildKeys.Result> Rows);
 
     /// <summary>
     /// Retrieves check constraints defined on a given table.
@@ -731,41 +728,49 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                         ? OptionAsync<IDatabaseKey>.Some(CreateKeyFromUniqueIndex(uniqueIndex))
                         : OptionAsync<IDatabaseKey>.None;
                 })
-                .Map(parentKey =>
-                {
-                    var parentTableName = resolvedParentTableName!;
-
-                    var childKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ChildKeyName);
-                    var childKeyColumns = ResolveColumns(
-                        fkey.Value
-                            .Where(static row => row.ColumnName != null)
-                            .OrderBy(static row => row.ConstraintColumnId)
-                            .Select(static row => (Identifier)row.ColumnName!),
-                        columnLookup
-                    ).ToList();
-
-                    var deferrability = GetDeferrability(fkey.Key.IsDeferrable, fkey.Key.IsInitiallyDeferred);
-                    var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, Option<IDatabaseIndex>.None, fkey.Key.IsValidated, deferrability);
-
-                    var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
-                    var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
-                    var matchType = MatchTypeMapping.TryGetValue(fkey.Key.MatchType, out var mappedMatchType)
-                        ? mappedMatchType
-                        : ForeignKeyMatchType.Simple;
-                    var setNullColumns = ResolveColumns(
-                        fkey.Value
-                            .Where(static row => row.ColumnName != null && row.IsSetNullColumn)
-                            .OrderBy(static row => row.ConstraintColumnId)
-                            .Select(static row => (Identifier)row.ColumnName!),
-                        columnLookup
-                    ).ToList();
-
-                    return new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction, matchType, setNullColumns);
-                })
+                .Map(parentKey => CreateRelationalKey(tableName, columnLookup, resolvedParentTableName!, parentKey, fkey.Value))
                 .IfSome(result.Add);
         }
 
         return result;
+    }
+
+    // Builds a foreign key from its column rows. Parent-key and child-key loading both build keys here, so a
+    // foreign key reads the same whether it is loaded from the table declaring it or from the table it references.
+    private IDatabaseRelationalKey CreateRelationalKey(
+        Identifier childTableName,
+        IReadOnlyDictionary<Identifier, IDatabaseColumn> childColumnLookup,
+        Identifier parentTableName,
+        IDatabaseKey parentKey,
+        IReadOnlyCollection<IForeignKeyColumnRow> rows)
+    {
+        // every row describes the same constraint, differing only in the column it names
+        var constraint = rows.First();
+
+        var orderedRows = rows
+            .Where(static row => row.ColumnName != null)
+            .OrderBy(static row => row.ConstraintColumnId)
+            .ToList();
+
+        var childKeyName = Identifier.CreateQualifiedIdentifier(constraint.ChildKeyName);
+        var childKeyColumns = ResolveColumns(orderedRows.Select(static row => (Identifier)row.ColumnName), childColumnLookup).ToList();
+
+        var deferrability = GetDeferrability(constraint.IsDeferrable, constraint.IsInitiallyDeferred);
+        var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, Option<IDatabaseIndex>.None, constraint.IsValidated, deferrability);
+
+        var deleteAction = ReferentialActionMapping[constraint.DeleteAction];
+        var updateAction = ReferentialActionMapping[constraint.UpdateAction];
+        var matchType = MatchTypeMapping.TryGetValue(constraint.MatchType, out var mappedMatchType)
+            ? mappedMatchType
+            : ForeignKeyMatchType.Simple;
+        var setNullColumns = ResolveColumns(
+            orderedRows
+                .Where(static row => row.IsSetNullColumn)
+                .Select(static row => (Identifier)row.ColumnName),
+            childColumnLookup
+        ).ToList();
+
+        return new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction, matchType, setNullColumns);
     }
 
     /// <summary>
@@ -962,20 +967,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         return isInitiallyDeferred
             ? ConstraintDeferrability.DeferrableInitiallyDeferred
             : ConstraintDeferrability.DeferrableInitiallyImmediate;
-    }
-
-    private static IReadOnlyDictionary<Identifier, IDatabaseRelationalKey> GetRelationalKeyLookup(IReadOnlyCollection<IDatabaseRelationalKey> relationalKeys)
-    {
-        ArgumentNullException.ThrowIfNull(relationalKeys);
-
-        var result = new Dictionary<Identifier, IDatabaseRelationalKey>(relationalKeys.Count);
-
-        foreach (var relationalKey in relationalKeys)
-        {
-            relationalKey.ChildKey.Name.IfSome(name => result[name.LocalName] = relationalKey);
-        }
-
-        return result;
     }
 
     private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)

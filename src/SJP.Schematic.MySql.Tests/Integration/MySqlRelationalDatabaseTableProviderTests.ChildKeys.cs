@@ -276,4 +276,19 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
 
         Assert.That(foreignKey.ChildKey.IsEnabled, Is.True);
     }
+
+    [Test]
+    public async Task ChildKeys_WhenChildTableReferencesAnotherTable_OnlyContainsKeysReferencingThisTable()
+    {
+        var table = await GetTableAsync("child_key_round_trip_parent");
+        var foreignKey = table.ChildKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("child_key_round_trip_child"));
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_child_key_round_trip_parent"));
+            Assert.That(foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "parent_id" }));
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("child_key_round_trip_parent"));
+        }
+    }
 }

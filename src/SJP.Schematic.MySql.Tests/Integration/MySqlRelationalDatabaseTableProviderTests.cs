@@ -168,6 +168,15 @@ create table if not exists table_test_table_37 (
     constraint pk_test_table_37 primary key (middle_name_child),
     constraint fk_test_table_37 foreign key (first_name_child) references table_test_table_15 (first_name_parent)
 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table if not exists child_key_round_trip_parent ( id int not null primary key )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table if not exists child_key_round_trip_other ( id int not null primary key )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table if not exists child_key_round_trip_child (
+    parent_id int,
+    other_id int,
+    constraint fk_child_key_round_trip_parent foreign key (parent_id) references child_key_round_trip_parent (id),
+    constraint fk_child_key_round_trip_other foreign key (other_id) references child_key_round_trip_other (id)
+)", TestContext.CurrentContext.CancellationToken);
         // MariaDB has no functional key parts (MySQL 8.0.13+): an index directly over an
         // expression, with no backing generated column.
         var functionalIndexClause = DatabaseProvider.SupportsFunctionalIndexes()
@@ -276,6 +285,9 @@ end
         "drop table if exists table_test_table_37",
         "drop table if exists table_test_table_41",
         "drop table if exists table_test_table_15",
+        "drop table if exists child_key_round_trip_child",
+        "drop table if exists child_key_round_trip_other",
+        "drop table if exists child_key_round_trip_parent",
         "drop table if exists table_test_table_33",
         "drop table if exists table_test_table_34",
         "drop table if exists table_test_table_35",

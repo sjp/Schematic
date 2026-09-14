@@ -11,7 +11,7 @@ internal static class GetTableParentKeys
         public required string TableName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : IForeignKeyColumnRow
     {
         public required string ParentTableSchema { get; init; }
 

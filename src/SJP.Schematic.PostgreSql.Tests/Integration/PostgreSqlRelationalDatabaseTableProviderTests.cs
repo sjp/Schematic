@@ -302,6 +302,32 @@ create table fk_bare_unique_child (
     a int references fk_bare_unique_parent (a)
 )", TestContext.CurrentContext.CancellationToken);
 
+        // ON DELETE SET NULL with a column subset is only accepted from PostgreSQL 15.
+        var version = await DatabaseProvider.GetDatabaseVersionAsync(TestContext.CurrentContext.CancellationToken);
+        if (version.Major >= 15)
+        {
+            await DbConnection.ExecuteAsync(@"
+create table fk_set_null_subset_parent (
+    a int not null,
+    b int not null,
+    constraint pk_fk_set_null_subset_parent primary key (a, b)
+)", TestContext.CurrentContext.CancellationToken);
+            await DbConnection.ExecuteAsync(@"
+create table fk_set_null_subset_child (
+    a int,
+    b int,
+    constraint fk_set_null_subset_child foreign key (a, b) references fk_set_null_subset_parent (a, b) on delete set null (b)
+)", TestContext.CurrentContext.CancellationToken);
+        }
+
+        await DbConnection.ExecuteAsync("create table child_key_round_trip_parent ( id int primary key )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table child_key_round_trip_other ( id int primary key )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table child_key_round_trip_child (
+    parent_id int references child_key_round_trip_parent (id),
+    other_id int references child_key_round_trip_other (id)
+)", TestContext.CurrentContext.CancellationToken);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create function test_trigger_fn()
@@ -409,6 +435,11 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table constraint_state_parent",
         "drop table fk_bare_unique_child",
         "drop table fk_bare_unique_parent",
+        "drop table if exists fk_set_null_subset_child",
+        "drop table if exists fk_set_null_subset_parent",
+        "drop table child_key_round_trip_child",
+        "drop table child_key_round_trip_other",
+        "drop table child_key_round_trip_parent",
         "drop table trigger_test_table_1",
         "drop table trigger_test_table_2",
         "drop function test_trigger_fn()"
