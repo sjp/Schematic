@@ -7,15 +7,12 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class TableModelMapper
 {
-    public TableModelMapper(RelationshipFinder relationship, IEnumerable<Identifier> tableNames)
+    public TableModelMapper(IEnumerable<Identifier> tableNames)
     {
         ArgumentNullException.ThrowIfNull(tableNames);
 
-        RelationshipFinder = relationship ?? throw new ArgumentNullException(nameof(relationship));
         TableNames = tableNames.ToHashSet(IdentifierComparer.OrdinalIgnoreCase);
     }
-
-    private RelationshipFinder RelationshipFinder { get; }
 
     /// <summary>
     /// The tables the report covers, so that a partition or history table is only linked when there
@@ -182,18 +179,6 @@ internal sealed class TableModelMapper
                 tr.UpdateColumns
             ));
 
-        var oneDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 1);
-        var twoDegreeTables = RelationshipFinder.GetTablesByDegrees(table, 2);
-
-        var oneDegreeGraph = RelationshipGraphMapper.Map(oneDegreeTables, table.Name);
-        var twoDegreeGraph = RelationshipGraphMapper.Map(twoDegreeTables, table.Name);
-
-        var diagrams = new[]
-        {
-            new Table.Diagram(table.Name, "One Degree", oneDegreeGraph, true),
-            new Table.Diagram(table.Name, "Two Degrees", twoDegreeGraph, false),
-        };
-
         return new Table(
             table.Name,
             columns,
@@ -203,7 +188,6 @@ internal sealed class TableModelMapper
             renderChecks,
             renderIndexes,
             renderTriggers,
-            diagrams,
             table.Kind,
             table.Partitioning.Map(MapPartitioning),
             table.SystemVersioning.Map(MapSystemVersioning),

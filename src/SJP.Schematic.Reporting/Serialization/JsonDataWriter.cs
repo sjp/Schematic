@@ -97,7 +97,7 @@ public sealed class JsonDataWriter
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.LintResults))]
 // data/lint.sarif: the same findings in the interchange format code-scanning tools read.
 [JsonSerializable(typeof(SJP.Schematic.Lint.Serialization.SarifLog))]
-// Relationships: schema-wide diagram levels referencing data/diagrams/*.svg.
+// Relationships: the schema-wide table graph, also the source of each table page's diagrams.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Relationships))]
 // Search: flat index of every object + column for the Cmd/Ctrl-K palette.
 [JsonSerializable(typeof(SJP.Schematic.Reporting.Html.ViewModels.Search))]

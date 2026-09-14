@@ -15,8 +15,7 @@ internal sealed class TableRenderer : IDataRenderer
         ArgumentNullException.ThrowIfNull(data);
         ArgumentNullException.ThrowIfNull(context);
 
-        var relationshipFinder = new RelationshipFinder(data.Tables);
-        var mapper = new TableModelMapper(relationshipFinder, data.Tables.Select(static t => t.Name));
+        var mapper = new TableModelMapper(data.Tables.Select(static t => t.Name));
 
         var tablesDataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data", "tables"));
 
@@ -36,8 +35,9 @@ internal sealed class TableRenderer : IDataRenderer
     {
         var tableModel = mapper.Map(table);
 
-        // Each diagram is a graph payload that the report lays out and draws in the browser; there is
-        // no SVG to render here.
+        // The payload carries no relationship diagrams. The report derives each table's neighbourhood
+        // from the schema-wide relationships graph, so a table's payload does not grow with the number
+        // of tables near it.
         var safeKey = table.Name.ToSafeKey();
         var json = context.JsonWriter.Serialize(tableModel);
         context.Bundle.AddDetail("table", safeKey, json);

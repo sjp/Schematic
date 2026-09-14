@@ -14,9 +14,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 /// </summary>
 internal static class RelationshipGraphMapper
 {
-    public static RelationshipGraph Map(
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        Identifier? highlightedTable = null)
+    public static RelationshipGraph Map(IReadOnlyCollection<IRelationalDatabaseTable> tables)
     {
         ArgumentNullException.ThrowIfNull(tables);
 
@@ -41,20 +39,17 @@ internal static class RelationshipGraphMapper
                 return new GraphColumn(columnName, col.Type.Definition, col.IsNullable, isPrimaryKey, isUniqueKey, isForeignKey);
             }).ToList();
 
-            var isHighlighted = highlightedTable != null && table.Name == highlightedTable;
-
             nodes.Add(new GraphTable(
                 table.Name,
                 columns,
                 parentKeys.UCount(),
-                table.ChildKeys.UCount(),
-                isHighlighted
+                table.ChildKeys.UCount()
             ));
 
             foreach (var relationalKey in parentKeys)
             {
-                // Only draw an edge when both endpoints are in this graph (e.g. a per-table
-                // neighbourhood can reference tables outside its own degree window).
+                // Only draw an edge when both endpoints are in this graph, e.g. when the report covers
+                // a subset of the database's tables.
                 if (!tableNames.Contains(relationalKey.ParentTable))
                     continue;
 

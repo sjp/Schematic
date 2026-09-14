@@ -10,7 +10,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
 /// The per-table detail payload (<c>data/tables/&lt;safeKey&gt;.json</c>): columns, keys,
-/// constraints, indexes, triggers, and diagram references for one table.
+/// constraints, indexes and triggers for one table. Relationship diagrams are not part of it: the
+/// report derives each table's neighbourhood from the schema-wide relationships payload.
 /// </summary>
 public sealed class Table
 {
@@ -23,7 +24,6 @@ public sealed class Table
         IEnumerable<CheckConstraint> checks,
         IEnumerable<Index> indexes,
         IEnumerable<Trigger> triggers,
-        IEnumerable<Diagram> diagrams,
         TableKind kind,
         Option<Partitioning> partitioning,
         Option<SystemVersioning> systemVersioning,
@@ -56,8 +56,6 @@ public sealed class Table
 
         Triggers = triggers ?? throw new ArgumentNullException(nameof(triggers));
         TriggersCount = triggers.UCount();
-
-        Diagrams = diagrams ?? throw new ArgumentNullException(nameof(diagrams));
 
         Kind = TableKindNames.GetName(kind);
         TablePartitioning = partitioning.MatchUnsafe(static p => p, static () => (Partitioning?)null);
@@ -97,8 +95,6 @@ public sealed class Table
     public IEnumerable<Trigger> Triggers { get; }
 
     public uint TriggersCount { get; }
-
-    public IEnumerable<Diagram> Diagrams { get; }
 
     /// <summary>
     /// What the table is, where that differs from an ordinary persistent table. Empty for an
@@ -622,32 +618,5 @@ public sealed class Table
         public string ChildTableUrl { get; }
 
         public string ChildColumnName { get; }
-    }
-
-    /// <summary>
-    /// A per-table relationship diagram (e.g. "One Degree" / "Two Degrees") as graph data laid out and
-    /// drawn client-side. The two levels differ in which neighbouring tables they include, so each
-    /// carries its own <see cref="RelationshipGraph"/>.
-    /// </summary>
-    public sealed class Diagram
-    {
-        public Diagram(Identifier tableName, string diagramName, RelationshipGraph graph, bool isActive)
-        {
-            ArgumentNullException.ThrowIfNull(tableName);
-            ArgumentException.ThrowIfNullOrWhiteSpace(diagramName);
-
-            Name = diagramName;
-            Graph = graph ?? throw new ArgumentNullException(nameof(graph));
-            ContainerId = tableName.ToSafeKey() + "-" + Name.ToLowerInvariant().Replace(' ', '-') + "-chart";
-            IsActive = isActive;
-        }
-
-        public string Name { get; }
-
-        public string ContainerId { get; }
-
-        public bool IsActive { get; }
-
-        public RelationshipGraph Graph { get; }
     }
 }

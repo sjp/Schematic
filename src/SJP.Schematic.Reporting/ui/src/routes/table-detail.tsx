@@ -18,9 +18,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useDetail } from "@/hooks/useReportData";
+import { useDetail, useSummary } from "@/hooks/useReportData";
+import { getTableDiagrams } from "@/lib/relationshipNeighbourhood";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
-import type { KeyConstraint, LinkedTable, TableColumn, TableDetail } from "@/types/report";
+import type {
+  KeyConstraint,
+  LinkedTable,
+  RelationshipsSummary,
+  TableColumn,
+  TableDetail,
+} from "@/types/report";
 
 const routeApi = getRouteApi("/tables/$tableKey");
 
@@ -203,6 +210,14 @@ export function TableDetailPage() {
 
   const [activeDiagram, setActiveDiagram] = useState(0);
 
+  // The diagrams are neighbourhoods of the schema-wide relationship graph rather than part of the
+  // table's own data, so a table's data stays small however many tables are related to it.
+  const relationships = useSummary<RelationshipsSummary>("relationships");
+  const diagrams = useMemo(
+    () => (relationships.data ? getTableDiagrams(relationships.data.graph, tableKey) : []),
+    [relationships.data, tableKey],
+  );
+
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
@@ -212,7 +227,7 @@ export function TableDetailPage() {
     );
   }
 
-  const diagram = data.diagrams[activeDiagram] ?? data.diagrams[0];
+  const diagram = diagrams[activeDiagram] ?? diagrams[0];
 
   return (
     <div className="space-y-8">
@@ -440,25 +455,33 @@ export function TableDetailPage() {
         </Section>
       )}
 
-      {data.diagrams.length > 0 && diagram && (
-        <Section title="Relationships">
-          {data.diagrams.length > 1 && (
-            <div className="flex gap-2">
-              {data.diagrams.map((d, i) => (
-                <Button
-                  key={d.containerId}
-                  variant={i === activeDiagram ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setActiveDiagram(i)}
-                >
-                  {d.name}
-                </Button>
-              ))}
-            </div>
-          )}
-          <RelationshipDiagram graph={diagram.graph} />
-        </Section>
-      )}
+      <Section title="Relationships">
+        {relationships.isPending ? (
+          <p className="text-muted-foreground">Loading…</p>
+        ) : relationships.isError ? (
+          <p className="text-destructive">
+            Failed to load relationships: {relationships.error.message}
+          </p>
+        ) : (
+          diagram && (
+            <>
+              <div className="flex gap-2">
+                {diagrams.map((d, i) => (
+                  <Button
+                    key={d.name}
+                    variant={i === activeDiagram ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setActiveDiagram(i)}
+                  >
+                    {d.name}
+                  </Button>
+                ))}
+              </div>
+              <RelationshipDiagram graph={diagram.graph} />
+            </>
+          )
+        )}
+      </Section>
     </div>
   );
 }

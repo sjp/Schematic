@@ -33,7 +33,7 @@ public sealed class RelationshipGraph
 /// <summary>
 /// A table node in a <see cref="RelationshipGraph"/>. <see cref="Id"/> is the table's safe key (the
 /// SPA route param), so the diagram can link a node to its detail page exactly as the rest of the UI
-/// does.
+/// does, and so a per-table diagram can pick its nodes out of the schema-wide graph by id.
 /// </summary>
 public sealed class GraphTable
 {
@@ -41,8 +41,7 @@ public sealed class GraphTable
         Identifier name,
         IEnumerable<GraphColumn> columns,
         uint parentKeysCount,
-        uint childKeysCount,
-        bool isHighlighted
+        uint childKeysCount
     )
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -56,7 +55,6 @@ public sealed class GraphTable
 
         ParentKeysCount = parentKeysCount;
         ChildKeysCount = childKeysCount;
-        IsHighlighted = isHighlighted;
     }
 
     /// <summary>The table's safe key — the SPA route param and the node's stable identity.</summary>
@@ -74,9 +72,6 @@ public sealed class GraphTable
     public uint ParentKeysCount { get; }
 
     public uint ChildKeysCount { get; }
-
-    /// <summary>The focal table of a per-table diagram; drawn with the highlight palette.</summary>
-    public bool IsHighlighted { get; }
 }
 
 /// <summary>

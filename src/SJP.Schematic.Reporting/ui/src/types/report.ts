@@ -283,8 +283,11 @@ export interface GraphTable {
   columnsCount: number;
   parentKeysCount: number;
   childKeysCount: number;
-  /** The focal table of a per-table diagram; drawn with the highlight palette. */
-  isHighlighted: boolean;
+  /**
+   * The focal table of a per-table diagram; drawn with the highlight palette. Not in the report
+   * data: set by the UI when it picks a table's neighbourhood out of the schema-wide graph.
+   */
+  isHighlighted?: boolean;
 }
 
 /** A directed foreign-key edge, pointing from the child (referencing) table to the parent. */
@@ -303,13 +306,6 @@ export interface RelationshipGraph {
   nodesCount: number;
   edges: GraphEdge[];
   edgesCount: number;
-}
-
-export interface TableDiagram {
-  name: string;
-  containerId: string;
-  isActive: boolean;
-  graph: RelationshipGraph;
 }
 
 /** A row in `data/views.json`. */
@@ -713,7 +709,6 @@ export interface TableDetail {
   indexesCount: number;
   triggers: TableTrigger[];
   triggersCount: number;
-  diagrams: TableDiagram[];
   /** Display name of the table kind, e.g. `History`. Empty for an ordinary table. */
   kind: string;
   /** Omitted from the JSON when the table is not partitioned. */

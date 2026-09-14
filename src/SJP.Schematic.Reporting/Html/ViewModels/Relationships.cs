@@ -6,7 +6,8 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 /// The schema-wide relationships payload (<c>data/relationships.json</c>): a single
 /// <see cref="RelationshipGraph"/> of every table and its foreign keys. The report lays this out and
 /// renders it in the browser; the "Compact" (key columns only) and "Large" (all columns) views are a
-/// client-side toggle over the same data rather than two pre-rendered diagrams.
+/// client-side toggle over the same data rather than two pre-rendered diagrams. Each table page's
+/// "One Degree" and "Two Degrees" diagrams are neighbourhoods taken from this same graph.
 /// </summary>
 public sealed class Relationships
 {
