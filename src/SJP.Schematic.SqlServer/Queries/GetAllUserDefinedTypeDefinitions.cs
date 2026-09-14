@@ -55,7 +55,7 @@ select
     dm.definition as [{nameof(Result.DefaultValue)}]
 from sys.types t
 left join sys.types bt on t.system_type_id = bt.user_type_id and bt.is_user_defined = 0
-left join sys.assembly_types ast on t.user_type_id = at.user_type_id
+left join sys.assembly_types ast on t.user_type_id = ast.user_type_id
 left join sys.assemblies a on ast.assembly_id = a.assembly_id
 left join sys.sql_modules dm on t.default_object_id = dm.object_id
 where t.is_user_defined = 1
