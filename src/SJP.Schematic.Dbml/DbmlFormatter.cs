@@ -61,7 +61,14 @@ public class DbmlFormatter : IDbmlFormatter
 
         RenderTableGroups(builder, tables);
 
-        return builder.GetStringAndRelease().TrimEnd();
+        // Trim in place: the document always ends with a newline, so trimming the materialized
+        // string would allocate a second copy of the whole document
+        var end = builder.Length;
+        while (end > 0 && char.IsWhiteSpace(builder[end - 1]))
+            end--;
+        builder.Length = end;
+
+        return builder.GetStringAndRelease();
     }
 
     /// <summary>
