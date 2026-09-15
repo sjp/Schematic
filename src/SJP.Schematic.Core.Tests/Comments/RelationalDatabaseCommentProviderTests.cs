@@ -1081,6 +1081,72 @@ internal static class RelationalDatabaseCommentProviderTests
     }
 
     [Test]
+    public static async Task GetSchemaComments_WhenGivenQualifiedSchemaName_ReturnsCommentsMatchingLocalName()
+    {
+        var provider = CreateProviderWithSchemaComments(new DatabaseSchemaComments(new Identifier("test_database", "test_schema"), Option<string>.None));
+
+        var comments = await provider.GetSchemaComments(new Identifier("other_database", "test_schema")).UnwrapSomeAsync();
+
+        Assert.That(comments.SchemaName.LocalName, Is.EqualTo("test_schema"));
+    }
+
+    [Test]
+    public static async Task GetTableComments_WhenResolverYieldsSeveralCandidates_ReturnsFirstMatchingCandidate()
+    {
+        var identifierDefaults = new IdentifierDefaults(null, null, "test_schema");
+        var identifierResolver = new Mock<IIdentifierResolutionStrategy>(MockBehavior.Strict);
+        identifierResolver
+            .Setup(r => r.GetResolutionOrder(It.IsAny<Identifier>()))
+            .Returns(new[] { new Identifier("missing_table_name"), new Identifier("second_table_name"), new Identifier("first_table_name") });
+
+        var tableComments = new[] { CreateTableComments("first_table_name"), CreateTableComments("second_table_name") };
+        var commentProvider = new RelationalDatabaseCommentProvider(identifierDefaults, identifierResolver.Object, tableComments, [], [], [], []);
+
+        var comments = await commentProvider.GetTableComments("requested_table_name").UnwrapSomeAsync();
+
+        Assert.That(comments.TableName, Is.EqualTo(new Identifier("second_table_name")));
+    }
+
+    [Test]
+    public static void QualifyObjectName_GivenNameWithEveryComponent_ReturnsSameInstance()
+    {
+        var commentProvider = new QualifyingCommentProvider(new IdentifierDefaults("test_server", "test_database", "test_schema"));
+        var objectName = new Identifier("other_server", "other_database", "other_schema", "test_table_name");
+
+        var result = commentProvider.Qualify(objectName);
+
+        Assert.That(result, Is.SameAs(objectName));
+    }
+
+    [Test]
+    public static void QualifyObjectName_WhenDefaultsFillMissingComponents_ReturnsQualifiedName()
+    {
+        var commentProvider = new QualifyingCommentProvider(new IdentifierDefaults("test_server", "test_database", "test_schema"));
+        var objectName = new Identifier("other_schema", "test_table_name");
+
+        var result = commentProvider.Qualify(objectName);
+
+        Assert.That(result, Is.EqualTo(new Identifier("test_server", "test_database", "other_schema", "test_table_name")));
+    }
+
+    private static IRelationalDatabaseTableComments CreateTableComments(Identifier tableName)
+    {
+        var tableComments = new Mock<IRelationalDatabaseTableComments>(MockBehavior.Strict);
+        tableComments.Setup(t => t.TableName).Returns(tableName);
+        return tableComments.Object;
+    }
+
+    private sealed class QualifyingCommentProvider : RelationalDatabaseCommentProvider
+    {
+        public QualifyingCommentProvider(IIdentifierDefaults identifierDefaults)
+            : base(identifierDefaults, new VerbatimIdentifierResolutionStrategy(), [], [], [], [], [])
+        {
+        }
+
+        public Identifier Qualify(Identifier objectName) => QualifyObjectName(objectName);
+    }
+
+    [Test]
     public static async Task EnumerateAllSchemaComments_WhenInvoked_ReturnsCommentsFromCtor()
     {
         Identifier schemaName = "test_schema";

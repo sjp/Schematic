@@ -182,6 +182,9 @@ public class RelationalDatabase : IRelationalDatabase
         var database = objectName.Database ?? IdentifierDefaults.Database;
         var schema = objectName.Schema ?? IdentifierDefaults.Schema;
 
+        if (ReferenceEquals(server, objectName.Server) && ReferenceEquals(database, objectName.Database) && ReferenceEquals(schema, objectName.Schema))
+            return objectName;
+
         return Identifier.CreateQualifiedIdentifier(server, database, schema, objectName.LocalName);
     }
 
@@ -215,13 +218,13 @@ public class RelationalDatabase : IRelationalDatabase
         ArgumentNullException.ThrowIfNull(objectsByName);
         ArgumentNullException.ThrowIfNull(objectName);
 
-        return IdentifierResolver
-            .GetResolutionOrder(objectName)
-            .Select(name => objectsByName.TryGetValue(QualifyObjectName(name), out var obj)
-                ? Option<T>.Some(obj)
-                : Option<T>.None)
-            .FirstSome()
-            .ToAsync();
+        foreach (var name in IdentifierResolver.GetResolutionOrder(objectName))
+        {
+            if (objectsByName.TryGetValue(QualifyObjectName(name), out var obj))
+                return OptionAsync<T>.Some(obj);
+        }
+
+        return OptionAsync<T>.None;
     }
 
     /// <summary>

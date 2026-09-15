@@ -1358,6 +1358,88 @@ internal static class RelationalDatabaseTests
         Assert.That(schemas.Select(s => s.Name.LocalName).Single(), Is.EqualTo("test_schema"));
     }
 
+    [Test]
+    public static void QualifyObjectName_GivenNameWithEveryComponent_ReturnsSameInstance()
+    {
+        var database = new QualifyingRelationalDatabase(new IdentifierDefaults("test_server", "test_database", "test_schema"));
+        var objectName = new Identifier("other_server", "other_database", "other_schema", "test_table_name");
+
+        var result = database.Qualify(objectName);
+
+        Assert.That(result, Is.SameAs(objectName));
+    }
+
+    [Test]
+    public static void QualifyObjectName_WhenNoDefaultsApply_ReturnsSameInstance()
+    {
+        var database = new QualifyingRelationalDatabase(IdentifierDefaults.Empty);
+        var objectName = new Identifier("test_schema", "test_table_name");
+
+        var result = database.Qualify(objectName);
+
+        Assert.That(result, Is.SameAs(objectName));
+    }
+
+    [Test]
+    public static void QualifyObjectName_WhenDefaultsFillMissingComponents_ReturnsQualifiedName()
+    {
+        var database = new QualifyingRelationalDatabase(new IdentifierDefaults("test_server", "test_database", "test_schema"));
+        var objectName = new Identifier("other_schema", "test_table_name");
+
+        var result = database.Qualify(objectName);
+
+        Assert.That(result, Is.EqualTo(new Identifier("test_server", "test_database", "other_schema", "test_table_name")));
+    }
+
+    [Test]
+    public static void QualifyObjectName_WhenDefaultsAreWhitespace_ReturnsEqualName()
+    {
+        var identifierDefaults = new Mock<IIdentifierDefaults>(MockBehavior.Strict);
+        identifierDefaults.Setup(d => d.Server).Returns((string)null);
+        identifierDefaults.Setup(d => d.Database).Returns("   ");
+        identifierDefaults.Setup(d => d.Schema).Returns("   ");
+        var database = new QualifyingRelationalDatabase(identifierDefaults.Object);
+        var objectName = new Identifier("test_table_name");
+
+        var result = database.Qualify(objectName);
+
+        Assert.That(result, Is.EqualTo(objectName));
+    }
+
+    [Test]
+    public static async Task GetTable_WhenResolverYieldsSeveralCandidates_ReturnsFirstMatchingCandidate()
+    {
+        var identifierDefaults = new IdentifierDefaults(null, null, "test_schema");
+        var identifierResolver = new Mock<IIdentifierResolutionStrategy>(MockBehavior.Strict);
+        identifierResolver
+            .Setup(r => r.GetResolutionOrder(It.IsAny<Identifier>()))
+            .Returns(new[] { new Identifier("missing_table_name"), new Identifier("second_table_name"), new Identifier("first_table_name") });
+
+        var tables = new[] { CreateTable("first_table_name"), CreateTable("second_table_name") };
+        var database = new RelationalDatabase(identifierDefaults, identifierResolver.Object, tables, [], [], [], []);
+
+        var table = await database.GetTable("requested_table_name").UnwrapSomeAsync();
+
+        Assert.That(table.Name, Is.EqualTo(new Identifier("second_table_name")));
+    }
+
+    private static IRelationalDatabaseTable CreateTable(Identifier tableName)
+    {
+        var table = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        table.Setup(t => t.Name).Returns(tableName);
+        return table.Object;
+    }
+
+    private sealed class QualifyingRelationalDatabase : RelationalDatabase
+    {
+        public QualifyingRelationalDatabase(IIdentifierDefaults identifierDefaults)
+            : base(identifierDefaults, new VerbatimIdentifierResolutionStrategy(), [], [], [], [], [])
+        {
+        }
+
+        public Identifier Qualify(Identifier objectName) => QualifyObjectName(objectName);
+    }
+
     private static IDatabaseSchema CreateSchema(Identifier schemaName)
     {
         return new DatabaseSchema(schemaName, Option<string>.None, false, false);

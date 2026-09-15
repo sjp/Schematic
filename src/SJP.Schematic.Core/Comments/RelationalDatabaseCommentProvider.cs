@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
-using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments;
 
@@ -357,13 +357,13 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         ArgumentNullException.ThrowIfNull(schemaName);
 
-        return IdentifierResolver
-            .GetResolutionOrder(schemaName)
-            .Select(name => _schemaCommentsByName.TryGetValue(new Identifier(name.LocalName), out var comments)
-                ? Option<IDatabaseSchemaComments>.Some(comments)
-                : Option<IDatabaseSchemaComments>.None)
-            .FirstSome()
-            .ToAsync();
+        foreach (var name in IdentifierResolver.GetResolutionOrder(schemaName))
+        {
+            if (_schemaCommentsByName.TryGetValue(LocalIdentifier.From(name), out var comments))
+                return OptionAsync<IDatabaseSchemaComments>.Some(comments);
+        }
+
+        return OptionAsync<IDatabaseSchemaComments>.None;
     }
 
     /// <summary>
@@ -378,7 +378,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
 
         // when names collide the first set of comments encountered takes precedence
         foreach (var comment in comments)
-            result.TryAdd(new Identifier(comment.SchemaName.LocalName), comment);
+            result.TryAdd(LocalIdentifier.From(comment.SchemaName), comment);
 
         return result.ToFrozenDictionary();
     }
@@ -396,6 +396,9 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         var server = objectName.Server ?? IdentifierDefaults.Server;
         var database = objectName.Database ?? IdentifierDefaults.Database;
         var schema = objectName.Schema ?? IdentifierDefaults.Schema;
+
+        if (ReferenceEquals(server, objectName.Server) && ReferenceEquals(database, objectName.Database) && ReferenceEquals(schema, objectName.Schema))
+            return objectName;
 
         return Identifier.CreateQualifiedIdentifier(server, database, schema, objectName.LocalName);
     }
@@ -427,12 +430,12 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <returns>An option type with database object comments, if available, otherwise an option type in the none state.</returns>
     private OptionAsync<T> GetResolvedComments<T>(FrozenDictionary<Identifier, T> commentsByName, Identifier objectName)
     {
-        return IdentifierResolver
-            .GetResolutionOrder(objectName)
-            .Select(name => commentsByName.TryGetValue(QualifyObjectName(name), out var comments)
-                ? Option<T>.Some(comments)
-                : Option<T>.None)
-            .FirstSome()
-            .ToAsync();
+        foreach (var name in IdentifierResolver.GetResolutionOrder(objectName))
+        {
+            if (commentsByName.TryGetValue(QualifyObjectName(name), out var comments))
+                return OptionAsync<T>.Some(comments);
+        }
+
+        return OptionAsync<T>.None;
     }
 }
