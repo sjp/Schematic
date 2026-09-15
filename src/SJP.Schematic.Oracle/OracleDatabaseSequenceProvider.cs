@@ -198,17 +198,9 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             ? row.MinValue
             : row.MaxValue;
 
-        // ALL_SEQUENCES describes no type; before 23c every sequence generates NUMBER values, and
-        // 23c's typed sequences are still not reported by the catalog
-        var typeMetadata = new ColumnTypeMetadata
-        {
-            TypeName = Identifier.CreateQualifiedIdentifier(Constants.Sys, Constants.Number),
-            NumericPrecision = new NumericPrecision(SequencePrecision, 0),
-        };
-
         return new DatabaseSequence(
             sequenceName,
-            TypeProvider.CreateColumnType(typeMetadata),
+            SequenceType,
             start,
             row.Increment,
             Option<decimal>.Some(row.MinValue),
@@ -234,6 +226,16 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
         var schema = sequenceName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, sequenceName.LocalName);
     }
+
+    // ALL_SEQUENCES describes no type; before 23c every sequence generates NUMBER values, and
+    // 23c's typed sequences are still not reported by the catalog, so every sequence shares one type
+    private IDbType SequenceType => _sequenceType ??= TypeProvider.CreateColumnType(new ColumnTypeMetadata
+    {
+        TypeName = Identifier.CreateQualifiedIdentifier(Constants.Sys, Constants.Number),
+        NumericPrecision = new NumericPrecision(SequencePrecision, 0),
+    });
+
+    private IDbType? _sequenceType;
 
     /// <summary>
     /// The number of digits an Oracle sequence value can hold.

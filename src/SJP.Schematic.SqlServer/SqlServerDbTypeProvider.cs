@@ -2,9 +2,8 @@
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
+using System.Text;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.SqlServer;
@@ -27,20 +26,22 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
 
         if (typeMetadata.TypeName == null)
             typeMetadata.TypeName = GetDefaultTypeName(typeMetadata);
+
+        var typeInfo = GetSystemTypeInfo(typeMetadata.TypeName);
         if (typeMetadata.DataType == DataType.Unknown)
-            typeMetadata.DataType = GetDataType(typeMetadata.TypeName);
+            typeMetadata.DataType = typeInfo?.DataType ?? DataType.Unknown;
         if (typeMetadata.ClrType == null)
-            typeMetadata.ClrType = GetClrType(typeMetadata.TypeName);
-        typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName);
+            typeMetadata.ClrType = typeInfo?.ClrType ?? typeof(object);
+        typeMetadata.IsFixedLength = typeInfo?.IsFixedLength ?? false;
 
         // varbinary(max) has no declared length, and is a large object rather than an inline value
         if (typeMetadata.DataType == DataType.Binary && typeMetadata.MaxLength <= 0)
             typeMetadata.DataType = DataType.LargeBinary;
 
         if (typeMetadata.FractionalSecondsPrecision.IsNone)
-            typeMetadata.FractionalSecondsPrecision = GetFractionalSecondsPrecision(typeMetadata.TypeName, typeMetadata.NumericPrecision);
+            typeMetadata.FractionalSecondsPrecision = GetFractionalSecondsPrecision(typeInfo, typeMetadata.NumericPrecision);
 
-        var definition = GetFormattedTypeName(typeMetadata);
+        var definition = GetFormattedTypeName(typeMetadata, typeMetadata.TypeName, typeInfo);
         return _typeCache.GetOrCreate(
             typeMetadata.TypeName,
             typeMetadata.DataType,
@@ -97,7 +98,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return FixedLengthTypes.Contains(typeName);
+        return GetSystemTypeInfo(typeName)?.IsFixedLength ?? false;
     }
 
     /// <summary>
@@ -169,7 +170,12 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return TypeNamesWithFractionalSecondsPrecision.Contains(typeName)
+        return GetFractionalSecondsPrecision(GetSystemTypeInfo(typeName), numericPrecision);
+    }
+
+    private static LanguageExt.Option<int> GetFractionalSecondsPrecision(SystemTypeInfo? typeInfo, LanguageExt.Option<INumericPrecision> numericPrecision)
+    {
+        return typeInfo?.Annotation == TypeAnnotation.FractionalSecondsPrecision
             ? numericPrecision.Map(static np => np.Scale)
             : LanguageExt.Option<int>.None;
     }
@@ -187,44 +193,40 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         if (typeMetadata.TypeName == null)
             throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
 
-        var builder = StringBuilderCache.Acquire(typeMetadata.TypeName.LocalName.Length * 2);
-        var typeName = typeMetadata.TypeName;
-        if (string.Equals(typeName.Schema, "sys", StringComparison.OrdinalIgnoreCase))
-            builder.Append(QuoteIdentifier(typeName.LocalName));
-        else
-            builder.Append(QuoteName(typeName));
+        return GetFormattedTypeName(typeMetadata, typeMetadata.TypeName, GetSystemTypeInfo(typeMetadata.TypeName));
+    }
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
+    private static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata, Identifier typeName, SystemTypeInfo? typeInfo)
+    {
+        var builder = StringBuilderCache.Acquire(typeName.LocalName.Length * 2);
+        if (string.Equals(typeName.Schema, "sys", StringComparison.OrdinalIgnoreCase))
+            AppendQuotedIdentifier(builder, typeName.LocalName);
+        else
+            AppendQuotedName(builder, typeName);
+
+        var annotation = typeInfo?.Annotation ?? TypeAnnotation.LengthOrPrecision;
+        if (annotation == TypeAnnotation.None)
             return builder.GetStringAndRelease();
 
         // a temporal type is annotated with the precision of its seconds; its precision and scale
         // describe the same thing twice, so printing both would name a type that does not exist
-        if (TypeNamesWithFractionalSecondsPrecision.Contains(typeName))
+        if (annotation == TypeAnnotation.FractionalSecondsPrecision)
         {
-            typeMetadata.FractionalSecondsPrecision.IfSome(precision =>
-            {
-                builder.Append('(');
-                builder.Append(precision.ToString(CultureInfo.InvariantCulture));
-                builder.Append(')');
-            });
+            var fractionalSecondsPrecision = typeMetadata.FractionalSecondsPrecision.MatchUnsafe(static p => p, static () => (int?)null);
+            if (fractionalSecondsPrecision is int precision)
+                builder.Append(CultureInfo.InvariantCulture, $"({precision})");
 
             return builder.GetStringAndRelease();
         }
 
         builder.Append('(');
 
-        var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
-        if (npWithPrecisionOrScale.IsSome)
+        var numericPrecision = typeMetadata.NumericPrecision.MatchUnsafe(static np => np, static () => (INumericPrecision?)null);
+        if (numericPrecision != null && (numericPrecision.Precision > 0 || numericPrecision.Scale > 0))
         {
-            npWithPrecisionOrScale.IfSome(precision =>
-            {
-                builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
-                if (precision.Scale > 0)
-                {
-                    builder.Append(", ");
-                    builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
-                }
-            });
+            builder.Append(CultureInfo.InvariantCulture, $"{numericPrecision.Precision}");
+            if (numericPrecision.Scale > 0)
+                builder.Append(CultureInfo.InvariantCulture, $", {numericPrecision.Scale}");
         }
         else if (typeMetadata.MaxLength > 0)
         {
@@ -232,7 +234,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
                 ? typeMetadata.MaxLength / 2
                 : typeMetadata.MaxLength;
 
-            builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
+            builder.Append(CultureInfo.InvariantCulture, $"{maxLength}");
         }
         else
         {
@@ -254,9 +256,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToDataTypeMap.TryGetValue(typeName, out var dataType)
-            ? dataType
-            : DataType.Unknown;
+        return GetSystemTypeInfo(typeName)?.DataType ?? DataType.Unknown;
     }
 
     /// <summary>
@@ -269,9 +269,7 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToClrTypeMap.TryGetValue(typeName, out var clrType)
-            ? clrType
-            : typeof(object);
+        return GetSystemTypeInfo(typeName)?.ClrType ?? typeof(object);
     }
 
     /// <summary>
@@ -298,143 +296,104 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        var pieces = new List<string>();
-
-        if (name.Server != null)
-            pieces.Add(QuoteIdentifier(name.Server));
-        if (name.Database != null)
-            pieces.Add(QuoteIdentifier(name.Database));
-        if (name.Schema != null)
-            pieces.Add(QuoteIdentifier(name.Schema));
-        if (name.LocalName != null)
-            pieces.Add(QuoteIdentifier(name.LocalName));
-
-        return pieces.Join(".");
+        var builder = StringBuilderCache.Acquire();
+        AppendQuotedName(builder, name);
+        return builder.GetStringAndRelease();
     }
 
-    private static readonly FrozenSet<Identifier> FixedLengthTypes = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    private static void AppendQuotedName(StringBuilder builder, Identifier name)
     {
-        new("sys", "char"),
-        new("sys", "nchar"),
-        new("sys", "binary"),
-    }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
+        if (name.Server != null)
+            AppendQuotedIdentifier(builder, name.Server).Append('.');
+        if (name.Database != null)
+            AppendQuotedIdentifier(builder, name.Database).Append('.');
+        if (name.Schema != null)
+            AppendQuotedIdentifier(builder, name.Schema).Append('.');
+        AppendQuotedIdentifier(builder, name.LocalName);
+    }
 
-    // datetime and smalldatetime are absent deliberately: their resolution is fixed by the type
-    // rather than declared with the column, so there is no precision of the column's own to report
-    private static readonly FrozenSet<Identifier> TypeNamesWithFractionalSecondsPrecision = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
+    private static StringBuilder AppendQuotedIdentifier(StringBuilder builder, string identifier)
     {
-        new("sys", "datetime2"),
-        new("sys", "datetimeoffset"),
-        new("sys", "time"),
-    }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
+        builder.Append('[');
 
-    private static readonly FrozenSet<Identifier> TypeNamesWithNoLengthAnnotation = new HashSet<Identifier>(IdentifierComparer.OrdinalIgnoreCase)
-    {
-        new("sys", "bigint"),
-        new("sys", "bit"),
-        new("sys", "date"),
-        new("sys", "datetime"),
-        new("sys", "geography"),
-        new("sys", "geometry"),
-        new("sys", "hierarchyid"),
-        new("sys", "image"),
-        new("sys", "int"),
-        new("sys", "json"),
-        new("sys", "money"),
-        new("sys", "ntext"),
-        new("sys", "rowversion"),
-        new("sys", "smalldatetime"),
-        new("sys", "smallint"),
-        new("sys", "smallmoney"),
-        new("sys", "sql_variant"),
-        new("sys", "text"),
-        new("sys", "timestamp"),
-        new("sys", "tinyint"),
-        new("sys", "uniqueidentifier"),
-        new("sys", "xml"),
-    }.ToFrozenSet(IdentifierComparer.OrdinalIgnoreCase);
+        var remaining = identifier.AsSpan();
+        int closingBracketIndex;
+        while ((closingBracketIndex = remaining.IndexOf(']')) >= 0)
+        {
+            builder.Append(remaining[..(closingBracketIndex + 1)]).Append(']');
+            remaining = remaining[(closingBracketIndex + 1)..];
+        }
 
-    private static readonly FrozenDictionary<Identifier, DataType> StringToDataTypeMap = new Dictionary<Identifier, DataType>(IdentifierComparer.OrdinalIgnoreCase)
-    {
-        [new Identifier("sys", "bigint")] = DataType.BigInteger,
-        [new Identifier("sys", "binary")] = DataType.Binary,
-        [new Identifier("sys", "bit")] = DataType.Boolean,
-        [new Identifier("sys", "char")] = DataType.String,
-        [new Identifier("sys", "date")] = DataType.Date,
-        [new Identifier("sys", "datetime")] = DataType.DateTime,
-        [new Identifier("sys", "datetime2")] = DataType.DateTime,
-        [new Identifier("sys", "datetimeoffset")] = DataType.DateTimeOffset,
-        [new Identifier("sys", "decimal")] = DataType.Numeric,
-        [new Identifier("sys", "float")] = DataType.Float,
-        [new Identifier("sys", "geography")] = DataType.Geometry,
-        [new Identifier("sys", "hierarchyid")] = DataType.Other,
-        [new Identifier("sys", "geometry")] = DataType.Geometry,
-        [new Identifier("sys", "image")] = DataType.LargeBinary,
-        [new Identifier("sys", "int")] = DataType.Integer,
-        [new Identifier("sys", "json")] = DataType.Json,
-        [new Identifier("sys", "money")] = DataType.Money,
-        [new Identifier("sys", "nchar")] = DataType.Unicode,
-        [new Identifier("sys", "ntext")] = DataType.UnicodeText,
-        [new Identifier("sys", "numeric")] = DataType.Numeric,
-        [new Identifier("sys", "nvarchar")] = DataType.Unicode,
-        [new Identifier("sys", "real")] = DataType.Float,
-        [new Identifier("sys", "rowversion")] = DataType.RowVersion,
-        [new Identifier("sys", "smalldatetime")] = DataType.DateTime,
-        [new Identifier("sys", "smallint")] = DataType.SmallInteger,
-        [new Identifier("sys", "smallmoney")] = DataType.Money,
-        [new Identifier("sys", "sql_variant")] = DataType.Variant,
-        [new Identifier("sys", "sysname")] = DataType.Unicode,
-        [new Identifier("sys", "text")] = DataType.Text,
-        [new Identifier("sys", "time")] = DataType.Time,
-        [new Identifier("sys", "timestamp")] = DataType.RowVersion,
-        [new Identifier("sys", "tinyint")] = DataType.TinyInteger,
-        [new Identifier("sys", "uniqueidentifier")] = DataType.UniqueIdentifier,
-        [new Identifier("sys", "varbinary")] = DataType.Binary,
-        [new Identifier("sys", "varchar")] = DataType.String,
-        [new Identifier("sys", "vector")] = DataType.Vector,
-        [new Identifier("sys", "xml")] = DataType.Xml,
-    }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
+        return builder.Append(remaining).Append(']');
+    }
 
-    private static readonly FrozenDictionary<Identifier, Type> StringToClrTypeMap = new Dictionary<Identifier, Type>(IdentifierComparer.OrdinalIgnoreCase)
+    // the built-in types are the only ones described here, and they are only ever named by an unqualified sys schema
+    private static SystemTypeInfo? GetSystemTypeInfo(Identifier typeName)
     {
-        [new Identifier("sys", "bigint")] = typeof(long),
-        [new Identifier("sys", "binary")] = typeof(byte[]),
-        [new Identifier("sys", "bit")] = typeof(bool),
-        [new Identifier("sys", "char")] = typeof(string),
-        [new Identifier("sys", "date")] = typeof(DateTime),
-        [new Identifier("sys", "datetime")] = typeof(DateTime),
-        [new Identifier("sys", "datetime2")] = typeof(DateTime),
-        [new Identifier("sys", "datetimeoffset")] = typeof(DateTimeOffset),
-        [new Identifier("sys", "decimal")] = typeof(decimal),
-        [new Identifier("sys", "float")] = typeof(double),
-        [new Identifier("sys", "geography")] = typeof(object),
-        [new Identifier("sys", "geometry")] = typeof(object),
-        [new Identifier("sys", "hierarchyid")] = typeof(object),
-        [new Identifier("sys", "image")] = typeof(byte[]),
-        [new Identifier("sys", "int")] = typeof(int),
-        [new Identifier("sys", "json")] = typeof(string),
-        [new Identifier("sys", "money")] = typeof(decimal),
-        [new Identifier("sys", "nchar")] = typeof(string),
-        [new Identifier("sys", "ntext")] = typeof(string),
-        [new Identifier("sys", "numeric")] = typeof(decimal),
-        [new Identifier("sys", "nvarchar")] = typeof(string),
-        [new Identifier("sys", "real")] = typeof(float),
-        [new Identifier("sys", "rowversion")] = typeof(byte[]),
-        [new Identifier("sys", "smalldatetime")] = typeof(DateTime),
-        [new Identifier("sys", "smallint")] = typeof(short),
-        [new Identifier("sys", "smallmoney")] = typeof(decimal),
-        [new Identifier("sys", "sql_variant")] = typeof(object),
-        [new Identifier("sys", "sysname")] = typeof(string),
-        [new Identifier("sys", "text")] = typeof(string),
-        [new Identifier("sys", "time")] = typeof(TimeSpan),
-        [new Identifier("sys", "timestamp")] = typeof(byte[]),
-        [new Identifier("sys", "tinyint")] = typeof(byte),
-        [new Identifier("sys", "uniqueidentifier")] = typeof(Guid),
-        [new Identifier("sys", "varbinary")] = typeof(byte[]),
-        [new Identifier("sys", "varchar")] = typeof(string),
-        [new Identifier("sys", "vector")] = typeof(object),
-        [new Identifier("sys", "xml")] = typeof(string),
-    }.ToFrozenDictionary(IdentifierComparer.OrdinalIgnoreCase);
+        return typeName.Server == null
+            && typeName.Database == null
+            && string.Equals(typeName.Schema, "sys", StringComparison.OrdinalIgnoreCase)
+            && SystemTypes.TryGetValue(typeName.LocalName, out var typeInfo)
+                ? typeInfo
+                : null;
+    }
+
+    private enum TypeAnnotation
+    {
+        // the length, or the precision and scale, in parentheses
+        LengthOrPrecision,
+
+        // nothing, the type takes no arguments
+        None,
+
+        // the fractional seconds precision in parentheses, when there is one
+        FractionalSecondsPrecision,
+    }
+
+    private sealed record SystemTypeInfo(DataType DataType, Type ClrType, TypeAnnotation Annotation, bool IsFixedLength);
+
+    // datetime and smalldatetime are not annotated with a fractional seconds precision deliberately: their resolution
+    // is fixed by the type rather than declared with the column, so there is no precision of the column's own to report
+    private static readonly FrozenDictionary<string, SystemTypeInfo> SystemTypes = new Dictionary<string, SystemTypeInfo>(StringComparer.OrdinalIgnoreCase)
+    {
+        ["bigint"] = new(DataType.BigInteger, typeof(long), TypeAnnotation.None, IsFixedLength: false),
+        ["binary"] = new(DataType.Binary, typeof(byte[]), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
+        ["bit"] = new(DataType.Boolean, typeof(bool), TypeAnnotation.None, IsFixedLength: false),
+        ["char"] = new(DataType.String, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
+        ["date"] = new(DataType.Date, typeof(DateTime), TypeAnnotation.None, IsFixedLength: false),
+        ["datetime"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.None, IsFixedLength: false),
+        ["datetime2"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["datetimeoffset"] = new(DataType.DateTimeOffset, typeof(DateTimeOffset), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["decimal"] = new(DataType.Numeric, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["float"] = new(DataType.Float, typeof(double), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["geography"] = new(DataType.Geometry, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["geometry"] = new(DataType.Geometry, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["hierarchyid"] = new(DataType.Other, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["image"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
+        ["int"] = new(DataType.Integer, typeof(int), TypeAnnotation.None, IsFixedLength: false),
+        ["json"] = new(DataType.Json, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["money"] = new(DataType.Money, typeof(decimal), TypeAnnotation.None, IsFixedLength: false),
+        ["nchar"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
+        ["ntext"] = new(DataType.UnicodeText, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["numeric"] = new(DataType.Numeric, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["nvarchar"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["real"] = new(DataType.Float, typeof(float), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["rowversion"] = new(DataType.RowVersion, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
+        ["smalldatetime"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.None, IsFixedLength: false),
+        ["smallint"] = new(DataType.SmallInteger, typeof(short), TypeAnnotation.None, IsFixedLength: false),
+        ["smallmoney"] = new(DataType.Money, typeof(decimal), TypeAnnotation.None, IsFixedLength: false),
+        ["sql_variant"] = new(DataType.Variant, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["sysname"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["text"] = new(DataType.Text, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["time"] = new(DataType.Time, typeof(TimeSpan), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["timestamp"] = new(DataType.RowVersion, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
+        ["tinyint"] = new(DataType.TinyInteger, typeof(byte), TypeAnnotation.None, IsFixedLength: false),
+        ["uniqueidentifier"] = new(DataType.UniqueIdentifier, typeof(Guid), TypeAnnotation.None, IsFixedLength: false),
+        ["varbinary"] = new(DataType.Binary, typeof(byte[]), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["varchar"] = new(DataType.String, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["vector"] = new(DataType.Vector, typeof(object), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["xml"] = new(DataType.Xml, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy
     private readonly DbTypeCache _typeCache = new();

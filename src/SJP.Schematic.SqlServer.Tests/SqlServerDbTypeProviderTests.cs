@@ -215,6 +215,52 @@ internal static class SqlServerDbTypeProviderTests
         Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
     }
 
+    // a unicode length is reported in bytes, and a variable length without one is the maximum
+    [TestCase("sys", "nvarchar", 100, "[nvarchar](50)")]
+    [TestCase("sys", "varchar", 100, "[varchar](100)")]
+    [TestCase("sys", "varbinary", 0, "[varbinary](max)")]
+    [TestCase("sys", "int", 4, "[int]")]
+    [TestCase("SYS", "UniqueIdentifier", 16, "[UniqueIdentifier]")]
+    [TestCase("dbo", "my]type", 16, "[dbo].[my]]type](16)")]
+    public static void CreateColumnType_GivenTypeNameWithLength_ReturnsExpectedDefinition(string schema, string typeName, int maxLength, string expectedDefinition)
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = new Identifier(schema, typeName), MaxLength = maxLength };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [TestCase("decimal", 18, 2, "[decimal](18, 2)")]
+    [TestCase("numeric", 10, 0, "[numeric](10)")]
+    public static void CreateColumnType_GivenTypeNameWithPrecision_ReturnsExpectedDefinition(string typeName, int precision, int scale, string expectedDefinition)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = new Identifier("sys", typeName),
+            MaxLength = 9,
+            NumericPrecision = LanguageExt.Option<INumericPrecision>.Some(new NumericPrecision(precision, scale)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    // only the sys schema holds the built-in types, so the same name elsewhere is a type of the database's own
+    [Test]
+    public static void CreateColumnType_GivenBuiltInNameInOtherSchema_DoesNotResolveBuiltInType()
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = new Identifier("dbo", "char"), MaxLength = 10 };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Unknown));
+            Assert.That(columnType.ClrType, Is.EqualTo(typeof(object)));
+            Assert.That(columnType.IsFixedLength, Is.False);
+            Assert.That(columnType.Definition, Is.EqualTo("[dbo].[char](10)"));
+        }
+    }
+
     [Test]
     public static void CreateColumnType_GivenEqualMetadataTwice_ReturnsSameInstance()
     {

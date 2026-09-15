@@ -287,6 +287,70 @@ internal static class OracleDbTypeProviderTests
         Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
     }
 
+    [TestCase("VARCHAR2", 50, "\"VARCHAR2\"(50)")]
+    [TestCase("CHAR", 1, "\"CHAR\"(1)")]
+    [TestCase("DATE", 7, "\"DATE\"")]
+    [TestCase("CLOB", 4000, "\"CLOB\"")]
+    public static void CreateColumnType_GivenTypeNameWithLength_ReturnsExpectedDefinition(string typeName, int maxLength, string expectedDefinition)
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", typeName), MaxLength = maxLength });
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [TestCase(10, 2, "\"NUMBER\"(10, 2)")]
+    [TestCase(28, 0, "\"NUMBER\"(28)")]
+    public static void CreateColumnType_GivenNumberWithPrecision_ReturnsExpectedDefinition(int precision, int scale, string expectedDefinition)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = new Identifier("SYS", "NUMBER"),
+            MaxLength = 22,
+            NumericPrecision = Option<INumericPrecision>.Some(new NumericPrecision(precision, scale)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenUserDefinedTypeName_ReturnsQualifiedDefinition()
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("APP", "ADDRESS_T") });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Other));
+            Assert.That(columnType.Definition, Is.EqualTo("\"APP\".\"ADDRESS_T\""));
+        }
+    }
+
+    // a whole NUMBER is an integer, sized by its precision, or by its length when it declares none
+    [TestCase(5, 0, DataType.Integer)]
+    [TestCase(10, 0, DataType.BigInteger)]
+    [TestCase(10, 2, DataType.Numeric)]
+    public static void CreateColumnType_GivenNumberWithPrecision_ResolvesExpectedDataType(int precision, int scale, DataType expectedDataType)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = new Identifier("SYS", "NUMBER"),
+            MaxLength = 22,
+            NumericPrecision = Option<INumericPrecision>.Some(new NumericPrecision(precision, scale)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.DataType, Is.EqualTo(expectedDataType));
+    }
+
+    [TestCase(4, DataType.Integer)]
+    [TestCase(22, DataType.BigInteger)]
+    public static void CreateColumnType_GivenNumberWithoutPrecision_ResolvesDataTypeFromLength(int maxLength, DataType expectedDataType)
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", "NUMBER"), MaxLength = maxLength });
+
+        Assert.That(columnType.DataType, Is.EqualTo(expectedDataType));
+    }
+
     [Test]
     public static void GetComparableColumnType_GivenTypeWithFractionalSecondsPrecision_KeepsPrecision()
     {

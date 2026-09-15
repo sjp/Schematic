@@ -2,7 +2,7 @@
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -39,31 +39,32 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
             typeMetadata.TypeName = NormalizeTypeName(typeMetadata.TypeName);
         }
 
+        var typeInfo = GetTypeInfo(typeMetadata.TypeName.LocalName);
         if (typeMetadata.DataType == DataType.Unknown)
         {
-            typeMetadata.DataType = GetDataType(typeMetadata.TypeName);
+            typeMetadata.DataType = GetDataType(typeMetadata.TypeName, typeInfo);
             if (typeMetadata.DataType == DataType.Numeric)
             {
-                var numericPrecision = typeMetadata.NumericPrecision.Filter(static np => np.Scale == 0);
-                numericPrecision.IfSome(np =>
-                {
-                    typeMetadata.DataType = np.Precision < 8
-                        ? DataType.Integer     // 2^32
-                        : DataType.BigInteger; // note: could require storing in a decimal instead of long
-                });
-                if (typeMetadata.NumericPrecision.IsNone)
+                var numericPrecision = typeMetadata.NumericPrecision.MatchUnsafe(static np => np, static () => (INumericPrecision?)null);
+                if (numericPrecision == null)
                 {
                     typeMetadata.DataType = typeMetadata.MaxLength < 8
+                        ? DataType.Integer     // 2^32
+                        : DataType.BigInteger; // note: could require storing in a decimal instead of long
+                }
+                else if (numericPrecision.Scale == 0)
+                {
+                    typeMetadata.DataType = numericPrecision.Precision < 8
                         ? DataType.Integer     // 2^32
                         : DataType.BigInteger; // note: could require storing in a decimal instead of long
                 }
             }
         }
         if (typeMetadata.ClrType == null)
-            typeMetadata.ClrType = GetClrType(typeMetadata.TypeName);
-        typeMetadata.IsFixedLength = GetIsFixedLength(typeMetadata.TypeName);
+            typeMetadata.ClrType = typeInfo?.ClrType ?? typeof(object);
+        typeMetadata.IsFixedLength = typeInfo?.IsFixedLength ?? false;
 
-        var definition = GetFormattedTypeName(typeMetadata);
+        var definition = GetFormattedTypeName(typeMetadata, typeMetadata.TypeName, typeInfo);
         return _typeCache.GetOrCreate(
             typeMetadata.TypeName,
             typeMetadata.DataType,
@@ -120,7 +121,7 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return FixedLengthTypes.Contains(NormalizeTypeName(typeName.LocalName));
+        return GetTypeInfo(typeName.LocalName)?.IsFixedLength ?? false;
     }
 
     /// <summary>
@@ -247,66 +248,44 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         if (typeMetadata.TypeName == null)
             throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
 
-        var builder = StringBuilderCache.Acquire(typeMetadata.TypeName.LocalName.Length * 2);
-        var typeName = typeMetadata.TypeName;
-        if (string.Equals(typeName.Schema, "SYS", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.Append(QuoteIdentifier(typeName.LocalName));
-        }
-        else
-        {
-            // Inlined rather than delegating to QuoteName(), which acquires its own StringBuilder from
-            // the same thread-static cache slot this builder was already taken from — the nested
-            // Acquire()/Release() pair would otherwise silently drop one of the two builders from the pool.
-            if (typeName.Server != null)
-                builder.Append(QuoteIdentifier(typeName.Server)).Append('.');
-            if (typeName.Database != null)
-                builder.Append(QuoteIdentifier(typeName.Database)).Append('.');
-            if (typeName.Schema != null)
-                builder.Append(QuoteIdentifier(typeName.Schema)).Append('.');
-            builder.Append(QuoteIdentifier(typeName.LocalName));
-        }
+        return GetFormattedTypeName(typeMetadata, typeMetadata.TypeName, GetTypeInfo(typeMetadata.TypeName.LocalName));
+    }
 
-        var normalizedName = NormalizeTypeName(typeName.LocalName);
+    private static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata, Identifier typeName, TypeInfo? typeInfo)
+    {
+        var builder = StringBuilderCache.Acquire(typeName.LocalName.Length * 2);
+        if (string.Equals(typeName.Schema, "SYS", StringComparison.OrdinalIgnoreCase))
+            AppendQuotedIdentifier(builder, typeName.LocalName);
+        else
+            AppendQuotedName(builder, typeName);
+
+        var annotation = typeInfo?.Annotation ?? TypeAnnotation.LengthOrPrecision;
 
         // a timestamp or a day-to-second interval is annotated with the precision of its seconds and
         // with nothing else; its numeric precision, where it has one, counts the leading field's digits
-        if (TypeNamesWithFractionalSecondsPrecision.Contains(normalizedName))
+        if (annotation == TypeAnnotation.FractionalSecondsPrecision)
         {
-            typeMetadata.FractionalSecondsPrecision.IfSome(precision =>
-            {
-                builder.Append('(');
-                builder.Append(precision.ToString(CultureInfo.InvariantCulture));
-                builder.Append(')');
-            });
+            var fractionalSecondsPrecision = typeMetadata.FractionalSecondsPrecision.MatchUnsafe(static p => p, static () => (int?)null);
+            if (fractionalSecondsPrecision is int precision)
+                builder.Append(CultureInfo.InvariantCulture, $"({precision})");
 
             return builder.GetStringAndRelease();
         }
 
-        if (TypeNamesWithNoLengthAnnotation.Contains(normalizedName))
+        if (annotation == TypeAnnotation.None)
             return builder.GetStringAndRelease();
 
-        var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
-        if (npWithPrecisionOrScale.IsSome)
+        var numericPrecision = typeMetadata.NumericPrecision.MatchUnsafe(static np => np, static () => (INumericPrecision?)null);
+        if (numericPrecision != null && (numericPrecision.Precision > 0 || numericPrecision.Scale > 0))
         {
-            npWithPrecisionOrScale.IfSome(precision =>
-            {
-                builder.Append('(');
-                builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
-                if (precision.Scale > 0)
-                {
-                    builder.Append(", ");
-                    builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
-                }
-                builder.Append(')');
-            });
+            builder.Append(CultureInfo.InvariantCulture, $"({numericPrecision.Precision}");
+            if (numericPrecision.Scale > 0)
+                builder.Append(CultureInfo.InvariantCulture, $", {numericPrecision.Scale}");
+            builder.Append(')');
         }
         else if (typeMetadata.MaxLength > 0)
         {
-            builder.Append('(');
-            var maxLength = typeMetadata.MaxLength;
-            builder.Append(maxLength.ToString(CultureInfo.InvariantCulture));
-            builder.Append(')');
+            builder.Append(CultureInfo.InvariantCulture, $"({typeMetadata.MaxLength})");
         }
 
         return builder.GetStringAndRelease();
@@ -322,8 +301,13 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        if (StringToDataTypeMap.TryGetValue(NormalizeTypeName(typeName.LocalName), out var value))
-            return value;
+        return GetDataType(typeName, GetTypeInfo(typeName.LocalName));
+    }
+
+    private static DataType GetDataType(Identifier typeName, TypeInfo? typeInfo)
+    {
+        if (typeInfo != null)
+            return typeInfo.DataType;
 
         // a type in any other schema is user-defined -- an object type, a varray or a nested table.
         // The catalog does not say which from the column alone, so it is left unclassified rather
@@ -341,8 +325,7 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
-        return StringToClrTypeMap.TryGetValue(NormalizeTypeName(typeName.LocalName), out var value)
-            ? value : typeof(object);
+        return GetTypeInfo(typeName.LocalName)?.ClrType ?? typeof(object);
     }
 
     /// <summary>
@@ -370,133 +353,85 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         ArgumentNullException.ThrowIfNull(name);
 
         var builder = StringBuilderCache.Acquire();
-
-        if (name.Server != null)
-            builder.Append(QuoteIdentifier(name.Server)).Append('.');
-        if (name.Database != null)
-            builder.Append(QuoteIdentifier(name.Database)).Append('.');
-        if (name.Schema != null)
-            builder.Append(QuoteIdentifier(name.Schema)).Append('.');
-        if (name.LocalName != null)
-            builder.Append(QuoteIdentifier(name.LocalName));
-
+        AppendQuotedName(builder, name);
         return builder.GetStringAndRelease();
     }
 
-    private static readonly FrozenSet<string> FixedLengthTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static void AppendQuotedName(StringBuilder builder, Identifier name)
     {
-        "CHAR",
-        "NCHAR",
-        "RAW",
-    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        if (name.Server != null)
+            AppendQuotedIdentifier(builder, name.Server).Append('.');
+        if (name.Database != null)
+            AppendQuotedIdentifier(builder, name.Database).Append('.');
+        if (name.Schema != null)
+            AppendQuotedIdentifier(builder, name.Schema).Append('.');
+        AppendQuotedIdentifier(builder, name.LocalName);
+    }
 
-    private static readonly FrozenSet<string> TypeNamesWithFractionalSecondsPrecision = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static StringBuilder AppendQuotedIdentifier(StringBuilder builder, string identifier)
     {
-        "INTERVAL DAY TO SECOND",
-        "TIMESTAMP",
-        "TIMESTAMP WITH LOCAL TIME ZONE",
-        "TIMESTAMP WITH TIME ZONE",
-    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        return builder.Append('"').Append(identifier).Append('"');
+    }
 
-    private static readonly FrozenSet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    // built-in types are recognised by name alone, whichever schema the name is qualified with
+    private static TypeInfo? GetTypeInfo(string localName)
     {
-        "BFILE",
-        "BINARY_FLOAT",
-        "BINARY_DOUBLE",
-        "ANYDATA",
-        "ANYDATASET",
-        "BLOB",
-        "CLOB",
-        "DATE",
-        "JSON",
-        "LONG",
-        "LONG RAW",
-        "NCLOB",
-        "ROWID",
-        "SDO_GEOMETRY",
-        "TIMESTAMP",
-        "TIMESTAMP WITH LOCAL TIME ZONE",
-        "TIMESTAMP WITH TIME ZONE",
-        "UROWID",
-        "XMLTYPE",
-    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+        return Types.TryGetValue(NormalizeTypeName(localName), out var typeInfo)
+            ? typeInfo
+            : null;
+    }
 
-    private static readonly FrozenDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
+    private enum TypeAnnotation
     {
-        ["BFILE"] = DataType.LargeBinary,
-        ["BINARY_DOUBLE"] = DataType.Float,
-        ["BINARY_FLOAT"] = DataType.Float,
-        ["BINARY_INTEGER"] = DataType.BigInteger,
-        ["BLOB"] = DataType.LargeBinary,
-        ["BOOLEAN"] = DataType.Boolean,
-        ["CHAR"] = DataType.String,
-        ["ANYDATA"] = DataType.Variant,
-        ["ANYDATASET"] = DataType.Variant,
-        ["CLOB"] = DataType.Text,
-        ["DATE"] = DataType.Date,
-        ["FLOAT"] = DataType.Float,
-        ["INTEGER"] = DataType.BigInteger,
-        ["INTERVAL YEAR TO MONTH"] = DataType.Interval,
-        ["INTERVAL DAY TO SECOND"] = DataType.Interval,
-        ["JSON"] = DataType.Json,
-        ["LONG"] = DataType.String,
-        ["LONG RAW"] = DataType.LargeBinary,
-        ["NCHAR"] = DataType.Unicode,
-        ["NCLOB"] = DataType.UnicodeText,
-        ["NUMBER"] = DataType.Numeric,
-        ["NVARCHAR2"] = DataType.Unicode,
-        ["PLS_INTEGER"] = DataType.Integer,
-        ["RAW"] = DataType.Binary,
-        ["REAL"] = DataType.Float,
-        ["ROWID"] = DataType.Other,
-        ["SDO_GEOMETRY"] = DataType.Geometry,
-        ["TIMESTAMP"] = DataType.DateTime,
-        ["TIMESTAMP WITH TIME ZONE"] = DataType.DateTimeOffset,
-        ["TIMESTAMP WITH LOCAL TIME ZONE"] = DataType.DateTime,
-        ["UROWID"] = DataType.Other,
-        ["UNSIGNED INTEGER"] = DataType.BigInteger,
-        ["VARCHAR2"] = DataType.String,
-        ["VECTOR"] = DataType.Vector,
-        ["XMLTYPE"] = DataType.Xml,
-    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+        // the length, or the precision and scale, in parentheses
+        LengthOrPrecision,
 
-    private static readonly FrozenDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+        // nothing, the type takes no arguments
+        None,
+
+        // the fractional seconds precision in parentheses, when there is one
+        FractionalSecondsPrecision,
+    }
+
+    private sealed record TypeInfo(DataType DataType, Type ClrType, TypeAnnotation Annotation, bool IsFixedLength);
+
+    private static readonly FrozenDictionary<string, TypeInfo> Types = new Dictionary<string, TypeInfo>(StringComparer.OrdinalIgnoreCase)
     {
-        ["BFILE"] = typeof(byte[]),
-        ["BINARY_DOUBLE"] = typeof(double),
-        ["BINARY_FLOAT"] = typeof(float),
-        ["BINARY_INTEGER"] = typeof(long),
-        ["BLOB"] = typeof(byte[]),
-        ["BOOLEAN"] = typeof(bool),
-        ["CHAR"] = typeof(string),
-        ["ANYDATA"] = typeof(object),
-        ["ANYDATASET"] = typeof(object),
-        ["CLOB"] = typeof(string),
-        ["DATE"] = typeof(DateTime),
-        ["FLOAT"] = typeof(decimal),
-        ["INTEGER"] = typeof(decimal),
-        ["INTERVAL YEAR TO MONTH"] = typeof(int),
-        ["INTERVAL DAY TO SECOND"] = typeof(TimeSpan),
-        ["JSON"] = typeof(string),
-        ["LONG"] = typeof(string),
-        ["LONG RAW"] = typeof(byte[]),
-        ["NCHAR"] = typeof(string),
-        ["NCLOB"] = typeof(string),
-        ["NUMBER"] = typeof(decimal),
-        ["NVARCHAR2"] = typeof(string),
-        ["PLS_INTEGER"] = typeof(int),
-        ["RAW"] = typeof(byte[]),
-        ["REAL"] = typeof(decimal),
-        ["ROWID"] = typeof(string),
-        ["SDO_GEOMETRY"] = typeof(object),
-        ["TIMESTAMP"] = typeof(DateTime),
-        ["TIMESTAMP WITH TIME ZONE"] = typeof(DateTimeOffset),
-        ["TIMESTAMP WITH LOCAL TIME ZONE"] = typeof(DateTime),
-        ["UROWID"] = typeof(string),
-        ["UNSIGNED INTEGER"] = typeof(decimal),
-        ["VARCHAR2"] = typeof(string),
-        ["VECTOR"] = typeof(object),
-        ["XMLTYPE"] = typeof(string),
+        ["ANYDATA"] = new(DataType.Variant, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["ANYDATASET"] = new(DataType.Variant, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["BFILE"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
+        ["BINARY_DOUBLE"] = new(DataType.Float, typeof(double), TypeAnnotation.None, IsFixedLength: false),
+        ["BINARY_FLOAT"] = new(DataType.Float, typeof(float), TypeAnnotation.None, IsFixedLength: false),
+        ["BINARY_INTEGER"] = new(DataType.BigInteger, typeof(long), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["BLOB"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
+        ["BOOLEAN"] = new(DataType.Boolean, typeof(bool), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["CHAR"] = new(DataType.String, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
+        ["CLOB"] = new(DataType.Text, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["DATE"] = new(DataType.Date, typeof(DateTime), TypeAnnotation.None, IsFixedLength: false),
+        ["FLOAT"] = new(DataType.Float, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["INTEGER"] = new(DataType.BigInteger, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["INTERVAL DAY TO SECOND"] = new(DataType.Interval, typeof(TimeSpan), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["INTERVAL YEAR TO MONTH"] = new(DataType.Interval, typeof(int), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["JSON"] = new(DataType.Json, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["LONG"] = new(DataType.String, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["LONG RAW"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
+        ["NCHAR"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
+        ["NCLOB"] = new(DataType.UnicodeText, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["NUMBER"] = new(DataType.Numeric, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["NVARCHAR2"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["PLS_INTEGER"] = new(DataType.Integer, typeof(int), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["RAW"] = new(DataType.Binary, typeof(byte[]), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
+        ["REAL"] = new(DataType.Float, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["ROWID"] = new(DataType.Other, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["SDO_GEOMETRY"] = new(DataType.Geometry, typeof(object), TypeAnnotation.None, IsFixedLength: false),
+        ["TIMESTAMP"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["TIMESTAMP WITH LOCAL TIME ZONE"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["TIMESTAMP WITH TIME ZONE"] = new(DataType.DateTimeOffset, typeof(DateTimeOffset), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
+        ["UNSIGNED INTEGER"] = new(DataType.BigInteger, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["UROWID"] = new(DataType.Other, typeof(string), TypeAnnotation.None, IsFixedLength: false),
+        ["VARCHAR2"] = new(DataType.String, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["VECTOR"] = new(DataType.Vector, typeof(object), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["XMLTYPE"] = new(DataType.Xml, typeof(string), TypeAnnotation.None, IsFixedLength: false),
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy
