@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -19,14 +20,20 @@ internal static class EmptyRoutineDefinitionRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new EmptyRoutineDefinitionRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new EmptyRoutineDefinitionRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void AnalyseRoutines_GivenNullRoutines_ThrowsArgumentNullException()
     {
         var rule = new EmptyRoutineDefinitionRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseRoutines(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseRoutines(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
+        );
     }
 
     [Test]

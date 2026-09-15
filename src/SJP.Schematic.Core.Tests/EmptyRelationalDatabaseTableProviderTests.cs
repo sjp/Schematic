@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -10,7 +11,10 @@ internal static class EmptyRelationalDatabaseTableProviderTests
     public static void GetTable_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseTableProvider();
-        Assert.That(() => provider.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]

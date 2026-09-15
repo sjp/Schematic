@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
@@ -9,7 +10,10 @@ internal static class VerbatimIdentifierResolutionStrategyTests
     public static void GetResolutionOrder_GivenNullIdentifier_ThrowsArgumentNullException()
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
-        Assert.That(() => resolver.GetResolutionOrder(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => resolver.GetResolutionOrder(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier")
+        );
     }
 
     [Test]

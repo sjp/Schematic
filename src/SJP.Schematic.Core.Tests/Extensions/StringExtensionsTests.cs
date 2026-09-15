@@ -55,14 +55,20 @@ internal static class StringExtensionsTests
     public static void Join_GivenNullStringCollection_ThrowsArgumentNullException()
     {
         IEnumerable<string> values = null;
-        Assert.That(() => values.Join(","), Throws.ArgumentNullException);
+        Assert.That(
+            () => values.Join(","),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("values")
+        );
     }
 
     [Test]
     public static void Join_GivenNullSeparator_ThrowsArgumentNullException()
     {
         var values = Array.Empty<string>();
-        Assert.That(() => values.Join(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => values.Join(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("separator")
+        );
     }
 
     [Test]

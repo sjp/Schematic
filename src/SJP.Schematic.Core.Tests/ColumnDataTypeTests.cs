@@ -50,7 +50,7 @@ internal static class ColumnDataTypeTests
                 null!,
                 Option<IDbType>.None,
                 false),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("enumValues"));
     }
 
     [Test]
@@ -70,7 +70,7 @@ internal static class ColumnDataTypeTests
                 ["first", null!],
                 Option<IDbType>.None,
                 false),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("enumValues"));
     }
 
     [Test]
@@ -78,7 +78,9 @@ internal static class ColumnDataTypeTests
     {
         const DataType dataType = (DataType)555;
 
-        Assert.That(() => CreateDataType(dataType: dataType), Throws.ArgumentException);
+        Assert.That(
+            () => CreateDataType(dataType: dataType),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dataType"));
     }
 
     // the members added to describe collection, enumerated and unsigned types are the ones under
@@ -185,7 +187,7 @@ internal static class ColumnDataTypeTests
                 Option<IDbType>.None,
                 false,
                 "   "),
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("clrTypeName"));
     }
 
     // the shorter constructor is the one every existing caller uses, so it must keep describing a
@@ -229,6 +231,6 @@ internal static class ColumnDataTypeTests
     {
         Assert.That(
             () => CreateDataType(dataType: DataType.DateTime, fractionalSecondsPrecision: -1),
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fractionalSecondsPrecision"));
     }
 }

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -10,7 +11,10 @@ internal static class NumericPrecisionTests
         const int precision = -1;
         const int scale = 123;
 
-        Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException);
+        Assert.That(
+            () => new NumericPrecision(precision, scale),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("precision")
+        );
     }
 
     [Test]
@@ -19,7 +23,11 @@ internal static class NumericPrecisionTests
         const int precision = 12345;
         const int scale = -1;
 
-        Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException.With.Message.Contains("scale"));
+        Assert.That(
+            () => new NumericPrecision(precision, scale),
+            Throws.ArgumentException.With.Message.Contains("scale")
+                .And.Property(nameof(ArgumentException.ParamName)).EqualTo("scale")
+        );
     }
 
     [Test]
@@ -28,7 +36,10 @@ internal static class NumericPrecisionTests
         const int precision = 0;
         const int scale = 1;
 
-        Assert.That(() => new NumericPrecision(precision, scale), Throws.ArgumentException);
+        Assert.That(
+            () => new NumericPrecision(precision, scale),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("scale")
+        );
     }
 
     [Test]

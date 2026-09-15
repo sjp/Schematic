@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests.Pragma;
@@ -8,6 +9,6 @@ internal static class ConnectionPragmaTests
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => new ConnectionPragma(null), Throws.ArgumentNullException);
+        Assert.That(() => new ConnectionPragma(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 }

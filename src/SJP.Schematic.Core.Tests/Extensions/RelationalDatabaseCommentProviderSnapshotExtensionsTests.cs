@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -24,49 +25,73 @@ internal static class RelationalDatabaseCommentProviderSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_GivenNullDatabaseCommentProvider_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseComments")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenNullDatabaseCommentProviderWithSnapshotOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseCommentProviderSnapshotOptions()), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseCommentProviderSnapshotOptions()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseComments")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenDatabaseCommentProviderWithNullSnapshotOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.SnapshotAsync((RelationalDatabaseCommentProviderSnapshotOptions)null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.SnapshotAsync((RelationalDatabaseCommentProviderSnapshotOptions)null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("snapshotOptions")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenNullDatabaseCommentProviderWithResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseComments")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenDatabaseCommentProviderWithNullResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.SnapshotAsync((IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.SnapshotAsync((IIdentifierResolutionStrategy)null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenNullDatabaseCommentProviderWithOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseCommentProviderSnapshotOptions(), new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseCommentProviderSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseCommentProviderSnapshotOptions(), new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseComments")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenDatabaseCommentProviderWithResolverWithNullSnapshotOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("snapshotOptions")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_GivenNullDatabaseCommentProviderWithNullResolverForOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.SnapshotAsync(new RelationalDatabaseCommentProviderSnapshotOptions(), null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.SnapshotAsync(new RelationalDatabaseCommentProviderSnapshotOptions(), null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]

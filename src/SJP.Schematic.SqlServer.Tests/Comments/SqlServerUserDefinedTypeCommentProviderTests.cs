@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,7 +13,10 @@ internal static class SqlServerUserDefinedTypeCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerUserDefinedTypeCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerUserDefinedTypeCommentProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -20,7 +24,10 @@ internal static class SqlServerUserDefinedTypeCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SqlServerUserDefinedTypeCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerUserDefinedTypeCommentProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -31,6 +38,9 @@ internal static class SqlServerUserDefinedTypeCommentProviderTests
 
         var commentProvider = new SqlServerUserDefinedTypeCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetUserDefinedTypeComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 }

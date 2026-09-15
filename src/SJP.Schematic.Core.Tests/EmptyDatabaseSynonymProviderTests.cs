@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -10,7 +11,10 @@ internal static class EmptyDatabaseSynonymProviderTests
     public static void GetSynonym_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseSynonymProvider();
-        Assert.That(() => provider.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]

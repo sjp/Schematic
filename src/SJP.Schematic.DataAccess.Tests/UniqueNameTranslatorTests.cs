@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -8,7 +9,10 @@ internal static class UniqueNameTranslatorTests
     [Test]
     public static void Ctor_GivenNullTranslator_ThrowsArgumentNullException()
     {
-        Assert.That(() => new UniqueNameTranslator(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new UniqueNameTranslator(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("translator")
+        );
     }
 
     [Test]

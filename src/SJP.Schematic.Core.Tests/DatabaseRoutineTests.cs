@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -12,7 +13,10 @@ internal static class DatabaseRoutineTests
     {
         const string definition = "create function test_function...";
 
-        Assert.That(() => new DatabaseRoutine(null, definition), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRoutine(null, definition),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]
@@ -20,7 +24,10 @@ internal static class DatabaseRoutineTests
     {
         Identifier routineName = "test_routine";
 
-        Assert.That(() => new DatabaseRoutine(routineName, null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRoutine(routineName, null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
@@ -29,7 +36,10 @@ internal static class DatabaseRoutineTests
     {
         Identifier routineName = "test_routine";
 
-        Assert.That(() => new DatabaseRoutine(routineName, definition), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRoutine(routineName, definition),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -89,7 +99,7 @@ internal static class DatabaseRoutineTests
 
         Assert.That(
             () => new DatabaseRoutine("test_routine", "create function test_function...", routineType, Option<string>.None, [], Option<IDbType>.None),
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineType"));
     }
 
     [Test]
@@ -97,7 +107,7 @@ internal static class DatabaseRoutineTests
     {
         Assert.That(
             () => new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, null!, Option<IDbType>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parameters"));
     }
 
     [Test]
@@ -107,7 +117,7 @@ internal static class DatabaseRoutineTests
 
         Assert.That(
             () => new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, parameters, Option<IDbType>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parameters"));
     }
 
     [Test]
@@ -117,7 +127,7 @@ internal static class DatabaseRoutineTests
 
         Assert.That(
             () => new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, [], Option<IDbType>.None, overloads),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("overloads"));
     }
 
     [Test]

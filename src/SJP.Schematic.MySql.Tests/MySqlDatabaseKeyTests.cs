@@ -15,7 +15,10 @@ internal static class MySqlDatabaseKeyTests
         var column = Mock.Of<IDatabaseColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new MySqlDatabaseKey(null, keyType, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseKey(null, keyType, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -26,7 +29,10 @@ internal static class MySqlDatabaseKeyTests
         var column = Mock.Of<IDatabaseColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new MySqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseKey(keyName, keyType, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("keyType")
+        );
     }
 
     [Test]
@@ -35,7 +41,10 @@ internal static class MySqlDatabaseKeyTests
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
 
-        Assert.That(() => new MySqlDatabaseKey(keyName, keyType, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseKey(keyName, keyType, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -45,7 +54,10 @@ internal static class MySqlDatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new MySqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseKey(keyName, keyType, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -55,7 +67,10 @@ internal static class MySqlDatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new MySqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseKey(keyName, keyType, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]

@@ -41,7 +41,7 @@ internal static class RelationalDatabaseCommentProviderTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
         );
     }
 
@@ -65,7 +65,7 @@ internal static class RelationalDatabaseCommentProviderTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
         );
     }
 
@@ -89,7 +89,7 @@ internal static class RelationalDatabaseCommentProviderTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableComments")
         );
     }
 
@@ -113,7 +113,7 @@ internal static class RelationalDatabaseCommentProviderTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewComments")
         );
     }
 
@@ -137,7 +137,7 @@ internal static class RelationalDatabaseCommentProviderTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceComments")
         );
     }
 
@@ -161,7 +161,7 @@ internal static class RelationalDatabaseCommentProviderTests
                 null,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymComments")
         );
     }
 
@@ -185,38 +185,53 @@ internal static class RelationalDatabaseCommentProviderTests
                 synonyms,
                 null
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineComments")
         );
     }
 
     [Test]
     public static void GetTableComments_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetTableComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetTableComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
     public static void GetViewComments_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetViewComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
     public static void GetSequenceComments_GivenNullSequenceName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetSequenceComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
     public static void GetSynonymComments_GivenNullSynonymName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetSynonymComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetSynonymComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
     public static void GetRoutineComments_GivenNullRoutineName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetRoutineComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]
@@ -957,14 +972,17 @@ internal static class RelationalDatabaseCommentProviderTests
                 [],
                 null
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypeComments")
         );
     }
 
     [Test]
     public static void GetUserDefinedTypeComments_GivenNullTypeName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetUserDefinedTypeComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]
@@ -1028,14 +1046,17 @@ internal static class RelationalDatabaseCommentProviderTests
                 [],
                 null
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaComments")
         );
     }
 
     [Test]
     public static void GetSchemaComments_GivenNullSchemaName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyCommentProvider.GetSchemaComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyCommentProvider.GetSchemaComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName")
+        );
     }
 
     [Test]

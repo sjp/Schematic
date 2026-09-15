@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -10,7 +11,7 @@ internal static class DefaultPostgreSqlIdentifierResolutionStrategyTests
     public static void GetResolutionOrder_GivenNullIdentifier_ThrowsArgumentNullException()
     {
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
-        Assert.That(() => identifierResolver.GetResolutionOrder(null), Throws.ArgumentNullException);
+        Assert.That(() => identifierResolver.GetResolutionOrder(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
     [Test]

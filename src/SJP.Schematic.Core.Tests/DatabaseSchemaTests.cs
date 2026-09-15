@@ -1,3 +1,4 @@
+using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -9,7 +10,10 @@ internal static class DatabaseSchemaTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseSchema(null, Option<string>.None, false, false), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseSchema(null, Option<string>.None, false, false),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName")
+        );
     }
 
     [Test]

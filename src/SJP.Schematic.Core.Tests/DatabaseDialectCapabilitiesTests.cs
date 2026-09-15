@@ -18,7 +18,7 @@ internal static class DatabaseDialectCapabilitiesTests
     {
         Assert.That(
             () => new DatabaseDialectCapabilities { SupportedReferentialActions = null, MaxIdentifierLength = 128 },
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("value"));
     }
 
     [Test]
@@ -30,7 +30,7 @@ internal static class DatabaseDialectCapabilitiesTests
                 SupportedReferentialActions = new HashSet<ReferentialAction> { ReferentialAction.NoAction, (ReferentialAction)55 },
                 MaxIdentifierLength = 128,
             },
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("value"));
     }
 
     [Test]
@@ -42,7 +42,7 @@ internal static class DatabaseDialectCapabilitiesTests
                 SupportedReferentialActions = new HashSet<ReferentialAction> { ReferentialAction.Cascade },
                 MaxIdentifierLength = 128,
             },
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("value"));
     }
 
     [Test]
@@ -70,7 +70,7 @@ internal static class DatabaseDialectCapabilitiesTests
                 SupportedReferentialActions = new HashSet<ReferentialAction> { ReferentialAction.NoAction },
                 MaxIdentifierLength = maxLength,
             },
-            Throws.InstanceOf<ArgumentOutOfRangeException>());
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("value"));
     }
 
     [Test]

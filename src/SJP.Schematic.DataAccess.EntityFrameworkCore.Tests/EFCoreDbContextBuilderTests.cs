@@ -11,7 +11,10 @@ internal static class EFCoreDbContextBuilderTests
     [Test]
     public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
     {
-        Assert.That(() => new EFCoreDbContextBuilder(null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EFCoreDbContextBuilder(null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nameTranslator")
+        );
     }
 
     [TestCase((string)null)]
@@ -20,7 +23,10 @@ internal static class EFCoreDbContextBuilderTests
     public static void Ctor_GivenNullOrWhiteSpaceNamespace_ThrowsArgumentException(string ns)
     {
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new EFCoreDbContextBuilder(nameTranslator, ns),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseNamespace")
+        );
     }
 
     [TestCase((string)null)]
@@ -29,7 +35,10 @@ internal static class EFCoreDbContextBuilderTests
     public static void Ctor_GivenNullOrWhiteSpaceContextClassName_ThrowsArgumentException(string className)
     {
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new EFCoreDbContextBuilder(nameTranslator, "test", className), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new EFCoreDbContextBuilder(nameTranslator, "test", className),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("contextClassName")
+        );
     }
 
     [Test]
@@ -49,7 +58,10 @@ internal static class EFCoreDbContextBuilderTests
         var views = Array.Empty<IDatabaseView>();
         var sequences = Array.Empty<IDatabaseSequence>();
 
-        Assert.That(() => dbContextBuilder.Generate(null, views, sequences), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbContextBuilder.Generate(null, views, sequences),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]
@@ -60,7 +72,10 @@ internal static class EFCoreDbContextBuilderTests
         var tables = Array.Empty<IRelationalDatabaseTable>();
         var sequences = Array.Empty<IDatabaseSequence>();
 
-        Assert.That(() => dbContextBuilder.Generate(tables, null, sequences), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbContextBuilder.Generate(tables, null, sequences),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
+        );
     }
 
     [Test]
@@ -71,7 +86,10 @@ internal static class EFCoreDbContextBuilderTests
         var tables = Array.Empty<IRelationalDatabaseTable>();
         var views = Array.Empty<IDatabaseView>();
 
-        Assert.That(() => dbContextBuilder.Generate(tables, views, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbContextBuilder.Generate(tables, views, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
+        );
     }
 
     [Test]

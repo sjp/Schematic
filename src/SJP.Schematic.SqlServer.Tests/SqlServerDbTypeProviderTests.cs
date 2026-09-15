@@ -18,13 +18,19 @@ internal static class SqlServerDbTypeProviderTests
     [Test]
     public static void CreateColumnType_GivenNullTypeMetadata_ThrowsArgumentNullException()
     {
-        Assert.That(() => Provider.CreateColumnType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Provider.CreateColumnType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeMetadata")
+        );
     }
 
     [Test]
     public static void GetComparableColumnType_GivenNullOtherType_ThrowsArgumentNullException()
     {
-        Assert.That(() => Provider.GetComparableColumnType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Provider.GetComparableColumnType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("otherType")
+        );
     }
 
     // Reverse mapping: a SQL Server type name resolves to the matching generic data type.

@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
 
@@ -13,7 +14,10 @@ internal static class DatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new DatabaseTrigger(null, definition, timing, events, true), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseTrigger(null, definition, timing, events, true),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -23,7 +27,10 @@ internal static class DatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new DatabaseTrigger(triggerName, null!, timing, events, true), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, null!, timing, events, true),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
@@ -34,7 +41,10 @@ internal static class DatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -45,7 +55,10 @@ internal static class DatabaseTriggerTests
         const TriggerQueryTiming timing = (TriggerQueryTiming)55;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("queryTiming")
+        );
     }
 
     [Test]
@@ -56,7 +69,10 @@ internal static class DatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = (TriggerEvent)55;
 
-        Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events")
+        );
     }
 
     [Test]
@@ -67,7 +83,10 @@ internal static class DatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.None;
 
-        Assert.That(() => new DatabaseTrigger(triggerName, definition, timing, events, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseTrigger(triggerName, definition, timing, events, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events")
+        );
     }
 
     [Test]
@@ -172,7 +191,7 @@ internal static class DatabaseTriggerTests
 
         Assert.That(
             () => new DatabaseTrigger(triggerName, definition, timing, events, true, granularity, Option<string>.None, []),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("granularity")
         );
     }
 
@@ -186,7 +205,7 @@ internal static class DatabaseTriggerTests
 
         Assert.That(
             () => new DatabaseTrigger(triggerName, definition, timing, events, true, TriggerGranularity.Row, Option<string>.None, null!),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateColumns")
         );
     }
 
@@ -201,7 +220,7 @@ internal static class DatabaseTriggerTests
 
         Assert.That(
             () => new DatabaseTrigger(triggerName, definition, timing, events, true, TriggerGranularity.Row, Option<string>.None, updateColumns),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateColumns")
         );
     }
 

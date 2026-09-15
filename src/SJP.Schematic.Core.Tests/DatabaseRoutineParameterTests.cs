@@ -15,7 +15,7 @@ internal static class DatabaseRoutineParameterTests
     {
         Assert.That(
             () => new DatabaseRoutineParameter(ParameterName, null, RoutineParameterDirection.Input, Option<string>.None, 1),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("type"));
     }
 
     [Test]
@@ -26,7 +26,7 @@ internal static class DatabaseRoutineParameterTests
 
         Assert.That(
             () => new DatabaseRoutineParameter(ParameterName, dbType, direction, Option<string>.None, 1),
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("direction"));
     }
 
     [TestCase(0)]
@@ -37,7 +37,7 @@ internal static class DatabaseRoutineParameterTests
 
         Assert.That(
             () => new DatabaseRoutineParameter(ParameterName, dbType, RoutineParameterDirection.Input, Option<string>.None, ordinal),
-            Throws.InstanceOf<ArgumentOutOfRangeException>());
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("ordinal"));
     }
 
     [Test]

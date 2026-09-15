@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -61,14 +62,20 @@ internal static class ForeignKeySetDefaultReferentialActionRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new ForeignKeySetDefaultReferentialActionRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new ForeignKeySetDefaultReferentialActionRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
         var rule = new ForeignKeySetDefaultReferentialActionRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

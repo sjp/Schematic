@@ -9,7 +9,10 @@ internal static class IdentifierExtensionsTests
     [Test]
     public static void ToQualifiedName_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => IdentifierExtensions.ToQualifiedName(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => IdentifierExtensions.ToQualifiedName(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier")
+        );
     }
 
     [Test]

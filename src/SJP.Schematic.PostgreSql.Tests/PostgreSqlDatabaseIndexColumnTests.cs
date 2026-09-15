@@ -14,7 +14,7 @@ internal static class PostgreSqlDatabaseIndexColumnTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceExpression_ThrowsArgumentException(string expression)
     {
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, IndexColumnOrder.Ascending), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, IndexColumnOrder.Ascending), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression"));
     }
 
     [TestCase((string)null)]
@@ -24,13 +24,13 @@ internal static class PostgreSqlDatabaseIndexColumnTests
     {
         var column = Mock.Of<IDatabaseColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression"));
     }
 
     [Test]
     public static void Ctor_GivenNullColumn_ThrowsArgumentNullException()
     {
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn("test", null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn("test", null, IndexColumnOrder.Ascending), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("column"));
     }
 
     [Test]
@@ -40,7 +40,7 @@ internal static class PostgreSqlDatabaseIndexColumnTests
         var column = Mock.Of<IDatabaseColumn>();
         const IndexColumnOrder order = (IndexColumnOrder)55;
 
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, order), Throws.ArgumentException);
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, column, order), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("order"));
     }
 
     [Test]
@@ -49,7 +49,7 @@ internal static class PostgreSqlDatabaseIndexColumnTests
         const string expression = "\"test\"";
         const IndexColumnOrder order = (IndexColumnOrder)55;
 
-        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, order), Throws.ArgumentException);
+        Assert.That(() => new PostgreSqlDatabaseIndexColumn(expression, order), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("order"));
     }
 
     [Test]
@@ -113,7 +113,7 @@ internal static class PostgreSqlDatabaseIndexColumnTests
 
         Assert.That(
             () => new PostgreSqlDatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending, nullOrder, Option<Identifier>.None),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nullOrder")
         );
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -10,7 +11,10 @@ internal static class EmptyDatabaseUserDefinedTypeProviderTests
     public static void GetUserDefinedType_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseUserDefinedTypeProvider();
-        Assert.That(() => provider.GetUserDefinedType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetUserDefinedType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]

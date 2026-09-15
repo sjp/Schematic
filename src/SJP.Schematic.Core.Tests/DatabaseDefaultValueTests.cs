@@ -1,3 +1,4 @@
+using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -9,14 +10,20 @@ internal static class DatabaseDefaultValueTests
     [Test]
     public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseDefaultValue(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseDefaultValue(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
     [TestCase("    ")]
     public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new DatabaseDefaultValue(definition), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseDefaultValue(definition),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -24,7 +31,10 @@ internal static class DatabaseDefaultValueTests
     {
         const DefaultValueKind kind = (DefaultValueKind)55;
 
-        Assert.That(() => new DatabaseDefaultValue("0", kind), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseDefaultValue("0", kind),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind")
+        );
     }
 
     [Test]

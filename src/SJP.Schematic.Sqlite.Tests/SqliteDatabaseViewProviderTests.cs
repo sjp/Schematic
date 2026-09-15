@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Pragma;
@@ -13,7 +14,7 @@ internal static class SqliteDatabaseViewProviderTests
         var pragma = Mock.Of<ISqliteConnectionPragma>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqliteDatabaseViewProvider(null, pragma, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseViewProvider(null, pragma, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -22,7 +23,7 @@ internal static class SqliteDatabaseViewProviderTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqliteDatabaseViewProvider(connection, null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseViewProvider(connection, null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("pragma"));
     }
 
     [Test]
@@ -31,7 +32,7 @@ internal static class SqliteDatabaseViewProviderTests
         var connection = Mock.Of<ISchematicConnection>();
         var pragma = Mock.Of<ISqliteConnectionPragma>();
 
-        Assert.That(() => new SqliteDatabaseViewProvider(connection, pragma, null), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseViewProvider(connection, pragma, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -43,6 +44,6 @@ internal static class SqliteDatabaseViewProviderTests
 
         var viewProvider = new SqliteDatabaseViewProvider(connection, pragma, identifierDefaults);
 
-        Assert.That(() => viewProvider.GetView(null), Throws.ArgumentNullException);
+        Assert.That(() => viewProvider.GetView(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName"));
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -13,7 +14,7 @@ internal static class PostgreSqlUserDefinedTypeCommentProviderTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlUserDefinedTypeCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlUserDefinedTypeCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -22,7 +23,7 @@ internal static class PostgreSqlUserDefinedTypeCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlUserDefinedTypeCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlUserDefinedTypeCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,7 +32,7 @@ internal static class PostgreSqlUserDefinedTypeCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new PostgreSqlUserDefinedTypeCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlUserDefinedTypeCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]
@@ -43,6 +44,6 @@ internal static class PostgreSqlUserDefinedTypeCommentProviderTests
 
         var commentProvider = new PostgreSqlUserDefinedTypeCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName"));
     }
 }

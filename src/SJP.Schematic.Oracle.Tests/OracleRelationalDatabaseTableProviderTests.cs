@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -12,7 +13,7 @@ internal static class OracleRelationalDatabaseTableProviderTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new OracleRelationalDatabaseTableProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new OracleRelationalDatabaseTableProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -21,7 +22,7 @@ internal static class OracleRelationalDatabaseTableProviderTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new OracleRelationalDatabaseTableProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new OracleRelationalDatabaseTableProvider(connection, null, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -30,7 +31,7 @@ internal static class OracleRelationalDatabaseTableProviderTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(() => new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]
@@ -42,6 +43,6 @@ internal static class OracleRelationalDatabaseTableProviderTests
 
         var tableProvider = new OracleRelationalDatabaseTableProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 }

@@ -15,7 +15,10 @@ internal static class PostgreSqlDatabaseKeyTests
         var column = Mock.Of<IDatabaseColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new PostgreSqlDatabaseKey(null, keyType, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseKey(null, keyType, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -26,7 +29,10 @@ internal static class PostgreSqlDatabaseKeyTests
         var column = Mock.Of<IDatabaseColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new PostgreSqlDatabaseKey(keyName, keyType, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("keyType")
+        );
     }
 
     [Test]
@@ -35,7 +41,10 @@ internal static class PostgreSqlDatabaseKeyTests
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
 
-        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseKey(keyName, keyType, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -45,7 +54,10 @@ internal static class PostgreSqlDatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new PostgreSqlDatabaseKey(keyName, keyType, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -55,7 +67,10 @@ internal static class PostgreSqlDatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new PostgreSqlDatabaseKey(keyName, keyType, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseKey(keyName, keyType, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]

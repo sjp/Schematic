@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
@@ -10,7 +11,10 @@ internal static class SchematicConnectionTests
     {
         var dialect = Mock.Of<IDatabaseDialect>();
 
-        Assert.That(() => new SchematicConnection(null, dialect), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SchematicConnection(null, dialect),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionFactory")
+        );
     }
 
     [Test]
@@ -18,7 +22,10 @@ internal static class SchematicConnectionTests
     {
         var dbConnection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SchematicConnection(dbConnection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SchematicConnection(dbConnection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dialect")
+        );
     }
 
     [Test]

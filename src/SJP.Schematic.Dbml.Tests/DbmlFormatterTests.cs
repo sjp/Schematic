@@ -12,7 +12,10 @@ internal static class DbmlFormatterTests
     [Test]
     public static void RenderTables_GivenNullTables_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DbmlFormatter().RenderTables(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DbmlFormatter().RenderTables(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]
@@ -20,7 +23,10 @@ internal static class DbmlFormatterTests
     {
         var tables = new IRelationalDatabaseTable[] { null };
 
-        Assert.That(() => new DbmlFormatter().RenderTables(tables), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DbmlFormatter().RenderTables(tables),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

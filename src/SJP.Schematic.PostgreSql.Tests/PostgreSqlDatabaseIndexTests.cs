@@ -16,7 +16,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(null, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(null, isUnique, columns, Option<string>.None), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name"));
     }
 
     [Test]
@@ -25,7 +25,7 @@ internal static class PostgreSqlDatabaseIndexTests
         Identifier indexName = "test_index";
         const bool isUnique = true;
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, null, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, null, Option<string>.None), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns"));
     }
 
     [Test]
@@ -35,7 +35,7 @@ internal static class PostgreSqlDatabaseIndexTests
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns"));
     }
 
     [Test]
@@ -45,7 +45,7 @@ internal static class PostgreSqlDatabaseIndexTests
         const bool isUnique = true;
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, Option<string>.None), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns"));
     }
 
     [Test]
@@ -56,7 +56,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, null, Option<string>.None), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("includedColumns"));
     }
 
     [Test]
@@ -68,7 +68,7 @@ internal static class PostgreSqlDatabaseIndexTests
         var columns = new[] { column };
         var includedColumns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseIndex(indexName, isUnique, columns, includedColumns, Option<string>.None), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("includedColumns"));
     }
 
     [Test]
@@ -202,7 +202,7 @@ internal static class PostgreSqlDatabaseIndexTests
 
         Assert.That(
             () => new PostgreSqlDatabaseIndex(indexName, false, columns, [], Option<string>.None, indexType, true),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexType")
         );
     }
 

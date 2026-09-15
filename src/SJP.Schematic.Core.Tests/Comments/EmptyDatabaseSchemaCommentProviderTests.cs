@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -11,7 +12,10 @@ internal static class EmptyDatabaseSchemaCommentProviderTests
     public static void GetSchemaComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseSchemaCommentProvider();
-        Assert.That(() => provider.GetSchemaComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSchemaComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName")
+        );
     }
 
     [Test]

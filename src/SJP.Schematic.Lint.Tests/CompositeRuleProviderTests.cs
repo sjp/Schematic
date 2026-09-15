@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -10,21 +11,30 @@ internal static class CompositeRuleProviderTests
     [Test]
     public static void Ctor_GivenNullRuleProviders_ThrowsArgumentNullException()
     {
-        Assert.That(() => new CompositeRuleProvider(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new CompositeRuleProvider(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("ruleProviders")
+        );
     }
 
     [Test]
     public static void GetRules_GivenNullConnection_ThrowsArgumentNullException()
     {
         var ruleProvider = new CompositeRuleProvider([]);
-        Assert.That(() => ruleProvider.GetRules(null, RuleLevel.Error), Throws.ArgumentNullException);
+        Assert.That(
+            () => ruleProvider.GetRules(null, RuleLevel.Error),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
     public static void GetRules_GivenInvalidRuleLevel_ThrowsArgumentException()
     {
         var ruleProvider = new CompositeRuleProvider([]);
-        Assert.That(() => ruleProvider.GetRules(Mock.Of<ISchematicConnection>(), (RuleLevel)555), Throws.ArgumentException);
+        Assert.That(
+            () => ruleProvider.GetRules(Mock.Of<ISchematicConnection>(), (RuleLevel)555),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]

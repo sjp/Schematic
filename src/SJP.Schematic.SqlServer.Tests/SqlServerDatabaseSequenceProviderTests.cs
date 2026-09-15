@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -11,7 +12,10 @@ internal static class SqlServerDatabaseSequenceProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerDatabaseSequenceProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseSequenceProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -19,7 +23,10 @@ internal static class SqlServerDatabaseSequenceProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SqlServerDatabaseSequenceProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseSequenceProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -30,6 +37,9 @@ internal static class SqlServerDatabaseSequenceProviderTests
 
         var sequenceProvider = new SqlServerDatabaseSequenceProvider(connection, identifierDefaults);
 
-        Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => sequenceProvider.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 }

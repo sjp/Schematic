@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,7 +12,10 @@ internal static class OracleDatabaseUserDefinedTypeProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new OracleDatabaseUserDefinedTypeProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseUserDefinedTypeProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -19,7 +23,10 @@ internal static class OracleDatabaseUserDefinedTypeProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new OracleDatabaseUserDefinedTypeProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseUserDefinedTypeProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -30,6 +37,9 @@ internal static class OracleDatabaseUserDefinedTypeProviderTests
 
         var typeProvider = new OracleDatabaseUserDefinedTypeProvider(connection, identifierDefaults);
 
-        Assert.That(() => typeProvider.GetUserDefinedType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => typeProvider.GetUserDefinedType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 }

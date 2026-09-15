@@ -19,7 +19,9 @@ internal static class JsonDataWriterTests
     public static void Serialize_GivenNullObject_ThrowsArgumentNullException()
     {
         var writer = new JsonDataWriter();
-        Assert.That(() => writer.Serialize(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => writer.Serialize(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("vm"));
     }
 
     [Test]
@@ -97,7 +99,9 @@ internal static class JsonDataWriterTests
         var writer = new JsonDataWriter();
         var synonym = new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None);
 
-        Assert.That(() => writer.SerializeToFileAsync(null!, synonym), Throws.ArgumentNullException);
+        Assert.That(
+            () => writer.SerializeToFileAsync(null!, synonym),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("file"));
     }
 
     [Test]
@@ -107,7 +111,9 @@ internal static class JsonDataWriterTests
         var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "test.json"));
 
         var writer = new JsonDataWriter();
-        Assert.That(() => writer.SerializeToFileAsync(file, null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => writer.SerializeToFileAsync(file, null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("vm"));
     }
 
     [Test]
@@ -231,7 +237,9 @@ internal static class JsonDataWriterTests
     public static void WriteJsonAsync_GivenNullFile_ThrowsArgumentNullException()
     {
         var writer = new JsonDataWriter();
-        Assert.That(() => writer.WriteJsonAsync(null!, "{}"), Throws.ArgumentNullException);
+        Assert.That(
+            () => writer.WriteJsonAsync(null!, "{}"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("file"));
     }
 
     [Test]
@@ -241,7 +249,9 @@ internal static class JsonDataWriterTests
         var file = new FileInfo(Path.Combine(tempDir.DirectoryPath, "test.json"));
 
         var writer = new JsonDataWriter();
-        Assert.That(() => writer.WriteJsonAsync(file, null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => writer.WriteJsonAsync(file, null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("json"));
     }
 
     [Test]

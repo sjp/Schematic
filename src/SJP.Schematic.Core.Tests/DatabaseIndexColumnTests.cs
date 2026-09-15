@@ -15,7 +15,10 @@ internal static class DatabaseIndexColumnTests
     {
         var column = Mock.Of<IDatabaseColumn>();
 
-        Assert.That(() => new DatabaseIndexColumn(null!, column, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndexColumn(null!, column, IndexColumnOrder.Ascending),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression")
+        );
     }
 
     [TestCase("")]
@@ -24,7 +27,10 @@ internal static class DatabaseIndexColumnTests
     {
         var column = Mock.Of<IDatabaseColumn>();
 
-        Assert.That(() => new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression")
+        );
     }
 
     [Test]
@@ -43,7 +49,10 @@ internal static class DatabaseIndexColumnTests
     {
         const string expression = "lower(test_column)";
 
-        Assert.That(() => new DatabaseIndexColumn(expression, (IEnumerable<IDatabaseColumn>)null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, (IEnumerable<IDatabaseColumn>)null, IndexColumnOrder.Ascending),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dependentColumns")
+        );
     }
 
     [Test]
@@ -52,7 +61,10 @@ internal static class DatabaseIndexColumnTests
         const string expression = "lower(test_column)";
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dependentColumns")
+        );
     }
 
     [Test]
@@ -61,7 +73,10 @@ internal static class DatabaseIndexColumnTests
         const string expression = "lower(test_column)";
         var columns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dependentColumns")
+        );
     }
 
     [Test]
@@ -71,7 +86,10 @@ internal static class DatabaseIndexColumnTests
         var column = Mock.Of<IDatabaseColumn>();
         const IndexColumnOrder order = (IndexColumnOrder)55;
 
-        Assert.That(() => new DatabaseIndexColumn(expression, column, order), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, column, order),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("order")
+        );
     }
 
     [Test]
@@ -143,7 +161,7 @@ internal static class DatabaseIndexColumnTests
 
         Assert.That(
             () => new DatabaseIndexColumn(expression, column, IndexColumnOrder.Ascending, nullOrder, Option<Identifier>.None, Option<int>.None),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nullOrder")
         );
     }
 

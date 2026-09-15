@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -75,7 +76,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetCheckLookup_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetCheckLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetCheckLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -83,7 +87,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => RelationalDatabaseTableExtensions.GetCheckLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetCheckLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -91,7 +98,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var table = GetMockTable("test");
 
-        Assert.That(() => table.GetCheckLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => table.GetCheckLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -121,7 +131,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetColumnLookup_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetColumnLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetColumnLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -129,7 +142,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => RelationalDatabaseTableExtensions.GetColumnLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetColumnLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -137,7 +153,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var table = GetMockTable("test");
 
-        Assert.That(() => table.GetColumnLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => table.GetColumnLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -167,7 +186,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetIndexLookup_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetIndexLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetIndexLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -175,7 +197,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => RelationalDatabaseTableExtensions.GetIndexLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetIndexLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -183,7 +208,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var table = GetMockTable("test");
 
-        Assert.That(() => table.GetIndexLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => table.GetIndexLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -213,7 +241,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetParentKeyLookup_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetParentKeyLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetParentKeyLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -221,7 +252,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => RelationalDatabaseTableExtensions.GetParentKeyLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetParentKeyLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -229,7 +263,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var table = GetMockTable("test");
 
-        Assert.That(() => table.GetParentKeyLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => table.GetParentKeyLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -259,7 +296,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetTriggerLookup_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetTriggerLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetTriggerLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -267,7 +307,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => RelationalDatabaseTableExtensions.GetTriggerLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetTriggerLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -275,7 +318,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var table = GetMockTable("test");
 
-        Assert.That(() => table.GetTriggerLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => table.GetTriggerLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -305,7 +351,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetUniqueKeyLookup_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -313,7 +362,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetUniqueKeyLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]
@@ -321,7 +373,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var table = GetMockTable("test");
 
-        Assert.That(() => table.GetUniqueKeyLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => table.GetUniqueKeyLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]

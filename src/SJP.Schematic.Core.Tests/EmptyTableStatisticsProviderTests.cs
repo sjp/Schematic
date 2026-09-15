@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -11,7 +12,10 @@ internal static class EmptyTableStatisticsProviderTests
     {
         var provider = new EmptyTableStatisticsProvider();
 
-        Assert.That(() => provider.GetTableStatistics(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetTableStatistics(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]

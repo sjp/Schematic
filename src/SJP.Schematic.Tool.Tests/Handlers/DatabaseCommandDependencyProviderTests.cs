@@ -26,7 +26,7 @@ internal static class DatabaseCommandDependencyProviderTests
     [Test]
     public static void Ctor_GivenNullConfiguration_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseCommandDependencyProvider(null!), Throws.ArgumentNullException);
+        Assert.That(() => new DatabaseCommandDependencyProvider(null!), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("configuration"));
     }
 
     [Test]

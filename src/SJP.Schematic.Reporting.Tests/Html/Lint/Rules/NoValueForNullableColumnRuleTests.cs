@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,7 +30,10 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteRuleTestBase
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => new NoValueForNullableColumnRule(null!, RuleLevel.Error), Throws.ArgumentNullException);
+        Assert.That(
+            () => new NoValueForNullableColumnRule(null!, RuleLevel.Error),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -37,7 +41,10 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteRuleTestBase
     {
         var connection = Mock.Of<ISchematicConnection>();
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new NoValueForNullableColumnRule(connection, level), Throws.ArgumentException);
+        Assert.That(
+            () => new NoValueForNullableColumnRule(connection, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
@@ -45,7 +52,10 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteRuleTestBase
     {
         var connection = Mock.Of<ISchematicConnection>();
         var rule = new NoValueForNullableColumnRule(connection, RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

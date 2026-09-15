@@ -19,14 +19,20 @@ internal static class EFCoreTableGeneratorTests
     public static void Ctor_GivenNullNameFileSystem_ThrowsArgumentNullException()
     {
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new EFCoreTableGenerator(null, nameTranslator, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EFCoreTableGenerator(null, nameTranslator, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fileSystem")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
     {
         var fileSystem = new MockFileSystem();
-        Assert.That(() => new EFCoreTableGenerator(fileSystem, null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EFCoreTableGenerator(fileSystem, null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nameTranslator")
+        );
     }
 
     [TestCase((string)null)]
@@ -37,7 +43,10 @@ internal static class EFCoreTableGeneratorTests
         var fileSystem = new MockFileSystem();
         var nameTranslator = new VerbatimNameTranslator();
 
-        Assert.That(() => new EFCoreTableGenerator(fileSystem, nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new EFCoreTableGenerator(fileSystem, nameTranslator, ns),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseNamespace")
+        );
     }
 
     [Test]
@@ -45,7 +54,10 @@ internal static class EFCoreTableGeneratorTests
     {
         var generator = GetTableGenerator();
 
-        Assert.That(() => generator.GetFilePath(null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.GetFilePath(null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseDirectory")
+        );
     }
 
     [Test]
@@ -56,7 +68,10 @@ internal static class EFCoreTableGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
-        Assert.That(() => generator.GetFilePath(baseDir, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.GetFilePath(baseDir, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [Test]
@@ -95,7 +110,10 @@ internal static class EFCoreTableGeneratorTests
         var table = Mock.Of<IRelationalDatabaseTable>();
         var comment = Option<IRelationalDatabaseTableComments>.None;
 
-        Assert.That(() => generator.Generate(null, table, comment), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.Generate(null, table, comment),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]
@@ -104,7 +122,10 @@ internal static class EFCoreTableGeneratorTests
         var generator = GetTableGenerator();
         var comment = Option<IRelationalDatabaseTableComments>.None;
 
-        Assert.That(() => generator.Generate([], null, comment), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.Generate([], null, comment),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]

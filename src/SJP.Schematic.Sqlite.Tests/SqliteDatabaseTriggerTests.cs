@@ -16,7 +16,7 @@ internal static class SqliteDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new SqliteDatabaseTrigger(null, definition, timing, events), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseTrigger(null, definition, timing, events), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name"));
     }
 
     [TestCase((string)null)]
@@ -28,7 +28,7 @@ internal static class SqliteDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition"));
     }
 
     [Test]
@@ -39,7 +39,7 @@ internal static class SqliteDatabaseTriggerTests
         const TriggerQueryTiming timing = (TriggerQueryTiming)55;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
+        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("queryTiming"));
     }
 
     [Test]
@@ -50,7 +50,7 @@ internal static class SqliteDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = (TriggerEvent)55;
 
-        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
+        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events"));
     }
 
     [Test]
@@ -61,7 +61,7 @@ internal static class SqliteDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.Before;
         const TriggerEvent events = TriggerEvent.None;
 
-        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
+        Assert.That(() => new SqliteDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events"));
     }
 
     [Test]
@@ -139,7 +139,7 @@ internal static class SqliteDatabaseTriggerTests
 
         Assert.That(
             () => new SqliteDatabaseTrigger(triggerName, definition, timing, events, Option<string>.None, null!),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateColumns")
         );
     }
 

@@ -15,7 +15,10 @@ internal static class RuleMessageTests
         const string title = "title";
         const RuleLevel level = RuleLevel.Error;
         const string message = "message";
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new RuleMessage(ruleId, title, level, message),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("ruleId")
+        );
     }
 
     [TestCase((string)null)]
@@ -26,7 +29,10 @@ internal static class RuleMessageTests
         const string ruleId = "TEST_ID";
         const RuleLevel level = RuleLevel.Error;
         const string message = "message";
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new RuleMessage(ruleId, title, level, message),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("title")
+        );
     }
 
     [Test]
@@ -36,7 +42,10 @@ internal static class RuleMessageTests
         const string title = "title";
         const RuleLevel level = (RuleLevel)999;
         const string message = "message";
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.ArgumentException);
+        Assert.That(
+            () => new RuleMessage(ruleId, title, level, message),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [TestCase((string)null)]
@@ -47,7 +56,10 @@ internal static class RuleMessageTests
         const string ruleId = "TEST_ID";
         const string title = "title";
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new RuleMessage(ruleId, title, level, message), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new RuleMessage(ruleId, title, level, message),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("message")
+        );
     }
 
     [Test]

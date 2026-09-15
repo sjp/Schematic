@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
@@ -12,7 +13,10 @@ internal static class RelationalDatabaseTableExtensionsTests
     [Test]
     public static void GetMappedColumns_GivenNullTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseTableExtensions.GetMappedColumns(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseTableExtensions.GetMappedColumns(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("table")
+        );
     }
 
     [Test]

@@ -21,7 +21,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(null, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(null, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -36,7 +39,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, null, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, null, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -52,7 +58,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -67,7 +76,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, null, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, null, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("uniqueKeys")
+        );
     }
 
     [Test]
@@ -83,7 +95,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("uniqueKeys")
+        );
     }
 
     [Test]
@@ -98,7 +113,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, null, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, null, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKeys")
+        );
     }
 
     [Test]
@@ -114,7 +132,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKeys")
+        );
     }
 
     [Test]
@@ -129,7 +150,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, null, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, null, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKeys")
+        );
     }
 
     [Test]
@@ -145,7 +169,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKeys")
+        );
     }
 
     [Test]
@@ -160,7 +187,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, null, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, null, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexes")
+        );
     }
 
     [Test]
@@ -176,7 +206,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexes")
+        );
     }
 
     [Test]
@@ -191,7 +224,10 @@ internal static class RelationalDatabaseTableTests
         var indexes = Array.Empty<IDatabaseIndex>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, null, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, null, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checks")
+        );
     }
 
     [Test]
@@ -207,7 +243,10 @@ internal static class RelationalDatabaseTableTests
         var checks = new IDatabaseCheckConstraint[] { null };
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checks")
+        );
     }
 
     [Test]
@@ -222,7 +261,10 @@ internal static class RelationalDatabaseTableTests
         var indexes = Array.Empty<IDatabaseIndex>();
         var checks = Array.Empty<IDatabaseCheckConstraint>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("triggers")
+        );
     }
 
     [Test]
@@ -238,7 +280,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = new IDatabaseTrigger[] { null };
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("triggers")
+        );
     }
 
     [Test]
@@ -255,7 +300,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("primaryKey")
+        );
     }
 
     [Test]
@@ -272,7 +320,10 @@ internal static class RelationalDatabaseTableTests
         var checks = Array.Empty<IDatabaseCheckConstraint>();
         var triggers = Array.Empty<IDatabaseTrigger>();
 
-        Assert.That(() => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers), Throws.ArgumentException);
+        Assert.That(
+            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("uniqueKeys")
+        );
     }
 
     [Test]
@@ -298,7 +349,7 @@ internal static class RelationalDatabaseTableTests
                 true,
                 Option<Identifier>.None
             ),
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind"));
     }
 
     [Test]

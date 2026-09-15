@@ -14,7 +14,10 @@ internal static class AsyncEnumerableExtensionsTests
     public static async Task SelectAwait_WithNullSourceForValueTaskSelector_ThrowsArgNullException()
     {
         IAsyncEnumerable<string> source = null;
-        Assert.That(() => source.SelectAwait(_ => ValueTask.FromResult(_)), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait(_ => ValueTask.FromResult(_)),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -23,7 +26,10 @@ internal static class AsyncEnumerableExtensionsTests
         var source = AsyncEnumerable.Empty<string>();
         Func<string, ValueTask<string>> selector = null;
 
-        Assert.That(() => source.SelectAwait(selector), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait(selector),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("selector")
+        );
     }
 
     [Test]
@@ -43,7 +49,10 @@ internal static class AsyncEnumerableExtensionsTests
     public static async Task SelectAwait_WithNullSourceForValueTaskCancellationSelector_ThrowsArgNullException()
     {
         IAsyncEnumerable<string> source = null;
-        Assert.That(() => source.SelectAwait((_, __) => ValueTask.FromResult(_)), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait((_, __) => ValueTask.FromResult(_)),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -52,7 +61,10 @@ internal static class AsyncEnumerableExtensionsTests
         var source = AsyncEnumerable.Empty<string>();
         Func<string, CancellationToken, ValueTask<string>> selector = null;
 
-        Assert.That(() => source.SelectAwait(selector), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait(selector),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("selector")
+        );
     }
 
     [Test]
@@ -77,7 +89,10 @@ internal static class AsyncEnumerableExtensionsTests
     public static async Task SelectAwait_WithNullSourceForTaskSelector_ThrowsArgNullException()
     {
         IAsyncEnumerable<string> source = null;
-        Assert.That(() => source.SelectAwait(_ => Task.FromResult(_)), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait(_ => Task.FromResult(_)),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -86,7 +101,10 @@ internal static class AsyncEnumerableExtensionsTests
         var source = AsyncEnumerable.Empty<string>();
         Func<string, Task<string>> selector = null;
 
-        Assert.That(() => source.SelectAwait(selector), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait(selector),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("selector")
+        );
     }
 
     [Test]
@@ -106,7 +124,10 @@ internal static class AsyncEnumerableExtensionsTests
     public static async Task SelectAwait_WithNullSourceForTaskCancellationSelector_ThrowsArgNullException()
     {
         IAsyncEnumerable<string> source = null;
-        Assert.That(() => source.SelectAwait((_, __) => Task.FromResult(_)), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait((_, __) => Task.FromResult(_)),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -115,7 +136,10 @@ internal static class AsyncEnumerableExtensionsTests
         var source = AsyncEnumerable.Empty<string>();
         Func<string, CancellationToken, Task<string>> selector = null;
 
-        Assert.That(() => source.SelectAwait(selector), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectAwait(selector),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("selector")
+        );
     }
 
     [Test]

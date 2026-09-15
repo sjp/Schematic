@@ -79,7 +79,7 @@ internal static class ConnectionStringFactoryTests
     [TestCase("   ")]
     public static void ForSqlite_GivenNullOrWhiteSpacePath_ThrowsArgumentException(string? path)
     {
-        Assert.That(() => ConnectionStringFactory.ForSqlite(path!), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => ConnectionStringFactory.ForSqlite(path!), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("dataSourcePath"));
     }
 
     [TestCase(null)]
@@ -89,7 +89,7 @@ internal static class ConnectionStringFactoryTests
     {
         var details = new ConnectionStringFactory.ConnectionDetails("localhost", null, null, null, null);
 
-        Assert.That(() => ConnectionStringFactory.BuildGuided(dialect!, details), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => ConnectionStringFactory.BuildGuided(dialect!, details), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("dialect"));
     }
 
     [Test]

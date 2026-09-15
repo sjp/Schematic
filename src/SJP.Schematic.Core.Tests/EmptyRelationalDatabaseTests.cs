@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -12,43 +13,64 @@ internal static class EmptyRelationalDatabaseTests
     [Test]
     public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
     {
-        Assert.That(() => new EmptyRelationalDatabase(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EmptyRelationalDatabase(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
     public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
     public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
     public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
     public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
     public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]
     public static void GetUserDefinedType_GivenNullTypeName_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetUserDefinedType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetUserDefinedType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]

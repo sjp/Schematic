@@ -16,7 +16,10 @@ internal static class OracleDatabaseKeyTests
         var columns = new[] { column };
         const bool enabled = true;
 
-        Assert.That(() => new OracleDatabaseKey(null, keyType, columns, enabled), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseKey(null, keyType, columns, enabled),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -28,7 +31,10 @@ internal static class OracleDatabaseKeyTests
         var columns = new[] { column };
         const bool enabled = true;
 
-        Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentException);
+        Assert.That(
+            () => new OracleDatabaseKey(keyName, keyType, columns, enabled),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("keyType")
+        );
     }
 
     [Test]
@@ -38,7 +44,10 @@ internal static class OracleDatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         const bool enabled = true;
 
-        Assert.That(() => new OracleDatabaseKey(keyName, keyType, null, enabled), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseKey(keyName, keyType, null, enabled),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -49,7 +58,10 @@ internal static class OracleDatabaseKeyTests
         var columns = Array.Empty<IDatabaseColumn>();
         const bool enabled = true;
 
-        Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentException);
+        Assert.That(
+            () => new OracleDatabaseKey(keyName, keyType, columns, enabled),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -60,7 +72,10 @@ internal static class OracleDatabaseKeyTests
         var columns = new IDatabaseColumn[] { null };
         const bool enabled = true;
 
-        Assert.That(() => new OracleDatabaseKey(keyName, keyType, columns, enabled), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseKey(keyName, keyType, columns, enabled),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]

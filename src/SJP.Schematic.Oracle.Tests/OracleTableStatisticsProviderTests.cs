@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,7 +12,7 @@ internal static class OracleTableStatisticsProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new OracleTableStatisticsProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new OracleTableStatisticsProvider(null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -19,7 +20,7 @@ internal static class OracleTableStatisticsProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new OracleTableStatisticsProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(() => new OracleTableStatisticsProvider(connection, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -27,6 +28,6 @@ internal static class OracleTableStatisticsProviderTests
     {
         var provider = new OracleTableStatisticsProvider(Mock.Of<IDbConnectionFactory>(), Mock.Of<IIdentifierDefaults>());
 
-        Assert.That(() => provider.GetTableStatistics(null), Throws.ArgumentNullException);
+        Assert.That(() => provider.GetTableStatistics(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 }

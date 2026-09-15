@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -12,7 +13,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType(null, UserDefinedTypeKind.Alias, Option<IDbType>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName"));
     }
 
     [Test]
@@ -20,7 +21,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", (UserDefinedTypeKind)55, Option<IDbType>.None),
-            Throws.ArgumentException);
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind"));
     }
 
     [Test]
@@ -28,7 +29,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Enum, Option<IDbType>.None, null, [], [], true, Option<string>.None, Option<string>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("enumValues"));
     }
 
     [Test]
@@ -36,7 +37,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Enum, Option<IDbType>.None, [null], [], [], true, Option<string>.None, Option<string>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("enumValues"));
     }
 
     [Test]
@@ -44,7 +45,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Composite, Option<IDbType>.None, [], null, [], true, Option<string>.None, Option<string>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("attributes"));
     }
 
     [Test]
@@ -52,7 +53,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Composite, Option<IDbType>.None, [], [null], [], true, Option<string>.None, Option<string>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("attributes"));
     }
 
     [Test]
@@ -60,7 +61,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Domain, Option<IDbType>.None, [], [], null, true, Option<string>.None, Option<string>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checks"));
     }
 
     [Test]
@@ -68,7 +69,7 @@ internal static class DatabaseUserDefinedTypeTests
     {
         Assert.That(
             () => new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Domain, Option<IDbType>.None, [], [], [null], true, Option<string>.None, Option<string>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checks"));
     }
 
     [Test]

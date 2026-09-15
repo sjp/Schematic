@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,13 +15,19 @@ internal static class SyntaxUtilitiesTests
     [Test]
     public static void BuildCommentTrivia_GivenNullComment_ThrowsArgumentNullException()
     {
-        Assert.That(() => SyntaxUtilities.BuildCommentTrivia((string)null), Throws.ArgumentNullException);
+        Assert.That(
+            () => SyntaxUtilities.BuildCommentTrivia((string)null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("comment")
+        );
     }
 
     [Test]
     public static void BuildXmlText_GivenNullText_ThrowsArgumentNullException()
     {
-        Assert.That(() => SyntaxUtilities.BuildXmlText(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => SyntaxUtilities.BuildXmlText(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("text")
+        );
     }
 
     [Test]

@@ -14,7 +14,7 @@ internal static class SqliteCheckConstraintTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), definition), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new SqliteCheckConstraint(Option<Identifier>.Some("test_check"), definition), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition"));
     }
 
     [Test]

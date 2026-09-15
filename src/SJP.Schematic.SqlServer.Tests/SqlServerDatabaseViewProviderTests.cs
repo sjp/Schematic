@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -11,7 +12,10 @@ internal static class SqlServerDatabaseViewProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerDatabaseViewProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseViewProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -19,7 +23,10 @@ internal static class SqlServerDatabaseViewProviderTests
     {
         var connection = Mock.Of<ISchematicConnection>();
 
-        Assert.That(() => new SqlServerDatabaseViewProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseViewProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -30,6 +37,9 @@ internal static class SqlServerDatabaseViewProviderTests
 
         var viewProvider = new SqlServerDatabaseViewProvider(connection, identifierDefaults);
 
-        Assert.That(() => viewProvider.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => viewProvider.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Moq;
@@ -14,14 +15,20 @@ internal static class NoNonNullableColumnsPresentRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new NoNonNullableColumnsPresentRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new NoNonNullableColumnsPresentRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
         var rule = new NoNonNullableColumnsPresentRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

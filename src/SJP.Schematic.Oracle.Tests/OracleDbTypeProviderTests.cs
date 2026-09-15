@@ -19,13 +19,19 @@ internal static class OracleDbTypeProviderTests
     [Test]
     public static void CreateColumnType_GivenNullTypeMetadata_ThrowsArgumentNullException()
     {
-        Assert.That(() => Provider.CreateColumnType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Provider.CreateColumnType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeMetadata")
+        );
     }
 
     [Test]
     public static void GetComparableColumnType_GivenNullOtherType_ThrowsArgumentNullException()
     {
-        Assert.That(() => Provider.GetComparableColumnType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Provider.GetComparableColumnType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("otherType")
+        );
     }
 
     [Test]
@@ -33,7 +39,10 @@ internal static class OracleDbTypeProviderTests
     {
         var metadata = new ColumnTypeMetadata { DataType = DataType.Unknown };
 
-        Assert.That(() => Provider.CreateColumnType(metadata), Throws.InstanceOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => Provider.CreateColumnType(metadata),
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeMetadata")
+        );
     }
 
     // Forward mapping: a generic data type resolves to its default Oracle type name.

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,10 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteRuleTestBase
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => new NoRowsPresentOnTableRule(null!, RuleLevel.Error), Throws.ArgumentNullException);
+        Assert.That(
+            () => new NoRowsPresentOnTableRule(null!, RuleLevel.Error),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -36,7 +40,10 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteRuleTestBase
     {
         var connection = Mock.Of<ISchematicConnection>();
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new NoRowsPresentOnTableRule(connection, level), Throws.ArgumentException);
+        Assert.That(
+            () => new NoRowsPresentOnTableRule(connection, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
@@ -44,7 +51,10 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteRuleTestBase
     {
         var connection = Mock.Of<ISchematicConnection>();
         var rule = new NoRowsPresentOnTableRule(connection, RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -22,7 +23,9 @@ internal static class RelationalDatabaseTableCommentsTests
             Empty.CommentLookup,
             Empty.CommentLookup,
             Empty.CommentLookup
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -38,7 +41,9 @@ internal static class RelationalDatabaseTableCommentsTests
             Empty.CommentLookup,
             Empty.CommentLookup,
             Empty.CommentLookup
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnComments")
+        );
     }
 
     [Test]
@@ -54,7 +59,9 @@ internal static class RelationalDatabaseTableCommentsTests
             Empty.CommentLookup,
             Empty.CommentLookup,
             Empty.CommentLookup
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checkComments")
+        );
     }
 
     [Test]
@@ -70,7 +77,9 @@ internal static class RelationalDatabaseTableCommentsTests
             Empty.CommentLookup,
             Empty.CommentLookup,
             Empty.CommentLookup
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("uniqueKeyComments")
+        );
     }
 
     [Test]
@@ -86,7 +95,9 @@ internal static class RelationalDatabaseTableCommentsTests
             null,
             Empty.CommentLookup,
             Empty.CommentLookup
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("foreignKeyComments")
+        );
     }
 
     [Test]
@@ -102,7 +113,9 @@ internal static class RelationalDatabaseTableCommentsTests
             Empty.CommentLookup,
             null,
             Empty.CommentLookup
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexComments")
+        );
     }
 
     [Test]
@@ -118,7 +131,9 @@ internal static class RelationalDatabaseTableCommentsTests
             Empty.CommentLookup,
             Empty.CommentLookup,
             null
-        ), Throws.ArgumentNullException);
+        ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("triggerComments")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
@@ -12,14 +13,20 @@ internal static class IdentifierResolvingDictionaryTests
     {
         var resolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new IdentifierResolvingDictionary<string>(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new IdentifierResolvingDictionary<string>(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dictionary")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullResolver_ThrowsArgumentNullException()
     {
         var dictionary = new Dictionary<Identifier, string>();
-        Assert.That(() => new IdentifierResolvingDictionary<string>(dictionary, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new IdentifierResolvingDictionary<string>(dictionary, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -85,7 +92,10 @@ internal static class IdentifierResolvingDictionaryTests
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-        Assert.That(() => resolvingDictionary.ContainsKey(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => resolvingDictionary.ContainsKey(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key")
+        );
     }
 
     [Test]
@@ -141,7 +151,10 @@ internal static class IdentifierResolvingDictionaryTests
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-        Assert.That(() => resolvingDictionary.TryGetValue(null, out _), Throws.ArgumentNullException);
+        Assert.That(
+            () => resolvingDictionary.TryGetValue(null, out _),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key")
+        );
     }
 
     [Test]
@@ -212,7 +225,10 @@ internal static class IdentifierResolvingDictionaryTests
         var resolver = new FakeIdentifierResolver();
         var resolvingDictionary = new IdentifierResolvingDictionary<string>(dictionary, resolver);
 
-        Assert.That(() => _ = resolvingDictionary[null], Throws.ArgumentNullException);
+        Assert.That(
+            () => _ = resolvingDictionary[null],
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key")
+        );
     }
 
     [Test]

@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -11,7 +12,10 @@ internal static class OracleDatabaseSchemaProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new OracleDatabaseSchemaProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseSchemaProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -19,6 +23,9 @@ internal static class OracleDatabaseSchemaProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new OracleDatabaseSchemaProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseSchemaProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 }

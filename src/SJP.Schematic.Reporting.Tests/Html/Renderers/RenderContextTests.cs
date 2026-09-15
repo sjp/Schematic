@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Reporting.Html.Renderers;
@@ -14,7 +15,7 @@ internal static class RenderContextTests
         using var tempDir = new TemporaryDirectory();
         Assert.That(
             () => new RenderContext(null!, new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("jsonWriter"));
     }
 
     [Test]
@@ -23,7 +24,7 @@ internal static class RenderContextTests
         using var tempDir = new TemporaryDirectory();
         Assert.That(
             () => new RenderContext(new JsonDataWriter(), null!, new DirectoryInfo(tempDir.DirectoryPath)),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("bundle"));
     }
 
     [Test]
@@ -31,6 +32,6 @@ internal static class RenderContextTests
     {
         Assert.That(
             () => new RenderContext(new JsonDataWriter(), new BundleBuilder(), null!),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("exportDirectory"));
     }
 }

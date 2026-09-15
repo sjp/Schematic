@@ -19,7 +19,10 @@ internal static class EFCoreViewGeneratorTests
     {
         var nameTranslator = new VerbatimNameTranslator();
 
-        Assert.That(() => new EFCoreViewGenerator(null, nameTranslator, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EFCoreViewGenerator(null, nameTranslator, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fileSystem")
+        );
     }
 
     [Test]
@@ -27,7 +30,10 @@ internal static class EFCoreViewGeneratorTests
     {
         var fileSystem = new MockFileSystem();
 
-        Assert.That(() => new EFCoreViewGenerator(fileSystem, null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EFCoreViewGenerator(fileSystem, null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nameTranslator")
+        );
     }
 
     [TestCase((string)null)]
@@ -38,7 +44,10 @@ internal static class EFCoreViewGeneratorTests
         var fileSystem = new MockFileSystem();
         var nameTranslator = new VerbatimNameTranslator();
 
-        Assert.That(() => new EFCoreViewGenerator(fileSystem, nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new EFCoreViewGenerator(fileSystem, nameTranslator, ns),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseNamespace")
+        );
     }
 
     [Test]
@@ -46,7 +55,10 @@ internal static class EFCoreViewGeneratorTests
     {
         var generator = GetViewGenerator();
 
-        Assert.That(() => generator.GetFilePath(null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.GetFilePath(null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseDirectory")
+        );
     }
 
     [Test]
@@ -56,7 +68,10 @@ internal static class EFCoreViewGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
-        Assert.That(() => generator.GetFilePath(baseDir, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.GetFilePath(baseDir, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [Test]
@@ -94,6 +109,9 @@ internal static class EFCoreViewGeneratorTests
         var generator = GetViewGenerator();
         var comment = Option<IDatabaseViewComments>.None;
 
-        Assert.That(() => generator.Generate(null, comment), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.Generate(null, comment),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("view")
+        );
     }
 }

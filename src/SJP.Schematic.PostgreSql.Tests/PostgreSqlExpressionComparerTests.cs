@@ -256,7 +256,10 @@ internal static class PostgreSqlExpressionComparerTests
     {
         var comparer = new PostgreSqlExpressionComparer();
 
-        Assert.That(() => comparer.GetHashCode(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => comparer.GetHashCode(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("obj")
+        );
     }
 
     [Test]

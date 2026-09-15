@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -12,7 +13,9 @@ internal static partial class IdentifierExtensionsTests
     [Test]
     public static void ToVisibleName_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => IdentifierExtensions.ToVisibleName(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => IdentifierExtensions.ToVisibleName(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
     [Test]
@@ -36,7 +39,9 @@ internal static partial class IdentifierExtensionsTests
     [Test]
     public static void ToSafeKey_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => IdentifierExtensions.ToSafeKey(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => IdentifierExtensions.ToSafeKey(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
     [Test]

@@ -23,7 +23,10 @@ internal static class CachingConnectionFactoryTests
     [Test]
     public static void Ctor_GivenNullFactory_ThrowsArgumentNullException()
     {
-        Assert.That(() => new CachingConnectionFactory(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new CachingConnectionFactory(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionFactory")
+        );
     }
 
     [Test]

@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,7 +13,7 @@ internal static class PostgreSqlSchemaCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new PostgreSqlSchemaCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlSchemaCommentProvider(null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -20,7 +21,7 @@ internal static class PostgreSqlSchemaCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new PostgreSqlSchemaCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlSchemaCommentProvider(connection, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,6 +32,6 @@ internal static class PostgreSqlSchemaCommentProviderTests
 
         var commentProvider = new PostgreSqlSchemaCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetSchemaComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetSchemaComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,91 +14,117 @@ internal static class BundleBuilderTests
     public static void AddSummary_GivenNullKey_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddSummary(null!, "{}"), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddSummary(null!, "{}"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key"));
     }
 
     [Test]
     public static void AddSummary_GivenEmptyKey_ThrowsArgumentException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddSummary(string.Empty, "{}"), Throws.ArgumentException);
+        Assert.That(
+            () => builder.AddSummary(string.Empty, "{}"),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key"));
     }
 
     [Test]
     public static void AddSummary_GivenNullJson_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddSummary("tables", (string)null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddSummary("tables", (string)null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("json"));
     }
 
     [Test]
     public static void AddDetail_GivenNullTypeKey_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddDetail(null!, "safe-key", "{}"), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddDetail(null!, "safe-key", "{}"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeKey"));
     }
 
     [Test]
     public static void AddDetail_GivenNullSafeKey_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddDetail("table", null!, "{}"), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddDetail("table", null!, "{}"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("safeKey"));
     }
 
     [Test]
     public static void AddDetail_GivenNullJson_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddDetail("table", "safe-key", (string)null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddDetail("table", "safe-key", (string)null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("json"));
     }
 
     [Test]
     public static void AddSummary_GivenNullKeyForFile_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddSummary(null!, new FileInfo("tables.json")), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddSummary(null!, new FileInfo("tables.json")),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key"));
     }
 
     [Test]
     public static void AddSummary_GivenEmptyKeyForFile_ThrowsArgumentException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddSummary(string.Empty, new FileInfo("tables.json")), Throws.ArgumentException);
+        Assert.That(
+            () => builder.AddSummary(string.Empty, new FileInfo("tables.json")),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key"));
     }
 
     [Test]
     public static void AddSummary_GivenNullJsonFile_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddSummary("tables", (FileInfo)null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddSummary("tables", (FileInfo)null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("jsonFile"));
     }
 
     [Test]
     public static void AddDetail_GivenNullTypeKeyForFile_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddDetail(null!, "safe-key", new FileInfo("table.json")), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddDetail(null!, "safe-key", new FileInfo("table.json")),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeKey"));
     }
 
     [Test]
     public static void AddDetail_GivenEmptySafeKeyForFile_ThrowsArgumentException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddDetail("table", string.Empty, new FileInfo("table.json")), Throws.ArgumentException);
+        Assert.That(
+            () => builder.AddDetail("table", string.Empty, new FileInfo("table.json")),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("safeKey"));
     }
 
     [Test]
     public static void AddDetail_GivenNullJsonFile_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.AddDetail("table", "safe-key", (FileInfo)null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.AddDetail("table", "safe-key", (FileInfo)null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("jsonFile"));
     }
 
     [Test]
     public static void WriteBundleAsync_GivenNullFile_ThrowsArgumentNullException()
     {
         var builder = new BundleBuilder();
-        Assert.That(() => builder.WriteBundleAsync(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => builder.WriteBundleAsync(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("bundleJs"));
     }
 
     [Test]

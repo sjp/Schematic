@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -50,7 +51,10 @@ internal static class TableRelationshipOrdererTests
     {
         var tableOrder = new TableRelationshipOrderer();
 
-        Assert.That(() => tableOrder.GetDeletionOrder(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => tableOrder.GetDeletionOrder(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]
@@ -58,7 +62,10 @@ internal static class TableRelationshipOrdererTests
     {
         var tableOrder = new TableRelationshipOrderer();
 
-        Assert.That(() => tableOrder.GetInsertionOrder(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => tableOrder.GetInsertionOrder(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

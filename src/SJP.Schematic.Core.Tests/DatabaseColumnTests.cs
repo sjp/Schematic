@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -15,7 +16,10 @@ internal static class DatabaseColumnTests
         var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
-        Assert.That(() => new DatabaseColumn(null, dbType, isNullable, defaultValue, autoIncrement), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseColumn(null, dbType, isNullable, defaultValue, autoIncrement),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnName")
+        );
     }
 
     [Test]
@@ -26,7 +30,10 @@ internal static class DatabaseColumnTests
         var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
-        Assert.That(() => new DatabaseColumn(columnName, null, isNullable, defaultValue, autoIncrement), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseColumn(columnName, null, isNullable, defaultValue, autoIncrement),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("type")
+        );
     }
 
     [Test]
@@ -209,7 +216,10 @@ internal static class DatabaseColumnTests
         var definition = Option<string>.Some("1");
         const ComputedColumnStorage storage = (ComputedColumnStorage)55;
 
-        Assert.That(() => new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement, true, definition, storage), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement, true, definition, storage),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("computedStorage")
+        );
     }
 
     [Test]

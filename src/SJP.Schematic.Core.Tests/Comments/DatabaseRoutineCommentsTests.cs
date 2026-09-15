@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Tests.Utilities;
@@ -10,7 +11,10 @@ internal static class DatabaseRoutineCommentsTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseRoutineComments(null, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRoutineComments(null, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]

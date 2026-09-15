@@ -10,7 +10,7 @@ internal static class PostgreSqlCheckConstraintTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        Assert.That(() => new PostgreSqlCheckConstraint(null, "test_check"), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlCheckConstraint(null, "test_check"), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checkName"));
     }
 
     [TestCase((string)null)]
@@ -18,7 +18,7 @@ internal static class PostgreSqlCheckConstraintTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new PostgreSqlCheckConstraint("test_check", definition), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new PostgreSqlCheckConstraint("test_check", definition), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition"));
     }
 
     [Test]

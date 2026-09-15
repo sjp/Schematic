@@ -54,7 +54,10 @@ internal static class DbTypeCacheTests
     [Test]
     public static void Ctor_GivenNegativeCapacity_ThrowsArgumentOutOfRangeException()
     {
-        Assert.That(() => new DbTypeCache(-1), Throws.InstanceOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => new DbTypeCache(-1),
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("capacity")
+        );
     }
 
     [Test]
@@ -68,7 +71,10 @@ internal static class DbTypeCacheTests
     {
         var cache = new DbTypeCache();
 
-        Assert.That(() => GetOrCreate(cache, new TypeArgs { EnumValues = null }), Throws.ArgumentNullException);
+        Assert.That(
+            () => GetOrCreate(cache, new TypeArgs { EnumValues = null }),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("enumValues")
+        );
     }
 
     [Test]
@@ -76,7 +82,10 @@ internal static class DbTypeCacheTests
     {
         var cache = new DbTypeCache();
 
-        Assert.That(() => GetOrCreate(cache, new TypeArgs { TypeName = null }), Throws.ArgumentNullException);
+        Assert.That(
+            () => GetOrCreate(cache, new TypeArgs { TypeName = null }),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]
@@ -84,7 +93,10 @@ internal static class DbTypeCacheTests
     {
         var cache = new DbTypeCache();
 
-        Assert.That(() => GetOrCreate(cache, new TypeArgs { ClrType = null }), Throws.ArgumentNullException);
+        Assert.That(
+            () => GetOrCreate(cache, new TypeArgs { ClrType = null }),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("clrType")
+        );
     }
 
     [TestCase(null)]
@@ -94,7 +106,10 @@ internal static class DbTypeCacheTests
     {
         var cache = new DbTypeCache();
 
-        Assert.That(() => GetOrCreate(cache, new TypeArgs { Definition = definition }), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => GetOrCreate(cache, new TypeArgs { Definition = definition }),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -102,7 +117,10 @@ internal static class DbTypeCacheTests
     {
         var cache = new DbTypeCache();
 
-        Assert.That(() => GetOrCreate(cache, new TypeArgs { DataType = (DataType)(-1) }), Throws.ArgumentException);
+        Assert.That(
+            () => GetOrCreate(cache, new TypeArgs { DataType = (DataType)(-1) }),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dataType")
+        );
         Assert.That(cache.Count, Is.Zero);
     }
 

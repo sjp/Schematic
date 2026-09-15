@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
@@ -7,19 +8,28 @@ internal static class TableSystemVersioningTests
     [Test]
     public static void Ctor_GivenNullHistoryTable_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TableSystemVersioning(null, "valid_from", "valid_to"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableSystemVersioning(null, "valid_from", "valid_to"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("historyTable")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullPeriodStartColumn_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TableSystemVersioning("test_table_history", null, "valid_to"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableSystemVersioning("test_table_history", null, "valid_to"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("periodStartColumn")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullPeriodEndColumn_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TableSystemVersioning("test_table_history", "valid_from", null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableSystemVersioning("test_table_history", "valid_from", null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("periodEndColumn")
+        );
     }
 
     [Test]

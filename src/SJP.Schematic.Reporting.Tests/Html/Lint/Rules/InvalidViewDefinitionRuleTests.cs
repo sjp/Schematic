@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,7 +29,10 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteRuleTestBase
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => new InvalidViewDefinitionRule(null!, RuleLevel.Error), Throws.ArgumentNullException);
+        Assert.That(
+            () => new InvalidViewDefinitionRule(null!, RuleLevel.Error),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -36,14 +40,20 @@ internal sealed class InvalidViewDefinitionRuleTests : SqliteRuleTestBase
     {
         var connection = Mock.Of<ISchematicConnection>();
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new InvalidViewDefinitionRule(connection, level), Throws.ArgumentException);
+        Assert.That(
+            () => new InvalidViewDefinitionRule(connection, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
     {
         var rule = new InvalidViewDefinitionRule(Connection, RuleLevel.Error);
-        Assert.That(() => rule.AnalyseViews(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseViews(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
+        );
     }
 
     [Test]

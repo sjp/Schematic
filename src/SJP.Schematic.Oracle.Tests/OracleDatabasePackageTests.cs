@@ -14,7 +14,10 @@ internal static class OracleDatabasePackageTests
         const string specification = "spec";
         var body = Option<string>.Some("body");
 
-        Assert.That(() => new OracleDatabasePackage(null, specification, body), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabasePackage(null, specification, body),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [TestCase((string)null)]
@@ -25,7 +28,10 @@ internal static class OracleDatabasePackageTests
         const string packageName = "test_package";
         var body = Option<string>.Some("body");
 
-        Assert.That(() => new OracleDatabasePackage(packageName, specification, body), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new OracleDatabasePackage(packageName, specification, body),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("specification")
+        );
     }
 
     [Test]

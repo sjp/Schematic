@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Comments;
@@ -12,7 +13,7 @@ internal static class MySqlTableCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new MySqlTableCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlTableCommentProvider(null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -20,7 +21,7 @@ internal static class MySqlTableCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new MySqlTableCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlTableCommentProvider(connection, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,6 +32,6 @@ internal static class MySqlTableCommentProviderTests
 
         var commentProvider = new MySqlTableCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 }

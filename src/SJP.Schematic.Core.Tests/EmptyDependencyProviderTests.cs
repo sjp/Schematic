@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -8,7 +9,10 @@ internal static class EmptyDependencyProviderTests
     public static void GetDependencies_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDependencyProvider();
-        Assert.That(() => provider.GetDependencies(null, "select * from test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetDependencies(null, "select * from test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [Test]

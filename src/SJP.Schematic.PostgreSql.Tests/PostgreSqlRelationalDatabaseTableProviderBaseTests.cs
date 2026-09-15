@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using TableProvider = SJP.Schematic.PostgreSql.PostgreSqlRelationalDatabaseTableProviderBase;
@@ -13,7 +14,10 @@ internal static class PostgreSqlRelationalDatabaseTableProviderBaseTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new TableProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableProvider(null, identifierDefaults, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -22,7 +26,10 @@ internal static class PostgreSqlRelationalDatabaseTableProviderBaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new TableProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableProvider(connection, null, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -31,7 +38,10 @@ internal static class PostgreSqlRelationalDatabaseTableProviderBaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new TableProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableProvider(connection, identifierDefaults, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -43,6 +53,9 @@ internal static class PostgreSqlRelationalDatabaseTableProviderBaseTests
 
         var tableProvider = new TableProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => tableProvider.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => tableProvider.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 }

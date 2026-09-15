@@ -13,20 +13,29 @@ internal static class DatabaseRoutineOverloadTests
     [Test]
     public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseRoutineOverload(null!, [], Option<IDbType>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRoutineOverload(null!, [], Option<IDbType>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
     [TestCase("    ")]
     public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new DatabaseRoutineOverload(definition, [], Option<IDbType>.None), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRoutineOverload(definition, [], Option<IDbType>.None),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullParameters_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseRoutineOverload(Definition, null!, Option<IDbType>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRoutineOverload(Definition, null!, Option<IDbType>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parameters")
+        );
     }
 
     [Test]
@@ -34,7 +43,10 @@ internal static class DatabaseRoutineOverloadTests
     {
         var parameters = new IDatabaseRoutineParameter[] { null! };
 
-        Assert.That(() => new DatabaseRoutineOverload(Definition, parameters, Option<IDbType>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRoutineOverload(Definition, parameters, Option<IDbType>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parameters")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -13,7 +14,10 @@ internal static class CycleDetectorTests
     {
         var cycleDetector = new CycleDetector();
 
-        Assert.That(() => cycleDetector.GetCyclePaths(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => cycleDetector.GetCyclePaths(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

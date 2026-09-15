@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -11,7 +12,10 @@ internal static class EmptyDatabaseViewCommentProviderTests
     public static void GetViewComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseViewCommentProvider();
-        Assert.That(() => provider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetViewComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]

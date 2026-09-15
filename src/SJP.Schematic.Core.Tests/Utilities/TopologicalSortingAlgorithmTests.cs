@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using QuikGraph;
 using SJP.Schematic.Core.Utilities;
@@ -26,7 +27,7 @@ internal static class TopologicalSortingAlgorithmTests
 
         Assert.That(
             () => new TopologicalSortingAlgorithm<string, SEquatableEdge<string>>(graph, null),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("vertices")
         );
     }
 

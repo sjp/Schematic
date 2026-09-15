@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -24,7 +25,10 @@ internal static class MySqlRelationalDatabaseTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new MySqlRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlRelationalDatabase(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -32,25 +36,37 @@ internal static class MySqlRelationalDatabaseTests
     {
         var connection = Mock.Of<ISchematicConnection>();
 
-        Assert.That(() => new MySqlRelationalDatabase(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlRelationalDatabase(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
     public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
     public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
     public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     // testing that the behaviour is equivalent to an empty sequence provider
@@ -59,7 +75,10 @@ internal static class MySqlRelationalDatabaseTests
         [Test]
         public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
         {
-            Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
+            Assert.That(
+                () => Database.GetSequence(null),
+                Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+            );
         }
 
         [Test]
@@ -94,7 +113,10 @@ internal static class MySqlRelationalDatabaseTests
         [Test]
         public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
         {
-            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+            Assert.That(
+                () => Database.GetSynonym(null),
+                Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+            );
         }
 
         [Test]

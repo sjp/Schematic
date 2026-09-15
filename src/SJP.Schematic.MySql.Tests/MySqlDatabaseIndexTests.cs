@@ -15,7 +15,10 @@ internal static class MySqlDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new MySqlDatabaseIndex(null, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseIndex(null, isUnique, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -24,7 +27,10 @@ internal static class MySqlDatabaseIndexTests
         Identifier indexName = "test_index";
         const bool isUnique = true;
 
-        Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseIndex(indexName, isUnique, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -34,7 +40,10 @@ internal static class MySqlDatabaseIndexTests
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseIndex(indexName, isUnique, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -44,7 +53,10 @@ internal static class MySqlDatabaseIndexTests
         const bool isUnique = true;
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new MySqlDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseIndex(indexName, isUnique, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -143,7 +155,10 @@ internal static class MySqlDatabaseIndexTests
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
         const IndexType indexType = (IndexType)55;
 
-        Assert.That(() => new MySqlDatabaseIndex(indexName, false, columns, indexType, true), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseIndex(indexName, false, columns, indexType, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexType")
+        );
     }
 
     [Test]

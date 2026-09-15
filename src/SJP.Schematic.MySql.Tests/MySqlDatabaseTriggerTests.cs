@@ -14,7 +14,10 @@ internal static class MySqlDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new MySqlDatabaseTrigger(null, definition, timing, events), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseTrigger(null, definition, timing, events),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [TestCase((string)null)]
@@ -26,7 +29,10 @@ internal static class MySqlDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new MySqlDatabaseTrigger(triggerName, definition, timing, events),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -37,7 +43,10 @@ internal static class MySqlDatabaseTriggerTests
         const TriggerQueryTiming timing = (TriggerQueryTiming)55;
         const TriggerEvent events = TriggerEvent.Update;
 
-        Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseTrigger(triggerName, definition, timing, events),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("queryTiming")
+        );
     }
 
     [Test]
@@ -48,7 +57,10 @@ internal static class MySqlDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = (TriggerEvent)55;
 
-        Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseTrigger(triggerName, definition, timing, events),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events")
+        );
     }
 
     [Test]
@@ -59,7 +71,10 @@ internal static class MySqlDatabaseTriggerTests
         const TriggerQueryTiming timing = TriggerQueryTiming.InsteadOf;
         const TriggerEvent events = TriggerEvent.None;
 
-        Assert.That(() => new MySqlDatabaseTrigger(triggerName, definition, timing, events), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabaseTrigger(triggerName, definition, timing, events),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events")
+        );
     }
 
     [Test]

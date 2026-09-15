@@ -14,7 +14,7 @@ internal static class OracleDialectTests
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
     [TestCase((string)null)]
@@ -24,7 +24,7 @@ internal static class OracleDialectTests
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteName(name), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => dialect.QuoteName(name), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("localName"));
     }
 
     [Test]
@@ -32,7 +32,7 @@ internal static class OracleDialectTests
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteName(string.Empty), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => dialect.QuoteName(string.Empty), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("localName"));
     }
 
     [Test]
@@ -40,7 +40,7 @@ internal static class OracleDialectTests
     {
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteName("    "), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => dialect.QuoteName("    "), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("localName"));
     }
 
     [Test]
@@ -89,7 +89,7 @@ internal static class OracleDialectTests
 
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException);
+        Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
     [Test]
@@ -99,7 +99,7 @@ internal static class OracleDialectTests
 
         var dialect = new OracleDialect();
 
-        Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException);
+        Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
     [TestCase("SELECT")]

@@ -11,7 +11,7 @@ internal static class DatabasePragmaTests
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabasePragma(null, "main"), Throws.ArgumentNullException);
+        Assert.That(() => new DatabasePragma(null, "main"), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [TestCase((string)null)]
@@ -20,7 +20,7 @@ internal static class DatabasePragmaTests
     public static void Ctor_GivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
         var connection = Mock.Of<ISchematicConnection>();
-        Assert.That(() => new DatabasePragma(connection, schemaName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new DatabasePragma(connection, schemaName), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [Test]

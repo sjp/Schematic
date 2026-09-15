@@ -42,7 +42,7 @@ internal static class RelationalDatabaseTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
         );
     }
 
@@ -66,7 +66,7 @@ internal static class RelationalDatabaseTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
         );
     }
 
@@ -90,7 +90,7 @@ internal static class RelationalDatabaseTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
         );
     }
 
@@ -114,7 +114,7 @@ internal static class RelationalDatabaseTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
         );
     }
 
@@ -138,7 +138,7 @@ internal static class RelationalDatabaseTests
                 synonyms,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
         );
     }
 
@@ -162,7 +162,7 @@ internal static class RelationalDatabaseTests
                 null,
                 routines
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms")
         );
     }
 
@@ -186,7 +186,7 @@ internal static class RelationalDatabaseTests
                 synonyms,
                 null
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
         );
     }
 
@@ -206,7 +206,7 @@ internal static class RelationalDatabaseTests
                 [],
                 []
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
         );
     }
 
@@ -226,7 +226,7 @@ internal static class RelationalDatabaseTests
                 [],
                 []
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
         );
     }
 
@@ -246,7 +246,7 @@ internal static class RelationalDatabaseTests
                 [],
                 []
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
         );
     }
 
@@ -266,7 +266,7 @@ internal static class RelationalDatabaseTests
                 new IDatabaseSynonym[] { null },
                 []
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms")
         );
     }
 
@@ -286,7 +286,7 @@ internal static class RelationalDatabaseTests
                 [],
                 new IDatabaseRoutine[] { null }
             ),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
         );
     }
 
@@ -330,31 +330,46 @@ internal static class RelationalDatabaseTests
     [Test]
     public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
     public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
     public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
     public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
     public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]
@@ -1171,7 +1186,7 @@ internal static class RelationalDatabaseTests
                 routines,
                 null
             ),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
 
     [Test]
@@ -1196,7 +1211,7 @@ internal static class RelationalDatabaseTests
                 routines,
                 new IDatabaseUserDefinedType[] { null }
             ),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
 
     [Test]
@@ -1234,7 +1249,10 @@ internal static class RelationalDatabaseTests
     [Test]
     public static void GetUserDefinedType_GivenNullTypeName_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.GetUserDefinedType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.GetUserDefinedType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]
@@ -1282,7 +1300,7 @@ internal static class RelationalDatabaseTests
                 userDefinedTypes,
                 null
             ),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemas"));
     }
 
     [Test]
@@ -1309,7 +1327,7 @@ internal static class RelationalDatabaseTests
                 userDefinedTypes,
                 new IDatabaseSchema[] { null }
             ),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemas"));
     }
 
     [Test]

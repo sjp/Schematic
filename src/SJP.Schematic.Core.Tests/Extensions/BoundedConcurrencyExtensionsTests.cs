@@ -16,7 +16,10 @@ internal static class BoundedConcurrencyExtensionsTests
     {
         IReadOnlyList<int> source = null;
 
-        Assert.That(() => source.SelectBoundedAsync(static (i, _) => Task.FromResult(i), 1, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectBoundedAsync(static (i, _) => Task.FromResult(i), 1, CancellationToken.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -24,7 +27,10 @@ internal static class BoundedConcurrencyExtensionsTests
     {
         IReadOnlyList<int> source = [1];
 
-        Assert.That(() => source.SelectBoundedAsync<int, int>(null, 1, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectBoundedAsync<int, int>(null, 1, CancellationToken.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("selector")
+        );
     }
 
     [TestCase(0)]
@@ -33,7 +39,10 @@ internal static class BoundedConcurrencyExtensionsTests
     {
         IReadOnlyList<int> source = [1];
 
-        Assert.That(() => source.SelectBoundedAsync(static (i, _) => Task.FromResult(i), maxDegreeOfParallelism, CancellationToken.None), Throws.InstanceOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => source.SelectBoundedAsync(static (i, _) => Task.FromResult(i), maxDegreeOfParallelism, CancellationToken.None),
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("maxDegreeOfParallelism")
+        );
     }
 
     [Test]
@@ -111,7 +120,10 @@ internal static class BoundedConcurrencyExtensionsTests
     {
         IEnumerable<int> source = null;
 
-        Assert.That(() => source.SelectOrderedPrefetchAsync(static (i, _) => Task.FromResult(i), 1, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectOrderedPrefetchAsync(static (i, _) => Task.FromResult(i), 1, CancellationToken.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -119,7 +131,10 @@ internal static class BoundedConcurrencyExtensionsTests
     {
         IEnumerable<int> source = [1];
 
-        Assert.That(() => source.SelectOrderedPrefetchAsync<int, int>(null, 1, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.SelectOrderedPrefetchAsync<int, int>(null, 1, CancellationToken.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("selector")
+        );
     }
 
     [TestCase(0)]
@@ -128,7 +143,10 @@ internal static class BoundedConcurrencyExtensionsTests
     {
         IEnumerable<int> source = [1];
 
-        Assert.That(() => source.SelectOrderedPrefetchAsync(static (i, _) => Task.FromResult(i), window, CancellationToken.None), Throws.InstanceOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => source.SelectOrderedPrefetchAsync(static (i, _) => Task.FromResult(i), window, CancellationToken.None),
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("window")
+        );
     }
 
     [Test]

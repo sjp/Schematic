@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Comments;
@@ -12,7 +13,9 @@ internal static class SqlServerDatabaseCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerDatabaseCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseCommentProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -20,7 +23,9 @@ internal static class SqlServerDatabaseCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SqlServerDatabaseCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseCommentProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,7 +36,9 @@ internal static class SqlServerDatabaseCommentProviderTests
 
         var commentProvider = new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetTableComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]
@@ -42,7 +49,9 @@ internal static class SqlServerDatabaseCommentProviderTests
 
         var commentProvider = new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetViewComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName"));
     }
 
     [Test]
@@ -53,7 +62,9 @@ internal static class SqlServerDatabaseCommentProviderTests
 
         var commentProvider = new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetSequenceComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName"));
     }
 
     [Test]
@@ -64,7 +75,9 @@ internal static class SqlServerDatabaseCommentProviderTests
 
         var commentProvider = new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetSynonymComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetSynonymComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName"));
     }
 
     [Test]
@@ -75,6 +88,8 @@ internal static class SqlServerDatabaseCommentProviderTests
 
         var commentProvider = new SqlServerDatabaseCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetRoutineComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 }

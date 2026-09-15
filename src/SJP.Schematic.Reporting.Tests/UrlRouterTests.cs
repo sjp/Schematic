@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -8,7 +9,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetSchemaUrl_GivenNullSchemaName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetSchemaUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetSchemaUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [Test]
@@ -23,7 +26,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetUserDefinedTypeUrl_GivenNullTypeName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetUserDefinedTypeUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetUserDefinedTypeUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName"));
     }
 
     [Test]
@@ -38,7 +43,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetTableUrl_GivenNullTableName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetTableUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetTableUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]
@@ -53,13 +60,17 @@ internal static class UrlRouterTests
     [Test]
     public static void GetTableUrlFromSafeKey_GivenNullSafeKey_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetTableUrlFromSafeKey(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetTableUrlFromSafeKey(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableSafeKey"));
     }
 
     [Test]
     public static void GetTableUrlFromSafeKey_GivenEmptySafeKey_ThrowsArgumentException()
     {
-        Assert.That(() => UrlRouter.GetTableUrlFromSafeKey(string.Empty), Throws.ArgumentException);
+        Assert.That(
+            () => UrlRouter.GetTableUrlFromSafeKey(string.Empty),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableSafeKey"));
     }
 
     [Test]
@@ -74,7 +85,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetViewUrl_GivenNullViewName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetViewUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetViewUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName"));
     }
 
     [Test]
@@ -89,7 +102,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetSequenceUrl_GivenNullSequenceName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetSequenceUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetSequenceUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName"));
     }
 
     [Test]
@@ -104,7 +119,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetSynonymUrl_GivenNullSynonymName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetSynonymUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetSynonymUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName"));
     }
 
     [Test]
@@ -119,7 +136,9 @@ internal static class UrlRouterTests
     [Test]
     public static void GetRoutineUrl_GivenNullRoutineName_ThrowsArgumentNullException()
     {
-        Assert.That(() => UrlRouter.GetRoutineUrl(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetRoutineUrl(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 
     [Test]
@@ -135,14 +154,18 @@ internal static class UrlRouterTests
     public static void GetTriggerUrl_GivenNullTableName_ThrowsArgumentNullException()
     {
         Identifier triggerName = "test_trigger";
-        Assert.That(() => UrlRouter.GetTriggerUrl(null!, triggerName), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetTriggerUrl(null!, triggerName),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]
     public static void GetTriggerUrl_GivenNullTriggerName_ThrowsArgumentNullException()
     {
         Identifier tableName = "test_table";
-        Assert.That(() => UrlRouter.GetTriggerUrl(tableName, null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => UrlRouter.GetTriggerUrl(tableName, null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("triggerName"));
     }
 
     [Test]

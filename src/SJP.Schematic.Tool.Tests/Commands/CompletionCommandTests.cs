@@ -40,7 +40,7 @@ internal static class CompletionCommandTests
     {
         Assert.That(
             () => CompletionCommand.GetCompletionScript((CompletionCommand.ShellType)int.MaxValue),
-            Throws.InstanceOf<ArgumentOutOfRangeException>());
+            Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("shell"));
     }
 
     [TestCaseSource(nameof(AllShells))]

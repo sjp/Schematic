@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Tests.Utilities;
@@ -10,14 +11,20 @@ internal static class DatabaseCheckConstraintTests
     [Test]
     public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), null!, true), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), null!, true),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
     [TestCase("    ")]
     public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
     {
-        Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), definition, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), definition, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -59,7 +66,10 @@ internal static class DatabaseCheckConstraintTests
     {
         const ConstraintDeferrability deferrability = (ConstraintDeferrability)55;
 
-        Assert.That(() => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true, true, deferrability), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseCheckConstraint(Option<Identifier>.Some("test_check"), "test_check_definition", true, true, deferrability),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deferrability")
+        );
     }
 
     [Test]

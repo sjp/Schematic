@@ -11,7 +11,7 @@ internal static class PostgreSqlConnectionFactoryTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string connectionString)
     {
-        Assert.That(() => new PostgreSqlConnectionFactory(connectionString), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new PostgreSqlConnectionFactory(connectionString), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionString"));
     }
 
     [Test]

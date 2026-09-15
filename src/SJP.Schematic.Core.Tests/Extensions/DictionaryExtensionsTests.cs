@@ -11,7 +11,10 @@ internal static class DictionaryExtensionsTests
     public static void ToReadOnlyDictionary_GivenNullCollection_ThrowsArgumentNullException()
     {
         IEnumerable<KeyValuePair<string, string>> input = null;
-        Assert.That(() => input.ToReadOnlyDictionary(), Throws.ArgumentNullException);
+        Assert.That(
+            () => input.ToReadOnlyDictionary(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -46,14 +49,20 @@ internal static class DictionaryExtensionsTests
     public static void ToReadOnlyDictionary_WithComparerGivenNullCollection_ThrowsArgumentNullException()
     {
         IEnumerable<KeyValuePair<string, string>> input = null;
-        Assert.That(() => input.ToReadOnlyDictionary(StringComparer.Ordinal), Throws.ArgumentNullException);
+        Assert.That(
+            () => input.ToReadOnlyDictionary(StringComparer.Ordinal),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
     public static void ToReadOnlyDictionary_WithComparerGivenNullComparer_ThrowsArgumentNullException()
     {
         var input = new Dictionary<string, string>(StringComparer.Ordinal);
-        Assert.That(() => input.ToReadOnlyDictionary(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => input.ToReadOnlyDictionary(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("comparer")
+        );
     }
 
     [Test]

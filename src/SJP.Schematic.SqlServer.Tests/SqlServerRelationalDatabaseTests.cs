@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -11,7 +12,10 @@ internal static class SqlServerRelationalDatabaseTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerRelationalDatabase(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerRelationalDatabase(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -19,7 +23,10 @@ internal static class SqlServerRelationalDatabaseTests
     {
         var connection = Mock.Of<ISchematicConnection>();
 
-        Assert.That(() => new SqlServerRelationalDatabase(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerRelationalDatabase(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -30,7 +37,10 @@ internal static class SqlServerRelationalDatabaseTests
 
         var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
 
-        Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => database.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -41,7 +51,10 @@ internal static class SqlServerRelationalDatabaseTests
 
         var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
 
-        Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => database.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
@@ -52,7 +65,10 @@ internal static class SqlServerRelationalDatabaseTests
 
         var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
 
-        Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => database.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
@@ -63,7 +79,10 @@ internal static class SqlServerRelationalDatabaseTests
 
         var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
 
-        Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => database.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
@@ -74,6 +93,9 @@ internal static class SqlServerRelationalDatabaseTests
 
         var database = new SqlServerRelationalDatabase(connection, identifierDefaults);
 
-        Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => database.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 }

@@ -15,7 +15,10 @@ internal static class DatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new DatabaseIndex(null, false, columns, [], true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndex(null, false, columns, [], true, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -23,7 +26,10 @@ internal static class DatabaseIndexTests
     {
         Identifier indexName = "test_index";
 
-        Assert.That(() => new DatabaseIndex(indexName, false, null, [], true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndex(indexName, false, null, [], true, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -32,7 +38,10 @@ internal static class DatabaseIndexTests
         Identifier indexName = "test_index";
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -41,7 +50,10 @@ internal static class DatabaseIndexTests
         Identifier indexName = "test_index";
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -50,7 +62,10 @@ internal static class DatabaseIndexTests
         Identifier indexName = "test_index";
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, null, true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndex(indexName, false, columns, null, true, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("includedColumns")
+        );
     }
 
     [Test]
@@ -70,7 +85,10 @@ internal static class DatabaseIndexTests
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
         var includedColumns = new[] { (IDatabaseColumn)null };
 
-        Assert.That(() => new DatabaseIndex(indexName, false, columns, includedColumns, true, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndex(indexName, false, columns, includedColumns, true, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("includedColumns")
+        );
     }
 
     [Test]
@@ -225,7 +243,7 @@ internal static class DatabaseIndexTests
 
         Assert.That(
             () => new DatabaseIndex(indexName, false, columns, [], true, Option<string>.None, indexType, Option<int>.None, true, true),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexType")
         );
     }
 

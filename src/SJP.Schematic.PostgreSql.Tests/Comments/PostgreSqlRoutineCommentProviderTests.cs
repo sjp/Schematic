@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Comments;
@@ -13,7 +14,7 @@ internal static class PostgreSqlRoutineCommentProviderTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlRoutineCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlRoutineCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -22,7 +23,7 @@ internal static class PostgreSqlRoutineCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlRoutineCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlRoutineCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,7 +32,7 @@ internal static class PostgreSqlRoutineCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]
@@ -43,6 +44,6 @@ internal static class PostgreSqlRoutineCommentProviderTests
 
         var commentProvider = new PostgreSqlRoutineCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 }

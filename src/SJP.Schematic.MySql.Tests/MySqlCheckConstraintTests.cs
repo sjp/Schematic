@@ -10,7 +10,7 @@ internal static class MySqlCheckConstraintTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        Assert.That(() => new MySqlCheckConstraint(null, "test", true), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlCheckConstraint(null, "test", true), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checkName"));
     }
 
     [TestCase((string)null)]
@@ -20,7 +20,7 @@ internal static class MySqlCheckConstraintTests
     {
         Identifier checkName = "test_check";
 
-        Assert.That(() => new MySqlCheckConstraint(checkName, definition, true), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => new MySqlCheckConstraint(checkName, definition, true), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition"));
     }
 
     [Test]

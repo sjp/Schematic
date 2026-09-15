@@ -18,7 +18,9 @@ internal static class LintRendererTests
     [Test]
     public static void Ctor_GivenNullLinter_ThrowsArgumentNullException()
     {
-        Assert.That(() => new LintRenderer(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => new LintRenderer(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("linter"));
     }
 
     [Test]

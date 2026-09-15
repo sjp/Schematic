@@ -11,7 +11,10 @@ internal static class IdentifierTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceLocalName_ThrowsArgumentNullException(string localName)
     {
-        Assert.That(() => new Identifier(localName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new Identifier(localName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("localName")
+        );
     }
 
     [Test]
@@ -28,7 +31,10 @@ internal static class IdentifierTests
         [Values(null, "", "    ")] string localName
     )
     {
-        Assert.That(() => new Identifier(schemaName, localName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new Identifier(schemaName, localName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("schema")
+        );
     }
 
     [Test]
@@ -52,7 +58,10 @@ internal static class IdentifierTests
         [Values(null, "", "    ")] string localName
     )
     {
-        Assert.That(() => new Identifier(databaseName, schemaName, localName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new Identifier(databaseName, schemaName, localName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
@@ -79,7 +88,10 @@ internal static class IdentifierTests
         [Values(null, "", "    ")] string localName
     )
     {
-        Assert.That(() => new Identifier(serverName, databaseName, schemaName, localName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new Identifier(serverName, databaseName, schemaName, localName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("server")
+        );
     }
 
     [Test]
@@ -343,19 +355,25 @@ internal static class IdentifierTests
         }
     }
 
-    [TestCase(null, null, null, null)]
-    [TestCase("a", null, "c", "d")]
-    [TestCase("a", "b", null, "d")]
-    [TestCase("a", "b", "c", null)]
-    [TestCase(null, "b", null, "d")]
-    [TestCase(null, "b", null, null)]
-    [TestCase(null, null, "c", null)]
-    public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName)
+    [TestCase(null, null, null, null, "localName")]
+    [TestCase("a", null, "c", "d", "database")]
+    [TestCase("a", "b", null, "d", "schema")]
+    [TestCase("a", "b", "c", null, "localName")]
+    [TestCase(null, "b", null, "d", "schema")]
+    [TestCase(null, "b", null, null, "schema")]
+    [TestCase(null, null, "c", null, "localName")]
+    public static void CreateQualifiedIdentifier_GivenInvalidArguments_ThrowsArgumentNullException(string serverName, string databaseName, string schemaName, string localName, string expectedParamName)
     {
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName), Throws.ArgumentNullException);
-            Assert.That(() => Identifier.CreateQualifiedIdentifier(null, null, null, null), Throws.ArgumentNullException);
+            Assert.That(
+                () => Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName),
+                Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo(expectedParamName)
+            );
+            Assert.That(
+                () => Identifier.CreateQualifiedIdentifier(null, null, null, null),
+                Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("localName")
+            );
         }
     }
 
@@ -548,6 +566,7 @@ internal static class IdentifierTests
         Assert.That(
             () => Identifier.CreateQualifiedIdentifier(localName),
             Throws.ArgumentException.And.Not.InstanceOf<ArgumentNullException>()
+                .And.Property(nameof(ArgumentException.ParamName)).EqualTo("localName")
         );
     }
 
@@ -566,7 +585,10 @@ internal static class IdentifierTests
     {
         var identifier = new Identifier("name", "name", "name", "test");
 
-        Assert.That(() => ((IComparable)identifier).CompareTo(1), Throws.ArgumentException);
+        Assert.That(
+            () => ((IComparable)identifier).CompareTo(1),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("obj")
+        );
     }
 
     [Test]

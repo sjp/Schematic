@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -17,14 +18,14 @@ internal static class SelectStarInViewDefinitionRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new SelectStarInViewDefinitionRule(level), Throws.ArgumentException);
+        Assert.That(() => new SelectStarInViewDefinitionRule(level), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level"));
     }
 
     [Test]
     public static void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
     {
         var rule = new SelectStarInViewDefinitionRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseViews(null), Throws.ArgumentNullException);
+        Assert.That(() => rule.AnalyseViews(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views"));
     }
 
     [Test]

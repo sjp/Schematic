@@ -11,7 +11,7 @@ internal static class SarifLintReportTests
     [Test]
     public static void Create_GivenNullResults_ThrowsArgumentNullException()
     {
-        Assert.That(() => SarifLintReport.Create(null), Throws.ArgumentNullException);
+        Assert.That(() => SarifLintReport.Create(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("results"));
     }
 
     [Test]
@@ -99,6 +99,6 @@ internal static class SarifLintReportTests
     [Test]
     public static void ToSarifLevel_GivenUnknownLevel_ThrowsArgumentOutOfRangeException()
     {
-        Assert.That(() => SarifLintReport.ToSarifLevel((RuleLevel)999), Throws.InstanceOf<ArgumentOutOfRangeException>());
+        Assert.That(() => SarifLintReport.ToSarifLevel((RuleLevel)999), Throws.InstanceOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("level"));
     }
 }

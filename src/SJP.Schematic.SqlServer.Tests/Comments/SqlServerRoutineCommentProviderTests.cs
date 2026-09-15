@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Comments;
@@ -12,7 +13,9 @@ internal static class SqlServerRoutineCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerRoutineCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerRoutineCommentProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -20,7 +23,9 @@ internal static class SqlServerRoutineCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SqlServerRoutineCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerRoutineCommentProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,6 +36,8 @@ internal static class SqlServerRoutineCommentProviderTests
 
         var commentProvider = new SqlServerRoutineCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetRoutineComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 
@@ -12,7 +13,10 @@ internal static class DatabaseViewTests
         const string definition = "select * from test";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseView(null, definition, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseView(null, definition, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
@@ -21,7 +25,10 @@ internal static class DatabaseViewTests
         Identifier viewName = "test_view";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseView(viewName, null!, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseView(viewName, null!, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
@@ -31,7 +38,10 @@ internal static class DatabaseViewTests
         Identifier viewName = "test_view";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseView(viewName, definition, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseView(viewName, definition, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -40,7 +50,10 @@ internal static class DatabaseViewTests
         Identifier viewName = "test_view";
         const string definition = "select * from test";
 
-        Assert.That(() => new DatabaseView(viewName, definition, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseView(viewName, definition, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -166,7 +179,10 @@ internal static class DatabaseViewTests
         const string definition = "select * from test";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseView(viewName, definition, columns, null!, [], ViewCheckOption.None, false), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseView(viewName, definition, columns, null!, [], ViewCheckOption.None, false),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("triggers")
+        );
     }
 
     [Test]
@@ -176,7 +192,10 @@ internal static class DatabaseViewTests
         const string definition = "select * from test";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseView(viewName, definition, columns, [], null!, ViewCheckOption.None, false), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseView(viewName, definition, columns, [], null!, ViewCheckOption.None, false),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexes")
+        );
     }
 
     [Test]
@@ -187,7 +206,10 @@ internal static class DatabaseViewTests
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
         const ViewCheckOption checkOption = (ViewCheckOption)55;
 
-        Assert.That(() => new DatabaseView(viewName, definition, columns, [], [], checkOption, false), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseView(viewName, definition, columns, [], [], checkOption, false),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checkOption")
+        );
     }
 
     [Test]

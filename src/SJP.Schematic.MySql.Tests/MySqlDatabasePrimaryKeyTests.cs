@@ -11,21 +11,30 @@ internal static class MySqlDatabasePrimaryKeyTests
     [Test]
     public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
     {
-        Assert.That(() => new MySqlDatabasePrimaryKey(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabasePrimaryKey(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
     public static void Ctor_GivenEmptyColumnSet_ThrowsArgumentException()
     {
         var columns = Array.Empty<IDatabaseColumn>();
-        Assert.That(() => new MySqlDatabasePrimaryKey(columns), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlDatabasePrimaryKey(columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
     public static void Ctor_GivenColumnSetContainingNullColumn_ThrowsArgumentNullException()
     {
         var columns = new IDatabaseColumn[] { null };
-        Assert.That(() => new MySqlDatabasePrimaryKey(columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabasePrimaryKey(columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]

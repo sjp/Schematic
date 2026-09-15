@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.SqlServer.Comments;
@@ -12,7 +13,10 @@ internal static class SqlServerViewCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerViewCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerViewCommentProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -20,7 +24,10 @@ internal static class SqlServerViewCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SqlServerViewCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerViewCommentProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -31,6 +38,9 @@ internal static class SqlServerViewCommentProviderTests
 
         var commentProvider = new SqlServerViewCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetViewComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 }

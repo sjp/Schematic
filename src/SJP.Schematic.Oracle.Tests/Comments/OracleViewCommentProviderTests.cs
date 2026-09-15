@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Oracle.Comments;
@@ -13,7 +14,10 @@ internal static class OracleViewCommentProviderTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-        Assert.That(() => new OracleViewCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleViewCommentProvider(null, identifierDefaults, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -22,7 +26,10 @@ internal static class OracleViewCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-        Assert.That(() => new OracleViewCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleViewCommentProvider(connection, null, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -31,7 +38,10 @@ internal static class OracleViewCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new OracleViewCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleViewCommentProvider(connection, identifierDefaults, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -43,6 +53,9 @@ internal static class OracleViewCommentProviderTests
 
         var commentProvider = new OracleViewCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => commentProvider.GetViewComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 }

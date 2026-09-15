@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -11,7 +12,10 @@ internal static class EmptyDatabaseUserDefinedTypeCommentProviderTests
     public static void GetUserDefinedTypeComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseUserDefinedTypeCommentProvider();
-        Assert.That(() => provider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetUserDefinedTypeComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]

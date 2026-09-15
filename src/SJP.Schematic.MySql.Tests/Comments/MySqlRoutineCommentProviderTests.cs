@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.MySql.Comments;
@@ -12,7 +13,7 @@ internal static class MySqlRoutineCommentProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new MySqlRoutineCommentProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlRoutineCommentProvider(null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -20,7 +21,7 @@ internal static class MySqlRoutineCommentProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new MySqlRoutineCommentProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(() => new MySqlRoutineCommentProvider(connection, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,6 +32,6 @@ internal static class MySqlRoutineCommentProviderTests
 
         var commentProvider = new MySqlRoutineCommentProvider(connection, identifierDefaults);
 
-        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 }

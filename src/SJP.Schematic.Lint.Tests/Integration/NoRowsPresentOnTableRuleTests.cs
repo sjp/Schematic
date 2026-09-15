@@ -38,7 +38,10 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
     {
         ISchematicConnection connection = null;
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new NoRowsPresentOnTableRule(connection, level), Throws.ArgumentNullException);
+        Assert.That(
+            () => new NoRowsPresentOnTableRule(connection, level),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -46,7 +49,10 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
     {
         var connection = Mock.Of<ISchematicConnection>();
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new NoRowsPresentOnTableRule(connection, level), Throws.ArgumentException);
+        Assert.That(
+            () => new NoRowsPresentOnTableRule(connection, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
@@ -54,7 +60,10 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
     {
         var connection = Mock.Of<ISchematicConnection>();
         var rule = new NoRowsPresentOnTableRule(connection, RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [TestCase(TableKind.History)]

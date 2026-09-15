@@ -16,7 +16,10 @@ internal static class MySqlDatabaseIndexColumnTests
     {
         var column = Mock.Of<IDatabaseColumn>();
 
-        Assert.That(() => new MySqlDatabaseIndexColumn(expression, column), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new MySqlDatabaseIndexColumn(expression, column),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression")
+        );
     }
 
     [Test]
@@ -24,7 +27,10 @@ internal static class MySqlDatabaseIndexColumnTests
     {
         const string expression = "`test`";
 
-        Assert.That(() => new MySqlDatabaseIndexColumn(expression, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlDatabaseIndexColumn(expression, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("column")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -18,7 +19,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childTableName")
+        );
     }
 
     [Test]
@@ -30,7 +34,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
+        );
     }
 
     [Test]
@@ -42,7 +49,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentTableName")
+        );
     }
 
     [Test]
@@ -54,7 +64,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
+        );
     }
 
     [Test]
@@ -67,7 +80,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = (ReferentialAction)55;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deleteAction")
+        );
     }
 
     [Test]
@@ -80,7 +96,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = (ReferentialAction)55;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateAction")
+        );
     }
 
     [Test]
@@ -233,7 +252,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
+        );
     }
 
     [Test]
@@ -248,7 +270,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
+        );
     }
 
     [Test]
@@ -261,7 +286,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.SetDefault;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateAction")
+        );
     }
 
     [Test]
@@ -274,7 +302,10 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.SetDefault;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deleteAction")
+        );
     }
 
     [TestCase(null, "test_table_1", null, null, "test_table_2", null, "Relational Key: test_table_1 -> test_table_2")]

@@ -15,20 +15,29 @@ internal static class TooManyColumnsRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new TooManyColumnsRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new TooManyColumnsRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void Ctor_GivenZeroColumnLimit_ThrowsArgumentOutOfRangeException()
     {
-        Assert.That(() => new TooManyColumnsRule(RuleLevel.Error, 0), Throws.TypeOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => new TooManyColumnsRule(RuleLevel.Error, 0),
+            Throws.TypeOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnLimit")
+        );
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
         var rule = new TooManyColumnsRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

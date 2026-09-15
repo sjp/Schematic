@@ -15,7 +15,10 @@ internal static class OracleDatabaseIndexTests
         var column = Mock.Of<IDatabaseIndexColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new OracleDatabaseIndex(null, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseIndex(null, isUnique, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]
@@ -24,7 +27,10 @@ internal static class OracleDatabaseIndexTests
         Identifier indexName = "test_index";
         const bool isUnique = true;
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseIndex(indexName, isUnique, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -34,7 +40,10 @@ internal static class OracleDatabaseIndexTests
         const bool isUnique = true;
         var columns = Array.Empty<IDatabaseIndexColumn>();
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new OracleDatabaseIndex(indexName, isUnique, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -44,7 +53,10 @@ internal static class OracleDatabaseIndexTests
         const bool isUnique = true;
         var columns = new IDatabaseIndexColumn[] { null };
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, isUnique, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseIndex(indexName, isUnique, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -130,7 +142,10 @@ internal static class OracleDatabaseIndexTests
         var columns = new[] { Mock.Of<IDatabaseIndexColumn>() };
         const IndexType indexType = (IndexType)55;
 
-        Assert.That(() => new OracleDatabaseIndex(indexName, false, columns, indexType, true, true), Throws.ArgumentException);
+        Assert.That(
+            () => new OracleDatabaseIndex(indexName, false, columns, indexType, true, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("indexType")
+        );
     }
 
     [Test]

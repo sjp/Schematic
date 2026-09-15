@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -12,7 +13,10 @@ internal static class OptionExtensionsTests
     [Test]
     public static void FirstSome_GivenNoneInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => ((IEnumerable<Option<string>>)null).FirstSome(), Throws.ArgumentNullException);
+        Assert.That(
+            () => ((IEnumerable<Option<string>>)null).FirstSome(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input")
+        );
     }
 
     [Test]
@@ -50,7 +54,10 @@ internal static class OptionExtensionsTests
     [Test]
     public static void FirstSome_GivenNoneAsyncInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => ((IEnumerable<OptionAsync<string>>)null).FirstSome(), Throws.ArgumentNullException);
+        Assert.That(
+            () => ((IEnumerable<OptionAsync<string>>)null).FirstSome(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input")
+        );
     }
 
     [Test]

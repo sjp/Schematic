@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -22,49 +23,73 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
     [Test]
     public static void SnapshotAsync_GivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithSnapshotOptionsGivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions()), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithSnapshotOptionsGivenNullOptions_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.SnapshotAsync((RelationalDatabaseSnapshotOptions)null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.SnapshotAsync((RelationalDatabaseSnapshotOptions)null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("snapshotOptions")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithIdentifierResolverGivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithNullIdentifierResolverGivenDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.SnapshotAsync((IIdentifierResolutionStrategy)null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.SnapshotAsync((IIdentifierResolutionStrategy)null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithNullDatabaseForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions(), new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => RelationalDatabaseSnapshotExtensions.SnapshotAsync(null, new RelationalDatabaseSnapshotOptions(), new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithNullOptionsForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.SnapshotAsync(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("snapshotOptions")
+        );
     }
 
     [Test]
     public static void SnapshotAsync_WithNullResolversForOptionsAndResolver_ThrowsArgumentNullException()
     {
-        Assert.That(() => EmptyDatabase.SnapshotAsync(new RelationalDatabaseSnapshotOptions(), null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EmptyDatabase.SnapshotAsync(new RelationalDatabaseSnapshotOptions(), null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]

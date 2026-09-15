@@ -12,7 +12,10 @@ internal static class SqlServerConnectionFactoryTests
     [TestCase("    ")]
     public static void Ctor_GivenNullOrWhiteSpaceName_ThrowsArgumentException(string connectionString)
     {
-        Assert.That(() => new SqlServerConnectionFactory(connectionString), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new SqlServerConnectionFactory(connectionString),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionString")
+        );
     }
 
     [Test]

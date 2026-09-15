@@ -28,7 +28,7 @@ internal static class SqliteRelationalDatabaseTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var pragma = new ConnectionPragma(Mock.Of<ISchematicConnection>());
 
-        Assert.That(() => new SqliteRelationalDatabase(null, identifierDefaults, pragma), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteRelationalDatabase(null, identifierDefaults, pragma), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -37,7 +37,7 @@ internal static class SqliteRelationalDatabaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var pragma = new ConnectionPragma(connection);
 
-        Assert.That(() => new SqliteRelationalDatabase(connection, null, pragma), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteRelationalDatabase(connection, null, pragma), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -46,19 +46,19 @@ internal static class SqliteRelationalDatabaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqliteRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionPragma"));
     }
 
     [Test]
     public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]
     public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
+        Assert.That(() => Database.GetView(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName"));
     }
 
     // testing that the behaviour is equivalent to an empty sequence provider
@@ -67,7 +67,7 @@ internal static class SqliteRelationalDatabaseTests
         [Test]
         public static void GetSequence_GivenNullSequenceName_ThrowsArgumentNullException()
         {
-            Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName"));
         }
 
         [Test]
@@ -102,7 +102,7 @@ internal static class SqliteRelationalDatabaseTests
         [Test]
         public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
         {
-            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName"));
         }
 
         [Test]
@@ -137,7 +137,7 @@ internal static class SqliteRelationalDatabaseTests
         [Test]
         public static void GetRoutine_GivenNullRoutineName_ThrowsArgumentNullException()
         {
-            Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+            Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
         }
 
         [Test]
@@ -171,7 +171,7 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase("    ")]
     public static void VacuumAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.VacuumAsync(schemaName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => Database.VacuumAsync(schemaName), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [TestCase((string)null)]
@@ -179,7 +179,7 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase("    ")]
     public static void VacuumIntoAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentException(string fileName)
     {
-        Assert.That(() => Database.VacuumIntoAsync(fileName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => Database.VacuumIntoAsync(fileName), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("filePath"));
     }
 
     [TestCase((string)null)]
@@ -187,7 +187,7 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase("    ")]
     public static void VacuumIntoAsync_WhenGivenFileNameWithNullSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.VacuumIntoAsync("test_file", schemaName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => Database.VacuumIntoAsync("test_file", schemaName), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [TestCase((string)null)]
@@ -195,7 +195,7 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase("    ")]
     public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.AttachDatabaseAsync(schemaName, ":memory:"), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => Database.AttachDatabaseAsync(schemaName, ":memory:"), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [TestCase((string)null)]
@@ -203,13 +203,13 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase("    ")]
     public static void AttachDatabaseAsync_WhenGivenNullOrWhiteSpaceFileName_ThrowsArgumentException(string fileName)
     {
-        Assert.That(() => Database.AttachDatabaseAsync("test", fileName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => Database.AttachDatabaseAsync("test", fileName), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("fileName"));
     }
 
     [Test]
     public static void AttachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
     {
-        Assert.That(() => Database.AttachDatabaseAsync("main", ":memory:"), Throws.ArgumentException);
+        Assert.That(() => Database.AttachDatabaseAsync("main", ":memory:"), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [TestCase((string)null)]
@@ -217,12 +217,12 @@ internal static class SqliteRelationalDatabaseTests
     [TestCase("    ")]
     public static void DetachDatabaseAsync_WhenGivenNullOrWhiteSpaceSchemaName_ThrowsArgumentException(string schemaName)
     {
-        Assert.That(() => Database.DetachDatabaseAsync(schemaName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => Database.DetachDatabaseAsync(schemaName), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 
     [Test]
     public static void DetachDatabaseAsync_WhenGivenMainSchemaName_ThrowsArgumentException()
     {
-        Assert.That(() => Database.DetachDatabaseAsync("main"), Throws.ArgumentException);
+        Assert.That(() => Database.DetachDatabaseAsync("main"), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName"));
     }
 }

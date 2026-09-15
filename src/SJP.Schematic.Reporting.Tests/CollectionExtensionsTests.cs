@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 
@@ -9,7 +10,10 @@ internal static class CollectionExtensionsTests
     public static void UCount_GivenNullReadOnlyCollection_ThrowsArgumentNullException()
     {
         IReadOnlyCollection<string> collection = null!;
-        Assert.That(() => collection!.UCount(), Throws.ArgumentNullException);
+        Assert.That(
+            () => collection!.UCount(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("collection")
+        );
     }
 
     [Test]
@@ -30,7 +34,10 @@ internal static class CollectionExtensionsTests
     public static void UCount_GivenNullEnumerable_ThrowsArgumentNullException()
     {
         IEnumerable<string> collection = null!;
-        Assert.That(() => collection!.UCount(), Throws.ArgumentNullException);
+        Assert.That(
+            () => collection!.UCount(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("collection")
+        );
     }
 
     [Test]

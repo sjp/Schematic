@@ -24,27 +24,35 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
     public void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
         using var tempDir = new TemporaryDirectory();
-        Assert.That(() => new ReportGenerator(null!, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath), Throws.ArgumentNullException);
+        Assert.That(
+            () => new ReportGenerator(null!, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
     public void Ctor_GivenNullDatabaseProvider_ThrowsArgumentNullException()
     {
         using var tempDir = new TemporaryDirectory();
-        Assert.That(() => new ReportGenerator(Connection, null!, GetDatabase(), tempDir.DirectoryPath), Throws.ArgumentNullException);
+        Assert.That(
+            () => new ReportGenerator(Connection, null!, GetDatabase(), tempDir.DirectoryPath),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseProvider"));
     }
 
     [Test]
     public void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
     {
         using var tempDir = new TemporaryDirectory();
-        Assert.That(() => new ReportGenerator(Connection, DatabaseProvider, null!, tempDir.DirectoryPath), Throws.ArgumentNullException);
+        Assert.That(
+            () => new ReportGenerator(Connection, DatabaseProvider, null!, tempDir.DirectoryPath),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database"));
     }
 
     [Test]
     public void Ctor_GivenNullDirectory_ThrowsArgumentNullException()
     {
-        Assert.That(() => new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), (string)null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), (string)null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("directory"));
     }
 
     [Test]

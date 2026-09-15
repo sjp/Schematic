@@ -17,7 +17,10 @@ internal static class PostgreSqlDatabaseTriggerTests
         const TriggerEvent events = TriggerEvent.Update;
         const bool enabled = true;
 
-        Assert.That(() => new PostgreSqlDatabaseTrigger(null, definition, timing, events, enabled), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(null, definition, timing, events, enabled),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [TestCase((string)null)]
@@ -30,7 +33,10 @@ internal static class PostgreSqlDatabaseTriggerTests
         const TriggerEvent events = TriggerEvent.Update;
         const bool enabled = true;
 
-        Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -42,7 +48,10 @@ internal static class PostgreSqlDatabaseTriggerTests
         const TriggerEvent events = TriggerEvent.Update;
         const bool enabled = true;
 
-        Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentException);
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("queryTiming")
+        );
     }
 
     [Test]
@@ -54,7 +63,10 @@ internal static class PostgreSqlDatabaseTriggerTests
         const TriggerEvent events = (TriggerEvent)55;
         const bool enabled = true;
 
-        Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentException);
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events")
+        );
     }
 
     [Test]
@@ -66,7 +78,10 @@ internal static class PostgreSqlDatabaseTriggerTests
         const TriggerEvent events = TriggerEvent.None;
         const bool enabled = true;
 
-        Assert.That(() => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled), Throws.ArgumentException);
+        Assert.That(
+            () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, enabled),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("events")
+        );
     }
 
     [Test]
@@ -164,7 +179,7 @@ internal static class PostgreSqlDatabaseTriggerTests
 
         Assert.That(
             () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, true, granularity, Option<string>.None, []),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("granularity")
         );
     }
 
@@ -178,7 +193,7 @@ internal static class PostgreSqlDatabaseTriggerTests
 
         Assert.That(
             () => new PostgreSqlDatabaseTrigger(triggerName, definition, timing, events, true, TriggerGranularity.Row, Option<string>.None, null!),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateColumns")
         );
     }
 

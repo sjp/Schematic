@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -66,14 +67,20 @@ internal static class ForeignKeyColumnTypeMismatchRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new ForeignKeyColumnTypeMismatchRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new ForeignKeyColumnTypeMismatchRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
         var rule = new ForeignKeyColumnTypeMismatchRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

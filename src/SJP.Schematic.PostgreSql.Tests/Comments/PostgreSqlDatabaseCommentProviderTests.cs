@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.PostgreSql.Comments;
@@ -13,7 +14,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlDatabaseCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseCommentProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -22,7 +23,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlDatabaseCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseCommentProvider(connection, null, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -31,7 +32,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(() => new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]
@@ -43,7 +44,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
 
         var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetTableComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]
@@ -55,7 +56,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
 
         var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetViewComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName"));
     }
 
     [Test]
@@ -67,7 +68,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
 
         var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetSequenceComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName"));
     }
 
     [Test]
@@ -79,7 +80,7 @@ internal static class PostgreSqlDatabaseCommentProviderTests
 
         var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetSynonymComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetSynonymComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName"));
     }
 
     [Test]
@@ -91,6 +92,6 @@ internal static class PostgreSqlDatabaseCommentProviderTests
 
         var commentProvider = new PostgreSqlDatabaseCommentProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(() => commentProvider.GetRoutineComments(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 }

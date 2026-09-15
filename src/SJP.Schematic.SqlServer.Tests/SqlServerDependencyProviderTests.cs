@@ -21,7 +21,10 @@ internal static class SqlServerDependencyProviderTests
     {
         var provider = new SqlServerDependencyProvider();
 
-        Assert.That(() => provider.GetDependencies(null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetDependencies(null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [TestCase((string)null)]
@@ -32,7 +35,10 @@ internal static class SqlServerDependencyProviderTests
         var provider = new SqlServerDependencyProvider();
         Identifier objectName = "test";
 
-        Assert.That(() => provider.GetDependencies(objectName, expression), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => provider.GetDependencies(objectName, expression),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression")
+        );
     }
 
     [Test]

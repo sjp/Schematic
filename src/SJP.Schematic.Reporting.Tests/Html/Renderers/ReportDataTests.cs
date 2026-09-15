@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -14,7 +15,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(null!, [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database"));
     }
 
     [Test]
@@ -22,7 +23,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), null!, [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables"));
     }
 
     [Test]
@@ -30,7 +31,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], null!, [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views"));
     }
 
     [Test]
@@ -38,7 +39,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], null!, [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences"));
     }
 
     [Test]
@@ -46,7 +47,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], null!, [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms"));
     }
 
     [Test]
@@ -54,7 +55,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], [], null!, [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines"));
     }
 
     [Test]
@@ -62,7 +63,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], [], [], null!, [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemas"));
     }
 
     [Test]
@@ -70,7 +71,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], [], [], [], null!, "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
 
     [Test]
@@ -78,7 +79,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", null!, EmptySynonymTargets(), EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("referencedObjectTargets"));
     }
 
     [Test]
@@ -86,7 +87,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), null!, EmptyStatistics()),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymTargets"));
     }
 
     [Test]
@@ -102,7 +103,7 @@ internal static class ReportDataTests
     {
         Assert.That(
             () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), null!),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableStatistics"));
     }
 
     private static IRelationalDatabase MockDatabase() => new Mock<IRelationalDatabase>().Object;

@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -13,7 +14,7 @@ internal static class SqliteTableStatisticsProviderTests
         var pragma = Mock.Of<ISqliteConnectionPragma>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqliteTableStatisticsProvider(null, pragma, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteTableStatisticsProvider(null, pragma, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -22,7 +23,7 @@ internal static class SqliteTableStatisticsProviderTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqliteTableStatisticsProvider(connection, null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteTableStatisticsProvider(connection, null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("pragma"));
     }
 
     [Test]
@@ -31,7 +32,7 @@ internal static class SqliteTableStatisticsProviderTests
         var connection = Mock.Of<ISchematicConnection>();
         var pragma = Mock.Of<ISqliteConnectionPragma>();
 
-        Assert.That(() => new SqliteTableStatisticsProvider(connection, pragma, null), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteTableStatisticsProvider(connection, pragma, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -43,6 +44,6 @@ internal static class SqliteTableStatisticsProviderTests
             Mock.Of<IIdentifierDefaults>()
         );
 
-        Assert.That(() => provider.GetTableStatistics(null), Throws.ArgumentNullException);
+        Assert.That(() => provider.GetTableStatistics(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 }

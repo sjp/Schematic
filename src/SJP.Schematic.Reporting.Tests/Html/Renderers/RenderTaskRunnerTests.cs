@@ -16,7 +16,7 @@ internal static class RenderTaskRunnerTests
     {
         Assert.That(
             () => RenderTaskRunner.RunAllAsync<string>(null!, static s => s, static (_, _) => Task.CompletedTask, CancellationToken.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("items"));
     }
 
     [Test]
@@ -24,7 +24,7 @@ internal static class RenderTaskRunnerTests
     {
         Assert.That(
             () => RenderTaskRunner.RunAllAsync<string>(["a"], null!, static (_, _) => Task.CompletedTask, CancellationToken.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("describe"));
     }
 
     [Test]
@@ -32,7 +32,7 @@ internal static class RenderTaskRunnerTests
     {
         Assert.That(
             () => RenderTaskRunner.RunAllAsync<string>(["a"], static s => s, null!, CancellationToken.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("action"));
     }
 
     [Test]
@@ -203,7 +203,9 @@ internal static class RenderTaskRunnerTests
     [Test]
     public static void ThrowIfAnyFailed_GivenNullFailures_ThrowsArgumentNullException()
     {
-        Assert.That(() => RenderTaskRunner.ThrowIfAnyFailed(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => RenderTaskRunner.ThrowIfAnyFailed(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("failures"));
     }
 
     [Test]

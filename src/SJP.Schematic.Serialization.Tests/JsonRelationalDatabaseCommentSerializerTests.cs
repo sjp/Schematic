@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +21,9 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     [Test]
     public static void SerializeAsync_GivenNullStream_ThrowsArgumentNullException()
     {
-        Assert.That(() => Serializer.SerializeAsync(null, SampleComments), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.SerializeAsync(null, SampleComments),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("stream"));
     }
 
     [Test]
@@ -28,13 +31,17 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     {
         using var stream = new MemoryStream();
 
-        Assert.That(() => Serializer.SerializeAsync(stream, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.SerializeAsync(stream, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseComments"));
     }
 
     [Test]
     public static void DeserializeAsync_GivenNullStream_ThrowsArgumentNullException()
     {
-        Assert.That(() => Serializer.DeserializeAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.DeserializeAsync(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("stream"));
     }
 
     [Test]
@@ -42,7 +49,9 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
     {
         using var stream = new MemoryStream();
 
-        Assert.That(() => Serializer.DeserializeAsync(stream, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.DeserializeAsync(stream, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]
@@ -251,7 +260,9 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
 
         await using var jsonOutputStream = new MemoryStream();
 
-        await Assert.ThatAsync(() => Serializer.SerializeAsync(jsonOutputStream, comments), Throws.ArgumentException);
+        await Assert.ThatAsync(
+            () => Serializer.SerializeAsync(jsonOutputStream, comments),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source.ColumnComments"));
     }
 
     [Test]
@@ -278,7 +289,9 @@ internal static class JsonRelationalDatabaseCommentSerializerTests
 
         await using var jsonOutputStream = new MemoryStream();
 
-        await Assert.ThatAsync(() => Serializer.SerializeAsync(jsonOutputStream, comments), Throws.ArgumentException);
+        await Assert.ThatAsync(
+            () => Serializer.SerializeAsync(jsonOutputStream, comments),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source.ColumnComments"));
     }
 
     /// <summary>

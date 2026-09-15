@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.DataAccess.Extensions;
 
 namespace SJP.Schematic.DataAccess.Tests.Extensions;
@@ -8,7 +9,10 @@ internal static class StringExtensionsTests
     [Test]
     public static void Pascalize_GivenNullInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => StringExtensions.Pascalize(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => StringExtensions.Pascalize(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input")
+        );
     }
 
     [TestCase("customer", "Customer")]
@@ -27,7 +31,10 @@ internal static class StringExtensionsTests
     [Test]
     public static void Camelize_GivenNullInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => StringExtensions.Camelize(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => StringExtensions.Camelize(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input")
+        );
     }
 
     [TestCase("customer", "customer")]
@@ -47,7 +54,10 @@ internal static class StringExtensionsTests
     [Test]
     public static void Underscore_GivenNullInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => StringExtensions.Underscore(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => StringExtensions.Underscore(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input")
+        );
     }
 
     [TestCase("SomeTitle", "some_title")]
@@ -65,7 +75,10 @@ internal static class StringExtensionsTests
     [Test]
     public static void Pluralize_GivenNullInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => StringExtensions.Pluralize(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => StringExtensions.Pluralize(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input")
+        );
     }
 
     [TestCase("", "")]

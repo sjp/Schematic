@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -12,7 +13,10 @@ internal static class PostgreSqlDatabaseRoutineProviderTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new PostgreSqlDatabaseRoutineProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseRoutineProvider(null, identifierDefaults, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -21,7 +25,10 @@ internal static class PostgreSqlDatabaseRoutineProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new PostgreSqlDatabaseRoutineProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseRoutineProvider(connection, null, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -30,7 +37,10 @@ internal static class PostgreSqlDatabaseRoutineProviderTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new PostgreSqlDatabaseRoutineProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlDatabaseRoutineProvider(connection, identifierDefaults, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -42,6 +52,9 @@ internal static class PostgreSqlDatabaseRoutineProviderTests
 
         var routineProvider = new PostgreSqlDatabaseRoutineProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => routineProvider.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => routineProvider.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 }

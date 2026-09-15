@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -10,7 +11,10 @@ internal static class EmptyDatabaseSequenceProviderTests
     public static void GetSequence_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseSequenceProvider();
-        Assert.That(() => provider.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]

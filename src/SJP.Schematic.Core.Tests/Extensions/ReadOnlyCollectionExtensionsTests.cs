@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
@@ -10,7 +11,10 @@ internal static class ReadOnlyCollectionExtensionsTests
     public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
     {
         IReadOnlyCollection<string> input = null;
-        Assert.That(() => input.Empty(), Throws.ArgumentNullException);
+        Assert.That(
+            () => input.Empty(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]

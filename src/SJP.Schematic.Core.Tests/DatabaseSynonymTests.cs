@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -7,13 +8,19 @@ internal static class DatabaseSynonymTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgNullException()
     {
-        Assert.That(() => new DatabaseSynonym(null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseSynonym(null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullTarget_ThrowsArgNullException()
     {
-        Assert.That(() => new DatabaseSynonym("test", null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseSynonym("test", null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("targetName")
+        );
     }
 
     [Test]

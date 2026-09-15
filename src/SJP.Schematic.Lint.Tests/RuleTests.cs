@@ -11,7 +11,10 @@ internal static class RuleTests
     public static void Ctor_GivenNullOrWhiteSpaceId_ThrowsArgumentException(string id)
     {
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new FakeRule(id, "test_title", level), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new FakeRule(id, "test_title", level),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("id")
+        );
     }
 
     [TestCase((string)null)]
@@ -20,7 +23,10 @@ internal static class RuleTests
     public static void Ctor_GivenNullOrWhiteSpaceTitle_ThrowsArgumentException(string title)
     {
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new FakeRule("TEST_ID", title, level), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new FakeRule("TEST_ID", title, level),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("title")
+        );
     }
 
     [Test]
@@ -29,7 +35,10 @@ internal static class RuleTests
         const string id = "TEST_ID";
         const string title = "test";
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new FakeRule(id, title, level), Throws.ArgumentException);
+        Assert.That(
+            () => new FakeRule(id, title, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]

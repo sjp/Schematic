@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -14,7 +15,9 @@ internal sealed class TableOrderingRendererSakilaTests : SakilaTest
     [Test]
     public void Ctor_GivenNullDialect_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TableOrderingRenderer(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TableOrderingRenderer(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dialect"));
     }
 
     [Test]

@@ -13,7 +13,10 @@ internal static class ProbeConcurrencyLimiterTests
     [Test]
     public static void GetForConnection_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => ProbeConcurrencyLimiter.GetForConnection(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => ProbeConcurrencyLimiter.GetForConnection(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -41,7 +44,10 @@ internal static class ProbeConcurrencyLimiterTests
     {
         var limiter = ProbeConcurrencyLimiter.GetForConnection(Mock.Of<ISchematicConnection>());
 
-        Assert.That(() => limiter.RunAsync<int>(null, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => limiter.RunAsync<int>(null, CancellationToken.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("query")
+        );
     }
 
     [Test]

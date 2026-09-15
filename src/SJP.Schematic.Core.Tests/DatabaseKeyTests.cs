@@ -28,7 +28,10 @@ internal static class DatabaseKeyTests
         var column = Mock.Of<IDatabaseColumn>();
         var columns = new[] { column };
 
-        Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseKey(keyName, keyType, columns, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("keyType")
+        );
     }
 
     [Test]
@@ -37,7 +40,10 @@ internal static class DatabaseKeyTests
         Identifier keyName = "test_key";
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
 
-        Assert.That(() => new DatabaseKey(keyName, keyType, null, true), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseKey(keyName, keyType, null, true),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -47,7 +53,10 @@ internal static class DatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = Array.Empty<IDatabaseColumn>();
 
-        Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseKey(keyName, keyType, columns, true),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -57,7 +66,10 @@ internal static class DatabaseKeyTests
         const DatabaseKeyType keyType = DatabaseKeyType.Primary;
         var columns = new IDatabaseColumn[] { null };
 
-        Assert.That(() => new DatabaseKey(keyName, keyType, columns, true), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseKey(keyName, keyType, columns, true),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -190,7 +202,10 @@ internal static class DatabaseKeyTests
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
         const ConstraintDeferrability deferrability = (ConstraintDeferrability)55;
 
-        Assert.That(() => new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.None, true, deferrability), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseKey(keyName, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.None, true, deferrability),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deferrability")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -11,7 +12,10 @@ internal static class EmptyDatabaseRoutineCommentProviderTests
     public static void GetRoutineComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseRoutineCommentProvider();
-        Assert.That(() => provider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetRoutineComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]

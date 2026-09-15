@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -12,13 +13,19 @@ internal static class DatabaseViewCommentsTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseViewComments(null, Option<string>.None, Empty.CommentLookup), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseViewComments(null, Option<string>.None, Empty.CommentLookup),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullColumnComments_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseViewComments("test_view", Option<string>.None, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseViewComments("test_view", Option<string>.None, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnComments")
+        );
     }
 
     [Test]

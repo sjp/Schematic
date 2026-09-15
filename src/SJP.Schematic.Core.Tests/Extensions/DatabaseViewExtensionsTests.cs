@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -36,7 +37,10 @@ internal static class DatabaseViewExtensionsTests
     [Test]
     public static void GetColumnLookup_GivenNullView_ThrowsArgumentNullException()
     {
-        Assert.That(() => DatabaseViewExtensions.GetColumnLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => DatabaseViewExtensions.GetColumnLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("view")
+        );
     }
 
     [Test]
@@ -44,7 +48,10 @@ internal static class DatabaseViewExtensionsTests
     {
         var resolver = new VerbatimIdentifierResolutionStrategy();
 
-        Assert.That(() => DatabaseViewExtensions.GetColumnLookup(null, resolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => DatabaseViewExtensions.GetColumnLookup(null, resolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("view")
+        );
     }
 
     [Test]
@@ -52,7 +59,10 @@ internal static class DatabaseViewExtensionsTests
     {
         var view = GetMockView("test");
 
-        Assert.That(() => view.GetColumnLookup(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => view.GetColumnLookup(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]

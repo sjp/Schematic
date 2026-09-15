@@ -24,7 +24,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         var db = new EmptyRelationalDatabase(new IdentifierDefaults(null, null, "main"));
 
-        Assert.That(() => Serializer.SerializeAsync(null, db), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.SerializeAsync(null, db),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("stream"));
     }
 
     [Test]
@@ -32,13 +34,17 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         using var stream = new MemoryStream();
 
-        Assert.That(() => Serializer.SerializeAsync(stream, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.SerializeAsync(stream, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database"));
     }
 
     [Test]
     public static void DeserializeAsync_GivenNullStream_ThrowsArgumentNullException()
     {
-        Assert.That(() => Serializer.DeserializeAsync(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.DeserializeAsync(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("stream"));
     }
 
     [Test]
@@ -46,7 +52,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     {
         using var stream = new MemoryStream();
 
-        Assert.That(() => Serializer.DeserializeAsync(stream, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Serializer.DeserializeAsync(stream, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]

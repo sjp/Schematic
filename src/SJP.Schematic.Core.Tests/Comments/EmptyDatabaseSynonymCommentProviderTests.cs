@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -11,7 +12,10 @@ internal static class EmptyDatabaseSynonymCommentProviderTests
     public static void GetSynonymComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseSynonymCommentProvider();
-        Assert.That(() => provider.GetSynonymComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSynonymComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]

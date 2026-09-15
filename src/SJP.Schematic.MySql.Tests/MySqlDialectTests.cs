@@ -14,7 +14,10 @@ internal static class MySqlDialectTests
     {
         var dialect = new MySqlDialect();
 
-        Assert.That(() => dialect.QuoteIdentifier(identifier), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => dialect.QuoteIdentifier(identifier),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier")
+        );
     }
 
     [TestCase((string)null)]
@@ -24,7 +27,10 @@ internal static class MySqlDialectTests
     {
         var dialect = new MySqlDialect();
 
-        Assert.That(() => dialect.QuoteName(name), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => dialect.QuoteName(name),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+        );
     }
 
     [Test]

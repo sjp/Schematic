@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
 
@@ -9,7 +10,7 @@ internal static class OptionsExtensionsTests
     [Test]
     public static void UnwrapSome_GivenNoneInput_ThrowsArgumentException()
     {
-        Assert.That(() => Option<string>.None.UnwrapSome(), Throws.ArgumentException);
+        Assert.That(() => Option<string>.None.UnwrapSome(), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input"));
     }
 
     [Test]
@@ -25,7 +26,7 @@ internal static class OptionsExtensionsTests
     [Test]
     public static void UnwrapSomeAsync_GivenNoneInput_ThrowsArgumentException()
     {
-        Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync(), Throws.ArgumentException);
+        Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync(), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input"));
     }
 
     [Test]

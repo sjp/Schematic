@@ -13,7 +13,10 @@ internal static class AsyncCacheTests
     [Test]
     public static void Ctor_GivenNullFactory_ThrowsArgumentNullException()
     {
-        Assert.That(() => new AsyncCache<object, object, object>(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new AsyncCache<object, object, object>(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("factory")
+        );
     }
 
     [Test]
@@ -21,7 +24,10 @@ internal static class AsyncCacheTests
     {
         var cache = new AsyncCache<object, object, object>((_, __, ___) => Task.FromResult(new object()));
 
-        Assert.That(() => cache.GetByKeyAsync(null, new object()), Throws.ArgumentNullException);
+        Assert.That(
+            () => cache.GetByKeyAsync(null, new object()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key")
+        );
     }
 
     [Test]
@@ -29,7 +35,10 @@ internal static class AsyncCacheTests
     {
         var cache = new AsyncCache<object, object, object>((_, __, ___) => Task.FromResult(new object()));
 
-        Assert.That(() => cache.GetByKeyAsync(new object(), null), Throws.ArgumentNullException);
+        Assert.That(
+            () => cache.GetByKeyAsync(new object(), null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("cache")
+        );
     }
 
     [Test]
@@ -145,7 +154,10 @@ internal static class AsyncCacheTests
     [Test]
     public static void Ctor_GivenNullFactoryWithLifetimeToken_ThrowsArgumentNullException()
     {
-        Assert.That(() => new AsyncCache<object, object, object>(null, CancellationToken.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new AsyncCache<object, object, object>(null, CancellationToken.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("factory")
+        );
     }
 
     [Test]
@@ -227,7 +239,10 @@ internal static class AsyncCacheTests
     {
         var cache = new AsyncCache<object, object, object>((_, __, ___) => Task.FromResult(new object()));
 
-        Assert.That(() => cache.TryAdd(null, new object()), Throws.ArgumentNullException);
+        Assert.That(
+            () => cache.TryAdd(null, new object()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("key")
+        );
     }
 
     [Test]

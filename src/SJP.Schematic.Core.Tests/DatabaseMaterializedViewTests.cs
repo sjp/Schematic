@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -13,7 +14,10 @@ internal static class DatabaseMaterializedViewTests
         const string definition = "select * from test";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseMaterializedView(null, definition, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseMaterializedView(null, definition, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
@@ -22,7 +26,10 @@ internal static class DatabaseMaterializedViewTests
         Identifier viewName = "test_mat_view";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseMaterializedView(viewName, null!, columns), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseMaterializedView(viewName, null!, columns),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [TestCase("")]
@@ -32,7 +39,10 @@ internal static class DatabaseMaterializedViewTests
         Identifier viewName = "test_mat_view";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        Assert.That(() => new DatabaseMaterializedView(viewName, definition, columns), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseMaterializedView(viewName, definition, columns),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
+        );
     }
 
     [Test]
@@ -41,7 +51,10 @@ internal static class DatabaseMaterializedViewTests
         Identifier viewName = "test_mat_view";
         const string definition = "select * from test";
 
-        Assert.That(() => new DatabaseMaterializedView(viewName, definition, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseMaterializedView(viewName, definition, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
@@ -154,7 +167,7 @@ internal static class DatabaseMaterializedViewTests
 
         Assert.That(
             () => new DatabaseMaterializedView(viewName, definition, columns, [], [], refreshMode, Option<string>.None, false),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("refreshMode")
         );
     }
 

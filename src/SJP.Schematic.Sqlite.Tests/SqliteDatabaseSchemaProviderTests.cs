@@ -1,3 +1,4 @@
+using System;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,7 +13,7 @@ internal static class SqliteDatabaseSchemaProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqliteDatabaseSchemaProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseSchemaProvider(null, identifierDefaults), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionPragma"));
     }
 
     [Test]
@@ -20,6 +21,6 @@ internal static class SqliteDatabaseSchemaProviderTests
     {
         var connectionPragma = Mock.Of<ISqliteConnectionPragma>();
 
-        Assert.That(() => new SqliteDatabaseSchemaProvider(connectionPragma, null), Throws.ArgumentNullException);
+        Assert.That(() => new SqliteDatabaseSchemaProvider(connectionPragma, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 }

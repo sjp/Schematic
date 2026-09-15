@@ -17,7 +17,7 @@ internal static class SqliteDatabaseIndexColumnTests
 
         Assert.That(
             () => new SqliteDatabaseIndexColumn(null, [column], IndexColumnOrder.Ascending, Option<Identifier>.None),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression")
         );
     }
 
@@ -28,7 +28,7 @@ internal static class SqliteDatabaseIndexColumnTests
 
         Assert.That(
             () => new SqliteDatabaseIndexColumn(string.Empty, [column], IndexColumnOrder.Ascending, Option<Identifier>.None),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("expression")
         );
     }
 
@@ -37,7 +37,7 @@ internal static class SqliteDatabaseIndexColumnTests
     {
         Assert.That(
             () => new SqliteDatabaseIndexColumn("\"test\"", null, IndexColumnOrder.Ascending, Option<Identifier>.None),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dependentColumns")
         );
     }
 
@@ -49,7 +49,7 @@ internal static class SqliteDatabaseIndexColumnTests
 
         Assert.That(
             () => new SqliteDatabaseIndexColumn("\"test\"", [column], order, Option<Identifier>.None),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("order")
         );
     }
 

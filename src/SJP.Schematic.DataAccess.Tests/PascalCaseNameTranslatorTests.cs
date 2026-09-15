@@ -10,7 +10,10 @@ internal static class PascalCaseNameTranslatorTests
     public static void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()
     {
         var nameTranslator = new PascalCaseNameTranslator();
-        Assert.That(() => nameTranslator.SchemaToNamespace(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => nameTranslator.SchemaToNamespace(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [Test]
@@ -60,7 +63,10 @@ internal static class PascalCaseNameTranslatorTests
     public static void TableToClassName_GivenNullName_ThrowsArgumentNullException()
     {
         var nameTranslator = new PascalCaseNameTranslator();
-        Assert.That(() => nameTranslator.TableToClassName(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => nameTranslator.TableToClassName(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -100,7 +106,10 @@ internal static class PascalCaseNameTranslatorTests
     public static void ViewToClassName_GivenNullName_ThrowsArgumentNullException()
     {
         var nameTranslator = new PascalCaseNameTranslator();
-        Assert.That(() => nameTranslator.ViewToClassName(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => nameTranslator.ViewToClassName(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
@@ -143,7 +152,10 @@ internal static class PascalCaseNameTranslatorTests
     {
         const string columnName = "test";
         var nameTranslator = new PascalCaseNameTranslator();
-        Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => nameTranslator.ColumnToPropertyName(className, columnName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("className")
+        );
     }
 
     [TestCase((string)null)]
@@ -153,7 +165,10 @@ internal static class PascalCaseNameTranslatorTests
     {
         const string className = "test";
         var nameTranslator = new PascalCaseNameTranslator();
-        Assert.That(() => nameTranslator.ColumnToPropertyName(className, columnName), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => nameTranslator.ColumnToPropertyName(className, columnName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnName")
+        );
     }
 
     [Test]

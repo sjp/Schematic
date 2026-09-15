@@ -25,7 +25,10 @@ internal static class PocoDataAccessGeneratorTests
         var database = Mock.Of<IRelationalDatabase>();
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new PocoDataAccessGenerator(null, database, commentProvider, nameTranslator), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PocoDataAccessGenerator(null, database, commentProvider, nameTranslator),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fileSystem")
+        );
     }
 
     [Test]
@@ -34,7 +37,10 @@ internal static class PocoDataAccessGeneratorTests
         var mockFs = new MockFileSystem();
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new PocoDataAccessGenerator(mockFs, null, commentProvider, nameTranslator), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PocoDataAccessGenerator(mockFs, null, commentProvider, nameTranslator),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
@@ -43,7 +49,10 @@ internal static class PocoDataAccessGeneratorTests
         var mockFs = new MockFileSystem();
         var database = Mock.Of<IRelationalDatabase>();
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new PocoDataAccessGenerator(mockFs, database, null, nameTranslator), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PocoDataAccessGenerator(mockFs, database, null, nameTranslator),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("commentProvider")
+        );
     }
 
     [Test]
@@ -52,7 +61,10 @@ internal static class PocoDataAccessGeneratorTests
         var mockFs = new MockFileSystem();
         var database = Mock.Of<IRelationalDatabase>();
         var commentProvider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        Assert.That(() => new PocoDataAccessGenerator(mockFs, database, commentProvider, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PocoDataAccessGenerator(mockFs, database, commentProvider, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nameTranslator")
+        );
     }
 
     [TestCase((string)null)]
@@ -66,7 +78,10 @@ internal static class PocoDataAccessGeneratorTests
         var nameTranslator = new VerbatimNameTranslator();
         var generator = new PocoDataAccessGenerator(mockFs, database, commentProvider, nameTranslator);
 
-        Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => generator.GenerateAsync(projectPath, "test"),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("projectPath")
+        );
     }
 
     [TestCase((string)null)]
@@ -82,7 +97,10 @@ internal static class PocoDataAccessGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var projectPath = Path.Combine(tempDir.DirectoryPath, TestCsprojFileName);
 
-        Assert.That(() => generator.GenerateAsync(projectPath, ns), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => generator.GenerateAsync(projectPath, ns),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseNamespace")
+        );
     }
 
     [Test]
@@ -126,7 +144,10 @@ internal static class PocoDataAccessGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var projectPath = Path.Combine(tempDir.DirectoryPath, "DataAccessGeneratorTest.vbproj");
 
-        Assert.That(() => generator.GenerateAsync(projectPath, "test"), Throws.ArgumentException);
+        Assert.That(
+            () => generator.GenerateAsync(projectPath, "test"),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("projectPath")
+        );
     }
 
     [Test]

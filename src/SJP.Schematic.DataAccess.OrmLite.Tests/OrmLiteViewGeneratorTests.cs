@@ -17,13 +17,19 @@ internal static class OrmLiteViewGeneratorTests
     [Test]
     public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
     {
-        Assert.That(() => new OrmLiteViewGenerator(null, new VerbatimNameTranslator(), "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OrmLiteViewGenerator(null, new VerbatimNameTranslator(), "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fileSystem")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
     {
-        Assert.That(() => new OrmLiteViewGenerator(new MockFileSystem(), null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OrmLiteViewGenerator(new MockFileSystem(), null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nameTranslator")
+        );
     }
 
     [TestCase((string)null)]
@@ -33,7 +39,10 @@ internal static class OrmLiteViewGeneratorTests
     {
         var fileSystem = new MockFileSystem();
         var nameTranslator = new VerbatimNameTranslator();
-        Assert.That(() => new OrmLiteViewGenerator(fileSystem, nameTranslator, ns), Throws.InstanceOf<ArgumentException>());
+        Assert.That(
+            () => new OrmLiteViewGenerator(fileSystem, nameTranslator, ns),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseNamespace")
+        );
     }
 
     [Test]
@@ -43,7 +52,10 @@ internal static class OrmLiteViewGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var baseDir = new DirectoryInfoWrapper(new FileSystem(), new DirectoryInfo(tempDir.DirectoryPath));
 
-        Assert.That(() => generator.GetFilePath(baseDir, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.GetFilePath(baseDir, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [Test]
@@ -80,6 +92,9 @@ internal static class OrmLiteViewGeneratorTests
     {
         var generator = GetViewGenerator();
 
-        Assert.That(() => generator.Generate(null, Option<IDatabaseViewComments>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.Generate(null, Option<IDatabaseViewComments>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("view")
+        );
     }
 }

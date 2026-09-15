@@ -19,13 +19,19 @@ internal static class PostgreSqlDbTypeProviderTests
     [Test]
     public static void CreateColumnType_GivenNullTypeMetadata_ThrowsArgumentNullException()
     {
-        Assert.That(() => Provider.CreateColumnType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Provider.CreateColumnType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeMetadata")
+        );
     }
 
     [Test]
     public static void GetComparableColumnType_GivenNullOtherType_ThrowsArgumentNullException()
     {
-        Assert.That(() => Provider.GetComparableColumnType(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Provider.GetComparableColumnType(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("otherType")
+        );
     }
 
     // Reverse mapping: a PostgreSQL type name resolves to the matching generic data type.
@@ -262,7 +268,10 @@ internal static class PostgreSqlDbTypeProviderTests
     [Test]
     public static void CreateMaxLength_GivenNegativeLength_ThrowsArgumentOutOfRangeException()
     {
-        Assert.That(() => PostgreSqlColumnTypeMetadata.CreateMaxLength(-1, 0, 0), Throws.TypeOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => PostgreSqlColumnTypeMetadata.CreateMaxLength(-1, 0, 0),
+            Throws.TypeOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("characterMaximumLength")
+        );
     }
 
     // only a numeric type has a radix, so its absence means there is no precision to report
@@ -301,7 +310,10 @@ internal static class PostgreSqlDbTypeProviderTests
     [Test]
     public static void CreateNumericPrecision_GivenNegativePrecision_ThrowsArgumentOutOfRangeException()
     {
-        Assert.That(() => PostgreSqlColumnTypeMetadata.CreateNumericPrecision(-1, 0, 10), Throws.TypeOf<ArgumentOutOfRangeException>());
+        Assert.That(
+            () => PostgreSqlColumnTypeMetadata.CreateNumericPrecision(-1, 0, 10),
+            Throws.TypeOf<ArgumentOutOfRangeException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("numericPrecision")
+        );
     }
 
     // information_schema reports a datetime precision for the temporal types and null for the rest,

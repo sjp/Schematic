@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Moq;
 using NUnit.Framework;
@@ -14,7 +15,10 @@ internal static class DefaultHtmlRuleProviderTests
     public static void GetRules_GivenNullConnection_ThrowsArgumentNullException()
     {
         var provider = new DefaultHtmlRuleProvider();
-        Assert.That(() => provider.GetRules(null!, RuleLevel.Warning), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetRules(null!, RuleLevel.Warning),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -24,7 +28,10 @@ internal static class DefaultHtmlRuleProviderTests
         var mockConnection = CreateMockConnection();
         const RuleLevel invalidLevel = (RuleLevel)999;
 
-        Assert.That(() => provider.GetRules(mockConnection.Object, invalidLevel), Throws.ArgumentException);
+        Assert.That(
+            () => provider.GetRules(mockConnection.Object, invalidLevel),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]

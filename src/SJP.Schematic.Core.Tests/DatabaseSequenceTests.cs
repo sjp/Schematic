@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
 
@@ -23,7 +24,10 @@ internal static class DatabaseSequenceTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgNullException()
     {
-        Assert.That(() => CreateSequence(null, 1, 1, Option<decimal>.None, Option<decimal>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => CreateSequence(null, 1, 1, Option<decimal>.None, Option<decimal>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
@@ -31,7 +35,7 @@ internal static class DatabaseSequenceTests
     {
         Assert.That(
             () => new DatabaseSequence("test", null, 1, 1, Option<decimal>.None, Option<decimal>.None, true, SequenceCacheMode.None, Option<int>.None, true),
-            Throws.ArgumentNullException
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("type")
         );
     }
 
@@ -41,38 +45,53 @@ internal static class DatabaseSequenceTests
         const SequenceCacheMode cacheMode = (SequenceCacheMode)55;
         Assert.That(
             () => new DatabaseSequence("test", SequenceType, 1, 1, Option<decimal>.None, Option<decimal>.None, true, cacheMode, Option<int>.None, true),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("cacheMode")
         );
     }
 
     [Test]
     public static void Ctor_GivenZeroIncrement_ThrowsArgException()
     {
-        Assert.That(() => CreateSequence("test", 1, 0, Option<decimal>.None, Option<decimal>.None), Throws.ArgumentException);
+        Assert.That(
+            () => CreateSequence("test", 1, 0, Option<decimal>.None, Option<decimal>.None),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("increment")
+        );
     }
 
     [Test]
     public static void Ctor_GivenPositiveIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
     {
-        Assert.That(() => CreateSequence("test", 1, 1, Option<decimal>.Some(2), Option<decimal>.None), Throws.ArgumentException);
+        Assert.That(
+            () => CreateSequence("test", 1, 1, Option<decimal>.Some(2), Option<decimal>.None),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("minValue")
+        );
     }
 
     [Test]
     public static void Ctor_GivenPositiveIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
     {
-        Assert.That(() => CreateSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(-1)), Throws.ArgumentException);
+        Assert.That(
+            () => CreateSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.Some(-1)),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("maxValue")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNegativeIncrementAndMinValueLargerThanStart_ThrowsArgumentException()
     {
-        Assert.That(() => CreateSequence("test", 1, -1, Option<decimal>.Some(2), Option<decimal>.None), Throws.ArgumentException);
+        Assert.That(
+            () => CreateSequence("test", 1, -1, Option<decimal>.Some(2), Option<decimal>.None),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("minValue")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNegativeIncrementAndMaxValueLessThanStart_ThrowsArgumentException()
     {
-        Assert.That(() => CreateSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(-1)), Throws.ArgumentException);
+        Assert.That(
+            () => CreateSequence("test", 1, -1, Option<decimal>.None, Option<decimal>.Some(-1)),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("maxValue")
+        );
     }
 
     [Test]

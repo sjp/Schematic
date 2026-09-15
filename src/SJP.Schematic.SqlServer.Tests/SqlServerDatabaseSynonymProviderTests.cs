@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -11,7 +12,10 @@ internal static class SqlServerDatabaseSynonymProviderTests
     {
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SqlServerDatabaseSynonymProvider(null, identifierDefaults), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseSynonymProvider(null, identifierDefaults),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -19,7 +23,10 @@ internal static class SqlServerDatabaseSynonymProviderTests
     {
         var connection = Mock.Of<IDbConnectionFactory>();
 
-        Assert.That(() => new SqlServerDatabaseSynonymProvider(connection, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SqlServerDatabaseSynonymProvider(connection, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -30,6 +37,9 @@ internal static class SqlServerDatabaseSynonymProviderTests
 
         var synonymProvider = new SqlServerDatabaseSynonymProvider(connection, identifierDefaults);
 
-        Assert.That(() => synonymProvider.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => synonymProvider.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 }

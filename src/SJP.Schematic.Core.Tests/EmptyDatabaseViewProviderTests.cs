@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -10,7 +11,10 @@ internal static class EmptyDatabaseViewProviderTests
     public static void GetView_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseViewProvider();
-        Assert.That(() => provider.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]

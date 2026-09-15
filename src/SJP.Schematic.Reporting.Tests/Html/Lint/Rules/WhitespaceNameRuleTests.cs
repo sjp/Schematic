@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -16,42 +17,60 @@ internal static class WhitespaceNameRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new WhitespaceNameRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new WhitespaceNameRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]
     public static void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseViews(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseViews(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
+        );
     }
 
     [Test]
     public static void AnalyseSequences_GivenNullSequences_ThrowsArgumentNullException()
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseSequences(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseSequences(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
+        );
     }
 
     [Test]
     public static void AnalyseSynonyms_GivenNullSynonyms_ThrowsArgumentNullException()
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseSynonyms(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseSynonyms(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms")
+        );
     }
 
     [Test]
     public static void AnalyseRoutines_GivenNullRoutines_ThrowsArgumentNullException()
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseRoutines(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseRoutines(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
+        );
     }
 
     [Test]

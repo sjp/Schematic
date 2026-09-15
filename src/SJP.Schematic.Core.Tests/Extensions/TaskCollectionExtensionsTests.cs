@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
@@ -597,7 +598,7 @@ internal static class TaskCollectionExtensionsTests
         Assert.That(() => (
             (Task<string>)null,
             Task.FromResult(2)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -606,7 +607,7 @@ internal static class TaskCollectionExtensionsTests
         Assert.That(() => (
             Task.FromResult(1),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -616,7 +617,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(2),
             Task.FromResult(3)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -626,7 +627,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(1),
             (Task<string>)null,
             Task.FromResult(3)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -636,7 +637,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(1),
             Task.FromResult(2),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -647,7 +648,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(2),
             Task.FromResult(3),
             Task.FromResult(4)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -658,7 +659,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(3),
             Task.FromResult(4)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -669,7 +670,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(2),
             (Task<string>)null,
             Task.FromResult(4)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -680,7 +681,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(2),
             Task.FromResult(3),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -692,7 +693,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -704,7 +705,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(3),
             Task.FromResult(4),
             Task.FromResult(5)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -716,7 +717,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(4),
             Task.FromResult(5)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -728,7 +729,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(3),
             (Task<string>)null,
             Task.FromResult(5)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -740,7 +741,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(3),
             Task.FromResult(4),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -753,7 +754,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(4),
             Task.FromResult(5),
             Task.FromResult(6)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -766,7 +767,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(4),
             Task.FromResult(5),
             Task.FromResult(6)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -779,7 +780,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(4),
             Task.FromResult(5),
             Task.FromResult(6)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -792,7 +793,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(5),
             Task.FromResult(6)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -805,7 +806,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(4),
             (Task<string>)null,
             Task.FromResult(6)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -818,7 +819,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(4),
             Task.FromResult(5),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -832,7 +833,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -846,7 +847,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -860,7 +861,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -874,7 +875,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(5),
             Task.FromResult(6),
             Task.FromResult(7)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -888,7 +889,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(6),
             Task.FromResult(7)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -902,7 +903,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(5),
             (Task<string>)null,
             Task.FromResult(7)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -916,7 +917,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(5),
             Task.FromResult(6),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -931,7 +932,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -946,7 +947,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -961,7 +962,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -976,7 +977,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -991,7 +992,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             Task.FromResult(7),
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -1006,7 +1007,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(7),
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -1021,7 +1022,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             (Task<string>)null,
             Task.FromResult(8)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -1036,7 +1037,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(6),
             Task.FromResult(7),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -1052,7 +1053,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -1068,7 +1069,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -1084,7 +1085,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -1100,7 +1101,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -1116,7 +1117,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -1132,7 +1133,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -1148,7 +1149,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(8),
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -1164,7 +1165,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             (Task<string>)null,
             Task.FromResult(9)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -1180,7 +1181,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(7),
             Task.FromResult(8),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -1197,7 +1198,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -1214,7 +1215,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -1231,7 +1232,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -1248,7 +1249,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -1265,7 +1266,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -1282,7 +1283,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -1299,7 +1300,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -1316,7 +1317,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(9),
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -1333,7 +1334,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             (Task<string>)null,
             Task.FromResult(10)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -1350,7 +1351,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(8),
             Task.FromResult(9),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -1368,7 +1369,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -1386,7 +1387,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -1404,7 +1405,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -1422,7 +1423,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -1440,7 +1441,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -1458,7 +1459,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -1476,7 +1477,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -1494,7 +1495,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -1512,7 +1513,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(10),
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -1530,7 +1531,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             (Task<string>)null,
             Task.FromResult(11)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -1548,7 +1549,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(9),
             Task.FromResult(10),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task11"));
     }
 
     [Test]
@@ -1567,7 +1568,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -1586,7 +1587,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -1605,7 +1606,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -1624,7 +1625,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -1643,7 +1644,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -1662,7 +1663,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -1681,7 +1682,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -1700,7 +1701,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -1719,7 +1720,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -1738,7 +1739,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(11),
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -1757,7 +1758,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             (Task<string>)null,
             Task.FromResult(12)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task11"));
     }
 
     [Test]
@@ -1776,7 +1777,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(10),
             Task.FromResult(11),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task12"));
     }
 
     [Test]
@@ -1796,7 +1797,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -1816,7 +1817,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -1836,7 +1837,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -1856,7 +1857,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -1876,7 +1877,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -1896,7 +1897,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -1916,7 +1917,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -1936,7 +1937,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -1956,7 +1957,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -1976,7 +1977,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -1996,7 +1997,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(12),
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task11"));
     }
 
     [Test]
@@ -2016,7 +2017,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             (Task<string>)null,
             Task.FromResult(13)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task12"));
     }
 
     [Test]
@@ -2036,7 +2037,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(11),
             Task.FromResult(12),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task13"));
     }
 
     [Test]
@@ -2057,7 +2058,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -2078,7 +2079,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -2099,7 +2100,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -2120,7 +2121,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -2141,7 +2142,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -2162,7 +2163,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -2183,7 +2184,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -2204,7 +2205,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -2225,7 +2226,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -2246,7 +2247,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -2267,7 +2268,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task11"));
     }
 
     [Test]
@@ -2288,7 +2289,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(13),
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task12"));
     }
 
     [Test]
@@ -2309,7 +2310,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             (Task<string>)null,
             Task.FromResult(14)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task13"));
     }
 
     [Test]
@@ -2330,7 +2331,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(12),
             Task.FromResult(13),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task14"));
     }
 
     [Test]
@@ -2352,7 +2353,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -2374,7 +2375,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -2396,7 +2397,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -2418,7 +2419,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -2440,7 +2441,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -2462,7 +2463,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -2484,7 +2485,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -2506,7 +2507,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -2528,7 +2529,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -2550,7 +2551,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -2572,7 +2573,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task11"));
     }
 
     [Test]
@@ -2594,7 +2595,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task12"));
     }
 
     [Test]
@@ -2616,7 +2617,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(14),
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task13"));
     }
 
     [Test]
@@ -2638,7 +2639,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             (Task<string>)null,
             Task.FromResult(15)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task14"));
     }
 
     [Test]
@@ -2660,7 +2661,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(13),
             Task.FromResult(14),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task15"));
     }
 
     [Test]
@@ -2683,7 +2684,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task1"));
     }
 
     [Test]
@@ -2706,7 +2707,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task2"));
     }
 
     [Test]
@@ -2729,7 +2730,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task3"));
     }
 
     [Test]
@@ -2752,7 +2753,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task4"));
     }
 
     [Test]
@@ -2775,7 +2776,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task5"));
     }
 
     [Test]
@@ -2798,7 +2799,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task6"));
     }
 
     [Test]
@@ -2821,7 +2822,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task7"));
     }
 
     [Test]
@@ -2844,7 +2845,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task8"));
     }
 
     [Test]
@@ -2867,7 +2868,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task9"));
     }
 
     [Test]
@@ -2890,7 +2891,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task10"));
     }
 
     [Test]
@@ -2913,7 +2914,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task11"));
     }
 
     [Test]
@@ -2936,7 +2937,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task12"));
     }
 
     [Test]
@@ -2959,7 +2960,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task13"));
     }
 
     [Test]
@@ -2982,7 +2983,7 @@ internal static class TaskCollectionExtensionsTests
             (Task<string>)null,
             Task.FromResult(15),
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task14"));
     }
 
     [Test]
@@ -3005,7 +3006,7 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             (Task<string>)null,
             Task.FromResult(16)
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task15"));
     }
 
     [Test]
@@ -3028,6 +3029,6 @@ internal static class TaskCollectionExtensionsTests
             Task.FromResult(14),
             Task.FromResult(15),
             (Task<string>)null
-        ).WhenAll(), Throws.ArgumentNullException);
+        ).WhenAll(), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks.task16"));
     }
 }

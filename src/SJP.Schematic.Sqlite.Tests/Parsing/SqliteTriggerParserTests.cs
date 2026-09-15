@@ -16,7 +16,7 @@ internal static class SqliteTriggerParserTests
     {
         var parser = new SqliteTriggerParser();
 
-        Assert.That(() => parser.Parse(definition), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => parser.Parse(definition), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition"));
     }
 
     [TestCase("create trigger trig before insert on foo begin select 1; end", TriggerQueryTiming.Before, TriggerEvent.Insert)]

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -13,13 +14,19 @@ internal static class DefaultRuleProviderTests
     [Test]
     public static void GetRules_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => RuleProvider.GetRules(null, RuleLevel.Error), Throws.ArgumentNullException);
+        Assert.That(
+            () => RuleProvider.GetRules(null, RuleLevel.Error),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
     public static void GetRules_GivenInvalidRuleLevel_ThrowsArgumentException()
     {
-        Assert.That(() => RuleProvider.GetRules(Mock.Of<ISchematicConnection>(), (RuleLevel)555), Throws.ArgumentException);
+        Assert.That(
+            () => RuleProvider.GetRules(Mock.Of<ISchematicConnection>(), (RuleLevel)555),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
@@ -37,7 +44,10 @@ internal static class DefaultRuleProviderTests
     [Test]
     public static void GetRules_GivenNullConnectionAndNoLevel_ThrowsArgumentNullException()
     {
-        Assert.That(() => RuleProvider.GetRules(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => RuleProvider.GetRules(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]

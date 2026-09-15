@@ -10,14 +10,20 @@ internal static class VersionResolvingDictionaryTests
     [Test]
     public static void Ctor_GivenNullDictionary_ThrowsArgumentNullException()
     {
-        Assert.That(() => new VersionResolvingDictionary<int>(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new VersionResolvingDictionary<int>(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("lookup")
+        );
     }
 
     [Test]
     public static void Ctor_GivenEmptyDictionary_ThrowsArgumentException()
     {
         var dictionary = new Dictionary<Version, int>();
-        Assert.That(() => new VersionResolvingDictionary<int>(dictionary), Throws.ArgumentException);
+        Assert.That(
+            () => new VersionResolvingDictionary<int>(dictionary),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("lookup")
+        );
     }
 
     [Test]
@@ -30,7 +36,10 @@ internal static class VersionResolvingDictionaryTests
         };
         var versionDictionary = new VersionResolvingDictionary<int>(dictionary);
 
-        Assert.That(() => versionDictionary.GetValue(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => versionDictionary.GetValue(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("version")
+        );
     }
 
     [Test]

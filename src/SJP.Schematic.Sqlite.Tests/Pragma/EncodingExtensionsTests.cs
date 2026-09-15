@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Sqlite.Pragma;
 
 namespace SJP.Schematic.Sqlite.Tests.Pragma;
@@ -9,7 +10,7 @@ internal static class EncodingExtensionsTests
     public static void AsTextEncoding_GivenInvalidEncoding_ThrowsArgumentException()
     {
         const Encoding encoding = (Encoding)999;
-        Assert.That(() => encoding.AsTextEncoding(), Throws.ArgumentException);
+        Assert.That(() => encoding.AsTextEncoding(), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("encoding"));
     }
 
     [TestCase(Encoding.Utf8, ExpectedResult = "Unicode (UTF-8)")]

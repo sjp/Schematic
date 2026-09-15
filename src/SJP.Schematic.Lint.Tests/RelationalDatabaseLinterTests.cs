@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,13 +17,19 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static void Ctor_GivenNullRules_ThrowsArgumentNullException()
     {
-        Assert.That(() => new RelationalDatabaseLinter(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RelationalDatabaseLinter(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("rules")
+        );
     }
 
     [Test]
     public static void AnalyseDatabase_GivenNullDatabase_ThrowsArgumentNullException()
     {
-        Assert.That(() => Linter.AnalyseDatabase(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Linter.AnalyseDatabase(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database")
+        );
     }
 
     [Test]
@@ -36,7 +43,10 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
-        Assert.That(() => Linter.AnalyseTables(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Linter.AnalyseTables(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]
@@ -50,7 +60,10 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static void AnalyseViews_GivenNullViews_ThrowsArgumentNullException()
     {
-        Assert.That(() => Linter.AnalyseViews(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Linter.AnalyseViews(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
+        );
     }
 
     [Test]
@@ -64,7 +77,10 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static void AnalyseSequences_GivenNullSequences_ThrowsArgumentNullException()
     {
-        Assert.That(() => Linter.AnalyseSequences(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Linter.AnalyseSequences(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
+        );
     }
 
     [Test]
@@ -78,7 +94,10 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static void AnalyseSynonyms_GivenNullSynonyms_ThrowsArgumentNullException()
     {
-        Assert.That(() => Linter.AnalyseSynonyms(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Linter.AnalyseSynonyms(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms")
+        );
     }
 
     [Test]
@@ -92,7 +111,10 @@ internal static class RelationalDatabaseLinterTests
     [Test]
     public static void AnalyseRoutines_GivenNullRoutines_ThrowsArgumentNullException()
     {
-        Assert.That(() => Linter.AnalyseRoutines(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Linter.AnalyseRoutines(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
+        );
     }
 
     [Test]

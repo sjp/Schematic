@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,13 +13,19 @@ internal static class OracleDatabaseColumnTests
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
         var columnType = Mock.Of<IDbType>();
-        Assert.That(() => new OracleDatabaseColumn(null, columnType, true, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseColumn(null, columnType, true, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnName")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullType_ThrowsArgumentNullException()
     {
-        Assert.That(() => new OracleDatabaseColumn("test_column", null, true, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new OracleDatabaseColumn("test_column", null, true, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("type")
+        );
     }
 
     [Test]
@@ -111,7 +118,10 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
 
-        Assert.That(() => new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), (ComputedColumnStorage)55), Throws.ArgumentException);
+        Assert.That(
+            () => new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), (ComputedColumnStorage)55),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("computedStorage")
+        );
     }
 
     [Test]

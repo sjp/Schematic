@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -11,7 +12,10 @@ internal static class EmptyDatabaseSequenceCommentProviderTests
     public static void GetSequenceComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseSequenceCommentProvider();
-        Assert.That(() => provider.GetSequenceComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSequenceComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]

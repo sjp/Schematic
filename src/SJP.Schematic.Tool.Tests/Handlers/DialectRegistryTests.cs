@@ -47,7 +47,7 @@ internal static class DialectRegistryTests
     [TestCase("    ")]
     public static void Get_GivenNullOrWhiteSpaceDialect_ThrowsArgumentException(string? dialect)
     {
-        Assert.That(() => DialectRegistry.Get(dialect!), Throws.InstanceOf<ArgumentException>());
+        Assert.That(() => DialectRegistry.Get(dialect!), Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("name"));
     }
 
     [Test]

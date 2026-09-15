@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -18,7 +19,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRelationalKey(null, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childTableName")
+        );
     }
 
     [Test]
@@ -30,7 +34,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
+        );
     }
 
     [Test]
@@ -42,7 +49,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKey, null, parentKey, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentTableName")
+        );
     }
 
     [Test]
@@ -54,7 +64,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
+        );
     }
 
     [Test]
@@ -67,7 +80,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = (ReferentialAction)55;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deleteAction")
+        );
     }
 
     [Test]
@@ -80,7 +96,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = (ReferentialAction)55;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("updateAction")
+        );
     }
 
     [Test]
@@ -92,13 +111,19 @@ internal static class DatabaseRelationalKeyTests
         var parentKey = Mock.Of<IDatabaseKey>();
         const ForeignKeyMatchType matchType = (ForeignKeyMatchType)55;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, ReferentialAction.NoAction, ReferentialAction.NoAction, matchType, []), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKey, parentTableName, parentKey, ReferentialAction.NoAction, ReferentialAction.NoAction, matchType, []),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("matchType")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullSetNullColumns_ThrowsArgumentNullException()
     {
-        Assert.That(() => CreateRelationalKey(ForeignKeyMatchType.Simple, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => CreateRelationalKey(ForeignKeyMatchType.Simple, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("setNullColumns")
+        );
     }
 
     [Test]
@@ -325,7 +350,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
+        );
     }
 
     [Test]
@@ -341,7 +369,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
+        );
     }
 
     [Test]
@@ -365,7 +396,10 @@ internal static class DatabaseRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction), Throws.ArgumentException);
+        Assert.That(
+            () => new DatabaseRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
+        );
     }
 
     [TestCase(null, "test_table_1", null, null, "test_table_2", null, "Relational Key: test_table_1 -> test_table_2")]

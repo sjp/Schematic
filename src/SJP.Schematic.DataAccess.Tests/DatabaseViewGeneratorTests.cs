@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using NUnit.Framework;
@@ -13,13 +14,19 @@ internal static class DatabaseViewGeneratorTests
     [Test]
     public static void Ctor_GivenNullFileSystem_ThrowsArgumentNullException()
     {
-        Assert.That(() => new FakeDatabaseViewGenerator(null, new VerbatimNameTranslator()), Throws.ArgumentNullException);
+        Assert.That(
+            () => new FakeDatabaseViewGenerator(null, new VerbatimNameTranslator()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fileSystem")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullNameTranslator_ThrowsArgumentNullException()
     {
-        Assert.That(() => new FakeDatabaseViewGenerator(new MockFileSystem(), null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new FakeDatabaseViewGenerator(new MockFileSystem(), null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("nameTranslator")
+        );
     }
 
     [Test]
@@ -27,7 +34,10 @@ internal static class DatabaseViewGeneratorTests
     {
         var generator = GetViewGenerator();
 
-        Assert.That(() => generator.InnerGetFilePath(null, "test"), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.InnerGetFilePath(null, "test"),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("baseDirectory")
+        );
     }
 
     [Test]
@@ -37,7 +47,10 @@ internal static class DatabaseViewGeneratorTests
         using var tempDir = new TemporaryDirectory();
         var baseDir = new DirectoryInfo(tempDir.DirectoryPath);
 
-        Assert.That(() => generator.InnerGetFilePath(baseDir, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => generator.InnerGetFilePath(baseDir, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
     }
 
     [Test]

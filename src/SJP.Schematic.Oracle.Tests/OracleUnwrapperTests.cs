@@ -81,7 +81,7 @@ internal static class OracleUnwrapperTests
     [Test]
     public static void UnwrapUnsafe_GivenNullInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => OracleUnwrapper.UnwrapUnsafe(null), Throws.ArgumentNullException);
+        Assert.That(() => OracleUnwrapper.UnwrapUnsafe(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input"));
     }
 
     [Test]
@@ -107,7 +107,7 @@ internal static class OracleUnwrapperTests
     [Test]
     public static void IsWrappedDefinition_GivenNullInput_ThrowsArgumentNullException()
     {
-        Assert.That(() => OracleUnwrapper.IsWrappedDefinition(null), Throws.ArgumentNullException);
+        Assert.That(() => OracleUnwrapper.IsWrappedDefinition(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input"));
     }
 
     [Test]

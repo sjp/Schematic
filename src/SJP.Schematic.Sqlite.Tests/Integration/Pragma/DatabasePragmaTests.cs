@@ -67,7 +67,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const AutoVacuumMode newValue = (AutoVacuumMode)55;
-        Assert.That(() => dbPragma.AutoVacuumAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.AutoVacuumAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("autoVacuumMode")
+        );
     }
 
     [Test]
@@ -165,7 +168,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(() => dbPragma.ForeignKeyCheckTableAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbPragma.ForeignKeyCheckTableAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -175,7 +181,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         var name = new Identifier("test", "test");
-        Assert.That(() => dbPragma.ForeignKeyCheckTableAsync(name), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.ForeignKeyCheckTableAsync(name),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -200,7 +209,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(() => dbPragma.ForeignKeyListAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbPragma.ForeignKeyListAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -210,7 +222,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         var name = new Identifier("test", "test");
-        Assert.That(() => dbPragma.ForeignKeyListAsync(name), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.ForeignKeyListAsync(name),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -284,7 +299,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(() => dbPragma.IndexListAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbPragma.IndexListAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -294,7 +312,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         var name = new Identifier("test", "test");
-        Assert.That(() => dbPragma.IndexListAsync(name), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.IndexListAsync(name),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -395,7 +416,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const JournalMode newValue = (JournalMode)55;
-        Assert.That(() => dbPragma.JournalModeAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.JournalModeAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("journalMode")
+        );
     }
 
     [Test]
@@ -432,7 +456,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const LockingMode newValue = (LockingMode)55;
-        Assert.That(() => dbPragma.LockingModeAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.LockingModeAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("lockingMode")
+        );
     }
 
     [Test]
@@ -480,7 +507,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const OptimizeFeatures newValue = (OptimizeFeatures)55;
-        Assert.That(() => dbPragma.OptimizeAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.OptimizeAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("features")
+        );
     }
 
     [Test]
@@ -513,7 +543,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const ushort newValue = 300;
-        Assert.That(() => dbPragma.PageSizeAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.PageSizeAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("pageSize")
+        );
     }
 
     [Test]
@@ -523,7 +556,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const ushort newValue = 600;
-        Assert.That(() => dbPragma.PageSizeAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.PageSizeAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("pageSize")
+        );
     }
 
     [Test]
@@ -583,7 +619,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const SecureDeleteMode newValue = (SecureDeleteMode)55;
-        Assert.That(() => dbPragma.SecureDeleteAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.SecureDeleteAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deleteMode")
+        );
     }
 
     [Test]
@@ -607,7 +646,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const SynchronousLevel newValue = (SynchronousLevel)55;
-        Assert.That(() => dbPragma.SynchronousAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.SynchronousAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synchronousLevel")
+        );
     }
 
     [Test]
@@ -629,7 +671,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(() => dbPragma.TableInfoAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbPragma.TableInfoAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -639,7 +684,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         var name = new Identifier("test", "test");
-        Assert.That(() => dbPragma.TableInfoAsync(name), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.TableInfoAsync(name),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -687,7 +735,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(() => dbPragma.TableListAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbPragma.TableListAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -697,7 +748,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         var name = new Identifier("test", "test");
-        Assert.That(() => dbPragma.TableListAsync(name), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.TableListAsync(name),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -719,7 +773,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(() => dbPragma.TableXInfoAsync(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => dbPragma.TableXInfoAsync(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -729,7 +786,10 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         var name = new Identifier("test", "test");
-        Assert.That(() => dbPragma.TableXInfoAsync(name), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.TableXInfoAsync(name),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -763,6 +823,9 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
         const WalCheckpointMode newValue = (WalCheckpointMode)55;
-        Assert.That(() => dbPragma.WalCheckpointAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => dbPragma.WalCheckpointAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checkpointMode")
+        );
     }
 }

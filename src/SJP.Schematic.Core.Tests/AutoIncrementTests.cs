@@ -1,4 +1,5 @@
-﻿using LanguageExt;
+﻿using System;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
 
@@ -12,7 +13,10 @@ internal static class AutoIncrementTests
         const int initialValue = 12345;
         const int increment = 0;
 
-        Assert.That(() => new AutoIncrement(initialValue, increment), Throws.ArgumentException);
+        Assert.That(
+            () => new AutoIncrement(initialValue, increment),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("increment")
+        );
     }
 
     [Test]
@@ -163,7 +167,7 @@ internal static class AutoIncrementTests
 
         Assert.That(
             () => new AutoIncrement(1, 1, generation, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None),
-            Throws.ArgumentException
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("generation")
         );
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -12,7 +13,9 @@ internal static class DatabaseCommentProviderMapperTests
     {
         var mapper = new DatabaseCommentProviderMapper();
 
-        Assert.That(() => mapper.Map(null, new VerbatimIdentifierResolutionStrategy()), Throws.ArgumentNullException);
+        Assert.That(
+            () => mapper.Map(null, new VerbatimIdentifierResolutionStrategy()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source"));
     }
 
     [Test]
@@ -20,7 +23,9 @@ internal static class DatabaseCommentProviderMapperTests
     {
         var mapper = new DatabaseCommentProviderMapper();
 
-        Assert.That(() => mapper.Map(EmptyDto, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => mapper.Map(EmptyDto, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]

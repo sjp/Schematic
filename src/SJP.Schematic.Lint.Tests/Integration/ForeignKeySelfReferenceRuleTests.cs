@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -89,7 +90,10 @@ create table table_with_self_referencing_columns_3 (
     {
         ISchematicConnection connection = null;
         const RuleLevel level = RuleLevel.Error;
-        Assert.That(() => new ForeignKeySelfReferenceRule(connection, level), Throws.ArgumentNullException);
+        Assert.That(
+            () => new ForeignKeySelfReferenceRule(connection, level),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -97,7 +101,10 @@ create table table_with_self_referencing_columns_3 (
     {
         var connection = Mock.Of<ISchematicConnection>();
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new ForeignKeySelfReferenceRule(connection, level), Throws.ArgumentException);
+        Assert.That(
+            () => new ForeignKeySelfReferenceRule(connection, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
@@ -105,7 +112,10 @@ create table table_with_self_referencing_columns_3 (
     {
         var connection = Mock.Of<ISchematicConnection>();
         var rule = new ForeignKeySelfReferenceRule(connection, RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 
@@ -10,7 +11,10 @@ internal static class EmptyDatabaseRoutineProviderTests
     public static void GetRoutine_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyDatabaseRoutineProvider();
-        Assert.That(() => provider.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]

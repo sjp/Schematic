@@ -1,4 +1,5 @@
-﻿using System.Data.Common;
+﻿using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -11,7 +12,10 @@ internal static class DbConnectionFactoryExtensionsTests
     [Test]
     public static void Ctor_GivenNullFactory_ThrowsArgumentNullException()
     {
-        Assert.That(() => DbConnectionFactoryExtensions.AsCachingFactory(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => DbConnectionFactoryExtensions.AsCachingFactory(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connectionFactory")
+        );
     }
 
     [Test]

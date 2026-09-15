@@ -1,3 +1,4 @@
+using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -10,7 +11,10 @@ internal static class DatabaseSchemaCommentsTests
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgumentNullException()
     {
-        Assert.That(() => new DatabaseSchemaComments(null, Option<string>.None), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseSchemaComments(null, Option<string>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName")
+        );
     }
 
     [Test]

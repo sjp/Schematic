@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
@@ -26,7 +27,10 @@ internal static class PostgreSqlRelationalDatabaseTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlRelationalDatabase(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlRelationalDatabase(null, identifierDefaults, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -35,7 +39,10 @@ internal static class PostgreSqlRelationalDatabaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
 
-        Assert.That(() => new PostgreSqlRelationalDatabase(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlRelationalDatabase(connection, null, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -44,37 +51,55 @@ internal static class PostgreSqlRelationalDatabaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new PostgreSqlRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new PostgreSqlRelationalDatabase(connection, identifierDefaults, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
     public static void GetTable_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetTable(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
     public static void GetView_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetView(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetView(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
     public static void GetSequence_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
     public static void GetSynonym_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
     public static void GetRoutine_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Database.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Database.GetRoutine(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     // testing that the behaviour is equivalent to an empty synonym provider
@@ -83,7 +108,10 @@ internal static class PostgreSqlRelationalDatabaseTests
         [Test]
         public static void GetSynonym_GivenNullSynonymName_ThrowsArgumentNullException()
         {
-            Assert.That(() => Database.GetSynonym(null), Throws.ArgumentNullException);
+            Assert.That(
+            () => Database.GetSynonym(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
         }
 
         [Test]

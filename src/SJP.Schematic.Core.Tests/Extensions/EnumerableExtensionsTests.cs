@@ -32,7 +32,10 @@ internal static class EnumerableExtensionsTests
     public static void Empty_GivenNullCollection_ThrowsArgumentNullException()
     {
         IEnumerable<string> input = null;
-        Assert.That(() => input.Empty(), Throws.ArgumentNullException);
+        Assert.That(
+            () => input.Empty(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -81,7 +84,10 @@ internal static class EnumerableExtensionsTests
     public static void AnyNull_GivenNullCollection_ThrowsArgumentNullException()
     {
         IEnumerable<string> input = null;
-        Assert.That(() => input.AnyNull(), Throws.ArgumentNullException);
+        Assert.That(
+            () => input.AnyNull(),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -108,7 +114,10 @@ internal static class EnumerableExtensionsTests
     [Test]
     public static void GroupAsDictionary_GivenNullCollection_ThrowsArgumentNullException()
     {
-        Assert.That(() => EnumerableExtensions.GroupAsDictionary<string, string>(null, x => x), Throws.ArgumentNullException);
+        Assert.That(
+            () => EnumerableExtensions.GroupAsDictionary<string, string>(null, x => x),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -116,13 +125,19 @@ internal static class EnumerableExtensionsTests
     {
         var source = new[] { "first", "second", "third", "fourth", "fifth" };
 
-        Assert.That(() => source.GroupAsDictionary<string, string>(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.GroupAsDictionary<string, string>(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("keySelector")
+        );
     }
 
     [Test]
     public static void GroupAsDictionary_ForComparerOverloadGivenNullCollection_ThrowsArgumentNullException()
     {
-        Assert.That(() => EnumerableExtensions.GroupAsDictionary<string, string>(null, x => x, StringComparer.Ordinal), Throws.ArgumentNullException);
+        Assert.That(
+            () => EnumerableExtensions.GroupAsDictionary<string, string>(null, x => x, StringComparer.Ordinal),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("source")
+        );
     }
 
     [Test]
@@ -130,7 +145,10 @@ internal static class EnumerableExtensionsTests
     {
         var source = new[] { "first", "second", "third", "fourth", "fifth" };
 
-        Assert.That(() => source.GroupAsDictionary(null, StringComparer.Ordinal), Throws.ArgumentNullException);
+        Assert.That(
+            () => source.GroupAsDictionary(null, StringComparer.Ordinal),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("keySelector")
+        );
     }
 
     [Test]

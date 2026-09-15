@@ -10,13 +10,19 @@ internal static class IdentifierComparerTests
     public static void Ctor_GivenInvalidStringComparison_ThrowsArgumentException()
     {
         const StringComparison badStringComparison = (StringComparison)55;
-        Assert.That(() => new IdentifierComparer(badStringComparison), Throws.ArgumentException);
+        Assert.That(
+            () => new IdentifierComparer(badStringComparison),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("comparison")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullComparer_ThrowsArgumentNullException()
     {
-        Assert.That(() => new IdentifierComparer(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new IdentifierComparer(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("comparer")
+        );
     }
 
     [Test]

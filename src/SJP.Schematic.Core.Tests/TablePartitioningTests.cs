@@ -10,38 +10,56 @@ internal static class TablePartitioningTests
     [Test]
     public static void Ctor_GivenNullStrategy_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TablePartitioning(null, [], []), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TablePartitioning(null, [], []),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("strategy")
+        );
     }
 
     [TestCase("")]
     [TestCase("    ")]
     public static void Ctor_GivenEmptyOrWhiteSpaceStrategy_ThrowsArgumentException(string strategy)
     {
-        Assert.That(() => new TablePartitioning(strategy, [], []), Throws.ArgumentException);
+        Assert.That(
+            () => new TablePartitioning(strategy, [], []),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("strategy")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TablePartitioning("RANGE", null, []), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TablePartitioning("RANGE", null, []),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
     public static void Ctor_GivenColumnsWithNullValue_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TablePartitioning("RANGE", [null], []), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TablePartitioning("RANGE", [null], []),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columns")
+        );
     }
 
     [Test]
     public static void Ctor_GivenNullPartitions_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TablePartitioning("RANGE", [], null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TablePartitioning("RANGE", [], null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("partitions")
+        );
     }
 
     [Test]
     public static void Ctor_GivenPartitionsWithNullValue_ThrowsArgumentNullException()
     {
-        Assert.That(() => new TablePartitioning("RANGE", [], [null]), Throws.ArgumentNullException);
+        Assert.That(
+            () => new TablePartitioning("RANGE", [], [null]),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("partitions")
+        );
     }
 
     [Test]

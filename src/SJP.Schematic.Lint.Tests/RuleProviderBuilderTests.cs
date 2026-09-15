@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -10,7 +11,10 @@ internal static class RuleProviderBuilderTests
     [Test]
     public static void AddRuleProvider_GivenNullRuleProvider_ThrowsArgumentNullException()
     {
-        Assert.That(() => new RuleProviderBuilder().AddRuleProvider(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new RuleProviderBuilder().AddRuleProvider(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("ruleProvider")
+        );
     }
 
     [Test]

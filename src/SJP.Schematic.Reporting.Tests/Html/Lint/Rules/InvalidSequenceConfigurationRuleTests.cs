@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -28,14 +29,20 @@ internal static class InvalidSequenceConfigurationRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new InvalidSequenceConfigurationRule(level), Throws.ArgumentException);
+        Assert.That(
+            () => new InvalidSequenceConfigurationRule(level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
     public static void AnalyseSequences_GivenNullSequences_ThrowsArgumentNullException()
     {
         var rule = new InvalidSequenceConfigurationRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseSequences(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseSequences(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SequenceProvider = SJP.Schematic.PostgreSql.PostgreSqlDatabaseSequenceProviderBase;
@@ -13,7 +14,10 @@ internal static class PostgreSqlDatabaseSequenceProviderBaseTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new SequenceProvider(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SequenceProvider(null, identifierDefaults, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -22,7 +26,10 @@ internal static class PostgreSqlDatabaseSequenceProviderBaseTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierResolver = Mock.Of<IIdentifierResolutionStrategy>();
 
-        Assert.That(() => new SequenceProvider(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SequenceProvider(connection, null, identifierResolver),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
@@ -31,7 +38,10 @@ internal static class PostgreSqlDatabaseSequenceProviderBaseTests
         var connection = Mock.Of<IDbConnectionFactory>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new SequenceProvider(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new SequenceProvider(connection, identifierDefaults, null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
+        );
     }
 
     [Test]
@@ -43,6 +53,9 @@ internal static class PostgreSqlDatabaseSequenceProviderBaseTests
 
         var sequenceProvider = new SequenceProvider(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => sequenceProvider.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => sequenceProvider.GetSequence(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 }

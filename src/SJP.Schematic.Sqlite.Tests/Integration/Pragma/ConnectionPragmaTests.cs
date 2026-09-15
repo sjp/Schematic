@@ -235,7 +235,10 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connPragma = CreateConnectionPragma(connection);
 
         const Encoding newValue = (Encoding)55;
-        Assert.That(() => connPragma.EncodingAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => connPragma.EncodingAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("encoding")
+        );
     }
 
     [Test]
@@ -329,7 +332,10 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connPragma = CreateConnectionPragma(connection);
 
         const OptimizeFeatures newValue = (OptimizeFeatures)55;
-        Assert.That(() => connPragma.OptimizeAsync(newValue), Throws.ArgumentException);
+        Assert.That(
+            () => connPragma.OptimizeAsync(newValue),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("features")
+        );
     }
 
     [Test]
@@ -454,7 +460,10 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connPragma = CreateConnectionPragma(connection);
 
         const TemporaryStoreLocation tempStore = (TemporaryStoreLocation)55;
-        Assert.That(() => connPragma.TemporaryStoreAsync(tempStore), Throws.ArgumentException);
+        Assert.That(
+            () => connPragma.TemporaryStoreAsync(tempStore),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tempLocation")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System;
+using NUnit.Framework;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Oracle.Tests;
@@ -10,13 +11,19 @@ internal static class OracleDatabaseIdentifierLengthValidationTests
     [Test]
     public static void Ctor_GivenZeroLength_ThrowsArgumentException()
     {
-        Assert.That(() => new OracleDatabaseIdentifierLengthValidation(0), Throws.ArgumentException);
+        Assert.That(
+            () => new OracleDatabaseIdentifierLengthValidation(0),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("maxLength")
+        );
     }
 
     [Test]
     public static void IsValidIdentifier_GivenNullIdentifier_ThrowsArgumentNullException()
     {
-        Assert.That(() => Validator.IsValidIdentifier(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => Validator.IsValidIdentifier(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier")
+        );
     }
 
     [Test]

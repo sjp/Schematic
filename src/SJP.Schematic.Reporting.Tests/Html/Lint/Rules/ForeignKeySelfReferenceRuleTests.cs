@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,10 @@ create table reporting_table_with_self_referencing_columns_1 (
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => new ForeignKeySelfReferenceRule(null!, RuleLevel.Error), Throws.ArgumentNullException);
+        Assert.That(
+            () => new ForeignKeySelfReferenceRule(null!, RuleLevel.Error),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
@@ -42,7 +46,10 @@ create table reporting_table_with_self_referencing_columns_1 (
     {
         var connection = Mock.Of<ISchematicConnection>();
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new ForeignKeySelfReferenceRule(connection, level), Throws.ArgumentException);
+        Assert.That(
+            () => new ForeignKeySelfReferenceRule(connection, level),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level")
+        );
     }
 
     [Test]
@@ -50,7 +57,10 @@ create table reporting_table_with_self_referencing_columns_1 (
     {
         var connection = Mock.Of<ISchematicConnection>();
         var rule = new ForeignKeySelfReferenceRule(connection, RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null!), Throws.ArgumentNullException);
+        Assert.That(
+            () => rule.AnalyseTables(null!),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
+        );
     }
 
     [Test]

@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -12,7 +13,7 @@ internal static class OracleRelationalDatabaseTests
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-        Assert.That(() => new OracleRelationalDatabase(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new OracleRelationalDatabase(null, identifierDefaults, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection"));
     }
 
     [Test]
@@ -21,7 +22,7 @@ internal static class OracleRelationalDatabaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierResolver = new DefaultOracleIdentifierResolutionStrategy();
 
-        Assert.That(() => new OracleRelationalDatabase(connection, null, identifierResolver), Throws.ArgumentNullException);
+        Assert.That(() => new OracleRelationalDatabase(connection, null, identifierResolver), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults"));
     }
 
     [Test]
@@ -30,7 +31,7 @@ internal static class OracleRelationalDatabaseTests
         var connection = Mock.Of<ISchematicConnection>();
         var identifierDefaults = Mock.Of<IIdentifierDefaults>();
 
-        Assert.That(() => new OracleRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException);
+        Assert.That(() => new OracleRelationalDatabase(connection, identifierDefaults, null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver"));
     }
 
     [Test]
@@ -42,7 +43,7 @@ internal static class OracleRelationalDatabaseTests
 
         var database = new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => database.GetTable(null), Throws.ArgumentNullException);
+        Assert.That(() => database.GetTable(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]
@@ -54,7 +55,7 @@ internal static class OracleRelationalDatabaseTests
 
         var database = new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => database.GetView(null), Throws.ArgumentNullException);
+        Assert.That(() => database.GetView(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName"));
     }
 
     [Test]
@@ -66,7 +67,7 @@ internal static class OracleRelationalDatabaseTests
 
         var database = new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException);
+        Assert.That(() => database.GetSequence(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName"));
     }
 
     [Test]
@@ -78,7 +79,7 @@ internal static class OracleRelationalDatabaseTests
 
         var database = new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException);
+        Assert.That(() => database.GetSynonym(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName"));
     }
 
     [Test]
@@ -90,6 +91,6 @@ internal static class OracleRelationalDatabaseTests
 
         var database = new OracleRelationalDatabase(connection, identifierDefaults, identifierResolver);
 
-        Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException);
+        Assert.That(() => database.GetRoutine(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName"));
     }
 }

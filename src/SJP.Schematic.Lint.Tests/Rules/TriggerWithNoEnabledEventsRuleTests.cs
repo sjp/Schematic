@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -27,14 +28,14 @@ internal static class TriggerWithNoEnabledEventsRuleTests
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()
     {
         const RuleLevel level = (RuleLevel)999;
-        Assert.That(() => new TriggerWithNoEnabledEventsRule(level), Throws.ArgumentException);
+        Assert.That(() => new TriggerWithNoEnabledEventsRule(level), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("level"));
     }
 
     [Test]
     public static void AnalyseTables_GivenNullTables_ThrowsArgumentNullException()
     {
         var rule = new TriggerWithNoEnabledEventsRule(RuleLevel.Error);
-        Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException);
+        Assert.That(() => rule.AnalyseTables(null), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables"));
     }
 
     [Test]

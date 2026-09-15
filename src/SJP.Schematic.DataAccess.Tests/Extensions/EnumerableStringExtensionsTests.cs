@@ -9,7 +9,10 @@ internal static class EnumerableStringExtensionsTests
     [Test]
     public static void OrderNamespaces_GivenNullCollection_ThrowsArgumentNullException()
     {
-        Assert.That(() => EnumerableStringExtensions.OrderNamespaces(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => EnumerableStringExtensions.OrderNamespaces(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("namespaces")
+        );
     }
 
     [Test]

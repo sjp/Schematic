@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Extensions;
 
@@ -9,7 +10,10 @@ public static class TaskArrayExtensionsTests
     [Test]
     public static void WhenAll_WhenGivenNullTasks_ThrowsArgNullException()
     {
-        Assert.That(() => TaskArrayExtensions.WhenAll<object>(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => TaskArrayExtensions.WhenAll<object>(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tasks")
+        );
     }
 
     [Test]

@@ -1,3 +1,4 @@
+using System;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -11,7 +12,7 @@ internal static class TableStatisticsTests
     {
         Assert.That(
             () => new TableStatistics(null, Option<long>.None, false, Option<long>.None, Option<long>.None),
-            Throws.ArgumentNullException);
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName"));
     }
 
     [Test]

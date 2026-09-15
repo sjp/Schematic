@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core.Comments;
@@ -12,14 +13,20 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     [Test]
     public static void Ctor_GivenNullIdentifierDefaults_ThrowsArgumentNullException()
     {
-        Assert.That(() => new EmptyRelationalDatabaseCommentProvider(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => new EmptyRelationalDatabaseCommentProvider(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
+        );
     }
 
     [Test]
     public static void GetTableComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        Assert.That(() => provider.GetTableComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetTableComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
+        );
     }
 
     [Test]
@@ -54,7 +61,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static void GetViewComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        Assert.That(() => provider.GetViewComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetViewComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("viewName")
+        );
     }
 
     [Test]
@@ -89,7 +99,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static void GetSynonymComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        Assert.That(() => provider.GetSynonymComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSynonymComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymName")
+        );
     }
 
     [Test]
@@ -124,7 +137,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static void GetSequenceComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        Assert.That(() => provider.GetSequenceComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSequenceComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
+        );
     }
 
     [Test]
@@ -159,7 +175,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     public static void GetRoutineComments_GivenNullName_ThrowsArgumentNullException()
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
-        Assert.That(() => provider.GetRoutineComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetRoutineComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routineName")
+        );
     }
 
     [Test]
@@ -195,7 +214,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
 
-        Assert.That(() => provider.GetSchemaComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetSchemaComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaName")
+        );
     }
 
     [Test]
@@ -231,7 +253,10 @@ internal static class EmptyRelationalDatabaseCommentProviderTests
     {
         var provider = new EmptyRelationalDatabaseCommentProvider(IdentifierDefaults);
 
-        Assert.That(() => provider.GetUserDefinedTypeComments(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => provider.GetUserDefinedTypeComments(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
+        );
     }
 
     [Test]

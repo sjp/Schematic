@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -32,7 +33,10 @@ create table exists_probe_table_1 (
     [Test]
     public static void GetForConnection_GivenNullConnection_ThrowsArgumentNullException()
     {
-        Assert.That(() => ExistsQueryExecutor.GetForConnection(null), Throws.ArgumentNullException);
+        Assert.That(
+            () => ExistsQueryExecutor.GetForConnection(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("connection")
+        );
     }
 
     [Test]
