@@ -29,6 +29,28 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
 
         await DbConnection.ExecuteAsync("create view query_view_test_view_4 as select table_id as test from query_view_test_table_1 where table_id > 0 with local check option", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_5 as select table_id as test from query_view_test_table_1 where table_id > 0 with cascaded check option", TestContext.CurrentContext.CancellationToken);
+
+        await DbConnection.ExecuteAsync("create view query_view_test_view_6 as select table_id as test from query_view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create function query_view_test_trigger_fn()
+returns trigger as
+$BODY$
+BEGIN
+    RETURN null;
+END;
+$BODY$
+LANGUAGE PLPGSQL", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create trigger query_view_test_view_6_trigger_1
+instead of insert or update
+on query_view_test_view_6
+for each row
+execute procedure query_view_test_trigger_fn()", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create trigger query_view_test_view_6_trigger_2
+instead of delete
+on query_view_test_view_6
+for each row
+execute procedure query_view_test_trigger_fn()", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -42,6 +64,8 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
             "drop view query_view_test_view_3",
             "drop view query_view_test_view_4",
             "drop view query_view_test_view_5",
+            "drop view query_view_test_view_6",
+            "drop function query_view_test_trigger_fn()",
             "drop table query_view_test_table_2",
             "drop table query_view_test_table_1");
     }
@@ -339,6 +363,29 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
         var view = await GetViewAsync("query_view_test_view_1");
 
         Assert.That(view.IsUpdatable, Is.False);
+    }
+
+    [Test]
+    public async Task Triggers_WhenViewHasNoTriggers_ReturnsEmptyCollection()
+    {
+        var view = await GetViewAsync("query_view_test_view_2");
+
+        Assert.That(view.Triggers, Is.Empty);
+    }
+
+    [Test]
+    public async Task Triggers_WhenViewHasInsteadOfTriggers_ReturnsOneTriggerPerTriggerWithAllEvents()
+    {
+        var view = await GetViewAsync("query_view_test_view_6");
+        var triggers = view.Triggers.OrderBy(static t => t.Name.LocalName, StringComparer.Ordinal).ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(triggers.Select(static t => t.Name.LocalName), Is.EqualTo(new[] { "query_view_test_view_6_trigger_1", "query_view_test_view_6_trigger_2" }));
+            Assert.That(triggers.Select(static t => t.QueryTiming), Is.All.EqualTo(TriggerQueryTiming.InsteadOf));
+            Assert.That(triggers[0].TriggerEvent, Is.EqualTo(TriggerEvent.Insert | TriggerEvent.Update));
+            Assert.That(triggers[1].TriggerEvent, Is.EqualTo(TriggerEvent.Delete));
+        }
     }
 
     // A view load issues 4 queries: one to resolve the view's name, then its columns, its INSTEAD OF

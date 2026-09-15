@@ -397,6 +397,12 @@ after truncate
 on trigger_test_table_1
 for each statement
 execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create trigger trigger_test_table_1_trigger_9
+before insert or update or delete
+on trigger_test_table_1
+for each row
+execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]

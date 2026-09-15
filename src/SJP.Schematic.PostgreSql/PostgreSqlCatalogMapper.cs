@@ -108,27 +108,15 @@ internal static class PostgreSqlCatalogMapper
     {
         ArgumentNullException.ThrowIfNull(rows);
 
-        var triggers = rows.GroupAsDictionary(static row => new
+        var result = new List<IDatabaseTrigger>();
+        foreach (var trig in rows)
         {
-            row.TriggerName,
-            row.Definition,
-            row.Timing,
-            row.Granularity,
-            row.Condition,
-            row.EnabledFlag,
-        }).ToList();
-        if (triggers.Empty())
-            return [];
-
-        var result = new List<IDatabaseTrigger>(triggers.Count);
-        foreach (var trig in triggers)
-        {
-            var triggerName = Identifier.CreateQualifiedIdentifier(trig.Key.TriggerName);
-            var queryTiming = ParseQueryTiming(trig.Key.Timing);
-            var definition = trig.Key.Definition;
+            var triggerName = Identifier.CreateQualifiedIdentifier(trig.TriggerName);
+            var queryTiming = ParseQueryTiming(trig.Timing);
+            var definition = trig.Definition;
 
             var events = TriggerEvent.None;
-            foreach (var triggerEvent in trig.Value.Select(t => t.TriggerEvent))
+            foreach (var triggerEvent in trig.TriggerEvents)
             {
                 if (string.Equals(triggerEvent, Insert, StringComparison.Ordinal))
                     events |= TriggerEvent.Insert;
@@ -142,18 +130,17 @@ internal static class PostgreSqlCatalogMapper
                     events |= TriggerEvent.Other;
             }
 
-            var granularity = string.Equals(trig.Key.Granularity, Row, StringComparison.Ordinal)
+            var granularity = string.Equals(trig.Granularity, Row, StringComparison.Ordinal)
                 ? TriggerGranularity.Row
                 : TriggerGranularity.Statement;
-            var condition = !trig.Key.Condition.IsNullOrWhiteSpace()
-                ? Option<string>.Some(trig.Key.Condition)
+            var condition = !trig.Condition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(trig.Condition)
                 : Option<string>.None;
-            // tgattr is per-trigger, so any row of the group carries the same UPDATE OF column list.
-            var updateColumns = trig.Value[0].UpdateColumns?
+            var updateColumns = trig.UpdateColumns?
                 .Select(static c => Identifier.CreateQualifiedIdentifier(c))
                 .ToList() ?? [];
 
-            var isEnabled = !string.Equals(trig.Key.EnabledFlag, DisabledFlag, StringComparison.Ordinal);
+            var isEnabled = !string.Equals(trig.EnabledFlag, DisabledFlag, StringComparison.Ordinal);
             var trigger = new PostgreSqlDatabaseTrigger(
                 triggerName,
                 definition,

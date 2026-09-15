@@ -189,4 +189,18 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(trigger.Granularity, Is.EqualTo(TriggerGranularity.Statement));
         }
     }
+
+    [Test]
+    public async Task Triggers_GivenTriggerForSeveralEvents_ReturnsSingleTriggerWithAllEvents()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var triggers = table.Triggers.Where(t => t.Name == "trigger_test_table_1_trigger_9").ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(triggers, Has.Count.EqualTo(1));
+            Assert.That(triggers[0].TriggerEvent, Is.EqualTo(TriggerEvent.Insert | TriggerEvent.Update | TriggerEvent.Delete));
+            Assert.That(triggers[0].QueryTiming, Is.EqualTo(TriggerQueryTiming.Before));
+        }
+    }
 }
