@@ -86,10 +86,11 @@ public class AsyncCache<TKey, TValue, TCache>
 
         return _cache.GetOrAdd(
             key,
-            key => new AsyncLazy<TValue>(
-                () => _query.Invoke(key, cache, _lifetimeToken),
+            static (key, state) => new AsyncLazy<TValue>(
+                () => state.Query.Invoke(key, state.Cache, state.LifetimeToken),
                 AsyncLazyFlags.RetryOnFailure
-            )
+            ),
+            (Query: _query, Cache: cache, LifetimeToken: _lifetimeToken)
         ).Task.WaitAsync(cancellationToken);
     }
 
