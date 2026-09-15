@@ -25,7 +25,7 @@ public static class DatabaseViewExtensions
         foreach (var column in columns)
         {
             if (column.Name != null)
-                result[column.Name.LocalName] = column;
+                result[LocalIdentifier.From(column.Name)] = column;
         }
 
         return result;

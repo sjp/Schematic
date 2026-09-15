@@ -37,6 +37,15 @@ internal static class DatabaseCheckConstraintTests
     }
 
     [Test]
+    public static void Name_GivenQualifiedCtorArg_PropertyGetReturnsLocalNameOnly()
+    {
+        var checkName = Identifier.CreateQualifiedIdentifier("test_schema", "test_check");
+        var check = new DatabaseCheckConstraint(checkName, "test_check", true);
+
+        Assert.That(check.Name.UnwrapSome(), Is.EqualTo(Identifier.CreateQualifiedIdentifier("test_check")));
+    }
+
+    [Test]
     public static void Definition_PropertyGet_EqualsCtorArg()
     {
         const string checkDefinition = "test_check_definition";

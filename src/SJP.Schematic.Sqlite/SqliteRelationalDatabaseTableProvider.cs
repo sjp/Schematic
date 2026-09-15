@@ -1470,7 +1470,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var column in columns)
         {
             if (column.Name != null)
-                result[column.Name.LocalName] = column;
+                result[column.Name] = column;
         }
 
         return result;

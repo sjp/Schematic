@@ -129,6 +129,19 @@ internal static class RelationalDatabaseTableExtensionsTests
     }
 
     [Test]
+    public static void GetCheckLookup_GivenCheckWithQualifiedName_ReturnsLookupKeyedByLocalNameOnly()
+    {
+        var checkMock = new Mock<IDatabaseCheckConstraint>(MockBehavior.Strict);
+        checkMock.Setup(c => c.Name).Returns(Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier("test_schema", "test_check")));
+        var tableMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableMock.Setup(t => t.Checks).Returns([checkMock.Object]);
+
+        var checkLookup = tableMock.Object.GetCheckLookup();
+
+        Assert.That(checkLookup.Keys, Is.EqualTo(new[] { Identifier.CreateQualifiedIdentifier("test_check") }));
+    }
+
+    [Test]
     public static void GetColumnLookup_GivenNullTable_ThrowsArgumentNullException()
     {
         Assert.That(
@@ -181,6 +194,19 @@ internal static class RelationalDatabaseTableExtensionsTests
         var lookupKeys = columnLookup.Keys.Select(c => c.LocalName);
 
         Assert.That(lookupKeys, Is.EqualTo(expectedKeys));
+    }
+
+    [Test]
+    public static void GetColumnLookup_GivenColumnWithQualifiedName_ReturnsLookupKeyedByLocalNameOnly()
+    {
+        var columnMock = new Mock<IDatabaseColumn>(MockBehavior.Strict);
+        columnMock.Setup(c => c.Name).Returns(Identifier.CreateQualifiedIdentifier("test_server", "test_database", "test_schema", "test_column"));
+        var tableMock = new Mock<IRelationalDatabaseTable>(MockBehavior.Strict);
+        tableMock.Setup(t => t.Columns).Returns([columnMock.Object]);
+
+        var columnLookup = tableMock.Object.GetColumnLookup();
+
+        Assert.That(columnLookup.Keys, Is.EqualTo(new[] { Identifier.CreateQualifiedIdentifier("test_column") }));
     }
 
     [Test]

@@ -949,7 +949,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         foreach (var column in columns)
         {
             if (column.Name != null)
-                result[column.Name.LocalName] = column;
+                result[column.Name] = column;
         }
 
         return result;
@@ -982,9 +982,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
 
+        // Key constructors keep only the local name, so names are used as keys without rebuilding them.
         foreach (var key in keys)
         {
-            key.Name.IfSome(name => result[name.LocalName] = key);
+            var name = key.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
+            if (name != null)
+                result[name] = key;
         }
 
         return result;
@@ -999,10 +1002,11 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         var result = new Dictionary<Identifier, IDatabaseIndex>(indexes.Count);
 
+        // Index constructors keep only the local name, so names are used as keys without rebuilding them.
         foreach (var index in indexes)
         {
             if (index.IsUnique)
-                result[index.Name.LocalName] = index;
+                result[index.Name] = index;
         }
 
         return result;

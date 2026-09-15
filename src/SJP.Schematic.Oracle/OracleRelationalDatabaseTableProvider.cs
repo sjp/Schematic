@@ -1060,7 +1060,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         foreach (var column in columns)
         {
             if (column.Name != null)
-                result[column.Name.LocalName] = column;
+                result[column.Name] = column;
         }
 
         return result;
@@ -1116,8 +1116,13 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
 
+        // Key constructors keep only the local name, so names are used as keys without rebuilding them.
         foreach (var key in keys)
-            key.Name.IfSome(name => result[name.LocalName] = key);
+        {
+            var name = key.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
+            if (name != null)
+                result[name] = key;
+        }
 
         return result;
     }

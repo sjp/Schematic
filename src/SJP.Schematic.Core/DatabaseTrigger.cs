@@ -66,7 +66,7 @@ public class DatabaseTrigger : IDatabaseTrigger
         if (!granularity.IsValid())
             throw new ArgumentException($"The {nameof(TriggerGranularity)} provided must be a valid enum.", nameof(granularity));
 
-        Name = name.LocalName;
+        Name = LocalIdentifier.From(name);
         Definition = definition;
         QueryTiming = queryTiming;
         TriggerEvent = events;

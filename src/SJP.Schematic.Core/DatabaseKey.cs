@@ -75,7 +75,7 @@ public class DatabaseKey : IDatabaseKey
         if (!deferrability.IsValid())
             throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
 
-        Name = name.Map(static n => Identifier.CreateQualifiedIdentifier(n.LocalName));
+        Name = name.Map(static n => LocalIdentifier.From(n));
         KeyType = keyType;
         Columns = keyColumns;
         IsEnabled = isEnabled;

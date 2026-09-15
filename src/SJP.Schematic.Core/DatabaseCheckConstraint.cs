@@ -43,7 +43,7 @@ public class DatabaseCheckConstraint : IDatabaseCheckConstraint
         if (!deferrability.IsValid())
             throw new ArgumentException($"The {nameof(ConstraintDeferrability)} provided must be a valid enum.", nameof(deferrability));
 
-        Name = checkName.Map(name => Identifier.CreateQualifiedIdentifier(name.LocalName));
+        Name = checkName.Map(static name => LocalIdentifier.From(name));
         Definition = definition;
         IsEnabled = isEnabled;
         IsValidated = isValidated;

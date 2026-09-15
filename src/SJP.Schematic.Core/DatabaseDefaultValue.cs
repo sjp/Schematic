@@ -55,7 +55,7 @@ public class DatabaseDefaultValue : IDatabaseDefaultValue
 
         Definition = definition;
         Kind = kind;
-        ConstraintName = constraintName.Map(static name => Identifier.CreateQualifiedIdentifier(name.LocalName));
+        ConstraintName = constraintName.Map(static name => LocalIdentifier.From(name));
         SequenceName = kind == DefaultValueKind.SequenceNextValue ? sequenceName : Option<Identifier>.None;
     }
 

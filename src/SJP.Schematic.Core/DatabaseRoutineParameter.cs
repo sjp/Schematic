@@ -38,7 +38,7 @@ public class DatabaseRoutineParameter : IDatabaseRoutineParameter
             throw new ArgumentException($"The {nameof(RoutineParameterDirection)} provided must be a valid enum.", nameof(direction));
         ArgumentOutOfRangeException.ThrowIfLessThan(ordinal, 1);
 
-        Name = parameterName.Map(static name => Identifier.CreateQualifiedIdentifier(name.LocalName));
+        Name = parameterName.Map(static name => LocalIdentifier.From(name));
         Type = type ?? throw new ArgumentNullException(nameof(type));
         Direction = direction;
         DefaultValue = defaultValue;

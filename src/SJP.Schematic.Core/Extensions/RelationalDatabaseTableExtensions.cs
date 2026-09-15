@@ -24,7 +24,9 @@ public static class RelationalDatabaseTableExtensions
 
         foreach (var check in checks)
         {
-            check.Name.IfSome(name => result[name.LocalName] = check);
+            var name = check.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
+            if (name != null)
+                result[LocalIdentifier.From(name)] = check;
         }
 
         return result;
@@ -62,7 +64,7 @@ public static class RelationalDatabaseTableExtensions
         foreach (var column in columns)
         {
             if (column.Name != null)
-                result[column.Name.LocalName] = column;
+                result[LocalIdentifier.From(column.Name)] = column;
         }
 
         return result;
@@ -100,7 +102,7 @@ public static class RelationalDatabaseTableExtensions
         foreach (var index in indexes)
         {
             if (index.Name != null)
-                result[index.Name.LocalName] = index;
+                result[LocalIdentifier.From(index.Name)] = index;
         }
 
         return result;
@@ -137,7 +139,9 @@ public static class RelationalDatabaseTableExtensions
 
         foreach (var parentKey in parentKeys)
         {
-            parentKey.ChildKey.Name.IfSome(name => result[name.LocalName] = parentKey);
+            var name = parentKey.ChildKey.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
+            if (name != null)
+                result[LocalIdentifier.From(name)] = parentKey;
         }
 
         return result;
@@ -175,7 +179,7 @@ public static class RelationalDatabaseTableExtensions
         foreach (var trigger in triggers)
         {
             if (trigger.Name != null)
-                result[trigger.Name.LocalName] = trigger;
+                result[LocalIdentifier.From(trigger.Name)] = trigger;
         }
 
         return result;
@@ -212,7 +216,9 @@ public static class RelationalDatabaseTableExtensions
 
         foreach (var key in uniqueKeys)
         {
-            key.Name.IfSome(name => result[name.LocalName] = key);
+            var name = key.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
+            if (name != null)
+                result[LocalIdentifier.From(name)] = key;
         }
 
         return result;

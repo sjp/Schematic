@@ -89,7 +89,7 @@ public class DatabaseColumn : IDatabaseColumn
         if (!computedStorage.IsValid())
             throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
 
-        Name = columnName.LocalName;
+        Name = LocalIdentifier.From(columnName);
         Type = type ?? throw new ArgumentNullException(nameof(type));
         IsNullable = isNullable;
         Default = defaultValue;

@@ -69,7 +69,7 @@ public class DatabaseIndex : IDatabaseIndex
         if (!indexType.IsValid())
             throw new ArgumentException($"The {nameof(IndexType)} provided must be a valid enum.", nameof(indexType));
 
-        Name = name.LocalName;
+        Name = LocalIdentifier.From(name);
         IsUnique = isUnique;
         Columns = indexColumns;
         IncludedColumns = indexIncludedColumns;
