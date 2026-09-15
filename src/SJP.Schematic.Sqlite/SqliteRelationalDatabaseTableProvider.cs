@@ -1010,11 +1010,11 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
         {
-            var candidateParentTableName = Identifier.CreateQualifiedIdentifier(tableName.Schema, fkey.Key.ParentTableName);
             Identifier? parentTableName = null;
             var rows = fkey.Value.OrderBy(static row => row.seq).ToList();
             var hasImplicitParentColumns = rows.Any(static row => row.to == null);
-            await GetResolvedTableName(candidateParentTableName, queryCache, cancellationToken)
+            await GetResolvedParentTableNameAsync(tableName.Schema!, fkey.Key.ParentTableName, queryCache, cancellationToken)
+                .ToAsync()
                 .BindAsync(async name =>
                 {
                     parentTableName = name; // required for later binding
@@ -1090,6 +1090,40 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Resolves the table that a foreign key refers to. SQLite only looks for a foreign key's parent
+    /// table in the schema of the child table, so no other attached database is searched, and a
+    /// parent that does not exist resolves to nothing.
+    /// </summary>
+    private async Task<Option<Identifier>> GetResolvedParentTableNameAsync(string schemaName, string parentTableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var candidateName = Identifier.CreateQualifiedIdentifier(schemaName, parentTableName);
+        if (IsReservedTableName(candidateName))
+            return Option<Identifier>.None;
+
+        if (await IsTableListPragmaSupportedAsync())
+        {
+            // the table list is already loaded to detect shadow tables, so no query is needed
+            var tableList = await queryCache.GetTableListAsync(schemaName, cancellationToken);
+            return tableList.TryGetValue(parentTableName, out var entry)
+                && !string.Equals(entry.type, ViewType, StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(entry.type, ShadowTableType, StringComparison.OrdinalIgnoreCase)
+                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(schemaName, entry.name))
+                    : Option<Identifier>.None;
+        }
+
+        var sql = GetTableName.Sql(Dialect, schemaName);
+        var resolvedLocalName = await DbConnection.ExecuteScalarAsync(
+            sql,
+            new GetTableName.Query { TableName = parentTableName },
+            cancellationToken
+        );
+
+        return resolvedLocalName != null
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(schemaName, resolvedLocalName))
+            : Option<Identifier>.None;
     }
 
     /// <summary>
@@ -1529,14 +1563,19 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     // table beyond its presence in sqlite_master.
     private async Task<IReadOnlyDictionary<string, pragma_table_list>> LoadTableListAsync(string schema, CancellationToken cancellationToken)
     {
-        var version = await _dbVersion.Task;
-        if (version < TableListPragmaVersion)
-            return new Dictionary<string, pragma_table_list>(StringComparer.OrdinalIgnoreCase);
+        if (!await IsTableListPragmaSupportedAsync())
+            return new Dictionary<string, pragma_table_list>(AsciiCaseInsensitiveStringComparer.Instance);
 
         var tableList = await GetDatabasePragma(schema).TableListAsync(cancellationToken);
         return tableList
-            .GroupBy(static t => t.name, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(static g => g.Key, static g => g.First(), StringComparer.OrdinalIgnoreCase);
+            .GroupBy(static t => t.name, AsciiCaseInsensitiveStringComparer.Instance)
+            .ToDictionary(static g => g.Key, static g => g.First(), AsciiCaseInsensitiveStringComparer.Instance);
+    }
+
+    private async Task<bool> IsTableListPragmaSupportedAsync()
+    {
+        var version = await _dbVersion.Task;
+        return version >= TableListPragmaVersion;
     }
 
     /// <summary>
@@ -1596,6 +1635,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private const string TempSchemaName = "temp";
     private const string VirtualTableType = "virtual";
+    private const string ViewType = "view";
     private const string ShadowTableType = "shadow";
 
     private static readonly Version TableListPragmaVersion = new(3, 37, 0);
@@ -1690,7 +1730,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// </summary>
         /// <param name="schemaName">A schema name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The table list pragma results for the schema, keyed by table name, matched case-insensitively.</returns>
+        /// <returns>The table list pragma results for the schema, keyed by table name, matched ignoring the case of ASCII letters as SQLite does.</returns>
         /// <exception cref="ArgumentException"><paramref name="schemaName"/> is <see langword="null" />, empty or whitespace.</exception>
         public Task<IReadOnlyDictionary<string, pragma_table_list>> GetTableListAsync(string schemaName, CancellationToken cancellationToken)
         {
