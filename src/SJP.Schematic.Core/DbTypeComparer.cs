@@ -117,12 +117,19 @@ public sealed class DbTypeComparer : IEqualityComparer<IDbType>
             hashCode.Add(obj.IsFixedLength);
             hashCode.Add(obj.IsUnsigned);
             hashCode.Add(obj.EnumValues.Count);
-            obj.NumericPrecision.IfSome(np =>
+
+            // read the optional values without a capturing lambda, which would move the hash code
+            // onto the heap on every call
+            var precision = obj.NumericPrecision.MatchUnsafe(static np => np, static () => (INumericPrecision?)null);
+            if (precision != null)
             {
-                hashCode.Add(np.Precision);
-                hashCode.Add(np.Scale);
-            });
-            obj.FractionalSecondsPrecision.IfSome(fsp => hashCode.Add(fsp));
+                hashCode.Add(precision.Precision);
+                hashCode.Add(precision.Scale);
+            }
+
+            var fractionalSecondsPrecision = obj.FractionalSecondsPrecision.MatchUnsafe(static fsp => (int?)fsp, static () => null);
+            if (fractionalSecondsPrecision.HasValue)
+                hashCode.Add(fractionalSecondsPrecision.Value);
         }
 
         return hashCode.ToHashCode();

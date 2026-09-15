@@ -302,6 +302,43 @@ internal static class DbTypeComparerTests
     }
 
     [Test]
+    public static void GetHashCode_GivenCollationIgnoringComparerAndEqualTypesWithPrecisions_ReturnsEqualHashCodes()
+    {
+        var first = CreateDataType(
+            typeName: "timestamp",
+            dataType: DataType.DateTime,
+            numericPrecision: Option<INumericPrecision>.Some(new NumericPrecision(26, 6)),
+            collation: Option<Identifier>.Some("Latin1_General_CI_AS"),
+            fractionalSecondsPrecision: 6
+        );
+        var second = CreateDataType(
+            typeName: "TIMESTAMP",
+            dataType: DataType.DateTime,
+            numericPrecision: Option<INumericPrecision>.Some(new NumericPrecision(26, 6)),
+            fractionalSecondsPrecision: 6
+        );
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(DbTypeComparer.StructuralIgnoringCollation.Equals(first, second), Is.True);
+            Assert.That(DbTypeComparer.StructuralIgnoringCollation.GetHashCode(first), Is.EqualTo(DbTypeComparer.StructuralIgnoringCollation.GetHashCode(second)));
+        }
+    }
+
+    [Test]
+    public static void GetHashCode_GivenCollationIgnoringComparerAndEqualTypesWithoutPrecisions_ReturnsEqualHashCodes()
+    {
+        var first = CreateDataType(typeName: "text", maxLength: -1, collation: Option<Identifier>.Some("Latin1_General_CI_AS"));
+        var second = CreateDataType(typeName: "text", maxLength: -1);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(DbTypeComparer.StructuralIgnoringCollation.Equals(first, second), Is.True);
+            Assert.That(DbTypeComparer.StructuralIgnoringCollation.GetHashCode(first), Is.EqualTo(DbTypeComparer.StructuralIgnoringCollation.GetHashCode(second)));
+        }
+    }
+
+    [Test]
     public static void Equals_GivenCollationIgnoringComparerAndTypesWithDifferentLengths_ReturnsFalse()
     {
         var first = CreateDataType(maxLength: 50);
