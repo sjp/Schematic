@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SJP.Schematic.Core.Extensions;
@@ -20,10 +19,6 @@ public static class TaskArrayExtensions
     {
         ArgumentNullException.ThrowIfNull(tasks);
 
-        await Task.WhenAll(tasks);
-
-        return tasks
-            .Select(t => t.Result)
-            .ToArray();
+        return await Task.WhenAll(tasks);
     }
 }
