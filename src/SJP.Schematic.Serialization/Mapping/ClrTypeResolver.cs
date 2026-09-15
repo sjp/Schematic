@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -20,11 +21,20 @@ internal static class ClrTypeResolver
     /// </summary>
     /// <param name="typeName">A type name, e.g. <c>System.String</c>. An assembly-qualified name is also accepted.</param>
     /// <returns>The named type, or <see langword="null"/> when no loaded assembly declares it.</returns>
-    /// <remarks>Where more than one loaded assembly declares the same type name, the first match wins.</remarks>
+    /// <remarks>
+    /// Where more than one loaded assembly declares the same type name, the first match wins. Results are
+    /// remembered, including the absence of a type, so an assembly loaded after a name has failed to
+    /// resolve does not change the answer for that name.
+    /// </remarks>
     public static Type? Resolve(string typeName)
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
+        return _resolvedTypes.GetOrAdd(typeName, ResolveUncached);
+    }
+
+    private static Type? ResolveUncached(string typeName)
+    {
         try
         {
             return Type.GetType(typeName, ResolveLoadedAssembly, ResolveTypeInLoadedAssemblies, throwOnError: false, ignoreCase: false);
@@ -61,4 +71,8 @@ internal static class ClrTypeResolver
                 .Select(loadedAssembly => loadedAssembly.GetType(typeName, throwOnError: false, ignoreCase))
                 .FirstOrDefault(resolvedType => resolvedType != null);
     }
+
+    // a document names only a handful of distinct types, once per column, and each resolution otherwise
+    // re-parses the name and walks every loaded assembly
+    private static readonly ConcurrentDictionary<string, Type?> _resolvedTypes = new(StringComparer.Ordinal);
 }

@@ -135,13 +135,35 @@ internal static class MapperRegistry
 
     public static IImmutableMapper<TSource, TDestination> GetMapper<TSource, TDestination>()
     {
-        var key = new TypePair(typeof(TSource), typeof(TDestination));
-        if (!_cache.TryGetValue(key, out var mapper))
-            throw new KeyNotFoundException($"Cannot map {typeof(TSource).FullName} to {typeof(TDestination).FullName}. A mapper has not been registered for this projection.");
+        var mapper = MapperCache<TSource, TDestination>.Mapper;
+        if (mapper != null)
+            return mapper;
 
-        if (mapper is not IImmutableMapper<TSource, TDestination> resultMapper)
+        if (MapperCache<TSource, TDestination>.IsRegistered)
             throw new InvalidOperationException($"The mapper registered for the projection {typeof(TSource).FullName} to {typeof(TDestination).FullName} is not an {typeof(IImmutableMapper<,>).FullName} instance.");
 
-        return resultMapper;
+        throw new KeyNotFoundException($"Cannot map {typeof(TSource).FullName} to {typeof(TDestination).FullName}. A mapper has not been registered for this projection.");
+    }
+
+    /// <summary>
+    /// Holds the mapper for one projection, so that a lookup is only ever done once per projection.
+    /// </summary>
+    /// <remarks>
+    /// Mappers ask for the mappers they delegate to on every <c>Map</c> call, which for a whole database
+    /// means hundreds of thousands of lookups. A failed lookup is recorded rather than thrown from here,
+    /// because an exception escaping a static constructor would be replaced by a cached
+    /// <see cref="TypeInitializationException"/>.
+    /// </remarks>
+    private static class MapperCache<TSource, TDestination>
+    {
+        public static readonly IImmutableMapper<TSource, TDestination>? Mapper;
+
+        public static readonly bool IsRegistered;
+
+        static MapperCache()
+        {
+            IsRegistered = _cache.TryGetValue(new TypePair(typeof(TSource), typeof(TDestination)), out var mapper);
+            Mapper = mapper as IImmutableMapper<TSource, TDestination>;
+        }
     }
 }
