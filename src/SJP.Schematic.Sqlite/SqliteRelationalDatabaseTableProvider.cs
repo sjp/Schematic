@@ -41,7 +41,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         ConnectionPragma = pragma ?? throw new ArgumentNullException(nameof(pragma));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
-        _dbVersion = new AsyncLazy<Version>(LoadDbVersionAsync);
+        // a failed load is not remembered, otherwise one transient error would break every later table load
+        _dbVersion = new AsyncLazy<Version>(LoadDbVersionAsync, AsyncLazyFlags.RetryOnFailure);
     }
 
     /// <summary>

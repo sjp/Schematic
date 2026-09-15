@@ -30,7 +30,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
 
-        _catalogFeatures = new AsyncLazy<GetCatalogFeatures.Result>(LoadCatalogFeatures);
+        // a failed load is not remembered, otherwise one transient error would break every later table load
+        _catalogFeatures = new AsyncLazy<GetCatalogFeatures.Result>(LoadCatalogFeatures, AsyncLazyFlags.RetryOnFailure);
     }
 
     /// <summary>
