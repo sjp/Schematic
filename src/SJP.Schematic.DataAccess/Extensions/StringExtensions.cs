@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.DataAccess.Extensions;
 
@@ -12,9 +13,6 @@ namespace SJP.Schematic.DataAccess.Extensions;
 /// </summary>
 public static partial class StringExtensions
 {
-    [GeneratedRegex("(?:^|_| +)(.)", RegexOptions.Compiled, matchTimeoutMilliseconds: 200)]
-    private static partial Regex PascalizeRegex();
-
     [GeneratedRegex(@"([\p{Lu}]+)([\p{Lu}][\p{Ll}])", RegexOptions.Compiled, matchTimeoutMilliseconds: 200)]
     private static partial Regex Underscore1Regex();
 
@@ -64,7 +62,18 @@ public static partial class StringExtensions
         ArgumentNullException.ThrowIfNull(input);
 
         var word = input.Pascalize();
-        return word.Length > 0 ? word[..1].ToLower(CultureInfo.InvariantCulture) + word[1..] : word;
+        if (word.Length == 0)
+            return word;
+
+        var firstChar = char.ToLowerInvariant(word[0]);
+        if (firstChar == word[0])
+            return word;
+
+        return string.Create(word.Length, (Word: word, FirstChar: firstChar), static (chars, state) =>
+        {
+            state.Word.AsSpan().CopyTo(chars);
+            chars[0] = state.FirstChar;
+        });
     }
 
     /// <summary>
@@ -73,11 +82,62 @@ public static partial class StringExtensions
     /// <param name="input">The string to be pascalized.</param>
     /// <returns>A pascal-cased string.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="input"/> is <see langword="null" />.</exception>
+    /// <remarks>
+    /// The first character is upper-cased, even when it is an underscore or a space, so a leading underscore or space is kept
+    /// and does not start a word. After that, each underscore and each run of spaces is removed and the character that
+    /// follows it is upper-cased. An underscore or run of spaces followed by a line break, or by nothing at all, does not
+    /// start a word: the underscore is kept and the run of spaces is collapsed to a single space. A line break is never
+    /// upper-cased or removed.
+    /// </remarks>
     public static string Pascalize(this string input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        return PascalizeRegex().Replace(input, static match => match.Groups[1].Value.ToUpper(CultureInfo.InvariantCulture));
+        if (input.Length == 0)
+            return input;
+
+        var builder = StringBuilderCache.Acquire(input.Length);
+        var index = 0;
+
+        if (input[0] != '\n')
+        {
+            builder.Append(char.ToUpperInvariant(input[0]));
+            index = 1;
+        }
+
+        while (index < input.Length)
+        {
+            var c = input[index];
+            if (c == '_' && index + 1 < input.Length && input[index + 1] != '\n')
+            {
+                builder.Append(char.ToUpperInvariant(input[index + 1]));
+                index += 2;
+            }
+            else if (c == ' ')
+            {
+                var wordStart = index + 1;
+                while (wordStart < input.Length && input[wordStart] == ' ')
+                    wordStart++;
+
+                if (wordStart < input.Length && input[wordStart] != '\n')
+                {
+                    builder.Append(char.ToUpperInvariant(input[wordStart]));
+                    index = wordStart + 1;
+                }
+                else
+                {
+                    builder.Append(' ');
+                    index = wordStart;
+                }
+            }
+            else
+            {
+                builder.Append(c);
+                index++;
+            }
+        }
+
+        return builder.GetStringAndRelease();
     }
 
     /// <summary>

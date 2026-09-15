@@ -23,6 +23,18 @@ internal static class StringExtensionsTests
     [TestCase("customer_first_name goes here", "CustomerFirstNameGoesHere")]
     [TestCase("customer name", "CustomerName")]
     [TestCase("customer   name", "CustomerName")]
+    [TestCase("", "")]
+    [TestCase("_customer", "_customer")]
+    [TestCase(" customer", " customer")]
+    [TestCase("customer__name", "Customer_name")]
+    [TestCase("customer _name", "Customer_name")]
+    [TestCase("customer_", "Customer_")]
+    [TestCase("customer   ", "Customer ")]
+    [TestCase("customer_\nname", "Customer_\nname")]
+    [TestCase("customer  \nname", "Customer \nname")]
+    [TestCase("\ncustomer", "\ncustomer")]
+    [TestCase("customer_ßname", "Customerßname")]
+    [TestCase("ǆemal", "Ǆemal")]
     public static void Pascalize(string input, string expectedOutput)
     {
         Assert.That(input.Pascalize(), Is.EqualTo(expectedOutput));
@@ -46,6 +58,9 @@ internal static class StringExtensionsTests
     [TestCase("customer name", "customerName")]
     [TestCase("customer   name", "customerName")]
     [TestCase("", "")]
+    [TestCase("_customer", "_customer")]
+    [TestCase("\ncustomer", "\ncustomer")]
+    [TestCase("Ǆemal", "ǆemal")]
     public static void Camelize(string input, string expectedOutput)
     {
         Assert.That(input.Camelize(), Is.EqualTo(expectedOutput));

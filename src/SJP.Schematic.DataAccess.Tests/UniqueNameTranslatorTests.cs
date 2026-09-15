@@ -123,4 +123,141 @@ internal static class UniqueNameTranslatorTests
 
         Assert.That(translator.ColumnToPropertyName("test_table", "test_column"), Is.EqualTo("test_column"));
     }
+
+    [Test]
+    public static void SchemaToNamespace_GivenNullName_ThrowsArgumentNullException()
+    {
+        var translator = new UniqueNameTranslator(new VerbatimNameTranslator());
+
+        Assert.That(
+            () => translator.SchemaToNamespace(null),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("objectName")
+        );
+    }
+
+    [Test]
+    public static void SchemaToNamespace_GivenSameNameTwice_TranslatesOnce()
+    {
+        var innerTranslator = new CountingNameTranslator();
+        var translator = new UniqueNameTranslator(innerTranslator);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        var firstNamespace = translator.SchemaToNamespace(tableName);
+        var secondNamespace = translator.SchemaToNamespace(tableName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(secondNamespace, Is.EqualTo(firstNamespace));
+            Assert.That(innerTranslator.SchemaToNamespaceCalls, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public static void SchemaToNamespace_GivenNameWithoutSchemaTwice_ReturnsNullAndTranslatesOnce()
+    {
+        var innerTranslator = new CountingNameTranslator();
+        var translator = new UniqueNameTranslator(innerTranslator);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(translator.SchemaToNamespace("test_table"), Is.Null);
+            Assert.That(translator.SchemaToNamespace("test_table"), Is.Null);
+            Assert.That(innerTranslator.SchemaToNamespaceCalls, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public static void TableToClassName_AfterNamespaceTranslated_DoesNotTranslateNamespaceAgain()
+    {
+        var innerTranslator = new CountingNameTranslator();
+        var translator = new UniqueNameTranslator(innerTranslator);
+        var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
+
+        _ = translator.SchemaToNamespace(tableName);
+        _ = translator.TableToClassName(tableName);
+
+        Assert.That(innerTranslator.SchemaToNamespaceCalls, Is.EqualTo(1));
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenSameColumnTwice_TranslatesOnce()
+    {
+        var innerTranslator = new CountingNameTranslator();
+        var translator = new UniqueNameTranslator(innerTranslator);
+
+        var firstName = translator.ColumnToPropertyName("test_table", "test_column");
+        var secondName = translator.ColumnToPropertyName("test_table", "test_column");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(secondName, Is.EqualTo(firstName));
+            Assert.That(innerTranslator.ColumnToPropertyNameCalls, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenSameColumnInDifferentClasses_TranslatesEach()
+    {
+        var innerTranslator = new CountingNameTranslator();
+        var translator = new UniqueNameTranslator(innerTranslator);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(translator.ColumnToPropertyName("test_table", "test_table"), Is.EqualTo("test_table_"));
+            Assert.That(translator.ColumnToPropertyName("other_table", "test_table"), Is.EqualTo("test_table"));
+            Assert.That(innerTranslator.ColumnToPropertyNameCalls, Is.EqualTo(2));
+        }
+    }
+
+    [Test]
+    public static void ColumnToPropertyName_GivenColumnNamesDifferingOnlyByCase_TranslatesEach()
+    {
+        var innerTranslator = new CountingNameTranslator();
+        var translator = new UniqueNameTranslator(innerTranslator);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(translator.ColumnToPropertyName("test_table", "test_column"), Is.EqualTo("test_column"));
+            Assert.That(translator.ColumnToPropertyName("test_table", "TEST_COLUMN"), Is.EqualTo("TEST_COLUMN"));
+            Assert.That(innerTranslator.ColumnToPropertyNameCalls, Is.EqualTo(2));
+        }
+    }
+
+    [TestCase(null)]
+    [TestCase("")]
+    [TestCase("    ")]
+    public static void ColumnToPropertyName_GivenNullOrWhiteSpaceColumnName_ThrowsArgumentExceptionFromTranslator(string columnName)
+    {
+        var translator = new UniqueNameTranslator(new VerbatimNameTranslator());
+
+        Assert.That(
+            () => translator.ColumnToPropertyName("test_table", columnName),
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnName")
+        );
+    }
+
+    private sealed class CountingNameTranslator : INameTranslator
+    {
+        private readonly VerbatimNameTranslator _translator = new();
+
+        public int SchemaToNamespaceCalls { get; private set; }
+
+        public int ColumnToPropertyNameCalls { get; private set; }
+
+        public string SchemaToNamespace(Identifier objectName)
+        {
+            SchemaToNamespaceCalls++;
+            return _translator.SchemaToNamespace(objectName);
+        }
+
+        public string TableToClassName(Identifier tableName) => _translator.TableToClassName(tableName);
+
+        public string ViewToClassName(Identifier viewName) => _translator.ViewToClassName(viewName);
+
+        public string ColumnToPropertyName(string className, string columnName)
+        {
+            ColumnToPropertyNameCalls++;
+            return _translator.ColumnToPropertyName(className, columnName);
+        }
+    }
 }

@@ -20,6 +20,10 @@ namespace SJP.Schematic.DataAccess;
 /// A name is only assigned to an object once, so repeated translations of the same object, such as the references made by
 /// a foreign key, always resolve to the same class name.
 /// </para>
+/// <para>
+/// Namespace and property names are also remembered once translated, because generators ask for the same names many times
+/// over, e.g. for every key and index that a column belongs to.
+/// </para>
 /// </remarks>
 /// <seealso cref="INameTranslator" />
 internal sealed class UniqueNameTranslator : INameTranslator
@@ -30,6 +34,8 @@ internal sealed class UniqueNameTranslator : INameTranslator
     private readonly Dictionary<Identifier, string> _tableClassNames = [];
     private readonly Dictionary<Identifier, string> _viewClassNames = [];
     private readonly Dictionary<string, StringHashSet> _classNamesByNamespace = new(StringComparer.Ordinal);
+    private readonly Dictionary<Identifier, string?> _namespaces = [];
+    private readonly Dictionary<(string ClassName, string ColumnName), string> _propertyNames = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UniqueNameTranslator"/> class.
@@ -63,10 +69,32 @@ internal sealed class UniqueNameTranslator : INameTranslator
     }
 
     /// <inheritdoc />
-    public string? SchemaToNamespace(Identifier objectName) => _translator.SchemaToNamespace(objectName);
+    public string? SchemaToNamespace(Identifier objectName)
+    {
+        ArgumentNullException.ThrowIfNull(objectName);
+
+        if (_namespaces.TryGetValue(objectName, out var namespaceName))
+            return namespaceName;
+
+        namespaceName = _translator.SchemaToNamespace(objectName);
+        _namespaces.Add(objectName, namespaceName);
+
+        return namespaceName;
+    }
 
     /// <inheritdoc />
-    public string ColumnToPropertyName(string className, string columnName) => _translator.ColumnToPropertyName(className, columnName);
+    public string ColumnToPropertyName(string className, string columnName)
+    {
+        // Arguments are validated by the underlying translator. A rejected pair throws before anything is remembered.
+        var key = (className, columnName);
+        if (_propertyNames.TryGetValue(key, out var propertyName))
+            return propertyName;
+
+        propertyName = _translator.ColumnToPropertyName(className, columnName);
+        _propertyNames.Add(key, propertyName);
+
+        return propertyName;
+    }
 
     /// <inheritdoc />
     public string TableToClassName(Identifier tableName)
@@ -100,7 +128,7 @@ internal sealed class UniqueNameTranslator : INameTranslator
 
     private string MakeUniqueWithinNamespace(Identifier objectName, string candidateName)
     {
-        var objectNamespace = _translator.SchemaToNamespace(objectName) ?? string.Empty;
+        var objectNamespace = SchemaToNamespace(objectName) ?? string.Empty;
         if (!_classNamesByNamespace.TryGetValue(objectNamespace, out var usedNames))
         {
             // Names are compared without case sensitivity because the file systems they are written to may be, too.

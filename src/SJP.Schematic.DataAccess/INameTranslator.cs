@@ -5,6 +5,10 @@ namespace SJP.Schematic.DataAccess;
 /// <summary>
 /// A set of rules for determining namespace, class and property names for a database mapping object.
 /// </summary>
+/// <remarks>
+/// Each method is expected to return the same result whenever it is given the same arguments. Data access generators
+/// remember names once they have been translated, so a translator is not asked for the same name twice.
+/// </remarks>
 public interface INameTranslator
 {
     /// <summary>
