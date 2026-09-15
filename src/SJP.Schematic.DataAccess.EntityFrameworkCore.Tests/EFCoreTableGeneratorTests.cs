@@ -161,6 +161,48 @@ internal static class EFCoreTableGeneratorTests
         Assert.That(result, Does.Contain("public virtual test_table test_table_1 { get; set; }"));
     }
 
+    [Test]
+    public static void Generate_GivenDifferentTablesCollectionOnSameGenerator_ResolvesNavigationsAgainstLatestTables()
+    {
+        var generator = GetTableGenerator();
+
+        // the child key is only known to be one-to-one when the child table, whose primary key it matches, is available
+        var column = CreateColumn("parent_id");
+        var relationalKey = CreateRelationalKey("child_table", "parent_table", column);
+        var parentTable = new RelationalDatabaseTable(
+            "parent_table",
+            [column],
+            Option<IDatabaseKey>.None,
+            [],
+            [],
+            [relationalKey],
+            [],
+            [],
+            []
+        );
+        var childTable = new RelationalDatabaseTable(
+            "child_table",
+            [column],
+            Option<IDatabaseKey>.Some(new DatabaseKey(Option<Identifier>.Some("test_child_pk"), DatabaseKeyType.Primary, [column], true)),
+            [],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var withoutChild = generator.Generate([parentTable], parentTable, Option<IRelationalDatabaseTableComments>.None);
+        var withChild = generator.Generate([parentTable, childTable], parentTable, Option<IRelationalDatabaseTableComments>.None);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(withoutChild, Does.Contain("ICollection<child_table>"));
+            Assert.That(withChild, Does.Not.Contain("ICollection<child_table>"));
+            Assert.That(withChild, Does.Contain("public virtual child_table? "));
+        }
+    }
+
     private static IDatabaseColumn CreateColumn(Identifier columnName)
     {
         var columnType = new ColumnDataType(

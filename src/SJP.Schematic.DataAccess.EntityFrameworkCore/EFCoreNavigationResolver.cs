@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
@@ -30,7 +31,8 @@ internal sealed class EFCoreNavigationResolver
 {
     private readonly INameTranslator _nameTranslator;
     private readonly Dictionary<Identifier, IRelationalDatabaseTable> _tablesByName;
-    private readonly Dictionary<Identifier, EntityNavigations> _navigationsByTableName = [];
+    // concurrent because a table generator shares one resolver across calls that may run in parallel
+    private readonly ConcurrentDictionary<Identifier, EntityNavigations> _navigationsByTableName = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EFCoreNavigationResolver"/> class.
@@ -44,10 +46,10 @@ internal sealed class EFCoreNavigationResolver
         ArgumentNullException.ThrowIfNull(tables);
 
         _nameTranslator = nameTranslator;
+        _tablesByName = [];
         // duplicate names cannot generate distinct classes anyway, so the first definition wins
-        _tablesByName = tables
-            .GroupBy(static t => t.Name)
-            .ToDictionary(static g => g.Key, static g => g.First());
+        foreach (var table in tables)
+            _tablesByName.TryAdd(table.Name, table);
     }
 
     /// <summary>
@@ -78,10 +80,9 @@ internal sealed class EFCoreNavigationResolver
             .Select(ck => UniqueNameGenerator.GenerateUniqueName(usedNames, _nameTranslator.TableToClassName(ck.ChildTable).Pluralize()))
             .ToList();
 
+        // navigation names are deterministic per table, so a concurrent computation for the same table yields equal names
         var navigations = new EntityNavigations(parentKeyPropertyNames, childKeyPropertyNames);
-        _navigationsByTableName[table.Name] = navigations;
-
-        return navigations;
+        return _navigationsByTableName.GetOrAdd(table.Name, navigations);
     }
 
     /// <summary>

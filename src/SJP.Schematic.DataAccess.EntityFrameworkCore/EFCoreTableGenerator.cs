@@ -46,6 +46,9 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
     /// <value>A string representing a namespace.</value>
     protected string Namespace { get; }
 
+    // a single reference so that concurrent callers always observe a matching collection and resolver
+    private NavigationResolverCacheEntry? _navigationResolverCache;
+
     /// <summary>
     /// Generates source code that enables interoperability with a given database table for Entity Framework Core.
     /// </summary>
@@ -90,7 +93,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             .Select(UsingDirective)
             .ToList();
         var namespaceDeclaration = NamespaceDeclaration(ParseName(tableNamespace));
-        var navigationResolver = new EFCoreNavigationResolver(NameTranslator, tables);
+        var navigationResolver = GetNavigationResolver(tables);
         var classDeclaration = BuildClass(navigationResolver, table, comment);
 
         var document = CompilationUnit()
@@ -102,6 +105,20 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                             SingletonList<MemberDeclarationSyntax>(classDeclaration))));
 
         return SyntaxUtilities.FormatSyntaxTree(document);
+    }
+
+    private EFCoreNavigationResolver GetNavigationResolver(IReadOnlyCollection<IRelationalDatabaseTable> tables)
+    {
+        // Callers generate every table against the same collection, and building a resolver indexes all of its
+        // tables, so the resolver is reused for as long as the same collection instance is given. A collection
+        // that is mutated between calls is not detected; table collections are expected to be left unchanged.
+        var cached = _navigationResolverCache;
+        if (cached != null && ReferenceEquals(cached.Tables, tables))
+            return cached.Resolver;
+
+        var resolver = new EFCoreNavigationResolver(NameTranslator, tables);
+        _navigationResolverCache = new NavigationResolverCacheEntry(tables, resolver);
+        return resolver;
     }
 
     private RecordDeclarationSyntax BuildClass(EFCoreNavigationResolver navigationResolver, IRelationalDatabaseTable table, Option<IRelationalDatabaseTableComments> comment)
@@ -510,4 +527,6 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
 
         return attributes;
     }
+
+    private sealed record NavigationResolverCacheEntry(IReadOnlyCollection<IRelationalDatabaseTable> Tables, EFCoreNavigationResolver Resolver);
 }
