@@ -33,6 +33,9 @@ internal sealed class EFCoreNavigationResolver
     private readonly Dictionary<Identifier, IRelationalDatabaseTable> _tablesByName;
     // concurrent because a table generator shares one resolver across calls that may run in parallel
     private readonly ConcurrentDictionary<Identifier, EntityNavigations> _navigationsByTableName = new();
+    // keyed by table instance rather than name, so a table sharing another's name never reads that table's keys
+    private readonly ConcurrentDictionary<IRelationalDatabaseTable, ParentKeyRelationship[]> _parentKeyRelationships = new(ReferenceEqualityComparer.Instance);
+    private readonly ConcurrentDictionary<IRelationalDatabaseTable, Dictionary<RelationshipSignature, List<int>>> _childKeyIndicesBySignature = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EFCoreNavigationResolver"/> class.
@@ -99,19 +102,16 @@ internal sealed class EFCoreNavigationResolver
         ArgumentOutOfRangeException.ThrowIfNegative(parentKeyIndex);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(parentKeyIndex, table.ParentKeys.Count);
 
-        var parentKeys = table.ParentKeys.ToList();
-        var relationalKey = parentKeys[parentKeyIndex];
+        var (relationalKey, signature, occurrence) = GetParentKeyRelationships(table)[parentKeyIndex];
         var dependentPropertyName = GetNavigations(table).ParentKeyPropertyNames[parentKeyIndex];
         var childKeyIndex = -1;
 
-        if (_tablesByName.TryGetValue(relationalKey.ParentTable, out var parentTable))
+        // a table may declare the same relationship more than once, so match on position within the duplicates
+        if (_tablesByName.TryGetValue(relationalKey.ParentTable, out var parentTable)
+            && GetChildKeyIndicesBySignature(parentTable).TryGetValue(signature, out var childKeyIndices)
+            && occurrence < childKeyIndices.Count)
         {
-            // a table may declare the same relationship more than once, so match on position within the duplicates
-            var signature = GetRelationshipSignature(relationalKey);
-            var occurrence = parentKeys
-                .Take(parentKeyIndex)
-                .Count(fk => GetRelationshipSignature(fk) == signature);
-            childKeyIndex = IndexOfOccurrence(parentTable.ChildKeys, signature, occurrence);
+            childKeyIndex = childKeyIndices[occurrence];
         }
 
         // without a matching child key on the parent there is no generated navigation to refer to,
@@ -126,20 +126,44 @@ internal sealed class EFCoreNavigationResolver
         );
     }
 
-    private static int IndexOfOccurrence(IEnumerable<IDatabaseRelationalKey> relationalKeys, RelationshipSignature signature, int occurrence)
-    {
-        var index = 0;
-        var seen = 0;
-        foreach (var relationalKey in relationalKeys)
+    // a heavily referenced table is consulted once for every foreign key that refers to it,
+    // so the signatures on both sides are built once per table instead of on every lookup
+    private ParentKeyRelationship[] GetParentKeyRelationships(IRelationalDatabaseTable table) =>
+        _parentKeyRelationships.GetOrAdd(table, static t =>
         {
-            if (GetRelationshipSignature(relationalKey) == signature && seen++ == occurrence)
-                return index;
+            var relationships = new ParentKeyRelationship[t.ParentKeys.Count];
+            var occurrencesBySignature = new Dictionary<RelationshipSignature, int>();
+            var index = 0;
+            foreach (var parentKey in t.ParentKeys)
+            {
+                var signature = GetRelationshipSignature(parentKey);
+                occurrencesBySignature.TryGetValue(signature, out var occurrence);
+                occurrencesBySignature[signature] = occurrence + 1;
+                relationships[index++] = new ParentKeyRelationship(parentKey, signature, occurrence);
+            }
 
-            index++;
-        }
+            return relationships;
+        });
 
-        return -1;
-    }
+    private Dictionary<RelationshipSignature, List<int>> GetChildKeyIndicesBySignature(IRelationalDatabaseTable table) =>
+        _childKeyIndicesBySignature.GetOrAdd(table, static t =>
+        {
+            var indicesBySignature = new Dictionary<RelationshipSignature, List<int>>();
+            var index = 0;
+            foreach (var childKey in t.ChildKeys)
+            {
+                var signature = GetRelationshipSignature(childKey);
+                if (!indicesBySignature.TryGetValue(signature, out var indices))
+                {
+                    indices = [];
+                    indicesBySignature.Add(signature, indices);
+                }
+
+                indices.Add(index++);
+            }
+
+            return indicesBySignature;
+        });
 
     private static RelationshipSignature GetRelationshipSignature(IDatabaseRelationalKey relationalKey) =>
         new(
@@ -190,4 +214,9 @@ internal sealed class EFCoreNavigationResolver
     }
 
     private readonly record struct RelationshipSignature(Identifier ChildTable, string ChildKeyColumns, Identifier ParentTable, string ParentKeyColumns);
+
+    /// <summary>
+    /// A foreign key together with its signature and how many earlier foreign keys on the same table share that signature.
+    /// </summary>
+    private readonly record struct ParentKeyRelationship(IDatabaseRelationalKey RelationalKey, RelationshipSignature Signature, int Occurrence);
 }

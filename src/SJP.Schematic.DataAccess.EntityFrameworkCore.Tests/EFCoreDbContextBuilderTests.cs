@@ -214,6 +214,105 @@ internal static class EFCoreDbContextBuilderTests
     }
 
     [Test]
+    public static void Generate_GivenIdenticalForeignKeysInterleavedWithOtherChildKeys_MatchesNavigationsByPosition()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var parentColumn = CreateColumn("address_id");
+        var orderColumn = CreateColumn("address_id");
+        var customerColumn = CreateColumn("address_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var firstOrderRelationalKey = CreateRelationalKey("order", "first_address_fk", orderColumn, "address", parentKey);
+        var secondOrderRelationalKey = CreateRelationalKey("order", "second_address_fk", orderColumn, "address", parentKey);
+        var customerRelationalKey = CreateRelationalKey("customer", "customer_address_fk", customerColumn, "address", parentKey);
+
+        // the parent lists another table's child key between the two identical ones
+        var addressTable = new RelationalDatabaseTable(
+            "address",
+            [parentColumn],
+            Option<IDatabaseKey>.Some(parentKey),
+            [],
+            [],
+            [firstOrderRelationalKey, customerRelationalKey, secondOrderRelationalKey],
+            [],
+            [],
+            []
+        );
+        var orderTable = new RelationalDatabaseTable(
+            "order",
+            [orderColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [firstOrderRelationalKey, secondOrderRelationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+        var customerTable = new RelationalDatabaseTable(
+            "customer",
+            [customerColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [customerRelationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([addressTable, orderTable, customerTable], [], []);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Does.Contain("""HasOne(t => t.address).WithMany(t => t!.orders).HasForeignKey(t => t.address_id)"""));
+            Assert.That(result, Does.Contain("""HasOne(t => t.address_1).WithMany(t => t!.orders_1).HasForeignKey(t => t.address_id)"""));
+            Assert.That(result, Does.Contain("""HasOne(t => t.address).WithMany(t => t!.customers).HasForeignKey(t => t.address_id)"""));
+        }
+    }
+
+    [Test]
+    public static void Generate_GivenParentTableWithoutMatchingChildKey_FallsBackToPluralizedChildClassName()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var childColumn = CreateColumn("address_id");
+        var parentColumn = CreateColumn("address_id");
+        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
+
+        // the parent does not list the foreign key among its child keys
+        var addressTable = new RelationalDatabaseTable(
+            "address",
+            [parentColumn],
+            Option<IDatabaseKey>.Some(parentKey),
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var orderTable = new RelationalDatabaseTable(
+            "order",
+            [childColumn],
+            Option<IDatabaseKey>.None,
+            [],
+            [relationalKey],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var result = dbContextBuilder.Generate([addressTable, orderTable], [], []);
+
+        Assert.That(result, Does.Contain("""HasOne(t => t.address).WithMany(t => t!.orders).HasForeignKey(t => t.address_id)"""));
+    }
+
+    [Test]
     public static void Generate_GivenColumnNamedAfterParentTable_ConfiguresUniquelyNamedNavigationProperty()
     {
         var nameTranslator = new VerbatimNameTranslator();
