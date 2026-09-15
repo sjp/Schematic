@@ -44,11 +44,12 @@ internal static class OracleCatalogMapper
                 .Select(row =>
                 {
                     var order = string.Equals(row.IsDescending, Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                    var indexColumns = columnLookup.TryGetValue(row.Column, out var indexColumn)
-                        ? [indexColumn]
-                        : Array.Empty<IDatabaseColumn>();
                     var expression = dialect.QuoteName(row.Column);
-                    return new DatabaseIndexColumn(expression, indexColumns, order);
+                    // a function-based index depends on a system-generated hidden column that is
+                    // filtered out of the table/view's own columns, so it will never be found here
+                    return columnLookup.TryGetValue(row.Column, out var indexColumn)
+                        ? new OracleDatabaseIndexColumn(expression, indexColumn, order)
+                        : new OracleDatabaseIndexColumn(expression, order);
                 })
                 .ToList();
 
