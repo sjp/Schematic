@@ -70,16 +70,17 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     protected IDbTypeProvider TypeProvider => Dialect.TypeProvider;
 
     /// <summary>
-    /// Creates a query cache for a given query context
+    /// Creates a query cache for a given query context.
     /// </summary>
+    /// <param name="cancellationToken">A token that cancels every query the cache has started. Pass the token of the operation that owns the cache, since the cached queries are shared by every part of that operation.</param>
     /// <returns>A query cache.</returns>
-    protected OracleTableQueryCache CreateQueryCache() => new(
-        new AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
-        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>(LoadColumnsAsync),
-        new AsyncCache<Identifier, TableConstraints, OracleTableQueryCache>(LoadConstraintsAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, OracleTableQueryCache>(LoadIndexesAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, OracleTableQueryCache>(LoadColumnLookupAsync)
+    protected OracleTableQueryCache CreateQueryCache(CancellationToken cancellationToken) => new(
+        new AsyncCache<Identifier, Option<Identifier>, OracleTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, OracleTableQueryCache>(LoadColumnsAsync, cancellationToken),
+        new AsyncCache<Identifier, TableConstraints, OracleTableQueryCache>(LoadConstraintsAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, OracleTableQueryCache>(LoadIndexesAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, OracleTableQueryCache>(LoadParentKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, OracleTableQueryCache>(LoadColumnLookupAsync, cancellationToken)
     );
 
     /// <summary>
@@ -89,7 +90,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A collection of database tables.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
@@ -112,7 +113,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A collection of database tables.</returns>
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
@@ -136,7 +137,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
         var candidateTableName = QualifyTableName(tableName);
         return LoadTable(candidateTableName, queryCache, cancellationToken);
     }

@@ -55,19 +55,20 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Creates a query cache for a given query context
+    /// Creates a query cache for a given query context.
     /// </summary>
+    /// <param name="cancellationToken">A token that cancels every query the cache has started. Pass the token of the operation that owns the cache, since the cached queries are shared by every part of that operation.</param>
     /// <returns>A query cache.</returns>
-    protected SqlServerTableQueryCache CreateQueryCache() => new(
-        new AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
-        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
-        new AsyncCache<Identifier, Option<IDatabaseKey>, SqlServerTableQueryCache>(LoadPrimaryKeyAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache>(LoadUniqueKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache>(LoadIndexesAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache>(LoadParentKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache>((tableName, _, token) => LoadIndexRowsAsync(tableName, token)),
+    protected SqlServerTableQueryCache CreateQueryCache(CancellationToken cancellationToken) => new(
+        new AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, Option<IDatabaseKey>, SqlServerTableQueryCache>(LoadPrimaryKeyAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqlServerTableQueryCache>(LoadUniqueKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache>(LoadIndexesAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache>(LoadParentKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache>((tableName, _, token) => LoadIndexRowsAsync(tableName, token), cancellationToken),
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache>(
-            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)))
+            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)), cancellationToken)
     );
 
     /// <summary>
@@ -77,7 +78,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <returns>A collection of database tables.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
@@ -100,7 +101,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     /// <returns>A collection of database tables.</returns>
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
@@ -125,7 +126,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ArgumentNullException.ThrowIfNull(tableName);
 
         var candidateTableName = QualifyTableName(tableName);
-        return LoadTable(candidateTableName, CreateQueryCache(), cancellationToken);
+        return LoadTable(candidateTableName, CreateQueryCache(cancellationToken), cancellationToken);
     }
 
     /// <summary>

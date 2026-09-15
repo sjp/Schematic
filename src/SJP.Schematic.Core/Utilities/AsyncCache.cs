@@ -24,9 +24,28 @@ public class AsyncCache<TKey, TValue, TCache>
     /// </summary>
     /// <param name="factory">A value factory.</param>
     /// <exception cref="ArgumentNullException"><paramref name="factory"/> is <see langword="null" />.</exception>
+    /// <remarks>
+    /// Factory invocations receive <see cref="CancellationToken.None"/>, so once started they always run to completion.
+    /// </remarks>
     public AsyncCache(Func<TKey, TCache, CancellationToken, Task<TValue>> factory)
+        : this(factory, CancellationToken.None)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AsyncCache{TKey, TValue, TCache}"/> class, whose factory
+    /// invocations are cancelled when the lifetime of the cache ends.
+    /// </summary>
+    /// <param name="factory">A value factory.</param>
+    /// <param name="lifetimeToken">
+    /// A token that is given to every factory invocation. Cancel it when every caller of the cache has stopped
+    /// waiting, typically when the operation that owns the cache ends, so that shared work still in progress stops.
+    /// </param>
+    /// <exception cref="ArgumentNullException"><paramref name="factory"/> is <see langword="null" />.</exception>
+    public AsyncCache(Func<TKey, TCache, CancellationToken, Task<TValue>> factory, CancellationToken lifetimeToken)
     {
         _query = factory ?? throw new ArgumentNullException(nameof(factory));
+        _lifetimeToken = lifetimeToken;
     }
 
     /// <summary>
@@ -45,9 +64,15 @@ public class AsyncCache<TKey, TValue, TCache>
     /// </para>
     /// <para>
     /// Because the factory invocation is shared, it cannot be cancelled on behalf of any one caller.
-    /// The factory therefore receives <see cref="CancellationToken.None"/>, and
-    /// <paramref name="cancellationToken"/> instead cancels this caller's wait for the shared result.
-    /// A cancelled wait leaves the shared invocation running for the remaining callers.
+    /// The factory therefore receives the lifetime token given to the constructor (or
+    /// <see cref="CancellationToken.None"/> when none was given), and <paramref name="cancellationToken"/>
+    /// instead cancels this caller's wait for the shared result. A cancelled wait leaves the shared
+    /// invocation running for the remaining callers.
+    /// </para>
+    /// <para>
+    /// Cancelling the lifetime token cancels every factory invocation still in progress. Like any other
+    /// failure, a cancelled invocation is not cached, so a later request for the same key runs the factory
+    /// again with the already cancelled token.
     /// </para>
     /// <para>
     /// Similarly, the <paramref name="cache"/> container given to the factory is the one supplied by
@@ -62,7 +87,7 @@ public class AsyncCache<TKey, TValue, TCache>
         return _cache.GetOrAdd(
             key,
             key => new AsyncLazy<TValue>(
-                () => _query.Invoke(key, cache, CancellationToken.None),
+                () => _query.Invoke(key, cache, _lifetimeToken),
                 AsyncLazyFlags.RetryOnFailure
             )
         ).Task.WaitAsync(cancellationToken);
@@ -70,4 +95,5 @@ public class AsyncCache<TKey, TValue, TCache>
 
     private readonly ConcurrentDictionary<TKey, AsyncLazy<TValue>> _cache = new();
     private readonly Func<TKey, TCache, CancellationToken, Task<TValue>> _query;
+    private readonly CancellationToken _lifetimeToken;
 }

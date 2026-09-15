@@ -141,4 +141,84 @@ internal static class AsyncCacheTests
             Assert.That(factoryTokens, Has.Exactly(1).Items.And.All.EqualTo(CancellationToken.None));
         }
     }
+
+    [Test]
+    public static void Ctor_GivenNullFactoryWithLifetimeToken_ThrowsArgumentNullException()
+    {
+        Assert.That(() => new AsyncCache<object, object, object>(null, CancellationToken.None), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task GetByKeyAsync_GivenLifetimeToken_PassesLifetimeTokenToFactory()
+    {
+        using var lifetime = new CancellationTokenSource();
+        var factoryTokens = new ConcurrentQueue<CancellationToken>();
+        var cache = new AsyncCache<string, string, string>((_, __, token) =>
+        {
+            factoryTokens.Enqueue(token);
+            return Task.FromResult("test");
+        }, lifetime.Token);
+
+        using var callerCancellation = new CancellationTokenSource();
+        await cache.GetByKeyAsync("a", "cache_ignore", callerCancellation.Token);
+
+        Assert.That(factoryTokens, Has.Exactly(1).Items.And.All.EqualTo(lifetime.Token));
+    }
+
+    [Test]
+    public static async Task GetByKeyAsync_WhenLifetimeTokenCancelled_CancelsRunningFactoryAndAllCallers()
+    {
+        using var lifetime = new CancellationTokenSource();
+        var factoryStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var factoryObservedCancellation = false;
+        var cache = new AsyncCache<string, string, string>(async (_, __, token) =>
+        {
+            factoryStarted.SetResult();
+            try
+            {
+                await Task.Delay(Timeout.Infinite, token);
+            }
+            catch (OperationCanceledException)
+            {
+                factoryObservedCancellation = true;
+                throw;
+            }
+
+            return "test";
+        }, lifetime.Token);
+
+        var firstCaller = cache.GetByKeyAsync("a", "cache_ignore");
+        var secondCaller = cache.GetByKeyAsync("a", "cache_ignore");
+        await factoryStarted.Task;
+
+        await lifetime.CancelAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(async () => await firstCaller, Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(async () => await secondCaller, Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(factoryObservedCancellation, Is.True);
+        }
+    }
+
+    [Test]
+    public static void GetByKeyAsync_WhenLifetimeTokenAlreadyCancelled_FactoryReceivesCancelledTokenOnEveryCall()
+    {
+        using var lifetime = new CancellationTokenSource();
+        lifetime.Cancel();
+
+        var counter = 0;
+        var cache = new AsyncCache<string, string, string>((_, __, token) =>
+        {
+            Interlocked.Increment(ref counter);
+            return Task.FromCanceled<string>(token);
+        }, lifetime.Token);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(async () => await cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(async () => await cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(counter, Is.EqualTo(2));
+        }
+    }
 }

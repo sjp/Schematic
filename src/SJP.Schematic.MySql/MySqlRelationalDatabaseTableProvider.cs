@@ -58,17 +58,18 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Creates a query cache for a given query context
+    /// Creates a query cache for a given query context.
     /// </summary>
+    /// <param name="cancellationToken">A token that cancels every query the cache has started. Pass the token of the operation that owns the cache, since the cached queries are shared by every part of that operation.</param>
     /// <returns>A query cache.</returns>
-    protected MySqlTableQueryCache CreateQueryCache() => new(
-        new AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token)),
-        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token)),
-        new AsyncCache<Identifier, TableKeys, MySqlTableQueryCache>(LoadKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, MySqlTableQueryCache>(LoadIndexesAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache>(LoadParentKeysAsync),
+    protected MySqlTableQueryCache CreateQueryCache(CancellationToken cancellationToken) => new(
+        new AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, TableKeys, MySqlTableQueryCache>(LoadKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, MySqlTableQueryCache>(LoadIndexesAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache>(LoadParentKeysAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, MySqlTableQueryCache>(
-            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)))
+            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)), cancellationToken)
     );
 
     /// <summary>
@@ -78,7 +79,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <returns>A collection of database tables.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var tableNames = await DbConnection.QueryEnumerableAsync(
                 GetAllTableNames.Sql,
@@ -102,7 +103,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     /// <returns>A collection of database tables.</returns>
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var tableNames = await DbConnection.QueryEnumerableAsync(
                 GetAllTableNames.Sql,
@@ -127,7 +128,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
         var candidateTableName = QualifyTableName(tableName);
         return LoadTable(candidateTableName, queryCache, cancellationToken);
     }

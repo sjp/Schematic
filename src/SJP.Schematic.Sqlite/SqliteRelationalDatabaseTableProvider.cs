@@ -75,25 +75,26 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>
-    /// Creates a query cache for a given query context
+    /// Creates a query cache for a given query context.
     /// </summary>
+    /// <param name="cancellationToken">A token that cancels every query the cache has started. Pass the token of the operation that owns the cache, since the cached queries are shared by every part of that operation.</param>
     /// <returns>A query cache.</returns>
     /// <remarks>
     /// The attached databases and each schema's table list are cached here rather than for the
     /// lifetime of the provider, because <c>ATTACH</c>, <c>DETACH</c> and DDL on the same connection
     /// can change them between calls.
     /// </remarks>
-    protected SqliteTableQueryCache CreateQueryCache() => new(
-        LoadDatabaseListAsync,
-        new AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache>((schema, _, token) => LoadTableListAsync(schema, token)),
-        new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>(GetParsedTableDefinitionAsync),
-        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync),
-        new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache>(LoadParentKeysAsync),
-        new AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache>(LoadIndexListAsync),
-        new AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache>(LoadForeignKeyListAsync),
-        new AsyncCache<string, ILookup<string, Identifier>, SqliteTableQueryCache>(LoadChildTableLookupAsync)
+    protected SqliteTableQueryCache CreateQueryCache(CancellationToken cancellationToken) => new(
+        _ => LoadDatabaseListAsync(cancellationToken),
+        new AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache>((schema, _, token) => LoadTableListAsync(schema, token), cancellationToken),
+        new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>(GetParsedTableDefinitionAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync, cancellationToken),
+        new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache>(LoadParentKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache>(LoadIndexListAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache>(LoadForeignKeyListAsync, cancellationToken),
+        new AsyncCache<string, ILookup<string, Identifier>, SqliteTableQueryCache>(LoadChildTableLookupAsync, cancellationToken)
     );
 
     /// <summary>
@@ -103,7 +104,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A collection of database tables.</returns>
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var dbNamesQuery = await queryCache.GetDatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
@@ -144,7 +145,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A collection of database tables.</returns>
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
 
         var dbNamesQuery = await queryCache.GetDatabaseListAsync(cancellationToken);
         var dbNames = dbNamesQuery
@@ -194,7 +195,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (IsReservedTableName(tableName))
             return Option<IRelationalDatabaseTable>.None;
 
-        var queryCache = CreateQueryCache();
+        var queryCache = CreateQueryCache(cancellationToken);
         if (tableName.Schema != null)
             return await LoadTable(tableName, queryCache, cancellationToken).ToOption();
 
@@ -292,7 +293,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <returns>A table, if available.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
     protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
-        => LoadTable(tableName, CreateQueryCache(), cancellationToken);
+        => LoadTable(tableName, CreateQueryCache(cancellationToken), cancellationToken);
 
     /// <summary>
     /// Retrieves a table from the database, if available.
