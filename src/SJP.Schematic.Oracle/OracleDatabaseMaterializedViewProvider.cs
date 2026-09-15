@@ -193,7 +193,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     }
 
     /// <summary>
-    /// Retrieves the triggers defined on a materialized view, i.e. its <c>INSTEAD OF</c> triggers.
+    /// Retrieves the triggers defined on a materialized view, i.e. the DML triggers on its container table.
     /// </summary>
     /// <param name="viewName">A materialized view name.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -209,8 +209,8 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var queryResult = await DbConnection.QueryAsync(
-            GetViewTriggers.Sql,
-            new GetViewTriggers.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            GetMaterializedViewTriggers.Sql,
+            new GetMaterializedViewTriggers.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
 

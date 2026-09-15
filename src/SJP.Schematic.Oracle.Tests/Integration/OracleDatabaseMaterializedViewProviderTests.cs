@@ -27,6 +27,16 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create table mview_view_test_table_3 (test_column varchar2(20))", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_4 as select test_column from mview_view_test_table_3", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create index mview_view_test_view_4_ix_1 on mview_view_test_view_4 (upper(test_column))", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table mview_view_test_table_4 (test_column number)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_5 as select test_column from mview_view_test_table_4", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create trigger mview_view_test_view_5_trigger_1
+before insert on mview_view_test_view_5
+for each row
+begin
+    null;
+end;
+", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -40,7 +50,9 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
             "drop materialized view mview_view_test_view_3",
             "drop table mview_view_test_table_2",
             "drop materialized view mview_view_test_view_4",
-            "drop table mview_view_test_table_3");
+            "drop table mview_view_test_table_3",
+            "drop materialized view mview_view_test_view_5",
+            "drop table mview_view_test_table_4");
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -290,6 +302,39 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         var view = await GetViewAsync("mview_view_test_view_4");
 
         Assert.That(view.Columns.Select(c => c.IsHidden), Is.All.False);
+    }
+
+    [Test]
+    public async Task Triggers_GivenViewWithNoTriggers_ReturnsEmptyCollection()
+    {
+        var view = await GetViewAsync("mview_view_test_view_2");
+
+        Assert.That(view.Triggers, Is.Empty);
+    }
+
+    // a trigger created on a materialized view is attached to its container table
+    [Test]
+    public async Task Triggers_GivenViewWithTrigger_ReturnsTrigger()
+    {
+        const string triggerName = "MVIEW_VIEW_TEST_VIEW_5_TRIGGER_1";
+
+        var view = await GetViewAsync("mview_view_test_view_5");
+        var triggerNames = view.Triggers.Select(t => t.Name.LocalName).ToList();
+
+        Assert.That(triggerNames, Is.EqualTo(new[] { triggerName }));
+    }
+
+    [Test]
+    public async Task Triggers_GivenViewWithTriggerForInsert_ReturnsCorrectEventAndTiming()
+    {
+        var view = await GetViewAsync("mview_view_test_view_5");
+        var trigger = view.Triggers.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.Before));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Insert));
+        }
     }
 
     // A materialized view load issues 5 queries: one to resolve the view's name, then columns (including
