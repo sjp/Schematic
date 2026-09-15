@@ -298,8 +298,9 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         Assert.That(columnNames, Is.EqualTo(new[] { "VISIBLE_COLUMN", "INVISIBLE_COLUMN" }));
     }
 
-    // A view load issues 5 queries: one to resolve the view's name, then columns (including their
-    // nullability), definition, INSTEAD OF triggers and the check option/updatability options.
+    // A view load issues 4 queries: one to resolve the view's name, then columns (including their
+    // nullability), INSTEAD OF triggers, and the definition read together with the check option and
+    // updatability.
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {
@@ -309,6 +310,6 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
 
         _ = await viewProvider.GetView("query_view_test_view_3", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(4));
     }
 }

@@ -22,6 +22,8 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         await DbConnection.ExecuteAsync("create view view_test_view_1 as select 1 as test", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_3 as select table_id as test from view_test_table_1 where table_id > 0 with local check option", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_4 as select table_id as test from view_test_table_1 where table_id > 0 with cascaded check option", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -31,6 +33,8 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
             "drop view db_test_view_1",
             "drop view view_test_view_1",
             "drop view view_test_view_2",
+            "drop view view_test_view_3",
+            "drop view view_test_view_4",
             "drop table view_test_table_1");
     }
 
@@ -211,5 +215,59 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         var containsColumn = view.Columns.Any(c => c.Name == "test");
 
         Assert.That(containsColumn, Is.True);
+    }
+
+    [Test]
+    public async Task CheckOption_WhenViewHasNoCheckOption_ReturnsNone()
+    {
+        var view = await GetViewAsync("view_test_view_2");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.None));
+    }
+
+    [Test]
+    public async Task CheckOption_WhenViewHasLocalCheckOption_ReturnsLocal()
+    {
+        var view = await GetViewAsync("view_test_view_3");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Local));
+    }
+
+    [Test]
+    public async Task CheckOption_WhenViewHasCascadedCheckOption_ReturnsCascaded()
+    {
+        var view = await GetViewAsync("view_test_view_4");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Cascaded));
+    }
+
+    [Test]
+    public async Task IsUpdatable_WhenViewSelectsColumnOfSingleTable_ReturnsTrue()
+    {
+        var view = await GetViewAsync("view_test_view_2");
+
+        Assert.That(view.IsUpdatable, Is.True);
+    }
+
+    [Test]
+    public async Task IsUpdatable_WhenViewHasNoBaseTable_ReturnsFalse()
+    {
+        var view = await GetViewAsync("view_test_view_1");
+
+        Assert.That(view.IsUpdatable, Is.False);
+    }
+
+    // A view load issues 3 queries: one to resolve the view's name, then its columns, and its
+    // definition read together with its check option and updatability.
+    [Test]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new MySqlDatabaseViewProvider(countingConnection, IdentifierDefaults);
+
+        _ = await viewProvider.GetView("view_test_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(3));
     }
 }

@@ -170,15 +170,22 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition, triggers, options) = await (
+        var (columns, definitionAndOptions, triggers) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken),
-            LoadTriggersAsync(viewName, cancellationToken),
-            LoadOptionsAsync(viewName, cancellationToken)
+            LoadDefinitionAndOptionsAsync(viewName, cancellationToken),
+            LoadTriggersAsync(viewName, cancellationToken)
         ).WhenAll();
 
         // Oracle cannot index a plain view, only a materialized one.
-        return new DatabaseView(viewName, definition!, columns, triggers, [], options.CheckOption, options.IsUpdatable);
+        return new DatabaseView(
+            viewName,
+            definitionAndOptions.Definition!,
+            columns,
+            triggers,
+            [],
+            definitionAndOptions.CheckOption,
+            definitionAndOptions.IsUpdatable
+        );
     }
 
     /// <summary>
@@ -222,23 +229,8 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
     private async Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var options = await DbConnection.QueryFirstOrNone(
-            GetViewOptions.Sql,
-            new GetViewOptions.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        ).ToOption();
-
-        return options.Match(
-            static row =>
-            (
-                // Oracle has a single form of WITH CHECK OPTION, whose semantics are those of a
-                // cascaded check option; it has no LOCAL form to distinguish.
-                string.Equals(row.HasCheckOption, YesValue, StringComparison.Ordinal) ? ViewCheckOption.Cascaded : ViewCheckOption.None,
-                !string.Equals(row.IsReadOnly, YesValue, StringComparison.Ordinal)
-                    && string.Equals(row.IsUpdatable, YesValue, StringComparison.Ordinal)
-            ),
-            static () => (ViewCheckOption.None, false)
-        );
+        var (_, checkOption, isUpdatable) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+        return (checkOption, isUpdatable);
     }
 
     /// <summary>
@@ -252,10 +244,35 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
+        return LoadDefinitionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, _, _) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+        return definition;
+    }
+
+    // The definition and the options come from the same SYS.ALL_VIEWS row, so they are read together.
+    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var result = await DbConnection.QueryFirstOrNone(
             GetViewDefinition.Sql,
             new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
+        ).ToOption();
+
+        return result.Match(
+            static row =>
+            (
+                row.Definition,
+                // Oracle has a single form of WITH CHECK OPTION, whose semantics are those of a
+                // cascaded check option; it has no LOCAL form to distinguish.
+                string.Equals(row.HasCheckOption, YesValue, StringComparison.Ordinal) ? ViewCheckOption.Cascaded : ViewCheckOption.None,
+                !string.Equals(row.IsReadOnly, YesValue, StringComparison.Ordinal)
+                    && string.Equals(row.IsUpdatable, YesValue, StringComparison.Ordinal)
+            ),
+            static () => ((string?)null, ViewCheckOption.None, false)
         );
     }
 

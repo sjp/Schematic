@@ -292,8 +292,8 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         Assert.That(view.Columns.Select(c => c.IsHidden), Is.All.False);
     }
 
-    // A materialized view load issues 6 queries: one to resolve the view's name, then columns (including
-    // their nullability), definition, triggers, indexes and the refresh options.
+    // A materialized view load issues 5 queries: one to resolve the view's name, then columns (including
+    // their nullability), triggers, indexes, and the definition read together with the refresh options.
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {
@@ -303,6 +303,6 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
 
         _ = await viewProvider.GetView("mview_view_test_view_3", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(6));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
     }
 }

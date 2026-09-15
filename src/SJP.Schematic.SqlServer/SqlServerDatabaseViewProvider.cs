@@ -142,16 +142,14 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
         var (
             columns,
-            definition,
+            (definition, checkOption),
             triggers,
-            indexRows,
-            checkOption
+            indexRows
         ) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadDefinitionAndCheckOptionAsync(viewName, cancellationToken),
             LoadTriggersAsync(viewName, cancellationToken),
-            LoadIndexRowsAsync(viewName, cancellationToken),
-            LoadCheckOptionAsync(viewName, cancellationToken)
+            LoadIndexRowsAsync(viewName, cancellationToken)
         ).WhenAll();
 
         var columnLookup = GetColumnLookup(columns);
@@ -201,10 +199,28 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
+        return LoadDefinitionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, _) = await LoadDefinitionAndCheckOptionAsync(viewName, cancellationToken);
+        return definition;
+    }
+
+    // The check option is a column of sys.views, which the definition query already joins to.
+    private async Task<(string? Definition, ViewCheckOption CheckOption)> LoadDefinitionAndCheckOptionAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var result = await DbConnection.QueryFirstOrNone(
             GetViewDefinition.Sql,
             new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
+        ).ToOption();
+
+        return result.Match(
+            // SQL Server only supports a cascaded check option.
+            static row => (row.Definition, row.WithCheckOption ? ViewCheckOption.Cascaded : ViewCheckOption.None),
+            static () => ((string?)null, ViewCheckOption.None)
         );
     }
 
@@ -258,16 +274,8 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<ViewCheckOption> LoadCheckOptionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var checkOption = await DbConnection.ExecuteScalarAsync(
-            GetViewCheckOption.Sql,
-            new GetViewCheckOption.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        );
-
-        // SQL Server only supports a cascaded check option, which it reports as 'CASCADE'.
-        return string.Equals(checkOption, "CASCADE", StringComparison.OrdinalIgnoreCase)
-            ? ViewCheckOption.Cascaded
-            : ViewCheckOption.None;
+        var (_, checkOption) = await LoadDefinitionAndCheckOptionAsync(viewName, cancellationToken);
+        return checkOption;
     }
 
     /// <summary>

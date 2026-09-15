@@ -30,6 +30,8 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         await DbConnection.ExecuteAsync(@"create table matview_view_test_table_3 (""Id"" int, ""Name"" text, ""order"" int)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create materialized view matview_view_test_matview_3 as select ""Id"", ""Name"", ""order"" from matview_view_test_table_3", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create index ix_matview_view_test_matview_3 on matview_view_test_matview_3 (""Name"", ""order"") include (""Id"")", TestContext.CurrentContext.CancellationToken);
+
+        await DbConnection.ExecuteAsync("create materialized view matview_view_test_matview_4 as select table_id as test from matview_view_test_table_1 with no data", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -42,6 +44,7 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
             "drop materialized view matview_view_test_matview_1",
             "drop materialized view matview_view_test_matview_2",
             "drop materialized view matview_view_test_matview_3",
+            "drop materialized view matview_view_test_matview_4",
             "drop table matview_view_test_table_2",
             "drop table matview_view_test_table_3",
             "drop table matview_view_test_table_1");
@@ -327,5 +330,36 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
             Assert.That(indexColumns, Is.EqualTo(new[] { "Name", "order" }));
             Assert.That(includedColumns, Is.EqualTo(new[] { "Id" }));
         }
+    }
+    [Test]
+    public async Task IsPopulated_WhenViewCreatedWithData_ReturnsTrue()
+    {
+        var view = await GetViewAsync("matview_view_test_matview_1");
+        var materializedView = (IDatabaseMaterializedView)view;
+
+        Assert.That(materializedView.IsPopulated, Is.True);
+    }
+
+    [Test]
+    public async Task IsPopulated_WhenViewCreatedWithNoData_ReturnsFalse()
+    {
+        var view = await GetViewAsync("matview_view_test_matview_4");
+        var materializedView = (IDatabaseMaterializedView)view;
+
+        Assert.That(materializedView.IsPopulated, Is.False);
+    }
+
+    // A materialized view load issues 4 queries: one to resolve the view's name, then its columns, its
+    // indexes, and its definition read together with whether it is populated.
+    [Test]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new PostgreSqlDatabaseMaterializedViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        _ = await viewProvider.GetView("matview_view_test_matview_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(4));
     }
 }

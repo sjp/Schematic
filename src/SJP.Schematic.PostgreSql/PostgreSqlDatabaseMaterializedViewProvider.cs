@@ -170,11 +170,10 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition, indexRows, isPopulated) = await (
+        var (columns, definitionAndIsPopulated, indexRows) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken),
-            LoadIndexRowsAsync(viewName, cancellationToken),
-            LoadIsPopulatedAsync(viewName, cancellationToken)
+            LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken),
+            LoadIndexRowsAsync(viewName, cancellationToken)
         ).WhenAll();
 
         var columnLookup = GetColumnLookup(columns);
@@ -182,7 +181,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
         return new DatabaseMaterializedView(
             viewName,
-            definition!,
+            definitionAndIsPopulated.Definition!,
             columns,
             // PostgreSQL does not support triggers on a materialized view.
             [],
@@ -191,7 +190,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
             // date, and it always recomputes the whole query, so there is no refresh method to report.
             MaterializedViewRefreshMode.OnDemand,
             Option<string>.None,
-            isPopulated
+            definitionAndIsPopulated.IsPopulated
         );
     }
 
@@ -216,10 +215,27 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
-            GetMaterializedViewIsPopulated.Sql,
-            new GetMaterializedViewIsPopulated.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+        return LoadIsPopulatedAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<bool> LoadIsPopulatedAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (_, isPopulated) = await LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken);
+        return isPopulated;
+    }
+
+    // The definition and the populated state are columns of the same pg_matviews row, so they are read together.
+    private async Task<(string? Definition, bool IsPopulated)> LoadDefinitionAndIsPopulatedAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var result = await DbConnection.QueryFirstOrNone(
+            GetMaterializedViewDefinition.Sql,
+            new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
+        ).ToOption();
+
+        return result.Match(
+            static row => (row.Definition, row.IsPopulated),
+            static () => ((string?)null, false)
         );
     }
 
@@ -247,11 +263,13 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
-            GetMaterializedViewDefinition.Sql,
-            new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        );
+        return LoadDefinitionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, _) = await LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken);
+        return definition;
     }
 
     /// <summary>

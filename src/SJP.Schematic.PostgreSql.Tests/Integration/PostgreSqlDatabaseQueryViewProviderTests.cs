@@ -26,6 +26,9 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
 
         await DbConnection.ExecuteAsync("create table query_view_test_table_2 (test_varchar varchar(50), test_numeric numeric(12, 4), test_float float8)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_3 as select test_varchar, test_numeric, test_float from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
+
+        await DbConnection.ExecuteAsync("create view query_view_test_view_4 as select table_id as test from query_view_test_table_1 where table_id > 0 with local check option", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_5 as select table_id as test from query_view_test_table_1 where table_id > 0 with cascaded check option", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -37,6 +40,8 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
             "drop view query_view_test_view_2",
             "drop materialized view query_view_test_matview_1",
             "drop view query_view_test_view_3",
+            "drop view query_view_test_view_4",
+            "drop view query_view_test_view_5",
             "drop table query_view_test_table_2",
             "drop table query_view_test_table_1");
     }
@@ -295,5 +300,58 @@ internal sealed class PostgreSqlDatabaseQueryViewProviderTests : PostgreSqlTest
             Assert.That(column.Type.MaxLength, Is.EqualTo(16));
             Assert.That(precision.Precision, Is.EqualTo(16));
         }
+    }
+    [Test]
+    public async Task CheckOption_WhenViewHasNoCheckOption_ReturnsNone()
+    {
+        var view = await GetViewAsync("query_view_test_view_2");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.None));
+    }
+
+    [Test]
+    public async Task CheckOption_WhenViewHasLocalCheckOption_ReturnsLocal()
+    {
+        var view = await GetViewAsync("query_view_test_view_4");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Local));
+    }
+
+    [Test]
+    public async Task CheckOption_WhenViewHasCascadedCheckOption_ReturnsCascaded()
+    {
+        var view = await GetViewAsync("query_view_test_view_5");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Cascaded));
+    }
+
+    [Test]
+    public async Task IsUpdatable_WhenViewSelectsColumnOfSingleTable_ReturnsTrue()
+    {
+        var view = await GetViewAsync("query_view_test_view_2");
+
+        Assert.That(view.IsUpdatable, Is.True);
+    }
+
+    [Test]
+    public async Task IsUpdatable_WhenViewHasNoBaseTable_ReturnsFalse()
+    {
+        var view = await GetViewAsync("query_view_test_view_1");
+
+        Assert.That(view.IsUpdatable, Is.False);
+    }
+
+    // A view load issues 4 queries: one to resolve the view's name, then its columns, its INSTEAD OF
+    // triggers, and its definition read together with its check option and updatability.
+    [Test]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new PostgreSqlDatabaseQueryViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        _ = await viewProvider.GetView("query_view_test_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(4));
     }
 }

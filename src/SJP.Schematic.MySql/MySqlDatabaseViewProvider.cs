@@ -152,14 +152,21 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition, options) = await (
+        var (columns, definitionAndOptions) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken),
-            LoadOptionsAsync(viewName, cancellationToken)
+            LoadDefinitionAndOptionsAsync(viewName, cancellationToken)
         ).WhenAll();
 
         // MySQL supports neither triggers on a view nor indexing one.
-        return new DatabaseView(viewName, definition!, columns, [], [], options.CheckOption, options.IsUpdatable);
+        return new DatabaseView(
+            viewName,
+            definitionAndOptions.Definition!,
+            columns,
+            [],
+            [],
+            definitionAndOptions.CheckOption,
+            definitionAndOptions.IsUpdatable
+        );
     }
 
     /// <summary>
@@ -178,22 +185,8 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var options = await DbConnection.QueryFirstOrNone(
-            GetViewOptions.Sql,
-            new GetViewOptions.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        ).ToOption();
-
-        return options.Match(
-            static row =>
-            (
-                row.CheckOption != null && CheckOptionMapping.TryGetValue(row.CheckOption, out var checkOption)
-                    ? checkOption
-                    : ViewCheckOption.None,
-                string.Equals(row.IsUpdatable, Constants.Yes, StringComparison.OrdinalIgnoreCase)
-            ),
-            static () => (ViewCheckOption.None, false)
-        );
+        var (_, checkOption, isUpdatable) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+        return (checkOption, isUpdatable);
     }
 
     /// <summary>
@@ -207,10 +200,35 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
+        return LoadDefinitionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, _, _) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+        return definition;
+    }
+
+    // The definition and the options are columns of the same information_schema.views row, so
+    // they are read together.
+    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var result = await DbConnection.QueryFirstOrNone(
             GetViewDefinition.Sql,
             new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
+        ).ToOption();
+
+        return result.Match(
+            static row =>
+            (
+                row.Definition,
+                row.CheckOption != null && CheckOptionMapping.TryGetValue(row.CheckOption, out var checkOption)
+                    ? checkOption
+                    : ViewCheckOption.None,
+                string.Equals(row.IsUpdatable, Constants.Yes, StringComparison.OrdinalIgnoreCase)
+            ),
+            static () => ((string?)null, ViewCheckOption.None, false)
         );
     }
 

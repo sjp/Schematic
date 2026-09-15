@@ -170,12 +170,11 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definition, triggers, indexRows, options) = await (
+        var (columns, definitionAndOptions, triggers, indexRows) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken),
+            LoadDefinitionAndOptionsAsync(viewName, cancellationToken),
             LoadTriggersAsync(viewName, cancellationToken),
-            LoadIndexRowsAsync(viewName, cancellationToken),
-            LoadOptionsAsync(viewName, cancellationToken)
+            LoadIndexRowsAsync(viewName, cancellationToken)
         ).WhenAll();
 
         var columnLookup = GetColumnLookup(columns);
@@ -183,13 +182,13 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
         return new DatabaseMaterializedView(
             viewName,
-            definition!,
+            definitionAndOptions.Definition!,
             columns,
             triggers,
             indexes,
-            options.RefreshMode,
-            options.RefreshMethod,
-            options.IsPopulated
+            definitionAndOptions.RefreshMode,
+            definitionAndOptions.RefreshMethod,
+            definitionAndOptions.IsPopulated
         );
     }
 
@@ -243,15 +242,23 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<(MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var options = await DbConnection.QueryFirstOrNone(
-            GetMaterializedViewOptions.Sql,
-            new GetMaterializedViewOptions.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+        var (_, refreshMode, refreshMethod, isPopulated) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+        return (refreshMode, refreshMethod, isPopulated);
+    }
+
+    // The definition and the refresh metadata come from the same SYS.ALL_MVIEWS row, so they are read together.
+    private async Task<(string? Definition, MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var result = await DbConnection.QueryFirstOrNone(
+            GetMaterializedViewDefinition.Sql,
+            new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         ).ToOption();
 
-        return options.Match(
+        return result.Match(
             static row =>
             (
+                row.Definition,
                 row.RefreshMode != null && RefreshModeMapping.TryGetValue(row.RefreshMode, out var refreshMode)
                     ? refreshMode
                     : MaterializedViewRefreshMode.Unknown,
@@ -262,7 +269,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
                 // refreshed, which Oracle reports as an UNUSABLE staleness.
                 !string.Equals(row.Staleness, UnusableValue, StringComparison.Ordinal)
             ),
-            static () => (MaterializedViewRefreshMode.Unknown, Option<string>.None, false)
+            static () => ((string?)null, MaterializedViewRefreshMode.Unknown, Option<string>.None, false)
         );
     }
 
@@ -290,11 +297,13 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        return DbConnection.ExecuteScalarAsync(
-            GetMaterializedViewDefinition.Sql,
-            new GetMaterializedViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        );
+        return LoadDefinitionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, _, _, _) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+        return definition;
     }
 
     /// <summary>

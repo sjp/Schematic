@@ -23,6 +23,7 @@ internal sealed class SqlServerDatabaseViewProviderTests : SqlServerTest
         await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_2 with schemabinding as select table_id as test from [dbo].[view_test_table_1]", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create unique clustered index ix_view_test_view_2 on view_test_view_2 (test)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_3 as select table_id as test from [dbo].[view_test_table_1] where table_id > 0 with check option", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -30,6 +31,7 @@ internal sealed class SqlServerDatabaseViewProviderTests : SqlServerTest
         "drop view db_test_view_1",
         "drop view view_test_view_1",
         "drop view view_test_view_2",
+        "drop view view_test_view_3",
         "drop table view_test_table_1");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -244,5 +246,34 @@ internal sealed class SqlServerDatabaseViewProviderTests : SqlServerTest
         var view = await GetViewAsync("view_test_view_2");
 
         Assert.That(view.IsMaterialized, Is.True);
+    }
+    [Test]
+    public async Task CheckOption_WhenViewHasNoCheckOption_ReturnsNone()
+    {
+        var view = await GetViewAsync("view_test_view_1");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.None));
+    }
+
+    [Test]
+    public async Task CheckOption_WhenViewHasCheckOption_ReturnsCascaded()
+    {
+        var view = await GetViewAsync("view_test_view_3");
+
+        Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Cascaded));
+    }
+
+    // A view load issues 5 queries: one to resolve the view's name, then columns, INSTEAD OF triggers,
+    // indexes, and the definition read together with the check option.
+    [Test]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Connection.Dialect);
+        var viewProvider = new SqlServerDatabaseViewProvider(countingConnection, IdentifierDefaults);
+
+        _ = await viewProvider.GetView("view_test_view_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
     }
 }
