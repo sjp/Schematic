@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Antlr4.Runtime;
 
 namespace SJP.Schematic.PostgreSql.Parsing.Antlr;
@@ -38,11 +37,15 @@ internal static class PostgreSqlLexing
         if (errorListener != null)
             lexer.AddErrorListener(errorListener);
 
-        var tokenStream = new CommonTokenStream(lexer);
-        tokenStream.Fill();
+        // Pull tokens straight from the lexer rather than buffering every token, hidden ones included,
+        // in a token stream first.
+        var tokens = new List<IToken>();
+        for (var token = lexer.NextToken(); token.Type != TokenConstants.EOF; token = lexer.NextToken())
+        {
+            if (token.Channel == Lexer.DefaultTokenChannel)
+                tokens.Add(token);
+        }
 
-        return tokenStream.GetTokens()
-            .Where(static t => t.Channel == Lexer.DefaultTokenChannel && t.Type != TokenConstants.EOF)
-            .ToList();
+        return tokens;
     }
 }
