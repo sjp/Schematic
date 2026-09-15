@@ -7,6 +7,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Lint;
+using SJP.Schematic.Reporting.Html.Lint;
 using SJP.Schematic.Tests.Utilities;
 using SJP.Schematic.Tests.Utilities.Integration;
 
@@ -155,6 +158,61 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
                 if (payloadsByRelativePath.TryGetValue(jsonFile, out var payload))
                     Assert.That(payload, Is.EqualTo(fileBytes), jsonFile);
             }
+        }
+    }
+
+    [Test]
+    public async Task GenerateAsync_GivenRuleProvider_BuildsLintPageFromThatProvider()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var database = await GetSnapshotDatabaseAsync();
+        var generator = new ReportGenerator(Connection, DatabaseProvider, database, tempDir.DirectoryPath, tableStatistics: null, new EmptyRuleProvider());
+
+        await generator.GenerateAsync();
+
+        using var lint = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(tempDir.DirectoryPath, "data", "lint.json")));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(lint.RootElement.GetProperty("messages").GetArrayLength(), Is.Zero);
+            Assert.That(lint.RootElement.GetProperty("lintRules").GetArrayLength(), Is.Zero);
+        }
+    }
+
+    [Test]
+    public async Task GenerateAsync_GivenNoRuleProvider_LintQueriesTheDatabase()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var database = await GetSnapshotDatabaseAsync();
+        var countingFactory = new CountingDbConnectionFactory(DbConnection);
+        var connection = new SchematicConnection(countingFactory, Connection.Dialect);
+        var generator = new ReportGenerator(connection, DatabaseProvider, database, tempDir.DirectoryPath, tableStatistics: null, ruleProvider: null);
+
+        await generator.GenerateAsync();
+
+        Assert.That(countingFactory.QueryCount, Is.Positive);
+    }
+
+    [Test]
+    public async Task GenerateAsync_GivenRulesThatDoNotQueryTheDatabase_RunsNoQueriesThroughTheConnection()
+    {
+        using var tempDir = new TemporaryDirectory();
+        // The snapshot already holds the schema, so any query through the connection would have to
+        // come from a lint rule.
+        var database = await GetSnapshotDatabaseAsync();
+        var countingFactory = new CountingDbConnectionFactory(DbConnection);
+        var connection = new SchematicConnection(countingFactory, Connection.Dialect);
+        var ruleProvider = new DefaultHtmlRuleProvider(tableStatistics: null, queryDatabase: false);
+        var generator = new ReportGenerator(connection, DatabaseProvider, database, tempDir.DirectoryPath, tableStatistics: null, ruleProvider);
+
+        await generator.GenerateAsync();
+
+        using var lint = JsonDocument.Parse(await File.ReadAllBytesAsync(Path.Combine(tempDir.DirectoryPath, "data", "lint.json")));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(countingFactory.QueryCount, Is.Zero);
+            Assert.That(lint.RootElement.GetProperty("messages").GetArrayLength(), Is.Positive);
         }
     }
 

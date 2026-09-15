@@ -91,4 +91,64 @@ internal static class DefaultRuleProviderTests
         // A rule that exists but is never handed out is a rule that silently does nothing.
         Assert.That(provided, Is.EquivalentTo(defined));
     }
+
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesExcluded_ReturnsNoRuleThatTakesAConnection()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+        var provider = new DefaultRuleProvider(tableStatistics: null, queryDatabase: false);
+
+        var rules = provider.GetRules(connection).ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(rules, Is.Not.Empty);
+            Assert.That(rules, Has.None.Matches<IRule>(static r => TakesConnection(r)));
+        }
+    }
+
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesExcluded_LeavesOutOnlyTheRulesThatTakeAConnection()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+        var provider = new DefaultRuleProvider(tableStatistics: null, queryDatabase: false);
+
+        var schemaOnly = provider.GetRules(connection).Select(static r => r.Id).ToList();
+        var expected = RuleProvider.GetRules(connection)
+            .Where(static r => !TakesConnection(r))
+            .Select(static r => r.Id)
+            .ToList();
+
+        // Compared in order: results are written out in the order the rules are provided.
+        Assert.That(schemaOnly, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesIncluded_ReturnsTheSameRulesAsTheDefaultConstructor()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+        var provider = new DefaultRuleProvider(tableStatistics: null, queryDatabase: true);
+
+        var included = provider.GetRules(connection).Select(static r => r.Id).ToList();
+        var defaulted = RuleProvider.GetRules(connection).Select(static r => r.Id).ToList();
+
+        Assert.That(included, Is.EqualTo(defaulted));
+    }
+
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesExcludedAndExplicitLevel_ReturnsTheSameRulesAsWithoutALevel()
+    {
+        var connection = new SchematicConnection(Mock.Of<IDbConnectionFactory>(), Mock.Of<IDatabaseDialect>());
+        var provider = new DefaultRuleProvider(tableStatistics: null, queryDatabase: false);
+
+        var defaulted = provider.GetRules(connection).Select(static r => r.Id).ToList();
+        var levelled = provider.GetRules(connection, RuleLevel.Error).Select(static r => r.Id).ToList();
+
+        Assert.That(levelled, Is.EqualTo(defaulted));
+    }
+
+    // A rule can only query the database if it is given a connection to query it with.
+    private static bool TakesConnection(IRule rule) => rule.GetType()
+        .GetConstructors()
+        .Any(static c => c.GetParameters().Any(static p => p.ParameterType == typeof(ISchematicConnection)));
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
@@ -27,8 +28,20 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
     /// </summary>
     /// <param name="tableStatistics">The statistics the database records for its tables, given to the rules that can use them in place of a query. <see langword="null" /> when none are available.</param>
     public DefaultHtmlRuleProvider(ITableStatisticsProvider? tableStatistics)
+        : this(tableStatistics, queryDatabase: true)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DefaultHtmlRuleProvider"/> class, optionally leaving out every rule that runs its own queries against the database.
+    /// </summary>
+    /// <param name="tableStatistics">The statistics the database records for its tables, given to the rules that can use them in place of a query. <see langword="null" /> when none are available.</param>
+    /// <param name="queryDatabase"><see langword="true" /> to include the rules that query the database, which read table data or execute views; <see langword="false" /> to return only the rules that work from the schema metadata alone.</param>
+    /// <remarks>Leaving those rules out avoids table scans on large databases, but the issues only they can find (empty tables, columns that never hold a value, self-referencing rows and views that no longer compile) go unreported.</remarks>
+    public DefaultHtmlRuleProvider(ITableStatisticsProvider? tableStatistics, bool queryDatabase)
     {
         TableStatistics = tableStatistics;
+        QueryDatabase = queryDatabase;
     }
 
     /// <summary>
@@ -36,6 +49,12 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
     /// </summary>
     /// <value>A table statistics provider.</value>
     private ITableStatisticsProvider? TableStatistics { get; }
+
+    /// <summary>
+    /// Whether the rules that run their own queries against the database are included.
+    /// </summary>
+    /// <value><see langword="true" /> if rules that read table data or execute views are provided; otherwise <see langword="false" />.</value>
+    private bool QueryDatabase { get; }
 
     /// <summary>
     /// Retrieves the default set of rules used to analyze database objects.
@@ -72,7 +91,7 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
     // DefaultLevel", which is exactly what each rule's optional level parameter already does.
     private IEnumerable<IRule> BuildRules(ISchematicConnection connection, RuleLevel? level)
     {
-        return
+        IEnumerable<IRule> rules =
         [
             new AutoIncrementColumnNotInKeyRule(level),
             new CandidateKeyMissingRule(level),
@@ -115,5 +134,19 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
             new UnvalidatedConstraintsRule(level),
             new WhitespaceNameRule(level),
         ];
+
+        // Filtering the full list, rather than building a second one, keeps the remaining rules in
+        // the same order either way, and that order is the order results are written in.
+        return QueryDatabase
+            ? rules
+            : rules.Where(static rule => !QueriesDatabase(rule)).ToList();
     }
+
+    // The rules that run their own queries against the database, rather than working only from
+    // the schema objects they are given.
+    private static bool QueriesDatabase(IRule rule) => rule
+        is ForeignKeySelfReferenceRule
+        or InvalidViewDefinitionRule
+        or NoRowsPresentOnTableRule
+        or NoValueForNullableColumnRule;
 }

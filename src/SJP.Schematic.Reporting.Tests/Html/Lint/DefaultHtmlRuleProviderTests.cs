@@ -71,6 +71,66 @@ internal static class DefaultHtmlRuleProviderTests
         Assert.That(provided, Is.EquivalentTo(defined));
     }
 
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesExcluded_ReturnsNoRuleThatTakesAConnection()
+    {
+        var provider = new DefaultHtmlRuleProvider(tableStatistics: null, queryDatabase: false);
+        var mockConnection = CreateMockConnection();
+
+        var rules = provider.GetRules(mockConnection.Object).ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(rules, Is.Not.Empty);
+            Assert.That(rules, Has.None.Matches<IRule>(static r => TakesConnection(r)));
+        }
+    }
+
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesExcluded_LeavesOutOnlyTheRulesThatTakeAConnection()
+    {
+        var mockConnection = CreateMockConnection();
+
+        var schemaOnly = new DefaultHtmlRuleProvider(tableStatistics: null, queryDatabase: false)
+            .GetRules(mockConnection.Object)
+            .Select(static r => r.Id)
+            .ToList();
+        var expected = new DefaultHtmlRuleProvider()
+            .GetRules(mockConnection.Object)
+            .Where(static r => !TakesConnection(r))
+            .Select(static r => r.Id)
+            .ToList();
+
+        // Compared in order: results are written out in the order the rules are provided.
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(schemaOnly, Is.EqualTo(expected));
+            Assert.That(schemaOnly, Has.Count.EqualTo(36));
+        }
+    }
+
+    [Test]
+    public static void GetRules_GivenDatabaseQueriesIncluded_ReturnsTheSameRulesAsTheDefaultConstructor()
+    {
+        var mockConnection = CreateMockConnection();
+
+        var included = new DefaultHtmlRuleProvider(tableStatistics: null, queryDatabase: true)
+            .GetRules(mockConnection.Object)
+            .Select(static r => r.Id)
+            .ToList();
+        var defaulted = new DefaultHtmlRuleProvider()
+            .GetRules(mockConnection.Object)
+            .Select(static r => r.Id)
+            .ToList();
+
+        Assert.That(included, Is.EqualTo(defaulted));
+    }
+
+    // A rule can only query the database if it is given a connection to query it with.
+    private static bool TakesConnection(IRule rule) => rule.GetType()
+        .GetConstructors()
+        .Any(static c => c.GetParameters().Any(static p => p.ParameterType == typeof(ISchematicConnection)));
+
     private static Mock<ISchematicConnection> CreateMockConnection()
     {
         var mockDialect = new Mock<IDatabaseDialect>();

@@ -110,6 +110,19 @@ catalog queries for every table, view and routine, so preparing them noticeably 
 connect through PgBouncer in transaction or statement pooling mode without `max_prepared_statements`
 configured, add `Max Auto Prepare=0` to the connection string to turn it off.
 
+### Lint rules that read data
+
+A few lint rules query the database rather than just its schema: they look for empty tables, for nullable
+columns that never hold a value, and for self-referencing rows, and they check that each view still compiles.
+On a large production database the nullable-column check can mean a table scan for every nullable column that
+is always null. Pass `--schema-only-lint` to `report`, or `--schema-only` to `lint`, to leave those rules out. Linting
+then reads nothing beyond the schema, and the issues only those rules can find are not reported.
+
+```sh
+schematic report --config schematic.json --output ./report --schema-only-lint
+schematic lint   --config schematic.json --schema-only
+```
+
 ### Shell completions
 
 The `completion` command prints a tab-completion script for a given shell to standard output. Supported shells are `bash`, `zsh`, `fish`, and `powershell`.

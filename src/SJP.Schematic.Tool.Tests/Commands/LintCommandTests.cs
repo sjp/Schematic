@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -117,6 +118,56 @@ internal static class LintCommandTests
         {
             CommandAppHarness.DeleteSqliteDatabase(dbPath);
         }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenSchemaOnlyFlag_LeavesOutRulesThatQueryTheDatabase()
+    {
+        var dbPath = CommandAppHarness.CreateSampleSqliteDatabase();
+        try
+        {
+            var (defaultExitCode, defaultRuleIds) = await RunJsonLintAsync(dbPath);
+            var (schemaOnlyExitCode, schemaOnlyRuleIds) = await RunJsonLintAsync(dbPath, "--schema-only");
+
+            // Every table in the sample database is empty, which only a rule that reads table data
+            // can tell.
+            const string noRowsPresentOnTableRuleId = "SCHEMATIC0039";
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(defaultExitCode, Is.Zero);
+                Assert.That(schemaOnlyExitCode, Is.Zero);
+                Assert.That(defaultRuleIds, Does.Contain(noRowsPresentOnTableRuleId));
+                Assert.That(schemaOnlyRuleIds, Does.Not.Contain(noRowsPresentOnTableRuleId));
+                Assert.That(schemaOnlyRuleIds, Is.Not.Empty);
+            }
+        }
+        finally
+        {
+            CommandAppHarness.DeleteSqliteDatabase(dbPath);
+        }
+    }
+
+    private static async Task<(int ExitCode, List<string> RuleIds)> RunJsonLintAsync(string dbPath, params string[] extraArgs)
+    {
+        var (console, writer) = CommandAppHarness.CreateCapturingConsole();
+
+        var registrar = new CommandAppHarness.InstanceRegistrar();
+        registrar.RegisterInstance(typeof(IAnsiConsole), console);
+        registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+
+        var app = new CommandApp(registrar);
+        app.Configure(config => config.AddCommand<LintCommand>("lint"));
+
+        var exitCode = await app.RunAsync(["lint", "--dialect", "sqlite", "--connection-string", $"Data Source={dbPath}", "--format", "json", .. extraArgs]);
+
+        using var document = JsonDocument.Parse(writer.ToString());
+        var ruleIds = document.RootElement
+            .EnumerateArray()
+            .Select(static message => message.GetProperty("ruleId").GetString()!)
+            .ToList();
+
+        return (exitCode, ruleIds);
     }
 
     [Test]

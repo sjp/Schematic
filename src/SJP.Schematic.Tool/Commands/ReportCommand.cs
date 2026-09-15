@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting;
+using SJP.Schematic.Reporting.Html.Lint;
 using SJP.Schematic.Tool.Handlers;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -23,6 +24,11 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         [Description("Open the generated report in the default browser once it's ready.")]
         [DefaultValue(false)]
         public bool Open { get; init; }
+
+        [CommandOption("--schema-only-lint")]
+        [Description("Leave out the lint rules that query the database (table contents and view validity), so linting reads nothing beyond the schema. Issues only those rules can find are not reported.")]
+        [DefaultValue(false)]
+        public bool SchemaOnlyLint { get; init; }
 
         public override ValidationResult Validate()
         {
@@ -67,7 +73,13 @@ internal sealed class ReportCommand : AsyncCommand<ReportCommand.Settings>
         // from the snapshot the rest of the report is built from
         var tableStatistics = await databaseProvider.GetTableStatisticsProviderAsync(cancellationToken);
 
-        var reportGenerator = new ReportGenerator(connection, databaseProvider, snapshotDb, settings.OutputDirectory!.FullName, tableStatistics);
+        // without a rule provider the report uses its full default rule set; the schema-only set
+        // needs no statistics because only the rules that query the database make use of them
+        var ruleProvider = settings.SchemaOnlyLint
+            ? new DefaultHtmlRuleProvider(tableStatistics: null, queryDatabase: false)
+            : null;
+
+        var reportGenerator = new ReportGenerator(connection, databaseProvider, snapshotDb, settings.OutputDirectory!.FullName, tableStatistics, ruleProvider);
         await reportGenerator.GenerateAsync(cancellationToken);
 
         _console.Write("Report generated to: " + settings.OutputDirectory!.FullName);

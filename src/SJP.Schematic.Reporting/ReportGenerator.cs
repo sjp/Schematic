@@ -19,17 +19,48 @@ namespace SJP.Schematic.Reporting;
 public class ReportGenerator
 {
     public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, string directory, ITableStatisticsProvider? tableStatistics = null)
-        : this(connection, databaseProvider, database, new DirectoryInfo(directory), tableStatistics)
+        : this(connection, databaseProvider, database, directory, tableStatistics, ruleProvider: null)
     {
     }
 
     public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, DirectoryInfo directory, ITableStatisticsProvider? tableStatistics = null)
+        : this(connection, databaseProvider, database, directory, tableStatistics, ruleProvider: null)
+    {
+    }
+
+    /// <summary>
+    /// Creates a report generator whose lint page is produced by the given rules.
+    /// </summary>
+    /// <param name="connection">A schematic connection.</param>
+    /// <param name="databaseProvider">The provider the database was read from.</param>
+    /// <param name="database">The database to report on.</param>
+    /// <param name="directory">The directory the report is written to.</param>
+    /// <param name="tableStatistics">The statistics the database records for its tables. <see langword="null" /> when none are available.</param>
+    /// <param name="ruleProvider">The rules the lint page is built from. <see langword="null" /> to use every rule from <see cref="DefaultHtmlRuleProvider"/>, which is also handed the table statistics the report reads.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/>, <paramref name="databaseProvider"/>, <paramref name="database"/> or <paramref name="directory"/> is <see langword="null" />.</exception>
+    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, string directory, ITableStatisticsProvider? tableStatistics, IRuleProvider? ruleProvider)
+        : this(connection, databaseProvider, database, new DirectoryInfo(directory ?? throw new ArgumentNullException(nameof(directory))), tableStatistics, ruleProvider)
+    {
+    }
+
+    /// <summary>
+    /// Creates a report generator whose lint page is produced by the given rules.
+    /// </summary>
+    /// <param name="connection">A schematic connection.</param>
+    /// <param name="databaseProvider">The provider the database was read from.</param>
+    /// <param name="database">The database to report on.</param>
+    /// <param name="directory">The directory the report is written to.</param>
+    /// <param name="tableStatistics">The statistics the database records for its tables. <see langword="null" /> when none are available.</param>
+    /// <param name="ruleProvider">The rules the lint page is built from. <see langword="null" /> to use every rule from <see cref="DefaultHtmlRuleProvider"/>, which is also handed the table statistics the report reads.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="connection"/>, <paramref name="databaseProvider"/>, <paramref name="database"/> or <paramref name="directory"/> is <see langword="null" />.</exception>
+    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, DirectoryInfo directory, ITableStatisticsProvider? tableStatistics, IRuleProvider? ruleProvider)
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         DatabaseProvider = databaseProvider ?? throw new ArgumentNullException(nameof(databaseProvider));
         Database = database ?? throw new ArgumentNullException(nameof(database));
         ExportDirectory = directory ?? throw new ArgumentNullException(nameof(directory));
         TableStatistics = tableStatistics;
+        RuleProvider = ruleProvider;
     }
 
     protected ISchematicConnection Connection { get; }
@@ -45,6 +76,11 @@ public class ReportGenerator
     /// The report shows a row count for each table when they are available.
     /// </summary>
     protected ITableStatisticsProvider? TableStatistics { get; }
+
+    /// <summary>
+    /// The rules the lint page is built from, when the caller chose them. The default HTML rule set is used otherwise.
+    /// </summary>
+    protected IRuleProvider? RuleProvider { get; }
 
     public async Task GenerateAsync(CancellationToken cancellationToken = default)
     {
@@ -196,12 +232,12 @@ public class ReportGenerator
     // render and where to write it flow in through RenderAsync instead — see IDataRenderer.
     private IEnumerable<IDataRenderer> GetRenderers(IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics)
     {
-        // Lint analysis produces data/lint.json from the default HTML rule set. Rules are taken at
-        // their own default levels rather than being forced to a single one: the report's severity
-        // filter is only useful if the rules actually disagree about how serious they are. The
-        // rules are handed the statistics the report already retrieved, so that they spend no
-        // queries of their own on them.
-        var ruleProvider = new DefaultHtmlRuleProvider(new PreloadedTableStatisticsProvider(tableStatistics));
+        // Lint analysis produces data/lint.json from the caller's rules, or else the default HTML
+        // rule set. Rules are taken at their own default levels rather than being forced to a single
+        // one: the report's severity filter is only useful if the rules actually disagree about how
+        // serious they are. The default rules are handed the statistics the report already
+        // retrieved, so that they spend no queries of their own on them.
+        var ruleProvider = RuleProvider ?? new DefaultHtmlRuleProvider(new PreloadedTableStatisticsProvider(tableStatistics));
         var rules = ruleProvider.GetRules(Connection);
         var linter = new RelationalDatabaseLinter(rules);
 

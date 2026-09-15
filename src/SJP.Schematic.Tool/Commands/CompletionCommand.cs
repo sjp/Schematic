@@ -90,10 +90,10 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
                     COMPREPLY=( $(compgen -W "-o --output --force $global" -- "$cur") )
                     ;;
                 lint)
-                    COMPREPLY=( $(compgen -W "-c --config $conn $global" -- "$cur") )
+                    COMPREPLY=( $(compgen -W "-c --config $conn --schema-only $global" -- "$cur") )
                     ;;
                 report)
-                    COMPREPLY=( $(compgen -W "-c --config $conn --output $global" -- "$cur") )
+                    COMPREPLY=( $(compgen -W "-c --config $conn --output --schema-only-lint $global" -- "$cur") )
                     ;;
                 test)
                     COMPREPLY=( $(compgen -W "-c --config $conn -t --timeout $global" -- "$cur") )
@@ -200,6 +200,8 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
         complete -c schematic -l connection-string -r -d 'A connection string used to connect to the database.'
         complete -c schematic -l force -d 'Overwrite the output file if it already exists.'
         complete -c schematic -l output -r -d 'The directory to save the generated report.'
+        complete -c schematic -n '__fish_seen_subcommand_from lint' -l schema-only -d 'Leave out the rules that query the database.'
+        complete -c schematic -n '__fish_seen_subcommand_from report' -l schema-only-lint -d 'Leave out the lint rules that query the database.'
         complete -c schematic -s t -l timeout -r -d 'A timeout (in seconds) to wait for.'
         complete -c schematic -l convention -r -d 'The naming convention to use.'
         complete -c schematic -l project-path -r -d 'The file path used to save the generated project.'
