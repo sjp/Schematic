@@ -25,7 +25,7 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentNullException"><paramref name="column"/> or <paramref name="expression"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace, or <paramref name="order"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order)
-        : this(expression, [column], order)
+        : this(expression, column, order, IndexColumnNullOrder.Default, Option<Identifier>.None, Option<int>.None)
     {
     }
 
@@ -41,7 +41,7 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentNullException"><paramref name="column"/> or <paramref name="expression"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace, or <paramref name="order"/> or <paramref name="nullOrder"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IDatabaseColumn column, IndexColumnOrder order, IndexColumnNullOrder nullOrder, Option<Identifier> collation, Option<int> prefixLength)
-        : this(expression, [column], order, nullOrder, collation, prefixLength)
+        : this([column ?? throw new ArgumentNullException(nameof(column))], expression, order, nullOrder, collation, prefixLength)
     {
     }
 
@@ -70,12 +70,15 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
     /// <exception cref="ArgumentNullException"><paramref name="dependentColumns"/> is <see langword="null" /> or contains <see langword="null" /> values, or <paramref name="expression"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentException"><paramref name="expression"/> is empty or whitespace, <paramref name="dependentColumns"/> is empty, or <paramref name="order"/> or <paramref name="nullOrder"/> is an invalid enum.</exception>
     public DatabaseIndexColumn(string expression, IEnumerable<IDatabaseColumn> dependentColumns, IndexColumnOrder order, IndexColumnNullOrder nullOrder, Option<Identifier> collation, Option<int> prefixLength)
+        : this(CopyDependentColumns(dependentColumns), expression, order, nullOrder, collation, prefixLength)
+    {
+    }
+
+    // Takes a column list that is already copied, non-empty and free of null values, so a single column needs no further copying.
+    private DatabaseIndexColumn(IReadOnlyList<IDatabaseColumn> columns, string expression, IndexColumnOrder order, IndexColumnNullOrder nullOrder, Option<Identifier> collation, Option<int> prefixLength)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
-        var columns = dependentColumns.ToDefensiveCopy(nameof(dependentColumns));
-        if (columns.Empty())
-            throw new ArgumentException("An index column must depend on at least one column.", nameof(dependentColumns));
         if (!order.IsValid())
             throw new ArgumentException($"The {nameof(IndexColumnOrder)} provided must be a valid enum.", nameof(order));
         if (!nullOrder.IsValid())
@@ -87,6 +90,15 @@ public class DatabaseIndexColumn : IDatabaseIndexColumn
         NullOrder = nullOrder;
         Collation = collation;
         PrefixLength = prefixLength;
+    }
+
+    private static IDatabaseColumn[] CopyDependentColumns(IEnumerable<IDatabaseColumn> dependentColumns)
+    {
+        var columns = dependentColumns.ToDefensiveCopy(nameof(dependentColumns));
+        if (columns.Length == 0)
+            throw new ArgumentException("An index column must depend on at least one column.", nameof(dependentColumns));
+
+        return columns;
     }
 
     /// <summary>

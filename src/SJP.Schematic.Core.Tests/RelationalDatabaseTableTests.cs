@@ -376,6 +376,23 @@ internal static class RelationalDatabaseTableTests
     }
 
     [Test]
+    public static void Collections_GivenEmptyCollectionExpressions_AreEmpty()
+    {
+        var table = new RelationalDatabaseTable("test_table", [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Columns, Is.Empty);
+            Assert.That(table.UniqueKeys, Is.Empty);
+            Assert.That(table.ParentKeys, Is.Empty);
+            Assert.That(table.ChildKeys, Is.Empty);
+            Assert.That(table.Indexes, Is.Empty);
+            Assert.That(table.Checks, Is.Empty);
+            Assert.That(table.Triggers, Is.Empty);
+        }
+    }
+
+    [Test]
     public static void Collections_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
     {
         Identifier tableName = "test_table";

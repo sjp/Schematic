@@ -18,15 +18,24 @@ internal static class DefensiveCopyExtensions
     /// <param name="paramName">The name of the parameter that <paramref name="source"/> was provided as.</param>
     /// <returns>A copy of <paramref name="source"/> that the caller is unable to modify.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
-    /// <remarks><paramref name="source"/> is enumerated exactly once, so the validated contents are always the stored contents.</remarks>
-    public static List<T> ToDefensiveCopy<T>(this IEnumerable<T> source, string paramName)
+    /// <remarks>
+    /// <paramref name="source"/> is enumerated exactly once, so the validated contents are always the stored contents.
+    /// The copy is an exact-size array, and every empty source shares the same empty array, so no memory is retained for empty collections.
+    /// </remarks>
+    public static T[] ToDefensiveCopy<T>(this IEnumerable<T> source, string paramName)
         where T : notnull
     {
         ArgumentNullException.ThrowIfNull(source, paramName);
 
-        var copy = source.ToList();
-        if (copy.AnyNull())
-            throw new ArgumentNullException(paramName);
+        var copy = source.ToArray();
+        if (copy.Length == 0)
+            return [];
+
+        foreach (var item in copy)
+        {
+            if (item is null)
+                throw new ArgumentNullException(paramName);
+        }
 
         return copy;
     }

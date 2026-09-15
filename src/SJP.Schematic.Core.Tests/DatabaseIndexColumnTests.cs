@@ -32,7 +32,10 @@ internal static class DatabaseIndexColumnTests
     {
         const string expression = "lower(test_column)";
 
-        Assert.That(() => new DatabaseIndexColumn(expression, (IDatabaseColumn)null, IndexColumnOrder.Ascending), Throws.ArgumentNullException);
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, (IDatabaseColumn)null, IndexColumnOrder.Ascending),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("column")
+        );
     }
 
     [Test]
@@ -188,5 +191,41 @@ internal static class DatabaseIndexColumnTests
         dependentColumns.Add(Mock.Of<IDatabaseColumn>());
 
         Assert.That(indexColumn.DependentColumns, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public static void DependentColumns_GivenLazilyEnumeratedColumns_ContainsColumnsInOrder()
+    {
+        const string expression = "a || b";
+        var first = Mock.Of<IDatabaseColumn>();
+        var second = Mock.Of<IDatabaseColumn>();
+        var enumerationCount = 0;
+
+        IEnumerable<IDatabaseColumn> GetColumns()
+        {
+            enumerationCount++;
+            yield return first;
+            yield return second;
+        }
+
+        var indexColumn = new DatabaseIndexColumn(expression, GetColumns(), IndexColumnOrder.Ascending);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.DependentColumns, Is.EqualTo(new[] { first, second }));
+            Assert.That(enumerationCount, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenLazilyEnumeratedEmptyColumns_ThrowsArgumentException()
+    {
+        const string expression = "lower(test_column)";
+        var columns = Enumerable.Empty<IDatabaseColumn>().Select(static c => c);
+
+        Assert.That(
+            () => new DatabaseIndexColumn(expression, columns, IndexColumnOrder.Ascending),
+            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("dependentColumns")
+        );
     }
 }
