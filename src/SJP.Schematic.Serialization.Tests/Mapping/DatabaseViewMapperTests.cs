@@ -93,6 +93,7 @@ internal static class DatabaseViewMapperTests
             Assert.That(result, Is.InstanceOf<IDatabaseMaterializedView>());
             Assert.That(result.Indexes, Has.Count.EqualTo(1));
             Assert.That(result.Indexes.Single().Name.LocalName, Is.EqualTo("test_index"));
+            Assert.That(result.Indexes.Single().Columns.Single().DependentColumns.Single(), Is.SameAs(result.Columns[0]));
 
             var materializedView = (IDatabaseMaterializedView)result;
             Assert.That(materializedView.RefreshMode, Is.EqualTo(MaterializedViewRefreshMode.OnDemand));

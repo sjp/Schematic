@@ -1,4 +1,5 @@
-﻿using Boxed.Mapping;
+﻿using System.Linq;
+using Boxed.Mapping;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Serialization.Mapping;
@@ -15,21 +16,22 @@ public class DatabaseRelationalKeyMapper
     /// </summary>
     /// <param name="source">A serialized foreign key relationship.</param>
     /// <returns>A foreign key relationship.</returns>
-    public IDatabaseRelationalKey Map(Dto.DatabaseRelationalKey source)
+    public IDatabaseRelationalKey Map(Dto.DatabaseRelationalKey source) => Map(source, ColumnLookup.Empty, ColumnLookup.Empty);
+
+    internal IDatabaseRelationalKey Map(Dto.DatabaseRelationalKey source, ColumnLookup childTableColumns, ColumnLookup parentTableColumns)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
-        var databaseKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
-        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var databaseKeyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
 
         return new DatabaseRelationalKey(
             identifierMapper.Map(source.ChildTable),
-            databaseKeyMapper.Map(source.ChildKey),
+            databaseKeyMapper.Map(source.ChildKey, childTableColumns),
             identifierMapper.Map(source.ParentTable),
-            databaseKeyMapper.Map(source.ParentKey),
+            databaseKeyMapper.Map(source.ParentKey, parentTableColumns),
             source.DeleteAction,
             source.UpdateAction,
             source.MatchType,
-            columnMapper.MapList(source.SetNullColumns)
+            childTableColumns.ResolveList(source.SetNullColumns)
         );
     }
 
@@ -38,22 +40,30 @@ public class DatabaseRelationalKeyMapper
     /// </summary>
     /// <param name="source">A foreign key relationship.</param>
     /// <returns>A serialized foreign key relationship.</returns>
-    public Dto.DatabaseRelationalKey Map(IDatabaseRelationalKey source)
-    {
-        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
-        var databaseKeyMapper = MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
-        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+    public Dto.DatabaseRelationalKey Map(IDatabaseRelationalKey source) => Map(source, new SerializedObjectCache());
 
-        return new Dto.DatabaseRelationalKey
+    internal Dto.DatabaseRelationalKey Map(IDatabaseRelationalKey source, SerializedObjectCache cache)
+    {
+        if (cache.RelationalKeys.TryGetValue(source, out var cached))
+            return cached;
+
+        var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
+        var databaseKeyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+        var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+
+        var result = new Dto.DatabaseRelationalKey
         {
             ChildTable = identifierMapper.Map(source.ChildTable),
-            ChildKey = databaseKeyMapper.Map(source.ChildKey),
+            ChildKey = databaseKeyMapper.Map(source.ChildKey, cache),
             ParentTable = identifierMapper.Map(source.ParentTable),
-            ParentKey = databaseKeyMapper.Map(source.ParentKey),
+            ParentKey = databaseKeyMapper.Map(source.ParentKey, cache),
             DeleteAction = source.DeleteAction,
             UpdateAction = source.UpdateAction,
             MatchType = source.MatchType,
-            SetNullColumns = columnMapper.MapList(source.SetNullColumns),
+            SetNullColumns = source.SetNullColumns.Select(column => columnMapper.Map(column, cache)).ToList(),
         };
+
+        cache.RelationalKeys.Add(source, result);
+        return result;
     }
 }

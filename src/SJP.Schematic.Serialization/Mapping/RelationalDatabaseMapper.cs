@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Boxed.Mapping;
@@ -26,7 +28,6 @@ public class RelationalDatabaseMapper
         ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<Dto.IdentifierDefaults, IIdentifierDefaults>();
-        var tableMapper = MapperRegistry.GetMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>();
         var viewMapper = MapperRegistry.GetMapper<Dto.DatabaseView, IDatabaseView>();
         var sequenceMapper = MapperRegistry.GetMapper<Dto.DatabaseSequence, IDatabaseSequence>();
         var synonymMapper = MapperRegistry.GetMapper<Dto.DatabaseSynonym, IDatabaseSynonym>();
@@ -37,7 +38,7 @@ public class RelationalDatabaseMapper
         return new RelationalDatabase(
             identifierDefaultsMapper.Map(source.IdentifierDefaults),
             identifierResolver,
-            tableMapper.MapList(source.Tables),
+            MapTables(source.Tables),
             viewMapper.MapList(source.Views),
             sequenceMapper.MapList(source.Sequences),
             synonymMapper.MapList(source.Synonyms),
@@ -45,6 +46,34 @@ public class RelationalDatabaseMapper
             userDefinedTypeMapper.MapList(source.UserDefinedTypes),
             schemaMapper.MapList(source.Schemas)
         );
+    }
+
+    // Every table's columns are mapped before any table is built, so that both sides of a foreign key
+    // can be read as the columns of the tables they belong to rather than as copies. A table name that
+    // appears more than once is ambiguous, so foreign keys naming it keep their own copies.
+    private static List<IRelationalDatabaseTable> MapTables(IEnumerable<Dto.RelationalDatabaseTable> source)
+    {
+        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var tableMapper = (RelationalDatabaseTableMapper)MapperRegistry.GetMapper<Dto.RelationalDatabaseTable, IRelationalDatabaseTable>();
+
+        var tables = source.ToList();
+        var tableColumns = tables.ConvertAll(table => new ColumnLookup(columnMapper.MapList(table.Columns)));
+
+        var columnsByTableName = new Dictionary<Dto.Identifier, ColumnLookup>(tables.Count);
+        var duplicateTableNames = new HashSet<Dto.Identifier>();
+        for (var i = 0; i < tables.Count; i++)
+        {
+            if (!columnsByTableName.TryAdd(tables[i].TableName, tableColumns[i]))
+                duplicateTableNames.Add(tables[i].TableName);
+        }
+        foreach (var tableName in duplicateTableNames)
+            columnsByTableName.Remove(tableName);
+
+        var result = new List<IRelationalDatabaseTable>(tables.Count);
+        for (var i = 0; i < tables.Count; i++)
+            result.Add(tableMapper.Map(tables[i], tableColumns[i], columnsByTableName));
+
+        return result;
     }
 
     /// <summary>
@@ -55,8 +84,8 @@ public class RelationalDatabaseMapper
     /// <returns>A serialized database definition.</returns>
     public async Task<Dto.RelationalDatabase> MapAsync(IRelationalDatabase source, CancellationToken cancellationToken)
     {
-        var tableMapper = MapperRegistry.GetMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>();
-        var viewMapper = MapperRegistry.GetMapper<IDatabaseView, Dto.DatabaseView>();
+        var tableMapper = (RelationalDatabaseTableMapper)MapperRegistry.GetMapper<IRelationalDatabaseTable, Dto.RelationalDatabaseTable>();
+        var viewMapper = (DatabaseViewMapper)MapperRegistry.GetMapper<IDatabaseView, Dto.DatabaseView>();
         var sequenceMapper = MapperRegistry.GetMapper<IDatabaseSequence, Dto.DatabaseSequence>();
         var synonymMapper = MapperRegistry.GetMapper<IDatabaseSynonym, Dto.DatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<IDatabaseRoutine, Dto.DatabaseRoutine>();
@@ -83,11 +112,15 @@ public class RelationalDatabaseMapper
 
         var identifierDefaultsMapper = MapperRegistry.GetMapper<IIdentifierDefaults, Dto.IdentifierDefaults>();
 
+        // shared across every table and view, so that an object referenced from several places,
+        // such as a primary key that foreign keys in other tables point at, is mapped once
+        var cache = new SerializedObjectCache();
+
         return new Dto.RelationalDatabase
         {
             IdentifierDefaults = identifierDefaultsMapper.Map(source.IdentifierDefaults),
-            Tables = tableMapper.MapList(tables),
-            Views = viewMapper.MapList(views),
+            Tables = tables.Select(table => tableMapper.Map(table, cache)).ToList(),
+            Views = views.Select(view => viewMapper.Map(view, cache)).ToList(),
             Sequences = sequenceMapper.MapList(sequences),
             Synonyms = synonymMapper.MapList(synonyms),
             Routines = routineMapper.MapList(routines),

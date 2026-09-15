@@ -1,4 +1,5 @@
-﻿using Boxed.Mapping;
+﻿using System.Linq;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -16,15 +17,16 @@ public class DatabaseIndexColumnMapper
     /// </summary>
     /// <param name="source">A serialized index column.</param>
     /// <returns>An index column.</returns>
-    public IDatabaseIndexColumn Map(Dto.DatabaseIndexColumn source)
+    public IDatabaseIndexColumn Map(Dto.DatabaseIndexColumn source) => Map(source, ColumnLookup.Empty);
+
+    internal IDatabaseIndexColumn Map(Dto.DatabaseIndexColumn source, ColumnLookup columns)
     {
-        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier?, Option<Identifier>>();
         var intOptionMapper = MapperRegistry.GetMapper<int?, Option<int>>();
 
         return new DatabaseIndexColumn(
             source.Expression,
-            columnMapper.MapList(source.DependentColumns),
+            columns.ResolveList(source.DependentColumns),
             source.Order,
             source.NullOrder,
             identifierMapper.Map(source.Collation),
@@ -37,16 +39,18 @@ public class DatabaseIndexColumnMapper
     /// </summary>
     /// <param name="source">An index column.</param>
     /// <returns>A serialized index column.</returns>
-    public Dto.DatabaseIndexColumn Map(IDatabaseIndexColumn source)
+    public Dto.DatabaseIndexColumn Map(IDatabaseIndexColumn source) => Map(source, new SerializedObjectCache());
+
+    internal Dto.DatabaseIndexColumn Map(IDatabaseIndexColumn source, SerializedObjectCache cache)
     {
-        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
         var identifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
         var intOptionMapper = MapperRegistry.GetMapper<Option<int>, int?>();
 
         return new Dto.DatabaseIndexColumn
         {
             Expression = source.Expression,
-            DependentColumns = columnMapper.MapList(source.DependentColumns),
+            DependentColumns = source.DependentColumns.Select(column => columnMapper.Map(column, cache)).ToList(),
             Order = source.Order,
             NullOrder = source.NullOrder,
             Collation = identifierMapper.Map(source.Collation),

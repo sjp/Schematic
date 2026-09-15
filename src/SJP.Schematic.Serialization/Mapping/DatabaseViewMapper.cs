@@ -1,3 +1,4 @@
+using System.Linq;
 using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
@@ -16,18 +17,23 @@ public class DatabaseViewMapper
     /// </summary>
     /// <param name="source">A serialized view.</param>
     /// <returns>A view. A materialized view is returned when the serialized view is marked as materialized.</returns>
+    /// <remarks>
+    /// The columns of the view's indexes are the instances in the view's <see cref="IDatabaseView.Columns"/>
+    /// whenever a column of that name exists.
+    /// </remarks>
     public IDatabaseView Map(Dto.DatabaseView source)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
         var triggerMapper = MapperRegistry.GetMapper<Dto.DatabaseTrigger, IDatabaseTrigger>();
-        var indexMapper = MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
+        var indexMapper = (IndexMapper)MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
         var optionalMapper = MapperRegistry.GetMapper<string?, Option<string>>();
 
         var viewName = identifierMapper.Map(source.ViewName);
         var columns = columnMapper.MapList(source.Columns);
         var triggers = triggerMapper.MapList(source.Triggers);
-        var indexes = indexMapper.MapList(source.Indexes);
+        var columnLookup = new ColumnLookup(columns);
+        var indexes = source.Indexes.Select(index => indexMapper.Map(index, columnLookup)).ToList();
 
         return source.IsMaterialized
             ? new DatabaseMaterializedView(
@@ -56,18 +62,20 @@ public class DatabaseViewMapper
     /// </summary>
     /// <param name="source">A view.</param>
     /// <returns>A serialized view.</returns>
-    public Dto.DatabaseView Map(IDatabaseView source)
+    public Dto.DatabaseView Map(IDatabaseView source) => Map(source, new SerializedObjectCache());
+
+    internal Dto.DatabaseView Map(IDatabaseView source, SerializedObjectCache cache)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
-        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
         var triggerMapper = MapperRegistry.GetMapper<IDatabaseTrigger, Dto.DatabaseTrigger>();
-        var indexMapper = MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
+        var indexMapper = (IndexMapper)MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
         var optionalMapper = MapperRegistry.GetMapper<Option<string>, string?>();
 
         var viewName = identifierMapper.Map(source.Name);
-        var columns = columnMapper.MapList(source.Columns);
+        var columns = source.Columns.Select(column => columnMapper.Map(column, cache)).ToList();
         var triggers = triggerMapper.MapList(source.Triggers);
-        var indexes = indexMapper.MapList(source.Indexes);
+        var indexes = source.Indexes.Select(index => indexMapper.Map(index, cache)).ToList();
 
         // the refresh metadata only exists on a materialized view; a view provider that reports a
         // materialized view without implementing the interface leaves it at its default.

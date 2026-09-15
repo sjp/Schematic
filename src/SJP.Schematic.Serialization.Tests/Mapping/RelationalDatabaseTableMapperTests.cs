@@ -94,4 +94,150 @@ internal static class RelationalDatabaseTableMapperTests
             Assert.That(result.Collation, OptionIs.None);
         }
     }
+
+    [Test]
+    public static void Map_GivenTableWithKeysAndIndexes_ReturnsKeyAndIndexColumnsAsTableColumns()
+    {
+        var mapper = new RelationalDatabaseTableMapper();
+
+        var idColumn = CreateColumn("id");
+        var codeColumn = CreateColumn("code");
+        var parentIdColumn = CreateColumn("parent_id");
+
+        var primaryKeyIndex = new DatabaseIndex("pk_index", true, [new DatabaseIndexColumn("id", idColumn, IndexColumnOrder.Ascending)], [], true, Option<string>.None);
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [idColumn], true, Option<IDatabaseIndex>.Some(primaryKeyIndex));
+        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("uk"), DatabaseKeyType.Unique, [codeColumn], true);
+        var index = new DatabaseIndex("ix", false, [new DatabaseIndexColumn("parent_id", parentIdColumn, IndexColumnOrder.Ascending)], [codeColumn], true, Option<string>.None);
+
+        // a self-referencing foreign key, so that both of its sides belong to the mapped table
+        var foreignKey = new DatabaseRelationalKey(
+            "test_table",
+            new DatabaseKey(Option<Identifier>.Some("fk"), DatabaseKeyType.Foreign, [parentIdColumn], true),
+            "test_table",
+            primaryKey,
+            ReferentialAction.SetNull,
+            ReferentialAction.NoAction,
+            ForeignKeyMatchType.Simple,
+            [parentIdColumn]
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test_table",
+            [idColumn, codeColumn, parentIdColumn],
+            Option<IDatabaseKey>.Some(primaryKey),
+            [uniqueKey],
+            [foreignKey],
+            [foreignKey],
+            [index],
+            [],
+            []
+        );
+
+        var result = mapper.Map(mapper.Map(table));
+
+        var resultId = result.Columns[0];
+        var resultCode = result.Columns[1];
+        var resultParentId = result.Columns[2];
+        var resultPrimaryKey = result.PrimaryKey.UnwrapSome();
+        var resultIndex = result.Indexes.Single();
+        var resultParentKey = result.ParentKeys.Single();
+        var resultChildKey = result.ChildKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(resultPrimaryKey.Columns.Single(), Is.SameAs(resultId));
+            Assert.That(resultPrimaryKey.BackingIndex.UnwrapSome().Columns.Single().DependentColumns.Single(), Is.SameAs(resultId));
+            Assert.That(result.UniqueKeys.Single().Columns.Single(), Is.SameAs(resultCode));
+            Assert.That(resultIndex.Columns.Single().DependentColumns.Single(), Is.SameAs(resultParentId));
+            Assert.That(resultIndex.IncludedColumns.Single(), Is.SameAs(resultCode));
+            Assert.That(resultParentKey.ChildKey.Columns.Single(), Is.SameAs(resultParentId));
+            Assert.That(resultParentKey.ParentKey.Columns.Single(), Is.SameAs(resultId));
+            Assert.That(resultParentKey.SetNullColumns.Single(), Is.SameAs(resultParentId));
+            Assert.That(resultChildKey.ChildKey.Columns.Single(), Is.SameAs(resultParentId));
+            Assert.That(resultChildKey.ParentKey.Columns.Single(), Is.SameAs(resultId));
+        }
+    }
+
+    [Test]
+    public static void Map_GivenForeignKeyToAnotherTable_ReturnsOtherTableColumnsAsCopies()
+    {
+        var mapper = new RelationalDatabaseTableMapper();
+
+        var parentIdColumn = CreateColumn("parent_id");
+        var otherTableIdColumn = CreateColumn("id");
+        var foreignKey = new DatabaseRelationalKey(
+            "test_table",
+            new DatabaseKey(Option<Identifier>.Some("fk"), DatabaseKeyType.Foreign, [parentIdColumn], true),
+            "parent_table",
+            new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [otherTableIdColumn], true),
+            ReferentialAction.NoAction,
+            ReferentialAction.NoAction
+        );
+        var table = new RelationalDatabaseTable("test_table", [parentIdColumn], Option<IDatabaseKey>.None, [], [foreignKey], [], [], [], []);
+
+        var result = mapper.Map(mapper.Map(table));
+
+        var resultParentKey = result.ParentKeys.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(resultParentKey.ChildKey.Columns.Single(), Is.SameAs(result.Columns[0]));
+            Assert.That(resultParentKey.ParentKey.Columns.Single().Name.LocalName, Is.EqualTo("id"));
+        }
+    }
+
+    [Test]
+    public static void Map_GivenKeyColumnMissingFromTableColumns_ReturnsKeyColumnCopy()
+    {
+        var mapper = new RelationalDatabaseTableMapper();
+
+        var idColumn = CreateColumn("id");
+        var hiddenColumn = CreateColumn("hidden_id");
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [hiddenColumn], true);
+        var table = new RelationalDatabaseTable("test_table", [idColumn], Option<IDatabaseKey>.Some(primaryKey), [], [], [], [], [], []);
+
+        var result = mapper.Map(mapper.Map(table));
+
+        var keyColumn = result.PrimaryKey.UnwrapSome().Columns.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(keyColumn.Name.LocalName, Is.EqualTo("hidden_id"));
+            Assert.That(keyColumn, Is.Not.SameAs(result.Columns[0]));
+        }
+    }
+
+    [Test]
+    public static void Map_GivenColumnNamesDifferingOnlyByCase_ReturnsKeyColumnWithExactName()
+    {
+        var mapper = new RelationalDatabaseTableMapper();
+
+        var lowerColumn = CreateColumn("a");
+        var upperColumn = CreateColumn("A");
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [upperColumn], true);
+        var table = new RelationalDatabaseTable("test_table", [lowerColumn, upperColumn], Option<IDatabaseKey>.Some(primaryKey), [], [], [], [], [], []);
+
+        var result = mapper.Map(mapper.Map(table));
+
+        Assert.That(result.PrimaryKey.UnwrapSome().Columns.Single(), Is.SameAs(result.Columns[1]));
+    }
+
+    [Test]
+    public static void Map_GivenTableWithKeysAndIndexes_ReusesSerializedColumns()
+    {
+        var mapper = new RelationalDatabaseTableMapper();
+
+        var idColumn = CreateColumn("id");
+        var index = new DatabaseIndex("ix", true, [new DatabaseIndexColumn("id", idColumn, IndexColumnOrder.Ascending)], [], true, Option<string>.None);
+        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [idColumn], true, Option<IDatabaseIndex>.Some(index));
+        var table = new RelationalDatabaseTable("test_table", [idColumn], Option<IDatabaseKey>.Some(primaryKey), [], [], [], [index], [], []);
+
+        var result = mapper.Map(table);
+
+        var serializedColumn = result.Columns.Single();
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.PrimaryKey!.Columns.Single(), Is.SameAs(serializedColumn));
+            Assert.That(result.PrimaryKey.BackingIndex, Is.SameAs(result.Indexes.Single()));
+            Assert.That(result.Indexes.Single().Columns.Single().DependentColumns.Single(), Is.SameAs(serializedColumn));
+        }
+    }
 }

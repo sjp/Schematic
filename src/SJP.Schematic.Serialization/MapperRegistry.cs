@@ -40,8 +40,6 @@ internal static class MapperRegistry
 
         RegisterMapper<Dto.DatabaseKey, IDatabaseKey>(mappers, () => new DatabaseKeyMapper());
         RegisterMapper<IDatabaseKey, Dto.DatabaseKey>(mappers, () => new DatabaseKeyMapper());
-        RegisterMapper<Dto.DatabaseKey?, Option<IDatabaseKey>>(mappers, () => new DatabaseKeyMapper());
-        RegisterMapper<Option<IDatabaseKey>, Dto.DatabaseKey?>(mappers, () => new DatabaseKeyMapper());
 
         RegisterMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>(mappers, () => new DatabaseRelationalKeyMapper());
         RegisterMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>(mappers, () => new DatabaseRelationalKeyMapper());

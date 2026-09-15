@@ -18,31 +18,58 @@ public class RelationalDatabaseTableMapper
     /// </summary>
     /// <param name="source">A serialized table.</param>
     /// <returns>A table.</returns>
+    /// <remarks>
+    /// The columns of the table's keys and indexes, and the columns of its own side of each foreign
+    /// key, are the instances in the table's <see cref="IRelationalDatabaseTable.Columns"/> whenever
+    /// a column of that name exists. The other table's side of a foreign key is read as separate
+    /// instances, because that table is not mapped here.
+    /// </remarks>
     public IRelationalDatabaseTable Map(Dto.RelationalDatabaseTable source)
     {
-        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
-        var optionalKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey?, Option<IDatabaseKey>>();
-        var keyMapper = MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
-        var relationalKeyMapper = MapperRegistry.GetMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>();
-        var indexMapper = MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
+
+        return Map(source, new ColumnLookup(columnMapper.MapList(source.Columns)), EmptyTableColumns);
+    }
+
+    /// <summary>
+    /// Maps a serialized table whose columns are already mapped.
+    /// </summary>
+    /// <param name="source">A serialized table.</param>
+    /// <param name="columns">The table's mapped columns.</param>
+    /// <param name="tableColumns">The mapped columns of the other tables, by table name, used for the other side of foreign keys.</param>
+    /// <returns>A table.</returns>
+    internal IRelationalDatabaseTable Map(
+        Dto.RelationalDatabaseTable source,
+        ColumnLookup columns,
+        IReadOnlyDictionary<Dto.Identifier, ColumnLookup> tableColumns)
+    {
+        var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
+        var keyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
+        var relationalKeyMapper = (DatabaseRelationalKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>();
+        var indexMapper = (IndexMapper)MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
         var checkMapper = MapperRegistry.GetMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>();
         var triggerMapper = MapperRegistry.GetMapper<Dto.DatabaseTrigger, IDatabaseTrigger>();
 
-        var columns = columnMapper.MapList(source.Columns);
+        ColumnLookup ColumnsOf(Dto.Identifier tableName) => tableName == source.TableName
+            ? columns
+            : tableColumns.GetValueOrDefault(tableName, ColumnLookup.Empty);
+
+        var primaryKey = source.PrimaryKey != null
+            ? Option<IDatabaseKey>.Some(keyMapper.Map(source.PrimaryKey, columns))
+            : Option<IDatabaseKey>.None;
 
         return new RelationalDatabaseTable(
             identifierMapper.Map<Dto.Identifier, Identifier>(source.TableName),
-            columns,
-            optionalKeyMapper.Map(source.PrimaryKey),
-            keyMapper.MapList(source.UniqueKeys),
-            relationalKeyMapper.MapList(source.ParentKeys),
-            relationalKeyMapper.MapList(source.ChildKeys),
-            indexMapper.MapList(source.Indexes),
+            columns.Columns,
+            primaryKey,
+            source.UniqueKeys.Select(key => keyMapper.Map(key, columns)).ToList(),
+            source.ParentKeys.Select(key => relationalKeyMapper.Map(key, ColumnsOf(key.ChildTable), ColumnsOf(key.ParentTable))).ToList(),
+            source.ChildKeys.Select(key => relationalKeyMapper.Map(key, ColumnsOf(key.ChildTable), ColumnsOf(key.ParentTable))).ToList(),
+            source.Indexes.Select(index => indexMapper.Map(index, columns)).ToList(),
             checkMapper.MapList(source.Checks),
             triggerMapper.MapList(source.Triggers),
             source.Kind,
-            MapPartitioning(source.Partitioning, columns),
+            MapPartitioning(source.Partitioning, columns.Columns),
             MapSystemVersioning(source.SystemVersioning),
             source.IsLogged,
             source.Collation == null
@@ -92,26 +119,27 @@ public class RelationalDatabaseTableMapper
     /// </summary>
     /// <param name="source">A table.</param>
     /// <returns>A serialized table.</returns>
-    public Dto.RelationalDatabaseTable Map(IRelationalDatabaseTable source)
+    public Dto.RelationalDatabaseTable Map(IRelationalDatabaseTable source) => Map(source, new SerializedObjectCache());
+
+    internal Dto.RelationalDatabaseTable Map(IRelationalDatabaseTable source, SerializedObjectCache cache)
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
-        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
-        var optionalKeyMapper = MapperRegistry.GetMapper<Option<IDatabaseKey>, Dto.DatabaseKey?>();
-        var keyMapper = MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
-        var relationalKeyMapper = MapperRegistry.GetMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
-        var indexMapper = MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
+        var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var keyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+        var relationalKeyMapper = (DatabaseRelationalKeyMapper)MapperRegistry.GetMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
+        var indexMapper = (IndexMapper)MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
         var checkMapper = MapperRegistry.GetMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>();
         var triggerMapper = MapperRegistry.GetMapper<IDatabaseTrigger, Dto.DatabaseTrigger>();
 
         return new Dto.RelationalDatabaseTable
         {
             TableName = identifierMapper.Map(source.Name),
-            Columns = columnMapper.MapList(source.Columns),
-            PrimaryKey = optionalKeyMapper.Map(source.PrimaryKey),
-            UniqueKeys = keyMapper.MapList(source.UniqueKeys),
-            ParentKeys = relationalKeyMapper.MapList(source.ParentKeys),
-            ChildKeys = relationalKeyMapper.MapList(source.ChildKeys),
-            Indexes = indexMapper.MapList(source.Indexes),
+            Columns = source.Columns.Select(column => columnMapper.Map(column, cache)).ToList(),
+            PrimaryKey = keyMapper.Map(source.PrimaryKey, cache),
+            UniqueKeys = source.UniqueKeys.Select(key => keyMapper.Map(key, cache)).ToList(),
+            ParentKeys = source.ParentKeys.Select(key => relationalKeyMapper.Map(key, cache)).ToList(),
+            ChildKeys = source.ChildKeys.Select(key => relationalKeyMapper.Map(key, cache)).ToList(),
+            Indexes = source.Indexes.Select(index => indexMapper.Map(index, cache)).ToList(),
             Checks = checkMapper.MapList(source.Checks),
             Triggers = triggerMapper.MapList(source.Triggers),
             Kind = source.Kind,
@@ -145,4 +173,6 @@ public class RelationalDatabaseTableMapper
             PeriodEndColumn = identifierMapper.Map(source.PeriodEndColumn),
         };
     }
+
+    private static readonly IReadOnlyDictionary<Dto.Identifier, ColumnLookup> EmptyTableColumns = new Dictionary<Dto.Identifier, ColumnLookup>();
 }

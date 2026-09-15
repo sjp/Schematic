@@ -50,18 +50,29 @@ public class DatabaseColumnMapper
     /// </summary>
     /// <param name="source">A column.</param>
     /// <returns>A serialized column.</returns>
-    public Dto.DatabaseColumn Map(IDatabaseColumn source)
+    public Dto.DatabaseColumn Map(IDatabaseColumn source) => Map(source, new SerializedObjectCache());
+
+    internal Dto.DatabaseColumn Map(IDatabaseColumn source, SerializedObjectCache cache)
     {
+        if (cache.Columns.TryGetValue(source, out var cached))
+            return cached;
+
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var optionalIdentifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();
         var dbTypeMapper = MapperRegistry.GetMapper<IDbType, Dto.DbType>();
         var optionalMapper = MapperRegistry.GetMapper<Option<string>, string?>();
         var autoIncrMapper = MapperRegistry.GetMapper<Option<IAutoIncrement>, Dto.AutoIncrement?>();
 
-        return new Dto.DatabaseColumn
+        if (!cache.Types.TryGetValue(source.Type, out var type))
+        {
+            type = dbTypeMapper.Map(source.Type);
+            cache.Types.Add(source.Type, type);
+        }
+
+        var result = new Dto.DatabaseColumn
         {
             ColumnName = identifierMapper.Map(source.Name),
-            Type = dbTypeMapper.Map(source.Type),
+            Type = type,
             IsNullable = source.IsNullable,
             DefaultValue = optionalMapper.Map(source.Default.Map(static def => def.Definition)),
             DefaultConstraintName = optionalIdentifierMapper.Map(source.Default.Bind(static def => def.ConstraintName)),
@@ -73,5 +84,8 @@ public class DatabaseColumnMapper
             Definition = optionalMapper.Map(source.ComputedDefinition),
             ComputedStorage = source.ComputedStorage,
         };
+
+        cache.Columns.Add(source, result);
+        return result;
     }
 }

@@ -19,10 +19,18 @@
 /// <para>
 /// The cost is redundancy. On a sixteen-table schema the repeated columns account for roughly a third
 /// of an uncompressed export, though far less once compressed, as the repeated fragments are near
-/// identical. The other consequence is that deserialization produces a distinct instance per copy: a
-/// table's column and the same column reached through its primary key or an index match by name, never
-/// by reference. Nothing in Schematic compares columns by instance, so this is a difference from live
-/// providers rather than a defect, but a consumer that relies on reference identity will see it.
+/// identical.
+/// </para>
+/// <para>
+/// The copies do not multiply objects in memory. When a whole database is mapped to its serialized
+/// form, an object referenced from several places is mapped to a single shared instance. When it is
+/// mapped back, a copy held by a key, an index or a foreign key is read as the column of the same name
+/// in the table or view that owns it, so a column is one instance wherever it is referenced, as it is
+/// when read from a live database. Names are matched exactly, and the rest of the copy is not read, so
+/// the owning object's definition of the column is the one that counts. A copy is read as a column of
+/// its own when no such column exists: when it names a column its table does not list, or belongs to a
+/// table missing from the document, named more than once in it, or not mapped along with it because
+/// a single table was mapped on its own.
 /// </para>
 /// </remarks>
 public sealed record DatabaseColumn

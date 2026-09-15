@@ -1,4 +1,5 @@
-﻿using Boxed.Mapping;
+﻿using System.Linq;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -16,17 +17,18 @@ public class IndexMapper
     /// </summary>
     /// <param name="source">A serialized index.</param>
     /// <returns>An index.</returns>
-    public IDatabaseIndex Map(Dto.DatabaseIndex source)
+    public IDatabaseIndex Map(Dto.DatabaseIndex source) => Map(source, ColumnLookup.Empty);
+
+    internal IDatabaseIndex Map(Dto.DatabaseIndex source, ColumnLookup columns)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
-        var indexColumnMapper = MapperRegistry.GetMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>();
-        var columnMapper = MapperRegistry.GetMapper<Dto.DatabaseColumn, IDatabaseColumn>();
+        var indexColumnMapper = (DatabaseIndexColumnMapper)MapperRegistry.GetMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>();
         var optionMapper = MapperRegistry.GetMapper<string?, Option<string>>();
         var intOptionMapper = MapperRegistry.GetMapper<int?, Option<int>>();
 
         var indexName = identifierMapper.Map(source.IndexName);
-        var indexColumns = indexColumnMapper.MapList(source.Columns);
-        var includedColumns = columnMapper.MapList(source.IncludedColumns);
+        var indexColumns = source.Columns.Select(column => indexColumnMapper.Map(column, columns)).ToList();
+        var includedColumns = columns.ResolveList(source.IncludedColumns);
         var filterDefinition = optionMapper.Map(source.FilterDefinition);
 
         return new DatabaseIndex(
@@ -48,20 +50,25 @@ public class IndexMapper
     /// </summary>
     /// <param name="source">An index.</param>
     /// <returns>A serialized index.</returns>
-    public Dto.DatabaseIndex Map(IDatabaseIndex source)
+    public Dto.DatabaseIndex Map(IDatabaseIndex source) => Map(source, new SerializedObjectCache());
+
+    internal Dto.DatabaseIndex Map(IDatabaseIndex source, SerializedObjectCache cache)
     {
+        if (cache.Indexes.TryGetValue(source, out var cached))
+            return cached;
+
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
-        var indexColumnMapper = MapperRegistry.GetMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
-        var columnMapper = MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
+        var indexColumnMapper = (DatabaseIndexColumnMapper)MapperRegistry.GetMapper<IDatabaseIndexColumn, Dto.DatabaseIndexColumn>();
+        var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
         var optionMapper = MapperRegistry.GetMapper<Option<string>, string?>();
         var intOptionMapper = MapperRegistry.GetMapper<Option<int>, int?>();
 
         var indexName = identifierMapper.Map(source.Name);
-        var indexColumns = indexColumnMapper.MapList(source.Columns);
-        var includedColumns = columnMapper.MapList(source.IncludedColumns);
+        var indexColumns = source.Columns.Select(column => indexColumnMapper.Map(column, cache)).ToList();
+        var includedColumns = source.IncludedColumns.Select(column => columnMapper.Map(column, cache)).ToList();
         var filterDefinition = optionMapper.Map(source.FilterDefinition);
 
-        return new Dto.DatabaseIndex
+        var result = new Dto.DatabaseIndex
         {
             IndexName = indexName,
             Columns = indexColumns,
@@ -74,5 +81,8 @@ public class IndexMapper
             IsValid = source.IsValid,
             IsVisible = source.IsVisible,
         };
+
+        cache.Indexes.Add(source, result);
+        return result;
     }
 }
