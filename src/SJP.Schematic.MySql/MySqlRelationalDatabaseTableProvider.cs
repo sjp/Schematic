@@ -503,8 +503,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             var isUnique = !indexInfo.Key.IsNonUnique;
             var indexName = Identifier.CreateQualifiedIdentifier(indexInfo.Key.IndexName);
 
+            // the query returns each index's columns in key order, which grouping preserves
             var indexCols = indexInfo.Value
-                .OrderBy(static row => row.ColumnOrdinal)
                 .Select(row =>
                 {
                     // 'D' is the only value that means descending, an unsorted index reports null
@@ -660,12 +660,12 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     private sealed record ChildForeignKey(GetTableChildKeys.Result Row, IDatabaseKey ParentKey);
 
     // Builds a foreign key as declared on the table holding it. Parent-key and child-key loading both build
-    // it here, so a foreign key reads the same whichever end of the relationship it is loaded from.
+    // it here, so a foreign key reads the same whichever end of the relationship it is loaded from. Both
+    // queries return a key's column rows in key order, so they are not sorted again here.
     private static MySqlDatabaseKey CreateForeignKey(string constraintName, IEnumerable<IForeignKeyColumnRow> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
     {
         var keyName = Identifier.CreateQualifiedIdentifier(constraintName);
         var keyColumns = columnRows
-            .OrderBy(static row => row.ConstraintColumnId)
             .Select(row => columnLookup[row.ColumnName])
             .ToList();
 

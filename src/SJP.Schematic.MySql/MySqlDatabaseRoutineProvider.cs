@@ -162,9 +162,9 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Where(static row => row.Ordinal == 0)
             .Select(GetParameterType)
             .HeadOrNone();
+        // the query returns parameters in signature order
         var parameters = parameterRows
             .Where(static row => row.Ordinal > 0)
-            .OrderBy(static row => row.Ordinal)
             .Select(BuildParameter)
             .ToList();
 

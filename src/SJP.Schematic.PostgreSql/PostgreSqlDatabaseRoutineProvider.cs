@@ -172,11 +172,12 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             )
         ).WhenAll();
 
+        // the query returns each overload's parameters in signature order, which grouping preserves
         var parametersByRoutine = parameterRows
             .GroupBy(static row => row.RoutineOid)
             .ToDictionary(
                 static rows => rows.Key,
-                rows => rows.OrderBy(static row => row.Ordinal).Select(BuildParameter).ToList()
+                rows => rows.Select(BuildParameter).ToList()
             );
 
         var overloads = overloadRows

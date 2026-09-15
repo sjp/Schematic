@@ -180,9 +180,9 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             .Where(static row => row.Position == 0)
             .Select(GetArgumentType)
             .HeadOrNone();
+        // the query returns arguments in signature order
         var parameters = signature
             .Where(static row => row.Position > 0)
-            .OrderBy(static row => row.Position)
             .Select(BuildParameter)
             .ToList();
 
