@@ -24,8 +24,10 @@ public class SqliteRelationalDatabase : ISqliteDatabase
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="connection"/>, or <paramref name="identifierDefaults"/>, or <paramref name="connectionPragma"/> are <see langword="null" />.</exception>
     public SqliteRelationalDatabase(ISchematicConnection connection, IIdentifierDefaults identifierDefaults, ISqliteConnectionPragma connectionPragma)
     {
+        ArgumentNullException.ThrowIfNull(connectionPragma);
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
         _tableProvider = new SqliteRelationalDatabaseTableProvider(connection, connectionPragma, identifierDefaults);
         _viewProvider = new SqliteDatabaseViewProvider(connection, connectionPragma, identifierDefaults);
         _schemaProvider = new SqliteDatabaseSchemaProvider(connectionPragma, identifierDefaults);
