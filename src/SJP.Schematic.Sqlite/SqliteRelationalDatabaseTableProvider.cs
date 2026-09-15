@@ -88,6 +88,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         _ => LoadDatabaseListAsync(cancellationToken),
         new AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache>((schema, _, token) => LoadTableListAsync(schema, token), cancellationToken),
         new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>(GetParsedTableDefinitionAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<pragma_table_xinfo>, SqliteTableQueryCache>(LoadTableXInfoAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync, cancellationToken),
         new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync, cancellationToken),
@@ -401,23 +402,16 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         var pragma = GetDatabasePragma(tableName.Schema!);
-        var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken);
-        if (tableInfos.Empty())
-            return Option<IDatabaseKey>.None;
-
-        var pkColumns = tableInfos
-            .Where(static ti => ti.pk > 0)
-            .OrderBy(static ti => ti.pk)
-            .ToList();
-        if (pkColumns.Empty())
+        var pkColumnNames = await LoadPrimaryKeyColumnNamesAsync(pragma, tableName, queryCache, cancellationToken);
+        if (pkColumnNames.Count == 0)
             return Option<IDatabaseKey>.None;
 
         var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var columnLookup = GetColumnLookup(columns);
 
-        var keyColumns = pkColumns
-            .Where(c => columnLookup.ContainsKey(c.name))
-            .Select(c => columnLookup[c.name])
+        var keyColumns = pkColumnNames
+            .Where(name => columnLookup.ContainsKey(name))
+            .Select(name => columnLookup[name])
             .ToList();
 
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
@@ -432,6 +426,28 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var primaryKey = new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns, backingIndex);
 
         return Option<IDatabaseKey>.Some(primaryKey);
+    }
+
+    // The primary key columns in key order. Where pragma table_xinfo is available the columns have
+    // already read it, and its extra hidden and generated columns can never be part of the key.
+    private async Task<IReadOnlyList<string>> LoadPrimaryKeyColumnNamesAsync(ISqliteDatabasePragma pragma, Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        if (await IsTableXInfoPragmaSupportedAsync())
+        {
+            var tableXInfos = await queryCache.GetTableXInfoAsync(tableName, cancellationToken);
+            return tableXInfos
+                .Where(static ti => ti.pk > 0)
+                .OrderBy(static ti => ti.pk)
+                .Select(static ti => ti.name)
+                .ToList();
+        }
+
+        var tableInfos = await pragma.TableInfoAsync(tableName, cancellationToken);
+        return tableInfos
+            .Where(static ti => ti.pk > 0)
+            .OrderBy(static ti => ti.pk)
+            .Select(static ti => ti.name)
+            .ToList();
     }
 
     /// <summary>
@@ -1176,8 +1192,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var version = await _dbVersion.Task;
-        return version >= new Version(3, 31, 0)
+        return await IsTableXInfoPragmaSupportedAsync()
             ? await LoadAllColumnsAsync(tableName, queryCache, cancellationToken)
             : await LoadPhysicalColumnsAsync(tableName, queryCache, cancellationToken);
     }
@@ -1193,9 +1208,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             tableName = resolvedName;
         }
 
-        var pragma = GetDatabasePragma(tableName.Schema!);
-        var tableInfos = await pragma.TableXInfoAsync(tableName, cancellationToken);
-        if (tableInfos.Empty())
+        var tableInfos = await queryCache.GetTableXInfoAsync(tableName, cancellationToken);
+        if (tableInfos.Count == 0)
             return [];
 
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
@@ -1254,6 +1268,39 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Retrieves the table extra info pragma result for a given table, which describes every column including hidden and generated ones.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of table extra info pragma results, in column order.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    /// <remarks>The pragma is only available from SQLite 3.31.0.</remarks>
+    protected Task<IReadOnlyList<pragma_table_xinfo>> LoadTableXInfoAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
+
+        return LoadTableXInfoAsyncCore(tableName, queryCache, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<pragma_table_xinfo>> LoadTableXInfoAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        if (tableName.Schema == null)
+        {
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
+                .MatchUnsafe(static name => name, static () => (Identifier?)null);
+            if (resolvedName == null)
+                return [];
+            tableName = resolvedName;
+        }
+
+        var pragma = GetDatabasePragma(tableName.Schema!);
+        var tableInfos = await pragma.TableXInfoAsync(tableName, cancellationToken);
+        return tableInfos.ToList();
     }
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadPhysicalColumnsAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
@@ -1578,6 +1625,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return version >= TableListPragmaVersion;
     }
 
+    private async Task<bool> IsTableXInfoPragmaSupportedAsync()
+    {
+        var version = await _dbVersion.Task;
+        return version >= TableXInfoPragmaVersion;
+    }
+
     /// <summary>
     /// Determines whether a table is a shadow table, i.e. one of the internal tables that backs a
     /// virtual table. Shadow tables are an implementation detail of the virtual table they belong
@@ -1639,6 +1692,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private const string ShadowTableType = "shadow";
 
     private static readonly Version TableListPragmaVersion = new(3, 37, 0);
+    private static readonly Version TableXInfoPragmaVersion = new(3, 31, 0);
 
     private const string UnknownExpression = "<unknown expression>";
 
@@ -1665,6 +1719,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncLazy<IReadOnlyList<pragma_database_list>> _databaseList;
         private readonly AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache> _tableLists;
         private readonly AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> _parsedTables;
+        private readonly AsyncCache<Identifier, IReadOnlyList<pragma_table_xinfo>, SqliteTableQueryCache> _tableXInfos;
         private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> _columns;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> _uniqueKeys;
@@ -1679,6 +1734,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="databaseListLoader">Loads the databases attached to the connection.</param>
         /// <param name="tableListLoader">A cache of table list pragma results, keyed by schema name.</param>
         /// <param name="parsedTableLoader">A table parsing result cache.</param>
+        /// <param name="tableXInfoLoader">A table extra info pragma cache.</param>
         /// <param name="columnLoader">A column cache.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
@@ -1686,11 +1742,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="indexListLoader">An index list pragma cache.</param>
         /// <param name="foreignKeyListLoader">A foreign key list pragma cache.</param>
         /// <param name="childTableLookupLoader">A cache of child table lookups, keyed by schema name.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="tableXInfoLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
         public SqliteTableQueryCache(
             Func<CancellationToken, Task<IReadOnlyList<pragma_database_list>>> databaseListLoader,
             AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache> tableListLoader,
             AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> parsedTableLoader,
+            AsyncCache<Identifier, IReadOnlyList<pragma_table_xinfo>, SqliteTableQueryCache> tableXInfoLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> columnLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> uniqueKeyLoader,
@@ -1706,6 +1763,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _databaseList = new AsyncLazy<IReadOnlyList<pragma_database_list>>(() => databaseListLoader(CancellationToken.None), AsyncLazyFlags.RetryOnFailure);
             _tableLists = tableListLoader ?? throw new ArgumentNullException(nameof(tableListLoader));
             _parsedTables = parsedTableLoader ?? throw new ArgumentNullException(nameof(parsedTableLoader));
+            _tableXInfos = tableXInfoLoader ?? throw new ArgumentNullException(nameof(tableXInfoLoader));
             _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
@@ -1751,6 +1809,20 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _parsedTables.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's extra info pragma result from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of table extra info pragma results, in column order.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyList<pragma_table_xinfo>> GetTableXInfoAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _tableXInfos.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>
