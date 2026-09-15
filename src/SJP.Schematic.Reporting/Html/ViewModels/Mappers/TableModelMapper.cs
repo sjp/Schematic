@@ -32,68 +32,39 @@ internal sealed class TableModelMapper
         var checks = table.Checks.ToList();
         var triggers = table.Triggers.ToList();
 
-        var columns = new List<Table.Column>();
+        var keyColumns = table.GetKeyColumns();
+
+        // Foreign keys pair columns by position, so each column links to the column at the same position
+        // on the other side of every key it is part of. Links keep key order, then position order.
+        var parentKeyLinks = new Dictionary<string, List<KeyColumnLink>>(StringComparer.Ordinal);
+        foreach (var parentKey in parentKeys)
+            AddKeyColumnLinks(parentKeyLinks, parentKey, parentKey.ChildKey, parentKey.ParentTable, parentKey.ParentKey);
+
+        var childKeyLinks = new Dictionary<string, List<KeyColumnLink>>(StringComparer.Ordinal);
+        foreach (var childKey in childKeys)
+            AddKeyColumnLinks(childKeyLinks, childKey, childKey.ParentKey, childKey.ChildTable, childKey.ChildKey);
+
+        var visibleTableName = table.Name.ToVisibleName();
+
+        var columns = new List<Table.Column>(tableColumns.Count);
         foreach (var tableColumn in tableColumns)
         {
             var col = tableColumn.Column;
             var columnName = col.Name.LocalName;
-            var qualifiedColumnName = table.Name.ToVisibleName() + "." + columnName;
 
-            var isPrimaryKey = primaryKey.Match(pk => pk.Columns.Any(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal)), static () => false);
-            var isUniqueKey = uniqueKeys.Exists(uk => uk.Columns.Any(ukc => string.Equals(ukc.Name.LocalName, columnName, StringComparison.Ordinal)));
-            var isParentKey = parentKeys.Exists(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, columnName, StringComparison.Ordinal)));
+            parentKeyLinks.TryGetValue(columnName, out var parentLinks);
+            childKeyLinks.TryGetValue(columnName, out var childLinks);
 
-            var matchingParentKeys = parentKeys.Where(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, columnName, StringComparison.Ordinal))).ToList();
-            var columnParentKeys = new List<Table.ParentKey>();
-            foreach (var parentKey in matchingParentKeys)
-            {
-                var columnIndexes = parentKey.ChildKey.Columns
-                    .Select((c, i) => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal) ? i : -1)
-                    .Where(static i => i >= 0)
-                    .ToList();
+            var qualifiedColumnName = parentLinks != null || childLinks != null
+                ? visibleTableName + "." + columnName
+                : string.Empty;
 
-                var parentColumnNames = parentKey.ParentKey.Columns
-                    .Where((_, i) => columnIndexes.Contains(i))
-                    .Select(static c => c.Name.LocalName)
-                    .ToList();
-
-                var childKeyName = parentKey.ChildKey.Name.Match(static name => name.LocalName, static () => string.Empty);
-                var columnFks = parentColumnNames.ConvertAll(colName =>
-                    new Table.ParentKey(
-                        childKeyName,
-                        parentKey.ParentTable,
-                        colName,
-                        qualifiedColumnName
-                    ));
-
-                columnParentKeys.AddRange(columnFks);
-            }
-
-            var matchingChildKeys = childKeys.Where(ck => ck.ParentKey.Columns.Any(ckc => string.Equals(ckc.Name.LocalName, columnName, StringComparison.Ordinal))).ToList();
-            var columnChildKeys = new List<Table.ChildKey>();
-            foreach (var childKey in matchingChildKeys)
-            {
-                var columnIndexes = childKey.ParentKey.Columns
-                    .Select((c, i) => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal) ? i : -1)
-                    .Where(static i => i >= 0)
-                    .ToList();
-
-                var childColumnNames = childKey.ChildKey.Columns
-                    .Where((_, i) => columnIndexes.Contains(i))
-                    .Select(static c => c.Name.LocalName)
-                    .ToList();
-
-                var childKeyName = childKey.ChildKey.Name.Match(static name => name.LocalName, static () => string.Empty);
-                var columnFks = childColumnNames.ConvertAll(colName =>
-                    new Table.ChildKey(
-                        childKeyName,
-                        childKey.ChildTable,
-                        colName,
-                        qualifiedColumnName
-                    ));
-
-                columnChildKeys.AddRange(columnFks);
-            }
+            IEnumerable<Table.ParentKey> columnParentKeys = parentLinks != null
+                ? parentLinks.ConvertAll(link => new Table.ParentKey(link.ConstraintName, link.TableName, link.ColumnName, qualifiedColumnName))
+                : [];
+            IEnumerable<Table.ChildKey> columnChildKeys = childLinks != null
+                ? childLinks.ConvertAll(link => new Table.ChildKey(link.ConstraintName, link.TableName, link.ColumnName, qualifiedColumnName))
+                : [];
 
             var column = new Table.Column(
                 columnName,
@@ -101,9 +72,9 @@ internal sealed class TableModelMapper
                 tableColumn.Column.IsNullable,
                 tableColumn.Column.Type.Definition,
                 tableColumn.Column.DefaultValue,
-                isPrimaryKey,
-                isUniqueKey,
-                isParentKey,
+                keyColumns.PrimaryKeyColumns.Contains(columnName),
+                keyColumns.UniqueKeyColumns.Contains(columnName),
+                keyColumns.ForeignKeyColumns.Contains(columnName),
                 columnChildKeys,
                 columnParentKeys,
                 tableColumn.Column.AutoIncrement,
@@ -196,6 +167,34 @@ internal sealed class TableModelMapper
         );
     }
 
+    private static void AddKeyColumnLinks(
+        Dictionary<string, List<KeyColumnLink>> links,
+        IDatabaseRelationalKey relationalKey,
+        IDatabaseKey localKey,
+        Identifier linkedTableName,
+        IDatabaseKey linkedKey)
+    {
+        var constraintName = relationalKey.ChildKey.Name.Match(static name => name.LocalName, static () => string.Empty);
+
+        // A column listed more than once in the key gets one link per position. Positions without a
+        // counterpart on the other side are skipped.
+        using var linkedColumns = linkedKey.Columns.GetEnumerator();
+        foreach (var localColumn in localKey.Columns)
+        {
+            if (!linkedColumns.MoveNext())
+                break;
+
+            var localColumnName = localColumn.Name.LocalName;
+            if (!links.TryGetValue(localColumnName, out var columnLinks))
+            {
+                columnLinks = [];
+                links.Add(localColumnName, columnLinks);
+            }
+
+            columnLinks.Add(new KeyColumnLink(constraintName, linkedTableName, linkedColumns.Current.Name.LocalName));
+        }
+    }
+
     private Table.Partitioning MapPartitioning(ITablePartitioning partitioning)
     {
         return new Table.Partitioning(
@@ -215,4 +214,6 @@ internal sealed class TableModelMapper
     }
 
     private Table.LinkedTable MapLinkedTable(Identifier name) => new(name, TableNames.Contains(name));
+
+    private readonly record struct KeyColumnLink(string ConstraintName, Identifier TableName, string ColumnName);
 }

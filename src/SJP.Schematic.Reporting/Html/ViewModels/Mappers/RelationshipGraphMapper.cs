@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
@@ -28,23 +27,10 @@ internal static class RelationshipGraphMapper
         var nodes = new List<GraphTable>(tables.Count);
         var edges = new List<GraphEdge>();
 
-        var primaryKeyColumns = new HashSet<string>(StringComparer.Ordinal);
-        var uniqueKeyColumns = new HashSet<string>(StringComparer.Ordinal);
-        var foreignKeyColumns = new HashSet<string>(StringComparer.Ordinal);
-
         foreach (var table in tables)
         {
             var parentKeys = table.ParentKeys;
-
-            primaryKeyColumns.Clear();
-            uniqueKeyColumns.Clear();
-            foreignKeyColumns.Clear();
-
-            table.PrimaryKey.IfSome(primaryKey => AddColumnNames(primaryKeyColumns, primaryKey));
-            foreach (var uniqueKey in table.UniqueKeys)
-                AddColumnNames(uniqueKeyColumns, uniqueKey);
-            foreach (var parentKey in parentKeys)
-                AddColumnNames(foreignKeyColumns, parentKey.ChildKey);
+            var keyColumns = table.GetKeyColumns();
 
             var columns = new List<GraphColumn>(table.Columns.Count);
             foreach (var col in table.Columns)
@@ -54,9 +40,9 @@ internal static class RelationshipGraphMapper
                     columnName,
                     col.Type.Definition,
                     col.IsNullable,
-                    primaryKeyColumns.Contains(columnName),
-                    uniqueKeyColumns.Contains(columnName),
-                    foreignKeyColumns.Contains(columnName)
+                    keyColumns.PrimaryKeyColumns.Contains(columnName),
+                    keyColumns.UniqueKeyColumns.Contains(columnName),
+                    keyColumns.ForeignKeyColumns.Contains(columnName)
                 ));
             }
 
@@ -95,11 +81,5 @@ internal static class RelationshipGraphMapper
         }
 
         return new RelationshipGraph(nodes, edges);
-    }
-
-    private static void AddColumnNames(HashSet<string> columnNames, IDatabaseKey key)
-    {
-        foreach (var column in key.Columns)
-            columnNames.Add(column.Name.LocalName);
     }
 }

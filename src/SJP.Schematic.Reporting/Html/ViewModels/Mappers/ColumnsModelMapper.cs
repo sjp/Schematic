@@ -12,31 +12,27 @@ internal sealed class ColumnsModelMapper
     {
         ArgumentNullException.ThrowIfNull(table);
 
-        var primaryKey = table.PrimaryKey;
-        var uniqueKeys = table.UniqueKeys.ToList();
-        var parentKeys = table.ParentKeys.ToList();
+        var keyColumns = table.GetKeyColumns();
 
         var columns = table.Columns.ToList();
         var tableUrl = UrlRouter.GetTableUrl(table.Name);
 
         return columns.Select((column, i) =>
         {
-            var isPrimaryKeyColumn = primaryKey.Match(pk => pk.Columns.Any(c => string.Equals(c.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal)), static () => false);
-            var isUniqueKeyColumn = uniqueKeys.Exists(uk => uk.Columns.Any(ukc => string.Equals(ukc.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal)));
-            var isForeignKeyColumn = parentKeys.Exists(fk => fk.ChildKey.Columns.Any(fkc => string.Equals(fkc.Name.LocalName, column.Name.LocalName, StringComparison.Ordinal)));
+            var columnName = column.Name.LocalName;
 
             return new Columns.ColumnSummary(
                 table.Name,
                 Columns.ParentObjectType.Table,
                 tableUrl,
                 i + 1,
-                column.Name.LocalName,
+                columnName,
                 column.Type.Definition,
                 column.IsNullable,
                 column.DefaultValue,
-                isPrimaryKeyColumn,
-                isUniqueKeyColumn,
-                isForeignKeyColumn
+                keyColumns.PrimaryKeyColumns.Contains(columnName),
+                keyColumns.UniqueKeyColumns.Contains(columnName),
+                keyColumns.ForeignKeyColumns.Contains(columnName)
             );
         }).ToList();
     }
