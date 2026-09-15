@@ -152,6 +152,56 @@ internal static class CycleDetectorTests
         }
     }
 
+    [Test]
+    public static void GetCyclePaths_GivenCycleWithMultipleForeignKeysBetweenSameTables_ReturnsCycleOnce()
+    {
+        var cycleDetector = new CycleDetector();
+
+        // the cycle is a -> b -> a, where b has two separate foreign keys to a
+        var tables = new[]
+        {
+            CreateTable("a", "b"),
+            CreateTable("b", "a", "a"),
+        };
+
+        var result = cycleDetector.GetCyclePaths(tables);
+
+        var cycleTableNames = GetLocalNames(result);
+        var expectedCycle = new[] { "a", "b" };
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Has.Exactly(1).Items);
+            Assert.That(cycleTableNames, Is.EquivalentTo(expectedCycle));
+        }
+    }
+
+    [Test]
+    public static void GetCyclePaths_GivenCyclesWithSameTableNamesInDifferentCase_ReturnsEachCycleSeparately()
+    {
+        var cycleDetector = new CycleDetector();
+
+        // two cycles, a -> b -> a and A -> B -> A, whose names differ only by case
+        var tables = new[]
+        {
+            CreateTable("a", "b"),
+            CreateTable("b", "a"),
+            CreateTable("A", "B"),
+            CreateTable("B", "A"),
+        };
+
+        var result = cycleDetector.GetCyclePaths(tables);
+
+        var cycles = result.Select(c => c.Select(static t => t.LocalName).ToList()).ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Has.Exactly(2).Items);
+            Assert.That(cycles, Has.One.EquivalentTo(new[] { "a", "b" }));
+            Assert.That(cycles, Has.One.EquivalentTo(new[] { "A", "B" }));
+        }
+    }
+
     private static IReadOnlyCollection<string> GetLocalNames(IEnumerable<IReadOnlyCollection<Identifier>> cycles)
     {
         return cycles.SelectMany(static c => c.Select(static t => t.LocalName)).ToList();

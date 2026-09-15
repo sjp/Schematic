@@ -43,10 +43,11 @@ public class CycleDetector
 
         var predecessors = new Dictionary<Identifier, Identifier>();
         var cycles = new List<IReadOnlyCollection<Identifier>>();
+        var cycleKeys = new HashSet<Identifier[]>(CycleKeyComparer.Instance);
         var dfs = new DepthFirstSearchAlgorithm<Identifier, SEquatableEdge<Identifier>>(graph);
 
         void onTreeEdge(SEquatableEdge<Identifier> e) => predecessors[e.Target] = e.Source;
-        void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(predecessors, cycles, e);
+        void onCyclingEdgeFound(SEquatableEdge<Identifier> e) => OnCyclingEdgeFound(predecessors, cycles, cycleKeys, e);
 
         try
         {
@@ -62,10 +63,10 @@ public class CycleDetector
         }
     }
 
-    private static void OnCyclingEdgeFound(IReadOnlyDictionary<Identifier, Identifier> predecessors, ICollection<IReadOnlyCollection<Identifier>> cycles, SEquatableEdge<Identifier> e)
+    private static void OnCyclingEdgeFound(IReadOnlyDictionary<Identifier, Identifier> predecessors, ICollection<IReadOnlyCollection<Identifier>> cycles, HashSet<Identifier[]> cycleKeys, SEquatableEdge<Identifier> e)
     {
         var cycleNodes = GetCycleNodes(predecessors, e);
-        if (cycleNodes == null || ContainsCycle(cycles, cycleNodes))
+        if (cycleNodes == null || !cycleKeys.Add(GetCycleKey(cycleNodes)))
             return;
 
         cycles.Add(cycleNodes);
@@ -96,22 +97,29 @@ public class CycleDetector
         return reversedPath;
     }
 
-    private static bool ContainsCycle(IEnumerable<IReadOnlyCollection<Identifier>> existingCycles, IReadOnlyCollection<Identifier> newCycle)
+    /// <summary>
+    /// Creates a key identifying a cycle by the set of vertices it contains, so that cycles
+    /// visiting the same vertices from a different starting point or in a different order share a key.
+    /// </summary>
+    /// <param name="cycle">The vertices forming a cycle.</param>
+    /// <returns>The distinct vertices of the cycle in sorted order.</returns>
+    private static Identifier[] GetCycleKey(IReadOnlyCollection<Identifier> cycle) => [.. cycle.Distinct().Order()];
+
+    /// <summary>
+    /// Compares cycle keys element by element, with a hash code that agrees with that comparison.
+    /// </summary>
+    private sealed class CycleKeyComparer : IEqualityComparer<Identifier[]>
     {
-        ArgumentNullException.ThrowIfNull(existingCycles);
-        ArgumentNullException.ThrowIfNull(newCycle);
+        public static CycleKeyComparer Instance { get; } = new CycleKeyComparer();
 
-        return existingCycles.Any(ec => CyclesEqual(ec, newCycle));
-    }
+        public bool Equals(Identifier[]? x, Identifier[]? y) => x.AsSpan().SequenceEqual(y);
 
-    private static bool CyclesEqual(IReadOnlyCollection<Identifier> existingCycle, IReadOnlyCollection<Identifier> newCycle)
-    {
-        ArgumentNullException.ThrowIfNull(existingCycle);
-        ArgumentNullException.ThrowIfNull(newCycle);
-
-        var orderedExisting = existingCycle.Order().Distinct().ToList();
-        var orderedNewCycle = newCycle.Order().Distinct().ToList();
-
-        return orderedExisting.SequenceEqual(orderedNewCycle);
+        public int GetHashCode(Identifier[] obj)
+        {
+            var hash = new HashCode();
+            foreach (var identifier in obj)
+                hash.Add(identifier);
+            return hash.ToHashCode();
+        }
     }
 }
