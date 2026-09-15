@@ -4,7 +4,6 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Reporting.Html.ViewModels;
-using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
@@ -59,10 +58,9 @@ internal sealed class SearchRenderer : IDataRenderer
                 entries.Add(new Search.SearchEntry(attribute.Name.LocalName, "Attribute", typeUrl, typeName));
         }
 
-        // Schemas are resolved rather than read straight off data.Schemas, so that the palette
-        // lists exactly the schemas the report has a page for.
-        var schemaMapper = new SchemaModelMapper();
-        foreach (var schema in schemaMapper.GetSchemas(data))
+        // Schemas come from the report's shared resolution rather than straight off data.Schemas, so
+        // that the palette lists exactly the schemas the report has a page for.
+        foreach (var schema in data.ResolvedSchemas)
             entries.Add(new Search.SearchEntry(schema.Name.LocalName, "Schema", UrlRouter.GetSchemaUrl(schema.Name), null));
 
         var searchVm = new Search(entries);

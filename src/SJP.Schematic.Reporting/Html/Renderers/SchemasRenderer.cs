@@ -17,7 +17,7 @@ internal sealed class SchemasRenderer : IDataRenderer
 
         var mapper = new SchemaModelMapper();
 
-        var schemaViewModels = mapper.GetSchemas(data).Select(mapper.MapSummary).ToList();
+        var schemaViewModels = data.ResolvedSchemas.Select(mapper.MapSummary).ToList();
         var schemasVm = new Schemas(schemaViewModels);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "schemas.json"));

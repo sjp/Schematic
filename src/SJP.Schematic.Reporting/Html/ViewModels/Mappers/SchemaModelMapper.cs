@@ -21,8 +21,13 @@ internal sealed class SchemaModelMapper
     /// listed when they hold something the report covers, so that e.g. SQL Server's fixed-role
     /// schemas do not crowd out the ones a reader cares about.
     /// </summary>
+    /// <remarks>
+    /// This walks every object the report holds, so renderers read the result from
+    /// <see cref="ReportData.ResolvedSchemas"/>, which resolves it once per report, instead of
+    /// calling this directly.
+    /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null" />.</exception>
-    public IReadOnlyList<SchemaObjects> GetSchemas(ReportData data)
+    public static IReadOnlyList<SchemaObjects> ResolveSchemas(ReportData data)
     {
         ArgumentNullException.ThrowIfNull(data);
 
@@ -134,6 +139,8 @@ internal sealed class SchemaModelMapper
     /// <summary>
     /// A schema and the names of the objects the report holds for it. Mutable and internal to the
     /// mapping: <see cref="MapSummary"/> and <see cref="MapDetail"/> turn it into the viewmodels.
+    /// Only <see cref="ResolveSchemas"/> fills one in; once resolved, an instance is shared between
+    /// renderers that run concurrently and must be treated as read-only.
     /// </summary>
     internal sealed class SchemaObjects(Identifier name)
     {

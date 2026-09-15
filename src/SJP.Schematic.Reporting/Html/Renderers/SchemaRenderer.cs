@@ -17,7 +17,7 @@ internal sealed class SchemaRenderer : IDataRenderer
         var dataDirectory = new DirectoryInfo(Path.Combine(context.ExportDirectory.FullName, "data", "schemas"));
 
         return RenderTaskRunner.RunAllAsync(
-            mapper.GetSchemas(data),
+            data.ResolvedSchemas,
             static s => $"schema '{s.Name.LocalName}'",
             (schema, ct) => RenderSchemaAsync(schema, mapper, context, dataDirectory, ct),
             cancellationToken);

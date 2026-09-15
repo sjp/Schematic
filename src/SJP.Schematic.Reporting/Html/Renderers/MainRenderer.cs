@@ -44,10 +44,11 @@ internal sealed class MainRenderer : IDataRenderer
             columns += view.Columns.UCount();
         }
 
-        // The schema list is resolved by the shared mapper so that the dashboard, the schemas page
-        // and the per-schema pages cannot disagree about which schemas exist or what they hold.
+        // The schema list comes from the report's shared resolution so that the dashboard, the
+        // schemas page and the per-schema pages cannot disagree about which schemas exist or what
+        // they hold.
         var schemaMapper = new SchemaModelMapper();
-        var schemas = schemaMapper.GetSchemas(data).Select(schemaMapper.MapSummary).ToList();
+        var schemas = data.ResolvedSchemas.Select(schemaMapper.MapSummary).ToList();
 
         var mainModel = new Main(
             data.Database.IdentifierDefaults.Database,

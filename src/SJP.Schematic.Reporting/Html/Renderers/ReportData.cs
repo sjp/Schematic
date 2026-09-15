@@ -7,12 +7,15 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 
 /// <summary>
 /// The full set of database objects for a single report run, plus the lookups derived from them
-/// (<see cref="ReferencedObjectTargets"/>, <see cref="SynonymTargets"/>). Renderers receive this as
-/// a <see cref="IDataRenderer.RenderAsync"/> parameter rather than via their constructor, so a
-/// single renderer instance can be reused across calls and tested without rebuilding it per case.
+/// (<see cref="ReferencedObjectTargets"/>, <see cref="SynonymTargets"/>,
+/// <see cref="ResolvedSchemas"/>). Renderers receive this as a
+/// <see cref="IDataRenderer.RenderAsync"/> parameter rather than via their constructor, so a single
+/// renderer instance can be reused across calls and tested without rebuilding it per case.
 /// </summary>
 internal sealed class ReportData
 {
+    private readonly Lazy<IReadOnlyList<SchemaModelMapper.SchemaObjects>> _resolvedSchemas;
+
     public ReportData(
         IRelationalDatabase database,
         IReadOnlyCollection<IRelationalDatabaseTable> tables,
@@ -40,6 +43,11 @@ internal sealed class ReportData
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
         TableStatistics = tableStatistics ?? throw new ArgumentNullException(nameof(tableStatistics));
+
+        // Resolving the schemas walks every object in the report, and four renderers need the same
+        // answer, so it is resolved on first use and then shared. Renderers run concurrently, hence
+        // the default Lazy mode: exactly one of them resolves, the rest wait for that result.
+        _resolvedSchemas = new Lazy<IReadOnlyList<SchemaModelMapper.SchemaObjects>>(() => SchemaModelMapper.ResolveSchemas(this));
     }
 
     public IRelationalDatabase Database { get; }
@@ -69,4 +77,12 @@ internal sealed class ReportData
     /// statistics provider was given, or when the database records none.
     /// </summary>
     public IReadOnlyDictionary<Identifier, ITableStatistics> TableStatistics { get; }
+
+    /// <summary>
+    /// The schemas the report covers and the names of the objects in each, combining the schemas the
+    /// database declares with the schemas the report's objects are named in. Shared by every
+    /// renderer that lists schemas, so the dashboard, the schemas list, the per-schema pages and
+    /// search cannot disagree about which schemas exist. Read-only once resolved.
+    /// </summary>
+    public IReadOnlyList<SchemaModelMapper.SchemaObjects> ResolvedSchemas => _resolvedSchemas.Value;
 }
