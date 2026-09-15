@@ -85,6 +85,21 @@ internal static class MySqlDialectTests
         Assert.That(result, Is.EqualTo(expected));
     }
 
+    [TestCase(null, null, null, "test_table", "`test_table`")]
+    [TestCase(null, null, "test_schema", "test_table", "`test_schema`.`test_table`")]
+    [TestCase(null, "test_database", "test_schema", "test_table", "`test_database`.`test_schema`.`test_table`")]
+    [TestCase("test_server", "test_database", "test_schema", "test_table", "`test_server`.`test_database`.`test_schema`.`test_table`")]
+    [TestCase("test`server", "test`database", "test`schema", "test`table", "`test``server`.`test``database`.`test``schema`.`test``table`")]
+    public static void QuoteName_GivenQualifiedName_QuotesEachComponent(string server, string database, string schema, string localName, string expected)
+    {
+        var name = Identifier.CreateQualifiedIdentifier(server, database, schema, localName);
+        var dialect = new MySqlDialect();
+
+        var result = dialect.QuoteName(name);
+
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
     [Test]
     public static void Capabilities_PropertyGet_DescribesMySql()
     {

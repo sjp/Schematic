@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Linq;
 using SJP.Schematic.Core;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.PostgreSql;
 
@@ -809,31 +806,7 @@ public class PostgreSqlDialect : DatabaseDialect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
-        return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
-    }
-
-    /// <summary>
-    /// Quotes a qualified name.
-    /// </summary>
-    /// <param name="name">An object name.</param>
-    /// <returns>A quoted name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
-    public override string QuoteName(Identifier name)
-    {
-        ArgumentNullException.ThrowIfNull(name);
-
-        var pieces = new List<string>();
-
-        if (name.Server != null)
-            pieces.Add(QuoteIdentifier(name.Server));
-        if (name.Database != null)
-            pieces.Add(QuoteIdentifier(name.Database));
-        if (name.Schema != null)
-            pieces.Add(QuoteIdentifier(name.Schema));
-        if (name.LocalName != null)
-            pieces.Add(QuoteIdentifier(name.LocalName));
-
-        return pieces.Join(".");
+        return string.Concat("\"", identifier.Replace("\"", "\"\"", StringComparison.Ordinal), "\"");
     }
 
     /// <summary>

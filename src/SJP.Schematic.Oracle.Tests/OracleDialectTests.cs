@@ -102,6 +102,32 @@ internal static class OracleDialectTests
         Assert.That(() => dialect.QuoteIdentifier(input), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
     }
 
+    [TestCase(null, null, null, "test_table", "\"test_table\"")]
+    [TestCase(null, null, "test_schema", "test_table", "\"test_schema\".\"test_table\"")]
+    [TestCase(null, "test_database", "test_schema", "test_table", "\"test_database\".\"test_schema\".\"test_table\"")]
+    [TestCase("test_server", "test_database", "test_schema", "test_table", "\"test_server\".\"test_database\".\"test_schema\".\"test_table\"")]
+    public static void QuoteName_GivenQualifiedName_QuotesEachComponent(string server, string database, string schema, string localName, string expected)
+    {
+        var name = Identifier.CreateQualifiedIdentifier(server, database, schema, localName);
+        var dialect = new OracleDialect();
+
+        var result = dialect.QuoteName(name);
+
+        Assert.That(result, Is.EqualTo(expected));
+    }
+
+    [TestCase("test\"server", "test_database", "test_schema", "test_table")]
+    [TestCase("test_server", "test\0database", "test_schema", "test_table")]
+    [TestCase("test_server", "test_database", "test\"schema", "test_table")]
+    [TestCase("test_server", "test_database", "test_schema", "test\0table")]
+    public static void QuoteName_GivenInvalidCharacterInAnyComponent_ThrowsArgumentException(string server, string database, string schema, string localName)
+    {
+        var name = Identifier.CreateQualifiedIdentifier(server, database, schema, localName);
+        var dialect = new OracleDialect();
+
+        Assert.That(() => dialect.QuoteName(name), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifier"));
+    }
+
     [TestCase("SELECT")]
     [TestCase("select")]
     [TestCase("Select")]

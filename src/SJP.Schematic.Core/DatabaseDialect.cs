@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core;
 
@@ -20,18 +18,16 @@ public abstract class DatabaseDialect : IDatabaseDialect
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        var pieces = new List<string>();
+        // An identifier always has a local name, and a server, database or schema is only present
+        // when every component after it is too, so the schema decides whether any qualification exists.
+        if (name.Schema == null)
+            return QuoteIdentifier(name.LocalName);
+        if (name.Database == null)
+            return string.Concat(QuoteIdentifier(name.Schema), ".", QuoteIdentifier(name.LocalName));
+        if (name.Server == null)
+            return string.Join('.', QuoteIdentifier(name.Database), QuoteIdentifier(name.Schema), QuoteIdentifier(name.LocalName));
 
-        if (name.Server != null)
-            pieces.Add(QuoteIdentifier(name.Server));
-        if (name.Database != null)
-            pieces.Add(QuoteIdentifier(name.Database));
-        if (name.Schema != null)
-            pieces.Add(QuoteIdentifier(name.Schema));
-        if (name.LocalName != null)
-            pieces.Add(QuoteIdentifier(name.LocalName));
-
-        return pieces.Join(".");
+        return string.Join('.', QuoteIdentifier(name.Server), QuoteIdentifier(name.Database), QuoteIdentifier(name.Schema), QuoteIdentifier(name.LocalName));
     }
 
     /// <summary>
@@ -45,7 +41,7 @@ public abstract class DatabaseDialect : IDatabaseDialect
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
 
-        return $"\"{identifier.Replace("\"", "\"\"", StringComparison.Ordinal)}\"";
+        return string.Concat("\"", identifier.Replace("\"", "\"\"", StringComparison.Ordinal), "\"");
     }
 
     /// <summary>
