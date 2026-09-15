@@ -168,15 +168,8 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
             cancellationToken
         );
 
-        var commentData = result.Select(r => new CommentData
-        {
-            ColumnName = r.ColumnName,
-            Comment = r.Comment,
-            ObjectType = r.ObjectType,
-        }).ToList();
-
-        var viewComment = GetViewComment(commentData);
-        var columnComments = GetColumnComments(commentData);
+        var viewComment = GetViewComment(result);
+        var columnComments = GetColumnComments(result);
 
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
@@ -189,20 +182,13 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
             cancellationToken
         );
 
-        var commentData = result.Select(r => new CommentData
-        {
-            ColumnName = r.ColumnName,
-            Comment = r.Comment,
-            ObjectType = r.ObjectType,
-        }).ToList();
-
-        var viewComment = GetViewComment(commentData);
-        var columnComments = GetColumnComments(commentData);
+        var viewComment = GetViewComment(result);
+        var columnComments = GetColumnComments(result);
 
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
 
-    private static Option<string> GetViewComment(IEnumerable<CommentData> commentsData)
+    private static Option<string> GetViewComment(IEnumerable<IObjectCommentRow> commentsData)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
 
@@ -212,7 +198,7 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<CommentData> commentsData)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<IObjectCommentRow> commentsData)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
 
@@ -244,14 +230,5 @@ public class OracleMaterializedViewCommentProvider : IDatabaseViewCommentProvide
         public const string View = "VIEW";
 
         public const string Column = "COLUMN";
-    }
-
-    private sealed record CommentData
-    {
-        public string? ColumnName { get; init; }
-
-        public string? ObjectType { get; init; }
-
-        public string? Comment { get; init; }
     }
 }

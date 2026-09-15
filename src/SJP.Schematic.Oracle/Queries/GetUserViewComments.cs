@@ -9,7 +9,7 @@ internal static class GetUserViewComments
         public required string ViewName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : IObjectCommentRow
     {
         public required string ColumnName { get; init; }
 

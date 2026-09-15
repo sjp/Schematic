@@ -146,19 +146,12 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
             cancellationToken
         );
 
-        var commentData = queryResult.Select(r => new CommentData
-        {
-            ObjectName = r.ObjectName,
-            ObjectType = r.ObjectType,
-            Comment = r.Comment,
-        }).ToList();
-
-        var routineComment = GetFirstCommentByType(commentData, Constants.Routine);
+        var routineComment = GetFirstCommentByType(queryResult, Constants.Routine);
 
         return new DatabaseRoutineComments(routineName, routineComment);
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IEnumerable<GetRoutineComments.Result> commentsData, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
@@ -186,14 +179,5 @@ public class SqlServerRoutineCommentProvider : IDatabaseRoutineCommentProvider
     private static class Constants
     {
         public const string Routine = "ROUTINE";
-    }
-
-    private sealed record CommentData
-    {
-        public required string ObjectType { get; init; }
-
-        public required string ObjectName { get; init; }
-
-        public required string? Comment { get; init; }
     }
 }

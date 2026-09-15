@@ -147,13 +147,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
             cancellationToken
         );
 
-        var commentData = queryResult.Select(r => new CommentData
-        {
-            ObjectName = r.ObjectName,
-            ObjectType = r.ObjectType,
-            Comment = r.Comment,
-        }).ToList();
-        var commentsByType = commentData.GroupAsDictionary(static c => c.ObjectType);
+        var commentsByType = queryResult.GroupAsDictionary(static c => c.ObjectType);
 
         var tableComment = GetFirstCommentByType(commentsByType, Constants.Table);
         var primaryKeyComment = GetFirstCommentByType(commentsByType, Constants.Primary);
@@ -178,7 +172,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
         );
     }
 
-    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<GetTableComments.Result>> commentsByType, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
@@ -191,7 +185,7 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<GetTableComments.Result>> commentsByType, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
@@ -238,14 +232,5 @@ public class SqlServerTableCommentProvider : IRelationalDatabaseTableCommentProv
         public const string Index = "INDEX";
 
         public const string Trigger = "TRIGGER";
-    }
-
-    private sealed record CommentData
-    {
-        public required string ObjectType { get; init; }
-
-        public required string ObjectName { get; init; }
-
-        public required string? Comment { get; init; }
     }
 }

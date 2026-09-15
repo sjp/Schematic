@@ -147,13 +147,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
             cancellationToken
         );
 
-        var commentData = queryResult.Select(r => new CommentData
-        {
-            ObjectName = r.ObjectName,
-            ObjectType = r.ObjectType,
-            Comment = r.Comment,
-        }).ToList();
-        var commentsByType = commentData.GroupAsDictionary(static c => c.ObjectType);
+        var commentsByType = queryResult.GroupAsDictionary(static c => c.ObjectType);
 
         var viewComment = GetFirstCommentByType(commentsByType, Constants.View);
         var columnComments = GetCommentLookupByType(commentsByType, Constants.Column);
@@ -161,7 +155,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
         return new DatabaseViewComments(viewName, viewComment, columnComments);
     }
 
-    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
+    private static Option<string> GetFirstCommentByType(IReadOnlyDictionary<string, List<GetViewComments.Result>> commentsByType, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
@@ -174,7 +168,7 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<CommentData>> commentsByType, string objectType)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetCommentLookupByType(IReadOnlyDictionary<string, List<GetViewComments.Result>> commentsByType, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsByType);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
@@ -209,14 +203,5 @@ public class SqlServerViewCommentProvider : IDatabaseViewCommentProvider
         public const string View = "VIEW";
 
         public const string Column = "COLUMN";
-    }
-
-    private sealed record CommentData
-    {
-        public required string ObjectType { get; init; }
-
-        public required string ObjectName { get; init; }
-
-        public required string? Comment { get; init; }
     }
 }

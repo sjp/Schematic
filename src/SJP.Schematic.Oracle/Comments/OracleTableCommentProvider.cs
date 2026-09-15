@@ -167,17 +167,10 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
             cancellationToken
         );
 
-        var commentData = result.Select(r => new CommentData
-        {
-            ColumnName = r.ColumnName,
-            Comment = r.Comment,
-            ObjectType = r.ObjectType,
-        }).ToList();
-
-        var tableComment = GetTableComment(commentData);
+        var tableComment = GetTableComment(result);
         var primaryKeyComment = Option<string>.None;
 
-        var columnComments = GetColumnComments(commentData);
+        var columnComments = GetColumnComments(result);
         var checkComments = Empty.CommentLookup;
         var foreignKeyComments = Empty.CommentLookup;
         var uniqueKeyComments = Empty.CommentLookup;
@@ -205,17 +198,10 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
             cancellationToken
         );
 
-        var commentData = result.Select(r => new CommentData
-        {
-            ColumnName = r.ColumnName,
-            Comment = r.Comment,
-            ObjectType = r.ObjectType,
-        }).ToList();
-
-        var tableComment = GetTableComment(commentData);
+        var tableComment = GetTableComment(result);
         var primaryKeyComment = Option<string>.None;
 
-        var columnComments = GetColumnComments(commentData);
+        var columnComments = GetColumnComments(result);
         var checkComments = Empty.CommentLookup;
         var foreignKeyComments = Empty.CommentLookup;
         var uniqueKeyComments = Empty.CommentLookup;
@@ -235,7 +221,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
         );
     }
 
-    private static Option<string> GetTableComment(IEnumerable<CommentData> commentsData)
+    private static Option<string> GetTableComment(IEnumerable<IObjectCommentRow> commentsData)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
 
@@ -245,7 +231,7 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
             .FirstOrDefault();
     }
 
-    private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<CommentData> commentsData)
+    private static IReadOnlyDictionary<Identifier, Option<string>> GetColumnComments(IEnumerable<IObjectCommentRow> commentsData)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
 
@@ -277,14 +263,5 @@ public class OracleTableCommentProvider : IRelationalDatabaseTableCommentProvide
         public const string Table = "TABLE";
 
         public const string Column = "COLUMN";
-    }
-
-    private sealed record CommentData
-    {
-        public string? ColumnName { get; init; }
-
-        public string? ObjectType { get; init; }
-
-        public string? Comment { get; init; }
     }
 }

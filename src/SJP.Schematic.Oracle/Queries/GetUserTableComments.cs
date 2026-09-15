@@ -9,7 +9,7 @@ internal static class GetUserTableComments
         public required string TableName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : IObjectCommentRow
     {
         public required string ColumnName { get; init; }
 

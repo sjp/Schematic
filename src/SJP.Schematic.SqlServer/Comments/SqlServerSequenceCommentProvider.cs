@@ -146,19 +146,12 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
             cancellationToken
         );
 
-        var commentData = queryResult.Select(r => new CommentData
-        {
-            ObjectName = r.ObjectName,
-            ObjectType = r.ObjectType,
-            Comment = r.Comment,
-        }).ToList();
-
-        var sequenceComment = GetFirstCommentByType(commentData, Constants.Sequence);
+        var sequenceComment = GetFirstCommentByType(queryResult, Constants.Sequence);
 
         return new DatabaseSequenceComments(sequenceName, sequenceComment);
     }
 
-    private static Option<string> GetFirstCommentByType(IEnumerable<CommentData> commentsData, string objectType)
+    private static Option<string> GetFirstCommentByType(IEnumerable<GetSequenceComments.Result> commentsData, string objectType)
     {
         ArgumentNullException.ThrowIfNull(commentsData);
         ArgumentException.ThrowIfNullOrWhiteSpace(objectType);
@@ -186,14 +179,5 @@ public class SqlServerSequenceCommentProvider : IDatabaseSequenceCommentProvider
     private static class Constants
     {
         public const string Sequence = "SEQUENCE";
-    }
-
-    private sealed record CommentData
-    {
-        public required string ObjectType { get; init; }
-
-        public required string ObjectName { get; init; }
-
-        public required string? Comment { get; init; }
     }
 }
