@@ -11,7 +11,7 @@ internal static class GetViewColumns
         public required string ViewName { get; init; }
     }
 
-    internal sealed record Result
+    internal sealed record Result : IColumnCatalogRow
     {
         /// <summary>
         /// Name of the column
@@ -44,11 +44,6 @@ internal static class GetViewColumns
         public int CharacterMaximumLength { get; init; }
 
         /// <summary>
-        /// If <see cref="DataType"/> identifies a character type, the maximum possible length in octets (bytes) of a datum; null for all other data types. The maximum octet length depends on the declared character maximum length (see above) and the server encoding.
-        /// </summary>
-        public int CharacterOctetLength { get; init; }
-
-        /// <summary>
         /// If <see cref="DataType"/> identifies a numeric type, this column contains the (declared or implicit) precision of the type for this column. The precision indicates the number of significant digits. It can be expressed in decimal (base 10) or binary (base 2) terms, as specified in the column <see cref="NumericPrecisionRadix"/>. For all other data types, this column is null.
         /// </summary>
         public int NumericPrecision { get; init; }
@@ -69,11 +64,6 @@ internal static class GetViewColumns
         public int? DatetimePrecision { get; init; }
 
         /// <summary>
-        /// If <see cref="DataType"/> identifies an interval type, this column contains the specification which fields the intervals include for this column, e.g., <c>YEAR TO MONTH</c>, <c>DAY TO SECOND</c>, etc. If no field restrictions were specified (that is, the interval accepts all fields), and for all other data types, this field is null.
-        /// </summary>
-        public string? IntervalType { get; init; }
-
-        /// <summary>
         /// Name of the database containing the collation of the column (always the current database), null if default or the data type of the column is not collatable
         /// </summary>
         public string? CollationCatalog { get; init; }
@@ -89,11 +79,6 @@ internal static class GetViewColumns
         public string? CollationName { get; init; }
 
         /// <summary>
-        /// If the column has a domain type, the name of the database that the domain is defined in (always the current database), else null.
-        /// </summary>
-        public string? DomainCatalog { get; init; }
-
-        /// <summary>
         /// If the column has a domain type, the name of the schema that the domain is defined in, else null.
         /// </summary>
         public string? DomainSchema { get; init; }
@@ -104,11 +89,6 @@ internal static class GetViewColumns
         public string? DomainName { get; init; }
 
         /// <summary>
-        /// Name of the database that the column data type (the underlying type of the domain, if applicable) is defined in (always the current database)
-        /// </summary>
-        public string? UdtCatalog { get; init; }
-
-        /// <summary>
         /// Name of the schema that the column data type (the underlying type of the domain, if applicable) is defined in
         /// </summary>
         public string? UdtSchema { get; init; }
@@ -117,21 +97,6 @@ internal static class GetViewColumns
         /// Name of the column data type (the underlying type of the domain, if applicable)
         /// </summary>
         public string? UdtName { get; init; }
-
-        /// <summary>
-        /// An identifier of the data type descriptor of the column, unique among the data type descriptors pertaining to the table. This is mainly useful for joining with other instances of such identifiers. (The specific format of the identifier is not defined and not guaranteed to remain the same in future versions.)
-        /// </summary>
-        public string? DtdIdentifier { get; init; }
-
-        /// <summary>
-        /// A schema name for a sequence used to generate values. The column must be created from a serial keyword, otherwise the result will be <see langword="null" />.
-        /// </summary>
-        public string? SerialSequenceSchemaName { get; init; }
-
-        /// <summary>
-        /// A local name for a sequence used to generate values. This column be created from a serial keyword, otherwise the result will be <see langword="null" />.
-        /// </summary>
-        public string? SerialSequenceLocalName { get; init; }
 
         /// <summary>
         /// The <c>pg_type.typtype</c> of the column's type, e.g. <c>e</c> for an enum or <c>c</c> for a composite type.
@@ -162,47 +127,11 @@ internal static class GetViewColumns
     internal const string Sql = $"""
 
 select
-    c.column_name as "{nameof(Result.ColumnName)}",
-    c.ordinal_position as "{nameof(Result.OrdinalPosition)}",
-    c.column_default as "{nameof(Result.ColumnDefault)}",
-    c.is_nullable as "{nameof(Result.IsNullable)}",
-    c.data_type as "{nameof(Result.DataType)}",
-    c.character_maximum_length as "{nameof(Result.CharacterMaximumLength)}",
-    c.character_octet_length as "{nameof(Result.CharacterOctetLength)}",
-    c.numeric_precision as "{nameof(Result.NumericPrecision)}",
-    c.numeric_precision_radix as "{nameof(Result.NumericPrecisionRadix)}",
-    c.numeric_scale as "{nameof(Result.NumericScale)}",
-    c.datetime_precision as "{nameof(Result.DatetimePrecision)}",
-    c.interval_type as "{nameof(Result.IntervalType)}",
-    c.collation_catalog as "{nameof(Result.CollationCatalog)}",
-    c.collation_schema as "{nameof(Result.CollationSchema)}",
-    c.collation_name as "{nameof(Result.CollationName)}",
-    c.domain_catalog as "{nameof(Result.DomainCatalog)}",
-    c.domain_schema as "{nameof(Result.DomainSchema)}",
-    c.domain_name as "{nameof(Result.DomainName)}",
-    c.udt_catalog as "{nameof(Result.UdtCatalog)}",
-    c.udt_schema as "{nameof(Result.UdtSchema)}",
-    c.udt_name as "{nameof(Result.UdtName)}",
-    c.dtd_identifier as "{nameof(Result.DtdIdentifier)}",
-    udt.typtype::text as "{nameof(Result.TypeKind)}",
-    elem_ns.nspname as "{nameof(Result.ElementTypeSchema)}",
-    elem.typname as "{nameof(Result.ElementTypeName)}",
-    elem.typtype::text as "{nameof(Result.ElementTypeKind)}",
-    lbl.labels as "{nameof(Result.EnumLabels)}"
-from information_schema.columns c
--- information_schema names a column's type as ARRAY or USER-DEFINED whenever it is not built in,
--- so the type itself is resolved through udt_name to learn what kind of type it is, what an array
--- holds, and which labels an enum permits
-left join pg_catalog.pg_namespace udt_ns on udt_ns.nspname = c.udt_schema
-left join pg_catalog.pg_type udt on udt.typnamespace = udt_ns.oid and udt.typname = c.udt_name
-left join pg_catalog.pg_type elem on elem.oid = udt.typelem
-left join pg_catalog.pg_namespace elem_ns on elem_ns.oid = elem.typnamespace
-left join lateral (
-    select array_agg(en.enumlabel::text order by en.enumsortorder) as labels
-    from pg_catalog.pg_enum en
-    where en.enumtypid = case when udt.typtype = 'e' then udt.oid when elem.typtype = 'e' then elem.oid end
-) lbl on true
-where c.table_schema = @{nameof(Query.SchemaName)} and c.table_name = @{nameof(Query.ViewName)}
-order by c.ordinal_position
+{ColumnCatalogSql.SelectList}
+{ColumnCatalogSql.From}
+where {ColumnCatalogSql.VisibleColumnsPredicate}
+    and c.relkind = 'v'
+    and nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
+order by a.attnum
 """;
 }

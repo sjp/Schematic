@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -857,42 +856,27 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.SequenceSchemaName, row.SequenceLocalName))
                     : Option<Identifier>.None;
 
-                var isAutoIncrement = string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal);
-                var autoIncrement = isAutoIncrement
-                    && decimal.TryParse(row.IdentityStart, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqStart)
-                    && decimal.TryParse(row.IdentityIncrement, NumberStyles.Float, CultureInfo.InvariantCulture, out var seqIncr)
+                // Both an identity column and a serial column draw their values from a sequence, so
+                // the sequence's parameters describe either kind. A serial column is an ordinary
+                // column defaulting to nextval() over an owned sequence, so an explicitly supplied
+                // value is always accepted.
+                var autoIncrement = sequenceName.IsSome && row.SequenceStart is long seqStart && row.SequenceIncrement is long seqIncrement
                     ? Option<IAutoIncrement>.Some(new AutoIncrement(
                         seqStart,
-                        seqIncr,
-                        string.Equals(row.IdentityGeneration, Constants.Always, StringComparison.Ordinal)
+                        seqIncrement,
+                        string.Equals(row.IdentityKind, Constants.IdentityAlways, StringComparison.Ordinal)
                             ? IdentityGeneration.Always
                             : IdentityGeneration.ByDefault,
-                        ParseNumericBound(row.IdentityMinimum),
-                        ParseNumericBound(row.IdentityMaximum),
-                        string.Equals(row.IdentityCycle, Constants.Yes, StringComparison.Ordinal),
-                        sequenceName))
-                    : Option<IAutoIncrement>.None;
-
-                // A serial column is an ordinary column defaulting to nextval() over an owned
-                // sequence, so its parameters live on the sequence rather than on the column, and an
-                // explicitly supplied value is always accepted.
-                var isSerialAutoIncrement = !isAutoIncrement && sequenceName.IsSome;
-                if (isSerialAutoIncrement)
-                {
-                    autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(
-                        row.SequenceStart ?? 1,
-                        row.SequenceIncrement is long increment && increment != 0 ? increment : 1,
-                        IdentityGeneration.ByDefault,
                         ToNumericBound(row.SequenceMinValue),
                         ToNumericBound(row.SequenceMaxValue),
                         row.SequenceCycle == true,
-                        sequenceName));
-                }
+                        sequenceName))
+                    : Option<IAutoIncrement>.None;
 
                 var defaultValue = PostgreSqlDefaultValueParser.Parse(row.ColumnDefault);
                 var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
 
-                var isComputed = string.Equals(row.IsGenerated, Constants.Always, StringComparison.Ordinal);
+                var isComputed = !row.GenerationKind.IsNullOrEmpty();
                 var computedDefinition = isComputed
                     ? Option<string>.Some(row.GenerationExpression ?? string.Empty)
                     : Option<string>.None;
@@ -916,15 +900,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     computedStorage);
             })
             .ToListAsync(cancellationToken);
-    }
-
-    // information_schema reports sequence bounds as text, because they may exceed the range of any
-    // one SQL numeric type.
-    private static Option<decimal> ParseNumericBound(string? value)
-    {
-        return decimal.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out var result)
-            ? Option<decimal>.Some(result)
-            : Option<decimal>.None;
     }
 
     private static Option<decimal> ToNumericBound(long? value)
@@ -1105,9 +1080,9 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         public const string Yes = "YES";
 
         /// <summary>
-        /// Determines whether a column is generated.
+        /// The <c>pg_attribute.attidentity</c> value given to an identity column that is generated always.
         /// </summary>
-        public const string Always = "ALWAYS";
+        public const string IdentityAlways = "a";
 
         /// <summary>
         /// The <c>pg_attribute.attgenerated</c> value given to a generated column that is computed on read.

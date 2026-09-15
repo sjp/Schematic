@@ -53,7 +53,6 @@ select
         left join pg_catalog.pg_collation coll on coll.oid = idx.indcollation[k]
         order by k
     )) as "{nameof(GetTableIndexes.Result.IndexColumnCollation)}",
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as "{nameof(GetTableIndexes.Result.IsFunctional)}",
     am.amname as "{nameof(GetTableIndexes.Result.IndexMethod)}",
     idx.indisvalid as "{nameof(GetTableIndexes.Result.IsValid)}"
 from pg_catalog.pg_index idx

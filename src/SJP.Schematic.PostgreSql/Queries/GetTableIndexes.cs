@@ -38,8 +38,6 @@ internal static class GetTableIndexes
 
         public required string? IndexColumnCollation { get; init; }
 
-        public required bool IsFunctional { get; init; }
-
         /// <summary>
         /// The name of the access method implementing the index, e.g. <c>btree</c> or <c>gin</c>.
         /// </summary>
@@ -91,7 +89,6 @@ select
         left join pg_catalog.pg_collation coll on coll.oid = idx.indcollation[k]
         order by k
     )) as "{nameof(Result.IndexColumnCollation)}",
-    (idx.indexprs is not null) or (idx.indkey::int[] @> array[0]) as "{nameof(Result.IsFunctional)}",
     am.amname as "{nameof(Result.IndexMethod)}",
     idx.indisvalid as "{nameof(Result.IsValid)}"
 from pg_catalog.pg_index idx

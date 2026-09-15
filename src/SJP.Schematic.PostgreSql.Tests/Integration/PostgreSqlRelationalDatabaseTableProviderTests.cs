@@ -252,6 +252,9 @@ create table table_test_table_41 (
         await DbConnection.ExecuteAsync(@"create table table_test_table_44 ( ""Id"" int, ""Name"" text, ""order"" int )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create index ix_test_table_44_quoted on table_test_table_44 (""Name"", ""order"") include (""Id"")", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create index ix_test_table_44_expression on table_test_table_44 (lower(""Name""), ""Id"")", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create sequence table_test_table_45_older_seq", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_test_table_45 ( test_column int generated always as identity (start with 7) )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("alter sequence table_test_table_45_older_seq owned by table_test_table_45.test_column", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"
 create table table_test_partitioned_1 (
@@ -442,6 +445,7 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table table_test_table_42",
         "drop table table_test_table_43",
         "drop table table_test_table_44",
+        "drop table table_test_table_45",
         "drop table table_test_partitioned_1",
         "drop table table_test_unlogged_1",
         "drop table constraint_state_child",

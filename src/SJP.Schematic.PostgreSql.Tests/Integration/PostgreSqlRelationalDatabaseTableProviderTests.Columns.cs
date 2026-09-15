@@ -200,6 +200,22 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     }
 
     [Test]
+    public async Task Columns_WhenGivenIdentityColumnThatAlsoOwnsAnOlderSequence_ReturnsIdentitySequence()
+    {
+        const string tableName = "table_test_table_45";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single();
+        var autoIncrement = column.AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.Always));
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(7));
+            Assert.That(autoIncrement.SequenceName.UnwrapSome().LocalName, Is.EqualTo("table_test_table_45_test_column_seq"));
+        }
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithNoGeneratedColumns_ReturnsNoComputedColumns()
     {
         const string tableName = "table_test_table_1";
