@@ -109,7 +109,7 @@ public class ReportGenerator
         var renderContext = new RenderContext(new JsonDataWriter(), new BundleBuilder(), ExportDirectory);
 
         // Each renderer serializes its viewmodel(s) straight into .json file(s) and registers those
-        // files with the shared bundle, which copies them into bundle.js once rendering is done.
+        // files with the shared bundle, which copies each into its own script once rendering is done.
         var renderers = GetRenderers(tableStatistics);
 
         // Render every section, isolating failures so one bad object/section doesn't hide the rest.
@@ -125,9 +125,9 @@ public class ReportGenerator
         // before writing the shell rather than emitting a misleading report.
         RenderTaskRunner.ThrowIfAnyFailed(failures);
 
-        // Write the file:// shim once every payload has been registered, then extract the React shell.
-        var bundleFile = new FileInfo(Path.Combine(ExportDirectory.FullName, "data", "bundle.js"));
-        await renderContext.Bundle.WriteBundleAsync(bundleFile, cancellationToken);
+        // Write the file:// scripts once every payload has been registered, then extract the React shell.
+        var bundleDirectory = new DirectoryInfo(Path.Combine(ExportDirectory.FullName, "data", "bundle"));
+        await renderContext.Bundle.WriteBundleAsync(bundleDirectory, cancellationToken);
 
         var assetExporter = new AssetExporter();
         await assetExporter.SaveAssetsAsync(ExportDirectory, true, cancellationToken);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Moq;
@@ -79,11 +80,11 @@ internal static class LintRendererTests
         var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
         await renderer.RenderAsync(data, context);
 
-        var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
-        await bundle.WriteBundleAsync(bundleFile);
-        var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
+        var bundleDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "bundle"));
+        await bundle.WriteBundleAsync(bundleDirectory);
+        var bundleContent = await File.ReadAllTextAsync(Path.Combine(bundleDirectory.FullName, "lint.js"));
 
-        Assert.That(bundleContent, Does.Contain("window.__schematic[\"lint\"]"));
+        Assert.That(bundleContent, Does.Contain("window.__schematic[\"lint\"] = "));
     }
 
     [Test]
@@ -227,12 +228,17 @@ internal static class LintRendererTests
         var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
         await renderer.RenderAsync(data, context);
 
-        var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
-        await bundle.WriteBundleAsync(bundleFile);
-        var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
+        var bundleDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "bundle"));
+        await bundle.WriteBundleAsync(bundleDirectory);
+        var scripts = bundleDirectory.EnumerateFiles("*", SearchOption.AllDirectories).Select(f => Path.GetRelativePath(bundleDirectory.FullName, f.FullName));
+        var bundleContent = await File.ReadAllTextAsync(Path.Combine(bundleDirectory.FullName, "lint.js"));
 
         // The SARIF log is a sidecar for external tooling; nothing in the SPA reads it.
-        Assert.That(bundleContent, Does.Not.Contain("sarif"));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(scripts, Is.EquivalentTo(new[] { "lint.js" }));
+            Assert.That(bundleContent, Does.Not.Contain("sarif"));
+        }
     }
 
     private static Mock<IRelationalDatabaseLinter> CreateMockLinter(IReadOnlyCollection<IRuleMessage> tableMessages)

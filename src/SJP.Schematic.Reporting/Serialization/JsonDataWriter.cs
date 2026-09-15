@@ -14,9 +14,9 @@ namespace SJP.Schematic.Reporting.Serialization;
 /// <remarks>
 /// Each payload is serialized exactly once, straight into its <c>.json</c> file via
 /// <see cref="SerializeToFileAsync"/>, and that file is then registered with the shared
-/// <see cref="BundleBuilder"/>, which copies its bytes into <c>bundle.js</c>. Writing the payload
-/// once and reusing the file's bytes is what guarantees the <c>.json</c> files and the
-/// <c>bundle.js</c> shim cannot drift, without holding any payload in memory.
+/// <see cref="BundleBuilder"/>, which copies its bytes into a script for opening the report from
+/// disk. Writing the payload once and reusing the file's bytes is what guarantees the <c>.json</c>
+/// files and those scripts cannot drift, without holding any payload in memory.
 /// </remarks>
 public sealed class JsonDataWriter
 {

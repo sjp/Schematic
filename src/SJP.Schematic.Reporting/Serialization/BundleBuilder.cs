@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -10,15 +13,21 @@ using System.Threading.Tasks;
 namespace SJP.Schematic.Reporting.Serialization;
 
 /// <summary>
-/// Accumulates the JSON payloads produced by renderers and emits the single
-/// <c>data/bundle.js</c> shim that inlines them onto <c>window.__schematic</c> so a report
+/// Accumulates the JSON payloads produced by renderers and emits one classic script per payload
+/// under <c>data/bundle/</c>, each assigning its payload onto <c>window.__schematic</c>, so a report
 /// works when opened from disk (<c>file://</c>), where <c>fetch()</c> is blocked.
 /// </summary>
 /// <remarks>
+/// <para>
+/// The report loads each script only when it needs that payload, by adding a <c>&lt;script&gt;</c>
+/// element, so opening a report does not download or parse the data for every page up front.
+/// </para>
+/// <para>
 /// Renderers register the <c>.json</c> file they have just written rather than its contents.
-/// <see cref="WriteBundleAsync"/> copies each file's bytes into the bundle, so the two sources are
+/// <see cref="WriteBundleAsync"/> copies each file's bytes into its script, so the two sources are
 /// byte-identical by construction and no payload is held in memory between rendering and
 /// bundling. Renderers run concurrently, so the accumulators are thread-safe.
+/// </para>
 /// </remarks>
 public sealed class BundleBuilder
 {
@@ -39,10 +48,10 @@ public sealed class BundleBuilder
     /// <see cref="AddSummary(string, FileInfo)"/> overload for payloads that are already on disk.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="key"/> or <paramref name="json"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="key"/> is empty.</exception>
+    /// <exception cref="ArgumentException"><paramref name="key"/> is empty or is not a valid file name.</exception>
     public void AddSummary(string key, string json)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        ThrowIfInvalidFileName(key);
         ArgumentNullException.ThrowIfNull(json);
         _summaries[key] = new InlinePayload(json);
     }
@@ -56,10 +65,10 @@ public sealed class BundleBuilder
     /// file must still exist, unchanged, at that point.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="key"/> or <paramref name="jsonFile"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="key"/> is empty.</exception>
+    /// <exception cref="ArgumentException"><paramref name="key"/> is empty or is not a valid file name.</exception>
     public void AddSummary(string key, FileInfo jsonFile)
     {
-        ArgumentException.ThrowIfNullOrEmpty(key);
+        ThrowIfInvalidFileName(key);
         ArgumentNullException.ThrowIfNull(jsonFile);
         _summaries[key] = new FilePayload(jsonFile.FullName);
     }
@@ -73,11 +82,11 @@ public sealed class BundleBuilder
     /// <see cref="AddDetail(string, string, FileInfo)"/> overload for payloads that are already on disk.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="typeKey"/>, <paramref name="safeKey"/> or <paramref name="json"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="typeKey"/> or <paramref name="safeKey"/> is empty.</exception>
+    /// <exception cref="ArgumentException"><paramref name="typeKey"/> or <paramref name="safeKey"/> is empty or is not a valid file name.</exception>
     public void AddDetail(string typeKey, string safeKey, string json)
     {
-        ArgumentException.ThrowIfNullOrEmpty(typeKey);
-        ArgumentException.ThrowIfNullOrEmpty(safeKey);
+        ThrowIfInvalidFileName(typeKey);
+        ThrowIfInvalidFileName(safeKey);
         ArgumentNullException.ThrowIfNull(json);
 
         GetDetailMap(typeKey)[safeKey] = new InlinePayload(json);
@@ -92,11 +101,11 @@ public sealed class BundleBuilder
     /// file must still exist, unchanged, at that point.
     /// </remarks>
     /// <exception cref="ArgumentNullException"><paramref name="typeKey"/>, <paramref name="safeKey"/> or <paramref name="jsonFile"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="typeKey"/> or <paramref name="safeKey"/> is empty.</exception>
+    /// <exception cref="ArgumentException"><paramref name="typeKey"/> or <paramref name="safeKey"/> is empty or is not a valid file name.</exception>
     public void AddDetail(string typeKey, string safeKey, FileInfo jsonFile)
     {
-        ArgumentException.ThrowIfNullOrEmpty(typeKey);
-        ArgumentException.ThrowIfNullOrEmpty(safeKey);
+        ThrowIfInvalidFileName(typeKey);
+        ThrowIfInvalidFileName(safeKey);
         ArgumentNullException.ThrowIfNull(jsonFile);
 
         GetDetailMap(typeKey)[safeKey] = new FilePayload(jsonFile.FullName);
@@ -105,67 +114,88 @@ public sealed class BundleBuilder
     private ConcurrentDictionary<string, BundlePayload> GetDetailMap(string typeKey)
         => _details.GetOrAdd(typeKey, static _ => new ConcurrentDictionary<string, BundlePayload>(StringComparer.Ordinal));
 
-    /// <summary>
-    /// Writes the accumulated payloads to <paramref name="bundleJs"/> as a single classic
-    /// script that assigns each payload onto <c>window.__schematic</c>.
-    /// </summary>
-    /// <remarks>
-    /// The bundle is streamed to disk one payload at a time, so its size is not bounded by memory or
-    /// by the maximum length of a string.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="bundleJs"/> is <see langword="null" />.</exception>
-    public async Task WriteBundleAsync(FileInfo bundleJs, CancellationToken cancellationToken = default)
+    // Keys name the script files, so each must be a single path segment.
+    private static void ThrowIfInvalidFileName(string key, [CallerArgumentExpression(nameof(key))] string? paramName = null)
     {
-        ArgumentNullException.ThrowIfNull(bundleJs);
-
-        if (bundleJs.Directory is { Exists: false } directory)
-            directory.Create();
-
-        await using var output = new FileStream(bundleJs.FullName, new FileStreamOptions
-        {
-            Mode = FileMode.Create,
-            Access = FileAccess.Write,
-            Share = FileShare.None,
-            Options = FileOptions.Asynchronous,
-            BufferSize = OutputBufferSize,
-        });
-
-        await WriteTextAsync(output, "window.__schematic = window.__schematic || {};\n", cancellationToken);
-
-        // Deterministic ordering keeps the emitted bundle reproducible across runs.
-        foreach (var summary in _summaries.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
-        {
-            await WriteTextAsync(output, "window.__schematic[" + EncodeKey(summary.Key) + "] = ", cancellationToken);
-            await summary.Value.CopyToAsync(output, cancellationToken);
-            await WriteTextAsync(output, ";\n", cancellationToken);
-        }
-
-        foreach (var typeEntry in _details.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
-        {
-            var typeAccessor = "window.__schematic[" + EncodeKey(typeEntry.Key) + "]";
-            await WriteTextAsync(output, typeAccessor + " = " + typeAccessor + " || {};\n", cancellationToken);
-
-            foreach (var detail in typeEntry.Value.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
-            {
-                await WriteTextAsync(output, typeAccessor + "[" + EncodeKey(detail.Key) + "] = ", cancellationToken);
-                await detail.Value.CopyToAsync(output, cancellationToken);
-                await WriteTextAsync(output, ";\n", cancellationToken);
-            }
-        }
+        ArgumentException.ThrowIfNullOrEmpty(key, paramName);
+        if (key is "." or ".." || key.AsSpan().IndexOfAny(InvalidKeyChars) >= 0)
+            throw new ArgumentException("The key must be usable as a file name.", paramName);
     }
 
-    // Below the large object heap threshold, so the stream's buffer is not allocated there.
-    private const int OutputBufferSize = 64 * 1024;
+    private static readonly SearchValues<char> InvalidKeyChars = SearchValues.Create([.. Path.GetInvalidFileNameChars(), '/', '\\']);
+
+    /// <summary>
+    /// Writes each accumulated payload into <paramref name="bundleDirectory"/> as a classic script
+    /// that assigns the payload onto <c>window.__schematic</c>.
+    /// </summary>
+    /// <remarks>
+    /// A summary registered under <c>key</c> is written to <c>&lt;key&gt;.js</c> and assigned to
+    /// <c>window.__schematic[key]</c>. A detail registered under <c>typeKey</c> and <c>safeKey</c> is
+    /// written to <c>&lt;typeKey&gt;/&lt;safeKey&gt;.js</c> and assigned to
+    /// <c>window.__schematic[typeKey][safeKey]</c>. Each script is streamed to disk, so its size is not
+    /// bounded by memory or by the maximum length of a string.
+    /// </remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="bundleDirectory"/> is <see langword="null" />.</exception>
+    public async Task WriteBundleAsync(DirectoryInfo bundleDirectory, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(bundleDirectory);
+
+        bundleDirectory.Create();
+
+        var scripts = new List<BundleScript>(_summaries.Count + _details.Sum(static kvp => kvp.Value.Count));
+        foreach (var (key, payload) in _summaries)
+        {
+            var path = Path.Combine(bundleDirectory.FullName, key + ".js");
+            var prefix = RootInitializer + "window.__schematic[" + EncodeKey(key) + "] = ";
+            scripts.Add(new BundleScript(path, prefix, payload));
+        }
+
+        foreach (var (typeKey, details) in _details)
+        {
+            var typeDirectory = Directory.CreateDirectory(Path.Combine(bundleDirectory.FullName, typeKey)).FullName;
+            var typeAccessor = "window.__schematic[" + EncodeKey(typeKey) + "]";
+            var typePrefix = RootInitializer + typeAccessor + " = " + typeAccessor + " || {};\n";
+
+            foreach (var (safeKey, payload) in details)
+            {
+                var path = Path.Combine(typeDirectory, safeKey + ".js");
+                var prefix = typePrefix + typeAccessor + "[" + EncodeKey(safeKey) + "] = ";
+                scripts.Add(new BundleScript(path, prefix, payload));
+            }
+        }
+
+        await Parallel.ForEachAsync(scripts, cancellationToken, static (script, ct) => new ValueTask(script.WriteAsync(ct)));
+    }
+
+    private const string RootInitializer = "window.__schematic = window.__schematic || {};\n";
 
     private static readonly UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false);
 
     // JSON-encode the key so it is a correctly-escaped string literal in the emitted JS.
     private static string EncodeKey(string key) => JsonSerializer.Serialize(key);
 
-    // The script scaffolding around each payload is short, so these writes land in the output
-    // stream's buffer rather than going to disk one by one.
-    private static ValueTask WriteTextAsync(Stream output, string text, CancellationToken cancellationToken)
-        => output.WriteAsync(Utf8NoBom.GetBytes(text), cancellationToken);
+    private static readonly byte[] ScriptSuffix = ";\n"u8.ToArray();
+
+    private sealed record BundleScript(string FilePath, string Prefix, BundlePayload Payload)
+    {
+        public async Task WriteAsync(CancellationToken cancellationToken)
+        {
+            // Unbuffered: a script is written in three parts, and the payload is copied in large
+            // chunks, so a buffer per file would only add an allocation.
+            await using var output = new FileStream(FilePath, new FileStreamOptions
+            {
+                Mode = FileMode.Create,
+                Access = FileAccess.Write,
+                Share = FileShare.None,
+                Options = FileOptions.Asynchronous,
+                BufferSize = 0,
+            });
+
+            await output.WriteAsync(Utf8NoBom.GetBytes(Prefix), cancellationToken);
+            await Payload.CopyToAsync(output, cancellationToken);
+            await output.WriteAsync(ScriptSuffix, cancellationToken);
+        }
+    }
 
     private abstract class BundlePayload
     {

@@ -45,11 +45,11 @@ internal sealed class ViewRendererSakilaTests : SakilaTest
         await renderer.RenderAsync(data, context);
 
         var firstView = views.First();
-        var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
-        await bundle.WriteBundleAsync(bundleFile);
-        var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
+        var bundleDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "bundle"));
+        await bundle.WriteBundleAsync(bundleDirectory);
+        var bundleContent = await File.ReadAllTextAsync(Path.Combine(bundleDirectory.FullName, "view", firstView.Name.ToSafeKey() + ".js"));
 
-        Assert.That(bundleContent, Does.Contain($"window.__schematic[\"view\"][\"{firstView.Name.ToSafeKey()}\"]"));
+        Assert.That(bundleContent, Does.Contain($"window.__schematic[\"view\"][\"{firstView.Name.ToSafeKey()}\"] = "));
     }
 
     private ReferencedObjectTargets EmptyTargets() => new(Connection.Dialect.GetDependencyProvider(), [], [], [], [], []);

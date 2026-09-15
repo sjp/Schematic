@@ -44,10 +44,10 @@ internal sealed class TableRendererSakilaTests : SakilaTest
         await renderer.RenderAsync(data, context);
 
         var actorTable = tables.Single(static t => t.Name.LocalName == "actor");
-        var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
-        await bundle.WriteBundleAsync(bundleFile);
-        var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
+        var bundleDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "bundle"));
+        await bundle.WriteBundleAsync(bundleDirectory);
+        var bundleContent = await File.ReadAllTextAsync(Path.Combine(bundleDirectory.FullName, "table", actorTable.Name.ToSafeKey() + ".js"));
 
-        Assert.That(bundleContent, Does.Contain($"window.__schematic[\"table\"][\"{actorTable.Name.ToSafeKey()}\"]"));
+        Assert.That(bundleContent, Does.Contain($"window.__schematic[\"table\"][\"{actorTable.Name.ToSafeKey()}\"] = "));
     }
 }

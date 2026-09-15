@@ -42,11 +42,11 @@ internal static class SchemasRendererTests
         var context = new RenderContext(new JsonDataWriter(), bundle, new DirectoryInfo(tempDir.DirectoryPath));
         await renderer.RenderAsync(data, context);
 
-        var bundleFile = new FileInfo(Path.Combine(tempDir.DirectoryPath, "bundle.js"));
-        await bundle.WriteBundleAsync(bundleFile);
-        var bundleContent = await File.ReadAllTextAsync(bundleFile.FullName);
+        var bundleDirectory = new DirectoryInfo(Path.Combine(tempDir.DirectoryPath, "bundle"));
+        await bundle.WriteBundleAsync(bundleDirectory);
+        var bundleContent = await File.ReadAllTextAsync(Path.Combine(bundleDirectory.FullName, "schemas.js"));
 
-        Assert.That(bundleContent, Does.Contain("window.__schematic[\"schemas\"]"));
+        Assert.That(bundleContent, Does.Contain("window.__schematic[\"schemas\"] = "));
     }
 
     [Test]

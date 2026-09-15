@@ -5,13 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Schematic</title>
     <script>
-      // The disk (file://) build needs all report data inlined via bundle.js because
-      // fetch() of local files is blocked there. Served (http) mode fetches the .json
-      // files lazily, so it skips the (potentially large) bundle. document.write keeps
-      // the bundle loading synchronously, before the deferred app script runs.
-      if (location.protocol === "file:") {
-        document.write("<scr" + 'ipt src="data/bundle.js"></scr' + "ipt>");
-      }
       // Apply the OS dark-mode preference before first paint so the report
       // doesn't flash the light theme. useColorScheme keeps it in sync after.
       if (window.matchMedia("(prefers-color-scheme: dark)").matches) {

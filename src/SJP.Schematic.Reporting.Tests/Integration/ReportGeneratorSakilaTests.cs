@@ -76,7 +76,7 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(File.Exists(Path.Combine(dataDir, "bundle.js")), Is.True);
+            Assert.That(File.Exists(Path.Combine(dataDir, "bundle", "main.js")), Is.True);
             Assert.That(File.Exists(Path.Combine(dataDir, "main.json")), Is.True);
             Assert.That(File.Exists(Path.Combine(dataDir, "tables.json")), Is.True);
             Assert.That(File.Exists(Path.Combine(dataDir, "lint.json")), Is.True);
@@ -98,20 +98,24 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
     }
 
     [Test]
-    public async Task GenerateAsync_GivenSakilaDatabase_BundleContainsAccumulatedPayloads()
+    public async Task GenerateAsync_GivenSakilaDatabase_WritesBundleScriptForEachPayload()
     {
         using var tempDir = new TemporaryDirectory();
         var generator = new ReportGenerator(Connection, DatabaseProvider, GetDatabase(), tempDir.DirectoryPath);
 
         await generator.GenerateAsync();
 
-        var bundleContent = await File.ReadAllTextAsync(Path.Combine(tempDir.DirectoryPath, "data", "bundle.js"));
+        var dataDir = Path.Combine(tempDir.DirectoryPath, "data");
+        var tablesScript = await File.ReadAllTextAsync(Path.Combine(dataDir, "bundle", "tables.js"));
+        var tableScripts = Directory.EnumerateFiles(Path.Combine(dataDir, "bundle", "table"), "*.js").Select(Path.GetFileNameWithoutExtension);
+        var tableJsonFiles = Directory.EnumerateFiles(Path.Combine(dataDir, "tables"), "*.json").Select(Path.GetFileNameWithoutExtension);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(bundleContent, Does.StartWith("window.__schematic = window.__schematic || {};"));
-            Assert.That(bundleContent, Does.Contain("window.__schematic[\"tables\"]"));
-            Assert.That(bundleContent, Does.Contain("window.__schematic[\"table\"]"));
+            Assert.That(tablesScript, Does.StartWith("window.__schematic = window.__schematic || {};"));
+            Assert.That(tablesScript, Does.Contain("window.__schematic[\"tables\"] = "));
+            Assert.That(tableScripts, Is.EquivalentTo(tableJsonFiles));
+            Assert.That(tableScripts, Is.Not.Empty);
         }
     }
 
@@ -124,30 +128,40 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
         await generator.GenerateAsync();
 
         var dataDir = Path.Combine(tempDir.DirectoryPath, "data");
-        var bundleBytes = await File.ReadAllBytesAsync(Path.Combine(dataDir, "bundle.js"));
+        var bundleDir = Path.Combine(dataDir, "bundle");
 
-        // Every assignment in the bundle is on its own line: serialized JSON escapes newlines in
-        // strings and is written unindented. Summary payloads map to data/<key>.json and detail
-        // payloads to data/<typeKey>s/<safeKey>.json.
+        // A script's payload is assigned on its last line: serialized JSON escapes newlines in strings
+        // and is written unindented. Summary payloads map to data/<key>.json and detail payloads to
+        // data/<typeKey>s/<safeKey>.json.
         var payloadsByRelativePath = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         var assignment = new Regex("""^window\.__schematic\[("(?:[^"\\]|\\.)*")\](?:\[("(?:[^"\\]|\\.)*")\])? = """, RegexOptions.CultureInvariant);
-        var lines = SplitLines(bundleBytes);
-        foreach (var line in lines.Skip(1))
+        var unexpectedLines = new List<string>();
+        foreach (var script in Directory.EnumerateFiles(bundleDir, "*.js", SearchOption.AllDirectories))
         {
-            var text = Encoding.UTF8.GetString(line);
-            if (text.EndsWith(" || {};", StringComparison.Ordinal))
-                continue;
+            var lines = SplitLines(await File.ReadAllBytesAsync(script));
+            foreach (var line in lines[..^1])
+            {
+                var text = Encoding.UTF8.GetString(line);
+                if (!text.EndsWith(" || {};", StringComparison.Ordinal))
+                    unexpectedLines.Add(text);
+            }
 
-            var match = assignment.Match(text);
-            Assert.That(match.Success, Is.True, $"Unexpected bundle line: {text[..Math.Min(text.Length, 80)]}");
+            var assignmentText = Encoding.UTF8.GetString(lines[^1]);
+            var match = assignment.Match(assignmentText);
+            Assert.That(match.Success, Is.True, $"Unexpected bundle line: {assignmentText[..Math.Min(assignmentText.Length, 80)]}");
 
             var firstKey = JsonSerializer.Deserialize<string>(match.Groups[1].Value)!;
             var relativePath = match.Groups[2].Success
                 ? Path.Combine(firstKey + "s", JsonSerializer.Deserialize<string>(match.Groups[2].Value)! + ".json")
                 : firstKey + ".json";
+            var expectedScript = match.Groups[2].Success
+                ? Path.Combine(firstKey, JsonSerializer.Deserialize<string>(match.Groups[2].Value)! + ".js")
+                : firstKey + ".js";
+
+            Assert.That(Path.GetRelativePath(bundleDir, script), Is.EqualTo(expectedScript));
 
             var prefixLength = Encoding.UTF8.GetByteCount(match.Value);
-            payloadsByRelativePath[relativePath] = line[prefixLength..^1]; // drop the trailing ';'
+            payloadsByRelativePath[relativePath] = lines[^1][prefixLength..^1]; // drop the trailing ';'
         }
 
         var jsonFiles = Directory.EnumerateFiles(dataDir, "*.json", SearchOption.AllDirectories)
@@ -156,7 +170,7 @@ internal sealed class ReportGeneratorSakilaTests : SakilaTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(lines[0], Is.EqualTo("window.__schematic = window.__schematic || {};"u8.ToArray()));
+            Assert.That(unexpectedLines, Is.Empty);
             Assert.That(payloadsByRelativePath.Keys, Is.EquivalentTo(jsonFiles));
             Assert.That(jsonFiles, Has.Some.StartsWith("tables" + Path.DirectorySeparatorChar));
 

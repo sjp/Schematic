@@ -3,8 +3,10 @@
  * (`file://`, where `fetch()` of local files is blocked) and when served over
  * `http://`.
  *
- *  - From disk: data is read from `window.__schematic`, populated by the
- *    `data/bundle.js` shim that `index.html` loads.
+ *  - From disk: each payload has its own classic script under `data/bundle/`,
+ *    which assigns the payload onto `window.__schematic`. A script is added to
+ *    the page only when its payload is first needed, since script elements load
+ *    from disk where `fetch()` cannot.
  *  - Over http: the canonical `.json` files are fetched lazily.
  */
 
@@ -18,20 +20,51 @@ declare global {
 
 const fromDisk = location.protocol === "file:";
 
-function bundle(): NonNullable<Window["__schematic"]> {
-  const data = window.__schematic;
-  if (data === undefined) {
-    throw new Error(
-      "window.__schematic is not defined — data/bundle.js failed to load (required when opening from disk).",
-    );
+// Payloads being loaded from disk, by script path. Concurrent requests for the same payload share
+// one script, because the first to finish takes the payload off `window.__schematic`.
+const pendingScripts = new Map<string, Promise<unknown>>();
+
+/**
+ * Runs the script at `src`, then takes the payload it defined off `window.__schematic` with `take`,
+ * so payloads do not pile up there as the reader moves between pages.
+ */
+function loadFromScript<T>(
+  src: string,
+  take: (data: Record<string, unknown>) => unknown,
+): Promise<T> {
+  let pending = pendingScripts.get(src);
+  if (pending === undefined) {
+    pending = new Promise<unknown>((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.addEventListener("load", () => {
+        script.remove();
+        const payload = take((window.__schematic ??= {}));
+        if (payload === undefined) {
+          reject(new Error(`${src} loaded but did not define its data.`));
+        } else {
+          resolve(payload);
+        }
+      });
+      script.addEventListener("error", () => {
+        script.remove();
+        reject(new Error(`Failed to load ${src}`));
+      });
+      document.head.append(script);
+    }).finally(() => pendingScripts.delete(src));
+    pendingScripts.set(src, pending);
   }
-  return data;
+  return pending as Promise<T>;
 }
 
 /** Loads a per-type summary payload (e.g. `tables`, `main`, `lint`, `search`). */
 export async function loadSummary<T>(key: string): Promise<T> {
   if (fromDisk) {
-    return bundle()[key] as T;
+    return loadFromScript<T>(`data/bundle/${key}.js`, (data) => {
+      const payload = data[key];
+      delete data[key];
+      return payload;
+    });
   }
   const response = await fetch(`data/${key}.json`);
   if (!response.ok) {
@@ -41,9 +74,9 @@ export async function loadSummary<T>(key: string): Promise<T> {
 }
 
 /**
- * Directory holding the `.json` files for each detail type. The generator keys the bundle by the
- * singular type name but writes the files into a plural directory, so the http path cannot be
- * derived from the bundle key; this is the one place that mapping lives.
+ * Directory holding the `.json` files for each detail type. The generator keys detail payloads by
+ * the singular type name but writes the files into a plural directory, so the http path cannot be
+ * derived from the key; this is the one place that mapping lives.
  */
 const DETAIL_DIRECTORIES: Record<string, string> = {
   table: "tables",
@@ -57,22 +90,17 @@ const DETAIL_DIRECTORIES: Record<string, string> = {
 
 /** Loads a per-object detail payload (e.g. type `table`, key `actor_a1b2c3d4`). */
 export async function loadDetail<T>(type: string, key: string): Promise<T> {
-  if (fromDisk) {
-    const typeMap = bundle()[type] as Record<string, T | undefined> | undefined;
-    if (typeMap === undefined) {
-      throw new Error(`No "${type}" details present in window.__schematic.`);
-    }
-    const detail = typeMap[key];
-    // Mirror the http path, which throws on a missing (404) detail, so an unknown/stale key never
-    // resolves to a successful `undefined` that violates the Promise<T> contract.
-    if (detail === undefined) {
-      throw new Error(`No "${type}" detail for key "${key}" in window.__schematic.`);
-    }
-    return detail;
-  }
   const directory = DETAIL_DIRECTORIES[type];
   if (directory === undefined) {
     throw new Error(`Unknown detail type "${type}".`);
+  }
+  if (fromDisk) {
+    return loadFromScript<T>(`data/bundle/${type}/${key}.js`, (data) => {
+      const typeMap = data[type] as Record<string, unknown> | undefined;
+      const payload = typeMap?.[key];
+      delete typeMap?.[key];
+      return payload;
+    });
   }
   const response = await fetch(`data/${directory}/${key}.json`);
   if (!response.ok) {

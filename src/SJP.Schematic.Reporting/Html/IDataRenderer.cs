@@ -6,8 +6,8 @@ namespace SJP.Schematic.Reporting.Html;
 
 /// <summary>
 /// The JSON-based output contract. A data renderer serializes its viewmodel(s) to canonical
-/// JSON, writes the <c>.json</c> file(s), and registers the same payload string with the shared
-/// bundle so the served (<c>fetch</c>) and disk (<c>bundle.js</c>) sources cannot drift.
+/// JSON, writes the <c>.json</c> file(s), and registers those files with the shared bundle so the
+/// served (<c>fetch</c>) and disk (<c>data/bundle/</c> scripts) sources cannot drift.
 /// </summary>
 /// <remarks>
 /// <paramref name="data"/> and <paramref name="context"/> supply everything renderers need to know
