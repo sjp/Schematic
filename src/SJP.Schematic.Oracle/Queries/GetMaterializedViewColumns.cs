@@ -27,6 +27,8 @@ internal static class GetMaterializedViewColumns
 
         public required string? Collation { get; init; }
 
+        public required string? IsNullable { get; init; }
+
         public required string? IsComputed { get; init; }
 
         public required string? DefaultValue { get; init; }
@@ -43,6 +45,7 @@ select
     atc.DATA_SCALE as "{nameof(Result.Scale)}",
     atc.DATA_DEFAULT as "{nameof(Result.DefaultValue)}",
     atc.CHARACTER_SET_NAME as "{nameof(Result.Collation)}",
+    atc.NULLABLE as "{nameof(Result.IsNullable)}",
     atc.VIRTUAL_COLUMN as "{nameof(Result.IsComputed)}"
 from SYS.ALL_TAB_COLS atc
 where atc.OWNER = :{nameof(Query.SchemaName)} and atc.TABLE_NAME = :{nameof(Query.ViewName)}

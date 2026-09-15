@@ -9,13 +9,12 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 {
     // Pins the round-trip count for a single GetTable() call, guarding against the per-table query count
     // creeping back up. table_test_table_2 is a single-column, primary-keyed table with no unique keys,
-    // foreign keys, or incoming child keys of its own, so it isolates the query shape from the
-    // constraint-merge fix without dragging in the child-key fan-out to other tables.
+    // foreign keys, or incoming child keys of its own, so it isolates the query shape without dragging in
+    // the child-key fan-out to other tables.
     //
-    // Before the GetTablePrimaryKey/GetTableUniqueKeys/GetTableParentKeys -> GetTableConstraints merge,
-    // a table load issued 8 distinct queries (columns, checks, triggers, indexes, primary key, unique
-    // keys, parent keys, child keys); it now issues 6 (constraints merged into one), plus one for the
-    // table's storage options. Plus one query to resolve the table's name up front, for 8 total.
+    // A table load issues 7 queries: one to resolve the table's name, then columns, triggers, indexes,
+    // child keys and storage options, plus a single constraints query that reads the primary key, unique
+    // keys, foreign keys and check constraints together.
     [Test]
     public async Task GetTable_ForSingleTableWithOnlyAPrimaryKey_IssuesExpectedNumberOfRoundTrips()
     {
@@ -25,6 +24,6 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         _ = await tableProvider.GetTable("table_test_table_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(8));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(7));
     }
 }

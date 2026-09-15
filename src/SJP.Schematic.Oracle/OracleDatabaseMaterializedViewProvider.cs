@@ -313,26 +313,12 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        // GetMaterializedViewChecks does not depend on the column query's results (only on viewName), so
-        // launch both together rather than awaiting the columns before starting the checks lookup.
-        var (query, checks) = await (
-            DbConnection.QueryAsync(
-                GetMaterializedViewColumns.Sql,
-                new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-                cancellationToken
-            ),
-            DbConnection.QueryAsync(
-                GetMaterializedViewChecks.Sql,
-                new GetMaterializedViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-                cancellationToken
-            )
-        ).WhenAll();
+        var query = await DbConnection.QueryAsync(
+            GetMaterializedViewColumns.Sql,
+            new GetMaterializedViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+            cancellationToken
+        );
 
-        var columnNames = query
-            .Where(static row => row.ColumnName != null)
-            .Select(static row => row.ColumnName!)
-            .ToList();
-        var notNullableColumnNames = BuildNotNullConstrainedColumnNames(checks, columnNames);
         var result = new List<IDatabaseColumn>();
 
         foreach (var row in query)
@@ -350,7 +336,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
             };
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
-            var isNullable = row.ColumnName == null || !notNullableColumnNames.Contains(row.ColumnName);
+            var isNullable = !string.Equals(row.IsNullable, NoValue, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var defaultValue = OracleDefaultValueParser.Parse(row.DefaultValue);
 
@@ -360,73 +346,6 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Retrieves the names all of the not-null constrained columns in a given materialized view.
-    /// </summary>
-    /// <param name="viewName">A materialized view name.</param>
-    /// <param name="columnNames">The column names for the given materialized view.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of not-null constrained column names.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnNames"/> are <see langword="null" />.</exception>
-    protected Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsync(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-        ArgumentNullException.ThrowIfNull(columnNames);
-
-        return GetNotNullConstrainedColumnsAsyncCore(viewName, columnNames, cancellationToken);
-    }
-
-    private async Task<IEnumerable<string>> GetNotNullConstrainedColumnsAsyncCore(Identifier viewName, IEnumerable<string> columnNames, CancellationToken cancellationToken)
-    {
-        var checks = await DbConnection.QueryAsync(
-            GetMaterializedViewChecks.Sql,
-            new GetMaterializedViewChecks.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        );
-
-        return BuildNotNullConstrainedColumnNames(checks, columnNames);
-    }
-
-    /// <summary>
-    /// Determines which of <paramref name="columnNames"/> are not-null constrained, given the raw check
-    /// constraint rows for a materialized view. Pure function shared by
-    /// <see cref="GetNotNullConstrainedColumnsAsyncCore"/> and <see cref="LoadColumnsAsyncCore"/> so the
-    /// checks query can be issued once and combined with a concurrently-fetched columns query.
-    /// </summary>
-    /// <param name="checks">The raw check constraint rows for a materialized view.</param>
-    /// <param name="columnNames">The column names for the given materialized view.</param>
-    /// <returns>A set of not-null constrained column names.</returns>
-    private static IReadOnlySet<string> BuildNotNullConstrainedColumnNames(IEnumerable<GetMaterializedViewChecks.Result> checks, IEnumerable<string> columnNames)
-    {
-        if (checks.Empty())
-            return new System.Collections.Generic.HashSet<string>();
-
-        var columnNotNullConstraints = columnNames
-            .Select(name => new KeyValuePair<string, string>(GenerateNotNullDefinition(name), name))
-            .ToReadOnlyDictionary();
-
-        return checks
-            .Where(c => c.Definition != null
-                && string.Equals(c.EnabledStatus, EnabledValue, StringComparison.Ordinal)
-                && columnNotNullConstraints.ContainsKey(c.Definition))
-            .Select(c => columnNotNullConstraints[c.Definition!])
-            .ToHashSet(StringComparer.Ordinal);
-    }
-
-    /// <summary>
-    /// Creates a not null constraint definition, used to determine whether a constraint is a <c>NOT NULL</c> constraint.
-    /// </summary>
-    /// <param name="columnName">A column name.</param>
-    /// <returns>A <c>NOT NULL</c> constraint definition for the given column.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="columnName"/> is empty or whitespace.</exception>
-    protected static string GenerateNotNullDefinition(string columnName)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
-
-        return "\"" + columnName + "\" IS NOT NULL";
     }
 
     /// <summary>
@@ -443,7 +362,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
     }
 
-    private const string EnabledValue = "ENABLED";
+    private const string NoValue = "N";
 
     private const string UnusableValue = "UNUSABLE";
 

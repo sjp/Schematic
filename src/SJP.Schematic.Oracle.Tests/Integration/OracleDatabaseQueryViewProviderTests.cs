@@ -22,6 +22,8 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create view query_view_test_view_1 as select 1 as test from dual", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table query_view_test_table_1 (table_id number)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view query_view_test_view_2 as select table_id as test from query_view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table query_view_test_table_2 (not_null_column number not null, nullable_column number)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_3 as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -31,7 +33,9 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
             "drop view query_db_test_view_1",
             "drop view query_view_test_view_1",
             "drop materialized view query_view_test_view_2",
-            "drop table query_view_test_table_1");
+            "drop table query_view_test_table_1",
+            "drop view query_view_test_view_3",
+            "drop table query_view_test_table_2");
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -245,5 +249,37 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         var containsColumn = view.Columns.Any(c => c.Name == expectedColumnName);
 
         Assert.That(containsColumn, Is.True);
+    }
+
+    [Test]
+    public async Task Columns_WhenSelectingNotNullTableColumn_ReturnsNotNullableColumn()
+    {
+        var view = await GetViewAsync("query_view_test_view_3");
+        var column = view.Columns.Single(c => c.Name.LocalName == "NOT_NULL_COLUMN");
+
+        Assert.That(column.IsNullable, Is.False);
+    }
+
+    [Test]
+    public async Task Columns_WhenSelectingNullableTableColumn_ReturnsNullableColumn()
+    {
+        var view = await GetViewAsync("query_view_test_view_3");
+        var column = view.Columns.Single(c => c.Name.LocalName == "NULLABLE_COLUMN");
+
+        Assert.That(column.IsNullable, Is.True);
+    }
+
+    // A view load issues 5 queries: one to resolve the view's name, then columns (including their
+    // nullability), definition, INSTEAD OF triggers and the check option/updatability options.
+    [Test]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new OracleDatabaseQueryViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        _ = await viewProvider.GetView("query_view_test_view_3", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
     }
 }

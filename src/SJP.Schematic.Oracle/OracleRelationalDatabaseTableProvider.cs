@@ -399,12 +399,12 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
-    /// Retrieves the primary key, unique keys and foreign keys declared on the given table.
+    /// Retrieves the primary key, unique keys, foreign keys and check constraints declared on the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
     /// <param name="queryCache">A query cache for the given context.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The table's key constraints. The key each foreign key references is identified but not loaded.</returns>
+    /// <returns>The table's constraints. The key each foreign key references is identified but not loaded.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
     protected Task<TableConstraints> LoadConstraintsAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
@@ -414,9 +414,9 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return LoadConstraintsAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    // Primary, unique and foreign keys are all read from ALL_CONSTRAINTS with one query. The key a foreign
-    // key references belongs to another table, so it is only identified here, and is resolved when the
-    // table's parent keys are loaded.
+    // Primary, unique and foreign keys and check constraints are all read from ALL_CONSTRAINTS with one
+    // query. The key a foreign key references belongs to another table, so it is only identified here, and
+    // is resolved when the table's parent keys are loaded.
     private async Task<TableConstraints> LoadConstraintsAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var constraintRows = await DbConnection.QueryAsync(
@@ -426,23 +426,31 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         );
 
         var rows = constraintRows.ToList();
+        // The constraint columns are left joined so that check constraints, which have none, are returned
+        // too. A key without any column rows cannot be built, so such rows are skipped.
         var primaryKeyRows = rows
-            .Where(static row => string.Equals(row.ConstraintType, Constants.PrimaryKeyType, StringComparison.Ordinal))
+            .Where(static row => string.Equals(row.ConstraintType, Constants.PrimaryKeyType, StringComparison.Ordinal)
+                && row.ColumnName != null)
             .ToList();
         var uniqueKeyRows = rows
-            .Where(static row => string.Equals(row.ConstraintType, Constants.UniqueKeyType, StringComparison.Ordinal))
+            .Where(static row => string.Equals(row.ConstraintType, Constants.UniqueKeyType, StringComparison.Ordinal)
+                && row.ColumnName != null)
             .ToList();
         // The parent constraint is left joined so that one query serves every key type, which means a
         // foreign key referencing anything other than a primary or unique key comes back with null
         // parent-table columns. Such a foreign key cannot be resolved to a parent key, so it is dropped.
         var foreignKeyRows = rows
             .Where(static row => string.Equals(row.ConstraintType, Constants.ForeignKeyType, StringComparison.Ordinal)
+                && row.ColumnName != null
                 && row.ParentTableSchema != null
                 && row.ParentTableName != null)
             .ToList();
+        var checkRows = rows
+            .Where(static row => string.Equals(row.ConstraintType, Constants.CheckType, StringComparison.Ordinal))
+            .ToList();
 
         var hasKeys = primaryKeyRows.Count > 0 || uniqueKeyRows.Count > 0;
-        if (!hasKeys && foreignKeyRows.Count == 0)
+        if (!hasKeys && foreignKeyRows.Count == 0 && checkRows.Count == 0)
             return NoConstraints;
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
@@ -453,7 +461,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return new TableConstraints(
             CreatePrimaryKey(primaryKeyRows, columnLookup, indexes),
             CreateUniqueKeys(uniqueKeyRows, columnLookup, indexes),
-            CreateForeignKeyReferences(foreignKeyRows, columnLookup)
+            CreateForeignKeyReferences(foreignKeyRows, columnLookup),
+            CreateChecks(checkRows, columnLookup)
         );
     }
 
@@ -574,18 +583,60 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return result;
     }
 
-    private static readonly TableConstraints NoConstraints = new(Option<IDatabaseKey>.None, [], []);
+    private static IReadOnlyCollection<IDatabaseCheckConstraint> CreateChecks(
+        IReadOnlyCollection<GetTableConstraints.Result> rows,
+        IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    {
+        if (rows.Count == 0)
+            return [];
+
+        // An inline NOT NULL is stored as a system-named check constraint, and is reported through
+        // the column's IsNullable instead. Only constraints named by Oracle whose effect the column
+        // already carries are dropped -- a user-named constraint, or one that has been disabled so
+        // that the column reads as nullable, would otherwise be invisible.
+        var columnNotNullConstraints = columnLookup
+            .Where(static kv => !kv.Value.IsNullable)
+            .Select(static kv => GenerateNotNullDefinition(kv.Key.LocalName))
+            .ToHashSet(StringComparer.Ordinal);
+
+        var result = new List<IDatabaseCheckConstraint>();
+
+        foreach (var checkRow in rows)
+        {
+            var definition = checkRow.Definition;
+            if (definition == null || checkRow.ConstraintName == null)
+                continue;
+
+            var isGeneratedName = string.Equals(checkRow.NameGeneration, Constants.GeneratedName, StringComparison.Ordinal);
+            if (isGeneratedName && columnNotNullConstraints.Contains(definition))
+                continue;
+
+            var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
+            var isEnabled = string.Equals(checkRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
+            var isValidated = string.Equals(checkRow.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
+            var deferrability = GetDeferrability(checkRow.Deferrable, checkRow.Deferred);
+
+            var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled, isValidated, deferrability);
+            result.Add(check);
+        }
+
+        return result;
+    }
+
+    private static readonly TableConstraints NoConstraints = new(Option<IDatabaseKey>.None, [], [], []);
 
     /// <summary>
-    /// The primary key, unique keys and foreign keys declared on a table, which are read from the catalog together.
+    /// The primary key, unique keys, foreign keys and check constraints declared on a table, which are read from the catalog together.
     /// </summary>
     /// <param name="PrimaryKey">The table's primary key, if it has one.</param>
     /// <param name="UniqueKeys">The table's unique keys.</param>
     /// <param name="ForeignKeys">The table's foreign keys, each identifying the key it references without loading it.</param>
+    /// <param name="Checks">The table's check constraints, excluding the system-named <c>NOT NULL</c> constraints that the columns' nullability already reports.</param>
     protected sealed record TableConstraints(
         Option<IDatabaseKey> PrimaryKey,
         IReadOnlyCollection<IDatabaseKey> UniqueKeys,
-        IReadOnlyCollection<ForeignKeyReference> ForeignKeys
+        IReadOnlyCollection<ForeignKeyReference> ForeignKeys,
+        IReadOnlyCollection<IDatabaseCheckConstraint> Checks
     );
 
     /// <summary>
@@ -730,51 +781,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return LoadChecksAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    // Check constraints are read by the same query as the table's keys, so they come from that cached result.
+    private static async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var checkRows = await DbConnection.QueryAsync(
-            GetTableChecks.Sql,
-            new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
-
-        var checks = checkRows.ToList();
-        if (checks.Empty())
-            return [];
-
-        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
-
-        // An inline NOT NULL is stored as a system-named check constraint, and is reported through
-        // the column's IsNullable instead. Only constraints named by Oracle whose effect the column
-        // already carries are dropped -- a user-named constraint, or one that has been disabled so
-        // that the column reads as nullable, would otherwise be invisible.
-        var columnNotNullConstraints = columnLookup
-            .Where(static kv => !kv.Value.IsNullable)
-            .Select(static kv => GenerateNotNullDefinition(kv.Key.LocalName))
-            .ToHashSet(StringComparer.Ordinal);
-
-        var result = new List<IDatabaseCheckConstraint>();
-
-        foreach (var checkRow in checks)
-        {
-            var definition = checkRow.Definition;
-            if (definition == null)
-                continue;
-
-            var isGeneratedName = string.Equals(checkRow.NameGeneration, Constants.GeneratedName, StringComparison.Ordinal);
-            if (isGeneratedName && columnNotNullConstraints.Contains(definition))
-                continue;
-
-            var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
-            var isEnabled = string.Equals(checkRow.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
-            var isValidated = string.Equals(checkRow.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
-            var deferrability = GetDeferrability(checkRow.Deferrable, checkRow.Deferred);
-
-            var check = new DatabaseCheckConstraint(constraintName, definition, isEnabled, isValidated, deferrability);
-            result.Add(check);
-        }
-
-        return result;
+        var constraints = await queryCache.GetConstraintsAsync(tableName, cancellationToken);
+        return constraints.Checks;
     }
 
     /// <summary>
@@ -1128,6 +1139,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         public const string ForeignKeyType = "R";
 
+        public const string CheckType = "C";
+
         public const string Y = "Y";
 
         public const string N = "N";
@@ -1166,7 +1179,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// </summary>
         /// <param name="tableNameLoader">A table name cache.</param>
         /// <param name="columnLoader">A column cache.</param>
-        /// <param name="constraintLoader">A primary, unique and foreign key constraint cache.</param>
+        /// <param name="constraintLoader">A primary, unique, foreign key and check constraint cache.</param>
         /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="columnLookupLoader">A column lookup cache.</param>
@@ -1232,11 +1245,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         /// <summary>
-        /// Retrieves a table's primary, unique and foreign key constraints from the cache, querying the database when not populated.
+        /// Retrieves a table's primary, unique, foreign key and check constraints from the cache, querying the database when not populated.
         /// </summary>
         /// <param name="tableName">A table name.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>The table's key constraints.</returns>
+        /// <returns>The table's constraints.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
         public Task<TableConstraints> GetConstraintsAsync(Identifier tableName, CancellationToken cancellationToken)
         {
