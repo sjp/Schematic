@@ -113,8 +113,12 @@ public class ReportGenerator
         var renderers = GetRenderers(tableStatistics);
 
         // Render every section, isolating failures so one bad object/section doesn't hide the rest.
+        // A renderer maps and serializes before its first write yields, so each one starts on the
+        // thread pool; started from this thread, that CPU work would run one renderer at a time.
         var failures = new ConcurrentBag<RenderException>();
-        var renderTasks = renderers.Select(r => RenderIsolatedAsync(r, reportData, renderContext, failures, cancellationToken)).ToArray();
+        var renderTasks = renderers
+            .Select(r => Task.Run(() => RenderIsolatedAsync(r, reportData, renderContext, failures, cancellationToken), cancellationToken))
+            .ToArray();
         await Task.WhenAll(renderTasks);
 
         // A partial report would silently omit objects, so surface every failure together and stop

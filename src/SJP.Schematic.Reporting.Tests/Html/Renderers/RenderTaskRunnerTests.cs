@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,6 +53,75 @@ internal static class RenderTaskRunnerTests
             CancellationToken.None);
 
         Assert.That(processed, Is.EquivalentTo(items));
+    }
+
+    [Test]
+    public static async Task RunAllAsync_GivenItemsThatBlockBeforeYielding_RunsThemInParallel()
+    {
+        Assume.That(Environment.ProcessorCount, Is.GreaterThanOrEqualTo(2));
+
+        // Both items block synchronously until the other arrives, which only happens when the
+        // runner does not start them one after another on the calling thread.
+        using var barrier = new Barrier(2);
+        var met = new bool[2];
+
+        await RenderTaskRunner.RunAllAsync(
+            [0, 1],
+            static i => i.ToString(CultureInfo.InvariantCulture),
+            (item, _) =>
+            {
+                met[item] = barrier.SignalAndWait(TimeSpan.FromSeconds(10));
+                return Task.CompletedTask;
+            },
+            CancellationToken.None);
+
+        Assert.That(met, Is.All.True);
+    }
+
+    [Test]
+    public static async Task RunAllAsync_GivenMoreItemsThanProcessors_RunsAtMostProcessorCountAtOnce()
+    {
+        var items = Enumerable.Range(0, Environment.ProcessorCount * 4).ToList();
+        var running = 0;
+        var maxRunning = 0;
+
+        await RenderTaskRunner.RunAllAsync(
+            items,
+            static i => i.ToString(CultureInfo.InvariantCulture),
+            async (_, ct) =>
+            {
+                var now = Interlocked.Increment(ref running);
+                lock (items)
+                    maxRunning = Math.Max(maxRunning, now);
+
+                await Task.Delay(10, ct);
+                Interlocked.Decrement(ref running);
+            },
+            CancellationToken.None);
+
+        Assert.That(maxRunning, Is.InRange(1, Environment.ProcessorCount));
+    }
+
+    [Test]
+    public static void RunAllAsync_GivenCancellationDuringRun_PropagatesOperationCanceledExceptionAndStopsStartingItems()
+    {
+        using var cts = new CancellationTokenSource();
+        var items = Enumerable.Range(0, Environment.ProcessorCount * 4).ToList();
+        var started = 0;
+
+        Assert.That(
+            () => RenderTaskRunner.RunAllAsync(
+                items,
+                static i => i.ToString(CultureInfo.InvariantCulture),
+                async (_, ct) =>
+                {
+                    Interlocked.Increment(ref started);
+                    await cts.CancelAsync();
+                    ct.ThrowIfCancellationRequested();
+                },
+                cts.Token),
+            Throws.InstanceOf<OperationCanceledException>());
+        Assert.That(started, Is.LessThan(items.Count));
     }
 
     [Test]
@@ -119,7 +189,7 @@ internal static class RenderTaskRunnerTests
         cts.Cancel();
         var items = new[] { "a" };
 
-        Assert.ThrowsAsync<OperationCanceledException>(() => RenderTaskRunner.RunAllAsync(
+        Assert.ThrowsAsync(Is.InstanceOf<OperationCanceledException>(), () => RenderTaskRunner.RunAllAsync(
             items,
             static s => s,
             (_, ct) =>

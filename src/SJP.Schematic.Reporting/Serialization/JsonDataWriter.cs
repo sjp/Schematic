@@ -39,20 +39,39 @@ public sealed class JsonDataWriter
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(vm);
 
-        if (file.Directory is { Exists: false } directory)
-            directory.Create();
+        await using var stream = OpenForWrite(file);
+        await JsonSerializer.SerializeAsync(stream, vm, vm.GetType(), ReportingJsonContext.Default, cancellationToken);
+    }
 
+    private static FileStream OpenForWrite(FileInfo file)
+    {
         // The serializer buffers its own output, so the file stream does not need a second buffer.
-        await using var stream = new FileStream(file.FullName, new FileStreamOptions
+        var options = new FileStreamOptions
         {
             Mode = FileMode.Create,
             Access = FileAccess.Write,
             Share = FileShare.None,
             Options = FileOptions.Asynchronous,
             BufferSize = 0,
-        });
-        await JsonSerializer.SerializeAsync(stream, vm, vm.GetType(), ReportingJsonContext.Default, cancellationToken);
+        };
+
+        try
+        {
+            return new FileStream(file.FullName, options);
+        }
+        catch (IOException ex) when (IsMissingDirectory(ex) && file.DirectoryName != null)
+        {
+            // Many files share each directory, so the directory is created only when opening a
+            // file finds it missing rather than checked for before every write.
+            Directory.CreateDirectory(file.DirectoryName);
+            return new FileStream(file.FullName, options);
+        }
     }
+
+    // Creating a file only fails as "not found" when its directory is missing. That is reported as
+    // either exception type: when another writer creates the directory between the failed open and
+    // the runtime checking why it failed, the runtime reports the file rather than the directory.
+    private static bool IsMissingDirectory(IOException ex) => ex is DirectoryNotFoundException or FileNotFoundException;
 
     /// <summary>
     /// Produces the canonical JSON string for a viewmodel. The runtime type of
@@ -75,10 +94,16 @@ public sealed class JsonDataWriter
         ArgumentNullException.ThrowIfNull(file);
         ArgumentNullException.ThrowIfNull(json);
 
-        if (file.Directory is { Exists: false } directory)
-            directory.Create();
-
-        await File.WriteAllTextAsync(file.FullName, json, Utf8NoBom, cancellationToken);
+        try
+        {
+            await File.WriteAllTextAsync(file.FullName, json, Utf8NoBom, cancellationToken);
+        }
+        catch (IOException ex) when (IsMissingDirectory(ex) && file.DirectoryName != null)
+        {
+            // The file cannot have been opened, so nothing was written and the write can be retried.
+            Directory.CreateDirectory(file.DirectoryName);
+            await File.WriteAllTextAsync(file.FullName, json, Utf8NoBom, cancellationToken);
+        }
     }
 }
 

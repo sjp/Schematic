@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
 using NUnit.Framework;
@@ -185,6 +186,31 @@ internal static class JsonDataWriterTests
         await writer.SerializeToFileAsync(file, new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None));
 
         Assert.That(File.Exists(file.FullName), Is.True);
+    }
+
+    [Test]
+    public static async Task SerializeToFileAsync_GivenConcurrentWritesToMissingDirectory_WritesEveryFile()
+    {
+        using var tempDir = new TemporaryDirectory();
+        var directory = Path.Combine(tempDir.DirectoryPath, "nested", "data");
+        var files = Enumerable.Range(0, 64)
+            .Select(i => new FileInfo(Path.Combine(directory, $"test-{i}.json")))
+            .ToList();
+
+        var writer = new JsonDataWriter();
+        using var start = new ManualResetEventSlim();
+        var writes = files
+            .Select(file => Task.Run(async () =>
+            {
+                start.Wait();
+                await writer.SerializeToFileAsync(file, new Synonym(new Identifier("a"), new Identifier("b"), Option<Uri>.None));
+            }))
+            .ToList();
+        start.Set();
+
+        await Task.WhenAll(writes);
+
+        Assert.That(files.Select(static f => File.Exists(f.FullName)), Is.All.True);
     }
 
     [Test]
