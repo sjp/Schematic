@@ -3,7 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Reporting.Html.ViewModels;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
@@ -25,16 +24,16 @@ internal sealed class MainRenderer : IDataRenderer
         {
             tablesCount++;
 
-            var uniqueKeyCount = table.GetUniqueKeyLookup().UCount();
-            var checksCount = table.GetCheckLookup().UCount();
-            indexesCount += table.GetIndexLookup().UCount();
-
-            await table.PrimaryKey.IfSomeAsync(_ => constraints++);
-
-            constraints += uniqueKeyCount;
+            // Counted from the collections rather than the name-keyed lookups, which leave out
+            // unnamed constraints and collapse duplicate names, so that the totals match the rows
+            // listed on the constraints and indexes pages.
+            if (table.PrimaryKey.IsSome)
+                constraints++;
+            constraints += table.UniqueKeys.UCount();
             constraints += table.ParentKeys.UCount();
-            constraints += checksCount;
+            constraints += table.Checks.UCount();
 
+            indexesCount += table.Indexes.UCount();
             columns += table.Columns.UCount();
         }
 
