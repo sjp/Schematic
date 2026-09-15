@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.PostgreSql.Queries;
 
-internal static class GetTablePrimaryKey
+internal static class GetTableKeys
 {
     internal sealed record Query : ISqlQuery<Result>
     {
@@ -14,6 +14,11 @@ internal static class GetTablePrimaryKey
     internal sealed record Result
     {
         public required string ConstraintName { get; init; }
+
+        /// <summary>
+        /// The <c>pg_constraint.contype</c> of the key: <c>p</c> for a primary key, <c>u</c> for a unique key.
+        /// </summary>
+        public required string KeyType { get; init; }
 
         public required string ColumnName { get; init; }
 
@@ -34,13 +39,14 @@ internal static class GetTablePrimaryKey
 
 select
     c.conname as "{nameof(Result.ConstraintName)}",
+    c.contype::text as "{nameof(Result.KeyType)}",
     a.attname as "{nameof(Result.ColumnName)}",
     con_cols.ordinal_position as "{nameof(Result.OrdinalPosition)}",
     c.condeferrable as "{nameof(Result.IsDeferrable)}",
     c.condeferred as "{nameof(Result.IsInitiallyDeferred)}"
 from pg_catalog.pg_namespace ns
 inner join pg_catalog.pg_class t on t.relnamespace = ns.oid
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'p'
+inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype in ('p', 'u')
 cross join pg_catalog.unnest(c.conkey) with ordinality as con_cols(attnum, ordinal_position)
 inner join pg_catalog.pg_attribute a on a.attrelid = t.oid and a.attnum = con_cols.attnum
 where t.relkind in ('r', 'p')

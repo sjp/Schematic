@@ -12,9 +12,9 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     // table's name and columns; it must not load the child's other foreign keys, and so must not touch
     // the third table (its name, primary key, indexes or columns) at all.
     //
-    // The parent table itself costs 10 queries: name resolution, then columns, checks, triggers,
-    // indexes, primary key, unique keys, parent keys, child keys and table options. The child key adds
-    // the child table's name and columns, for 12 in total.
+    // The parent table itself costs 9 queries: name resolution, then columns, checks, triggers,
+    // indexes, primary and unique keys (read together), parent keys, child keys and table options. The
+    // child key adds the child table's name and columns, for 11 in total.
     [Test]
     public async Task GetTable_ForTableWithChildTableReferencingAnotherTable_DoesNotLoadTheOtherTable()
     {
@@ -27,7 +27,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         using (Assert.EnterMultipleScope())
         {
             Assert.That(table.ChildKeys, Has.Exactly(1).Items);
-            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(12));
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(11));
         }
     }
 }

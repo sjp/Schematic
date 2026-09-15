@@ -12,9 +12,9 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     // table's name, columns and foreign key columns. It must not load the child's other foreign keys, and
     // so must not touch the third table (its name, primary key, indexes or columns) at all.
     //
-    // The parent table itself costs 11 queries: name resolution, then columns, catalog features, checks,
-    // triggers, indexes, primary key, unique keys, parent keys, child keys and table options. The child key
-    // adds the child table's name, columns and foreign key columns, for 14 in total.
+    // The parent table itself costs 10 queries: name resolution, then columns, catalog features, checks,
+    // triggers, indexes, primary and unique keys (read together), parent keys, child keys and table options.
+    // The child key adds the child table's name, columns and foreign key columns, for 13 in total.
     [Test]
     public async Task GetTable_ForTableWithChildTableReferencingAnotherTable_DoesNotLoadTheOtherTable()
     {
@@ -27,7 +27,7 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         using (Assert.EnterMultipleScope())
         {
             Assert.That(table.ChildKeys, Has.Exactly(1).Items);
-            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(14));
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(13));
         }
     }
 }
