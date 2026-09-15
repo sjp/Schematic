@@ -29,7 +29,7 @@ internal static class MySqlDialectTests
 
         Assert.That(
             () => dialect.QuoteName(name),
-            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("name")
+            Throws.InstanceOf<ArgumentException>().With.Property(nameof(ArgumentException.ParamName)).EqualTo("localName")
         );
     }
 
