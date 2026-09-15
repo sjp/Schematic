@@ -901,37 +901,25 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             cancellationToken
         );
 
-        if (queryResult.Empty())
+        var triggerRows = queryResult.ToList();
+        if (triggerRows.Empty())
             return [];
 
-        var triggers = queryResult.GroupAsDictionary(static row => new
+        // MySQL and MariaDB triggers fire on exactly one event, so information_schema.triggers holds one row per trigger.
+        var result = new List<IDatabaseTrigger>(triggerRows.Count);
+        foreach (var trig in triggerRows)
         {
-            row.TriggerName,
-            row.Definition,
-            row.Timing,
-        }).ToList();
-        if (triggers.Empty())
-            return [];
+            var triggerName = Identifier.CreateQualifiedIdentifier(trig.TriggerName);
+            var queryTiming = Enum.TryParse(trig.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
+            var definition = trig.Definition;
 
-        var result = new List<IDatabaseTrigger>(triggers.Count);
-        foreach (var trig in triggers)
-        {
-            var triggerName = Identifier.CreateQualifiedIdentifier(trig.Key.TriggerName);
-            var queryTiming = Enum.TryParse(trig.Key.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
-            var definition = trig.Key.Definition;
-
-            var events = TriggerEvent.None;
-            foreach (var trigEvent in trig.Value.Select(tr => tr.TriggerEvent))
+            var events = trig.TriggerEvent switch
             {
-                if (string.Equals(trigEvent, Constants.Insert, StringComparison.Ordinal))
-                    events |= TriggerEvent.Insert;
-                else if (string.Equals(trigEvent, Constants.Update, StringComparison.Ordinal))
-                    events |= TriggerEvent.Update;
-                else if (string.Equals(trigEvent, Constants.Delete, StringComparison.Ordinal))
-                    events |= TriggerEvent.Delete;
-                else
-                    events |= TriggerEvent.Other;
-            }
+                Constants.Insert => TriggerEvent.Insert,
+                Constants.Update => TriggerEvent.Update,
+                Constants.Delete => TriggerEvent.Delete,
+                _ => TriggerEvent.Other,
+            };
 
             var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);
             result.Add(trigger);

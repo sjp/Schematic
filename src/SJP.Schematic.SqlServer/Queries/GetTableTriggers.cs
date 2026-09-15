@@ -34,22 +34,31 @@ internal static class GetTableTriggers
     }
 
     // sys.trigger_events emits one row per (trigger, event), and a trigger fired on multiple events would
-    // otherwise resend its (potentially large) definition once per event. Pivoting the events collapses
-    // that back down to one row per trigger.
+    // otherwise resend its (potentially large) definition once per event. The events are pivoted per
+    // trigger inside the apply, so the definition is never part of a grouping key; the inner group by
+    // makes the apply return no row for a trigger without events, which excludes it like an inner join.
     internal const string Sql = @$"
 select
     st.name as [{nameof(Result.TriggerName)}],
     sm.definition as [{nameof(Result.Definition)}],
     st.is_instead_of_trigger as [{nameof(Result.IsInsteadOfTrigger)}],
     st.is_disabled as [{nameof(Result.IsDisabled)}],
-    cast(max(case when te.type_desc = 'INSERT' then 1 else 0 end) as bit) as [{nameof(Result.IsInsertTrigger)}],
-    cast(max(case when te.type_desc = 'UPDATE' then 1 else 0 end) as bit) as [{nameof(Result.IsUpdateTrigger)}],
-    cast(max(case when te.type_desc = 'DELETE' then 1 else 0 end) as bit) as [{nameof(Result.IsDeleteTrigger)}],
-    cast(max(case when te.type_desc not in ('INSERT', 'UPDATE', 'DELETE') then 1 else 0 end) as bit) as [{nameof(Result.IsOtherTrigger)}]
+    ev.IsInsertTrigger as [{nameof(Result.IsInsertTrigger)}],
+    ev.IsUpdateTrigger as [{nameof(Result.IsUpdateTrigger)}],
+    ev.IsDeleteTrigger as [{nameof(Result.IsDeleteTrigger)}],
+    ev.IsOtherTrigger as [{nameof(Result.IsOtherTrigger)}]
 from sys.tables t
 inner join sys.triggers st on t.object_id = st.parent_id
 inner join sys.sql_modules sm on st.object_id = sm.object_id
-inner join sys.trigger_events te on st.object_id = te.object_id
-where t.schema_id = schema_id(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
-group by st.name, sm.definition, st.is_instead_of_trigger, st.is_disabled";
+cross apply (
+    select
+        cast(max(case when te.type_desc = 'INSERT' then 1 else 0 end) as bit) as IsInsertTrigger,
+        cast(max(case when te.type_desc = 'UPDATE' then 1 else 0 end) as bit) as IsUpdateTrigger,
+        cast(max(case when te.type_desc = 'DELETE' then 1 else 0 end) as bit) as IsDeleteTrigger,
+        cast(max(case when te.type_desc not in ('INSERT', 'UPDATE', 'DELETE') then 1 else 0 end) as bit) as IsOtherTrigger
+    from sys.trigger_events te
+    where te.object_id = st.object_id
+    group by te.object_id
+) ev
+where t.schema_id = schema_id(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0";
 }
