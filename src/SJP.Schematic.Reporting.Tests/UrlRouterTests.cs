@@ -51,6 +51,27 @@ internal static class UrlRouterTests
     }
 
     [Test]
+    public static void GetTableUrlFromSafeKey_GivenNullSafeKey_ThrowsArgumentNullException()
+    {
+        Assert.That(() => UrlRouter.GetTableUrlFromSafeKey(null!), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetTableUrlFromSafeKey_GivenEmptySafeKey_ThrowsArgumentException()
+    {
+        Assert.That(() => UrlRouter.GetTableUrlFromSafeKey(string.Empty), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void GetTableUrlFromSafeKey_GivenSafeKey_ReturnsSameRouteAsGetTableUrl()
+    {
+        Identifier tableName = "test_table";
+        var url = UrlRouter.GetTableUrlFromSafeKey(tableName.ToSafeKey());
+
+        Assert.That(url, Is.EqualTo(UrlRouter.GetTableUrl(tableName)));
+    }
+
+    [Test]
     public static void GetViewUrl_GivenNullViewName_ThrowsArgumentNullException()
     {
         Assert.That(() => UrlRouter.GetViewUrl(null!), Throws.ArgumentNullException);

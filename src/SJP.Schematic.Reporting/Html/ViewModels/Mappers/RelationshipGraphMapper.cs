@@ -18,29 +18,52 @@ internal static class RelationshipGraphMapper
     {
         ArgumentNullException.ThrowIfNull(tables);
 
-        var tableNames = new HashSet<Identifier>(tables.Select(static t => t.Name));
+        // Safe keys are expensive to compute (slugging plus several SHA-512 hashes), so each table's
+        // key is computed once and shared by its node and every edge that touches it. The map doubles
+        // as the set of tables in this graph, which decides which edges are drawn.
+        var tableIds = new Dictionary<Identifier, string>(tables.Count);
+        foreach (var table in tables)
+            tableIds.TryAdd(table.Name, table.Name.ToSafeKey());
 
-        var nodes = new List<GraphTable>();
+        var nodes = new List<GraphTable>(tables.Count);
         var edges = new List<GraphEdge>();
+
+        var primaryKeyColumns = new HashSet<string>(StringComparer.Ordinal);
+        var uniqueKeyColumns = new HashSet<string>(StringComparer.Ordinal);
+        var foreignKeyColumns = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var table in tables)
         {
-            var primaryKey = table.PrimaryKey;
-            var uniqueKeys = table.UniqueKeys;
             var parentKeys = table.ParentKeys;
 
-            var columns = table.Columns.Select(col =>
+            primaryKeyColumns.Clear();
+            uniqueKeyColumns.Clear();
+            foreignKeyColumns.Clear();
+
+            table.PrimaryKey.IfSome(primaryKey => AddColumnNames(primaryKeyColumns, primaryKey));
+            foreach (var uniqueKey in table.UniqueKeys)
+                AddColumnNames(uniqueKeyColumns, uniqueKey);
+            foreach (var parentKey in parentKeys)
+                AddColumnNames(foreignKeyColumns, parentKey.ChildKey);
+
+            var columns = new List<GraphColumn>(table.Columns.Count);
+            foreach (var col in table.Columns)
             {
                 var columnName = col.Name.LocalName;
-                var isPrimaryKey = primaryKey.Match(pk => pk.Columns.Any(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal)), static () => false);
-                var isUniqueKey = uniqueKeys.Any(uk => uk.Columns.Any(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal)));
-                var isForeignKey = parentKeys.Any(fk => fk.ChildKey.Columns.Any(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal)));
+                columns.Add(new GraphColumn(
+                    columnName,
+                    col.Type.Definition,
+                    col.IsNullable,
+                    primaryKeyColumns.Contains(columnName),
+                    uniqueKeyColumns.Contains(columnName),
+                    foreignKeyColumns.Contains(columnName)
+                ));
+            }
 
-                return new GraphColumn(columnName, col.Type.Definition, col.IsNullable, isPrimaryKey, isUniqueKey, isForeignKey);
-            }).ToList();
-
+            var tableId = tableIds[table.Name];
             nodes.Add(new GraphTable(
                 table.Name,
+                tableId,
                 columns,
                 parentKeys.UCount(),
                 table.ChildKeys.UCount()
@@ -50,16 +73,20 @@ internal static class RelationshipGraphMapper
             {
                 // Only draw an edge when both endpoints are in this graph, e.g. when the report covers
                 // a subset of the database's tables.
-                if (!tableNames.Contains(relationalKey.ParentTable))
+                if (!tableIds.TryGetValue(relationalKey.ParentTable, out var parentTableId))
                     continue;
+
+                var childTableId = relationalKey.ChildTable == table.Name
+                    ? tableId
+                    : relationalKey.ChildTable.ToSafeKey();
 
                 var constraintName = relationalKey.ChildKey.Name.Match(static name => name.LocalName, static () => string.Empty);
                 var childColumns = relationalKey.ChildKey.Columns.Select(static c => c.Name.LocalName).ToList();
                 var parentColumns = relationalKey.ParentKey.Columns.Select(static c => c.Name.LocalName).ToList();
 
                 edges.Add(new GraphEdge(
-                    relationalKey.ChildTable.ToSafeKey(),
-                    relationalKey.ParentTable.ToSafeKey(),
+                    childTableId,
+                    parentTableId,
                     constraintName,
                     childColumns,
                     parentColumns
@@ -68,5 +95,11 @@ internal static class RelationshipGraphMapper
         }
 
         return new RelationshipGraph(nodes, edges);
+    }
+
+    private static void AddColumnNames(HashSet<string> columnNames, IDatabaseKey key)
+    {
+        foreach (var column in key.Columns)
+            columnNames.Add(column.Name.LocalName);
     }
 }

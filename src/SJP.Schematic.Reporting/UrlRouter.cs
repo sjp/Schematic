@@ -22,7 +22,18 @@ internal static class UrlRouter
     {
         ArgumentNullException.ThrowIfNull(tableName);
 
-        return "#/tables/" + tableName.ToSafeKey();
+        return GetTableUrlFromSafeKey(tableName.ToSafeKey());
+    }
+
+    /// <summary>
+    /// Builds a table route from a safe key that has already been computed, avoiding a second
+    /// <see cref="Identifier.ToSafeKey"/> call when the caller needs the key for something else too.
+    /// </summary>
+    public static string GetTableUrlFromSafeKey(string tableSafeKey)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(tableSafeKey);
+
+        return "#/tables/" + tableSafeKey;
     }
 
     public static string GetViewUrl(Identifier viewName)

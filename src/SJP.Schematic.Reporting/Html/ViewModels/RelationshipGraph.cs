@@ -43,12 +43,28 @@ public sealed class GraphTable
         uint parentKeysCount,
         uint childKeysCount
     )
+        : this(name, (name ?? throw new ArgumentNullException(nameof(name))).ToSafeKey(), columns, parentKeysCount, childKeysCount)
+    {
+    }
+
+    /// <summary>
+    /// Creates a node from a safe key the caller has already computed for <paramref name="name"/>,
+    /// so the same key can also serve as an edge endpoint without being hashed again.
+    /// </summary>
+    internal GraphTable(
+        Identifier name,
+        string id,
+        IEnumerable<GraphColumn> columns,
+        uint parentKeysCount,
+        uint childKeysCount
+    )
     {
         ArgumentNullException.ThrowIfNull(name);
+        ArgumentException.ThrowIfNullOrEmpty(id);
 
-        Id = name.ToSafeKey();
+        Id = id;
         Name = name.ToVisibleName();
-        TableUrl = UrlRouter.GetTableUrl(name);
+        TableUrl = UrlRouter.GetTableUrlFromSafeKey(id);
 
         Columns = columns ?? throw new ArgumentNullException(nameof(columns));
         ColumnsCount = columns.UCount();
