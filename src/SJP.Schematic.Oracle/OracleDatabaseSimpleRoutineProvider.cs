@@ -164,12 +164,14 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
 
     internal async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var definition = await LoadDefinitionAsync(routineName, cancellationToken);
-        var signatureRows = await Connection.QueryAsync(
-            GetRoutineSignature.Sql,
-            new GetRoutineSignature.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
+        var (definition, signatureRows) = await (
+            LoadDefinitionAsync(routineName, cancellationToken),
+            Connection.QueryAsync(
+                GetRoutineSignature.Sql,
+                new GetRoutineSignature.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+                cancellationToken
+            )
+        ).WhenAll();
         var signature = signatureRows.ToList();
 
         // a function's return value is argument position zero; a routine with no arguments at all

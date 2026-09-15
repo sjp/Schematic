@@ -134,12 +134,14 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
-        var parameterRows = await Connection.QueryAsync(
-            GetRoutineParameters.Sql,
-            new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
+        var (routineDetail, parameterRows) = await (
+            LoadRoutineDetailAsync(routineName, cancellationToken),
+            Connection.QueryAsync(
+                GetRoutineParameters.Sql,
+                new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+                cancellationToken
+            )
+        ).WhenAll();
 
         // parameter_id 0 is a scalar function's return value rather than a parameter. A table-valued
         // function has no such row, so its return type is unavailable rather than absent.

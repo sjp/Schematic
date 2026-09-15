@@ -163,12 +163,14 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var overloadRows = await LoadOverloadRowsAsync(routineName, cancellationToken);
-        var parameterRows = await Connection.QueryAsync(
-            GetRoutineParameters.Sql,
-            new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
+        var (overloadRows, parameterRows) = await (
+            LoadOverloadRowsAsync(routineName, cancellationToken),
+            Connection.QueryAsync(
+                GetRoutineParameters.Sql,
+                new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+                cancellationToken
+            )
+        ).WhenAll();
 
         var parametersByRoutine = parameterRows
             .GroupBy(static row => row.RoutineOid)

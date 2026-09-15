@@ -148,12 +148,14 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
-        var parameterRows = await DbConnection.QueryAsync(
-            GetRoutineParameters.Sql,
-            new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
+        var (routineDetail, parameterRows) = await (
+            LoadRoutineDetailAsync(routineName, cancellationToken),
+            DbConnection.QueryAsync(
+                GetRoutineParameters.Sql,
+                new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+                cancellationToken
+            )
+        ).WhenAll();
 
         // MySQL stores a function's return value alongside its parameters, at ordinal position zero
         var returnType = parameterRows
