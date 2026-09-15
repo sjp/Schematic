@@ -208,6 +208,46 @@ SELECT FIRST_COL, SECOND_COL from client.FunctionName('test')
     }
 
     [Test]
+    public static void GetDependencies_GivenCheckClauseWithCharacterSetIntroducers_ReturnsOnlyColumnName()
+    {
+        var provider = new MySqlDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "(`status` in (_utf8mb4'active',_latin1'x'))";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var expectedNames = new[] { new Identifier("status") };
+
+        Assert.That(dependencies, Is.EqualTo(expectedNames));
+    }
+
+    [TestCase("_binary'abc'")]
+    [TestCase("_UTF8MB4'abc'")]
+    [TestCase("_utf8'abc'")]
+    [TestCase("_utf8mb4 'abc'")]
+    public static void GetDependencies_GivenIntroducedStringLiteral_ReturnsEmptyCollection(string expression)
+    {
+        var provider = new MySqlDependencyProvider();
+        Identifier objectName = "test";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+
+        Assert.That(dependencies, Is.Empty);
+    }
+
+    [Test]
+    public static void GetDependencies_GivenUnderscorePrefixedNameThatIsNotACharacterSet_ReturnsName()
+    {
+        var provider = new MySqlDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "select * from _audit_log";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var dependency = dependencies.Single();
+
+        Assert.That(dependency.LocalName, Is.EqualTo("_audit_log"));
+    }
+
+    [Test]
     public static void GetDependencies_WhenInvokedConcurrently_ReturnsConsistentResults()
     {
         // Guards against sharing a non-thread-safe lexer across concurrent callers,
