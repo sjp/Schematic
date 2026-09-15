@@ -26,10 +26,11 @@ internal sealed class ReferencedObjectTargets
         ArgumentNullException.ThrowIfNull(routineNames);
         ArgumentNullException.ThrowIfNull(userDefinedTypeNames);
 
-        // Every view resolves each of its dependencies against every object name, so the links are
-        // built once up front. Adding the kinds in a fixed order keeps each name's links ordered by
-        // kind (table, view, sequence, synonym, routine, user-defined type), then by position in the source list.
-        var targets = new Dictionary<(string? Schema, string LocalName), List<View.ReferencedObject>>(SchemaLocalNameComparer.Instance);
+        // Every view and routine resolves each of its dependencies against every object name, so the
+        // links are built once up front. Adding the kinds in a fixed order keeps each name's links
+        // ordered by kind (table, view, sequence, synonym, routine, user-defined type), then by
+        // position in the source list.
+        var targets = new Dictionary<(string? Schema, string LocalName), List<ReferencedObject>>(SchemaLocalNameComparer.Instance);
         AddTargets(targets, tableNames, UrlRouter.GetTableUrl);
         AddTargets(targets, viewNames, UrlRouter.GetViewUrl);
         AddTargets(targets, sequenceNames, UrlRouter.GetSequenceUrl);
@@ -41,25 +42,39 @@ internal sealed class ReferencedObjectTargets
 
     private IDependencyProvider DependencyProvider { get; }
 
-    private IReadOnlyDictionary<(string? Schema, string LocalName), List<View.ReferencedObject>> Targets { get; }
+    private IReadOnlyDictionary<(string? Schema, string LocalName), List<ReferencedObject>> Targets { get; }
 
     /// <summary>
     /// Resolves the objects referenced by <paramref name="expression"/> to structured links
-    /// (name + absolute hash route) for the JSON payload.
+    /// (name + absolute hash route) for the JSON payload. An expression that cannot be read as SQL
+    /// resolves to no links at all.
     /// </summary>
     /// <exception cref="ArgumentNullException"><paramref name="objectName"/> is <see langword="null" />.</exception>
-    public IReadOnlyCollection<View.ReferencedObject> GetReferencedObjects(Identifier objectName, string expression)
+    public IReadOnlyCollection<ReferencedObject> GetReferencedObjects(Identifier objectName, string expression)
     {
         ArgumentNullException.ThrowIfNull(objectName);
         if (expression.IsNullOrWhiteSpace())
             return [];
 
-        var referencedNames = DependencyProvider.GetDependencies(objectName, expression);
+        IReadOnlyCollection<Identifier> referencedNames;
+        try
+        {
+            referencedNames = DependencyProvider.GetDependencies(objectName, expression);
+        }
+        catch (ArgumentException)
+        {
+            // Not every definition is SQL the dialect can tokenize: a routine may be written in a
+            // procedural language the database merely stores, or be stored obfuscated. Links to the
+            // objects it mentions decorate the page, so an unreadable definition costs the page its
+            // links rather than failing the report.
+            return [];
+        }
+
         if (referencedNames.Count == 0)
             return [];
 
         var seenUrls = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var result = new List<View.ReferencedObject>();
+        var result = new List<ReferencedObject>();
 
         var orderedNames = referencedNames
             .OrderBy(static name => name.Schema ?? string.Empty, StringComparer.OrdinalIgnoreCase)
@@ -86,7 +101,7 @@ internal sealed class ReferencedObjectTargets
     }
 
     private static void AddTargets(
-        Dictionary<(string? Schema, string LocalName), List<View.ReferencedObject>> targets,
+        Dictionary<(string? Schema, string LocalName), List<ReferencedObject>> targets,
         IEnumerable<Identifier> objectNames,
         Func<Identifier, string> urlFactory)
     {
@@ -104,7 +119,7 @@ internal sealed class ReferencedObjectTargets
                 targets[key] = links;
             }
 
-            links.Add(new View.ReferencedObject(objectName.ToVisibleName(), urlFactory(objectName)));
+            links.Add(new ReferencedObject(objectName.ToVisibleName(), urlFactory(objectName)));
         }
     }
 

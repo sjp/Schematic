@@ -331,7 +331,7 @@ export interface ViewColumn {
   defaultValue: string;
 }
 
-/** A link from a view to an object it references (hash route into the SPA). */
+/** A link from a view or routine to an object it references (hash route into the SPA). */
 export interface ReferencedObject {
   name: string;
   url: string;
@@ -416,6 +416,8 @@ export interface RoutineDetail {
   /** Empty unless the routine's name carries more than one signature. */
   overloads: RoutineOverload[];
   overloadsCount: number;
+  referencedObjects: ReferencedObject[];
+  referencedObjectsCount: number;
 }
 
 /** A row in `data/sequences.json`; also the per-sequence detail (`data/sequences/<safeKey>.json`). */

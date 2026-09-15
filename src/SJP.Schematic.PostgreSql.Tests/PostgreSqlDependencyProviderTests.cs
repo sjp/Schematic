@@ -195,6 +195,66 @@ SELECT FIRST_COL, SECOND_COL from public.FunctionName('test')
     }
 
     [Test]
+    public static void GetDependencies_GivenRoutineDefinitionWithDollarQuotedBody_ReturnsNamesFromTheBody()
+    {
+        var provider = new PostgreSqlDependencyProvider();
+        Identifier objectName = Identifier.CreateQualifiedIdentifier("app", "film_count");
+        const string expression = @"
+CREATE OR REPLACE FUNCTION app.film_count()
+ RETURNS integer
+ LANGUAGE plpgsql
+AS $function$
+begin
+  return (select count(*) from public.film);
+end;
+$function$
+";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+
+        Assert.That(dependencies, Contains.Item(Identifier.CreateQualifiedIdentifier("public", "film")));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenBodyQuotingAnotherBody_ReturnsNamesFromBoth()
+    {
+        var provider = new PostgreSqlDependencyProvider();
+        Identifier objectName = "outer_function";
+        const string expression = @"
+CREATE FUNCTION outer_function() RETURNS void LANGUAGE plpgsql AS $outer$
+begin
+  execute $inner$ select * from inner_table $inner$;
+  perform count(*) from outer_table;
+end;
+$outer$
+";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+
+        Assert.That(dependencies, Contains.Item(new Identifier("outer_table")));
+        Assert.That(dependencies, Contains.Item(new Identifier("inner_table")));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenBodyThatIsNotSql_ReturnsNamesFromTheSignature()
+    {
+        // A body may be written in any language the server has installed, so what cannot be
+        // tokenized must not fail the definition surrounding it.
+        var provider = new PostgreSqlDependencyProvider();
+        Identifier objectName = "python_function";
+        const string expression = @"
+CREATE FUNCTION python_function(other_table_count integer) RETURNS integer LANGUAGE plpython3u AS $$
+return other_table_count # don't count on it
+$$
+";
+
+        IReadOnlyCollection<Identifier> dependencies = null;
+
+        Assert.That(() => dependencies = provider.GetDependencies(objectName, expression), Throws.Nothing);
+        Assert.That(dependencies, Contains.Item(new Identifier("other_table_count")));
+    }
+
+    [Test]
     public static void GetDependencies_WhenInvokedConcurrently_ReturnsConsistentResults()
     {
         // Guards against sharing a non-thread-safe lexer across concurrent callers,

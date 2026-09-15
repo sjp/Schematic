@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
@@ -120,6 +121,19 @@ internal static class ReferencedObjectTargetsTests
             Assert.That(links.Select(static o => o.Name), Is.EqualTo(new[] { "app.mood" }));
             Assert.That(links.Select(static o => o.Url), Is.EqualTo(new[] { UrlRouter.GetUserDefinedTypeUrl(mood) }));
         }
+    }
+
+    [Test]
+    public static void GetReferencedObjects_GivenExpressionTheDialectCannotRead_ReturnsNoLinks()
+    {
+        var orders = Identifier.CreateQualifiedIdentifier("app", "orders");
+        var dependencyProvider = new Mock<IDependencyProvider>();
+        dependencyProvider
+            .Setup(static p => p.GetDependencies(It.IsAny<Identifier>(), It.IsAny<string>()))
+            .Throws(static () => new ArgumentException("Could not parse the given expression as a SQL expression.", "expression"));
+        var targets = new ReferencedObjectTargets(dependencyProvider.Object, [orders], [], [], [], [], []);
+
+        Assert.That(() => targets.GetReferencedObjects(ViewName, "not sql at all"), Is.Empty);
     }
 
     private static ReferencedObjectTargets CreateTargets(

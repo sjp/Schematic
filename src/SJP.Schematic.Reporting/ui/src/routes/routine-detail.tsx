@@ -1,6 +1,7 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 
 import { LintFindings } from "@/components/LintFindings";
+import { ReferencedObjectList } from "@/components/ReferencedObjectList";
 import { useDetail } from "@/hooks/useReportData";
 import type { RoutineDetail, RoutineParameter } from "@/types/report";
 
@@ -151,6 +152,12 @@ export function RoutineDetailPage() {
       {!isOverloaded && (
         <Section title="Definition">
           <pre className="overflow-x-auto rounded-md border p-3 text-xs">{data.definition}</pre>
+        </Section>
+      )}
+
+      {data.referencedObjectsCount > 0 && (
+        <Section title="Referenced Objects" count={data.referencedObjectsCount}>
+          <ReferencedObjectList referencedObjects={data.referencedObjects} />
         </Section>
       )}
     </div>

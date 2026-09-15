@@ -108,7 +108,7 @@ internal static class ReportDataTests
 
     private static IRelationalDatabase MockDatabase() => new Mock<IRelationalDatabase>().Object;
 
-    private static ReferencedObjectTargets EmptyTargets() => new(new Mock<IDependencyProvider>().Object, [], [], [], [], [], []);
+    private static ReferencedObjectTargets EmptyTargets() => new(new EmptyDependencyProvider(), [], [], [], [], [], []);
 
     private static SynonymTargets EmptySynonymTargets() => new([], [], [], [], [], []);
 

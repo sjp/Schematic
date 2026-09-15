@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels;
 
 /// <summary>
 /// The per-routine detail payload (<c>data/routines/&lt;safeKey&gt;.json</c>): the routine's
-/// name, kind, signature and definition.
+/// name, kind, signature and definition, and links to the objects the definition references.
 /// </summary>
 public sealed class Routine
 {
@@ -19,10 +19,12 @@ public sealed class Routine
         Option<string> language,
         IEnumerable<Parameter> parameters,
         Option<string> returnType,
-        IEnumerable<Overload> overloads
+        IEnumerable<Overload> overloads,
+        IEnumerable<ReferencedObject> referencedObjects
     )
     {
         ArgumentNullException.ThrowIfNull(routine);
+        ArgumentNullException.ThrowIfNull(referencedObjects);
 
         Name = routine.ToVisibleName();
         RoutineUrl = UrlRouter.GetRoutineUrl(routine);
@@ -37,6 +39,9 @@ public sealed class Routine
 
         Overloads = overloads ?? throw new ArgumentNullException(nameof(overloads));
         OverloadsCount = overloads.UCount();
+
+        ReferencedObjects = referencedObjects;
+        ReferencedObjectsCount = referencedObjects.UCount();
     }
 
     public string Name { get; }
@@ -58,6 +63,10 @@ public sealed class Routine
     public IEnumerable<Overload> Overloads { get; }
 
     public uint OverloadsCount { get; }
+
+    public IEnumerable<ReferencedObject> ReferencedObjects { get; }
+
+    public uint ReferencedObjectsCount { get; }
 
     /// <summary>
     /// Internal. Not intended to be used outside of this assembly. Only required for templating.

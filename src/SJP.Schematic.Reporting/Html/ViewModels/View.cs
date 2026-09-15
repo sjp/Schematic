@@ -110,22 +110,6 @@ public sealed class View
     };
 
     /// <summary>
-    /// A link from a view to an object it references (hash route into the SPA).
-    /// </summary>
-    public sealed class ReferencedObject
-    {
-        public ReferencedObject(string name, string url)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Url = url ?? throw new ArgumentNullException(nameof(url));
-        }
-
-        public string Name { get; }
-
-        public string Url { get; }
-    }
-
-    /// <summary>
     /// A column of the view (<c>data/views/&lt;safeKey&gt;.json</c>). Named distinctly from
     /// <see cref="Table.Column"/> so the JSON source generator emits non-colliding metadata.
     /// </summary>

@@ -7,6 +7,7 @@ import { DataTable } from "@/components/DataTable";
 import { IconTooltip } from "@/components/IconTooltip";
 import { IndexStatus } from "@/components/IndexStatus";
 import { LintFindings } from "@/components/LintFindings";
+import { ReferencedObjectList } from "@/components/ReferencedObjectList";
 import {
   Table,
   TableBody,
@@ -123,18 +124,7 @@ export function ViewDetailPage() {
 
       {data.referencedObjectsCount > 0 && (
         <Section title="Referenced Objects" count={data.referencedObjectsCount}>
-          <ul className="flex flex-wrap gap-2">
-            {data.referencedObjects.map((ref) => (
-              <li key={ref.url}>
-                <a
-                  href={ref.url}
-                  className="inline-block rounded-md bg-muted px-2 py-1 text-sm text-primary hover:underline"
-                >
-                  {ref.name}
-                </a>
-              </li>
-            ))}
-          </ul>
+          <ReferencedObjectList referencedObjects={data.referencedObjects} />
         </Section>
       )}
 

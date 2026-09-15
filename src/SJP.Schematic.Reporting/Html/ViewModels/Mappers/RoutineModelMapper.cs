@@ -8,9 +8,14 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class RoutineModelMapper
 {
-    public Routine Map(IDatabaseRoutine routine)
+    public Routine Map(IDatabaseRoutine routine, ReferencedObjectTargets referencedObjectTargets)
     {
         ArgumentNullException.ThrowIfNull(routine);
+        ArgumentNullException.ThrowIfNull(referencedObjectTargets);
+
+        // An overloaded routine's definition holds the definitions of every overload, so this
+        // covers each of them without resolving them one at a time.
+        var referencedObjects = referencedObjectTargets.GetReferencedObjects(routine.Name, routine.Definition);
 
         return new Routine(
             routine.Name,
@@ -25,7 +30,8 @@ internal sealed class RoutineModelMapper
                     MapParameters(overload.Parameters),
                     MapReturnType(overload.ReturnType)
                 ))
-                .ToList()
+                .ToList(),
+            referencedObjects
         );
     }
 
