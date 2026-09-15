@@ -25,7 +25,7 @@ internal static class MySqlColumnTypeMetadata
     // width is the only thing that distinguishes one from an ordinary one-byte integer
     private const string BooleanColumnTypePrefix = "tinyint(1)";
 
-    private const string UnsignedSuffix = "unsigned";
+    private const string UnsignedAttribute = "unsigned";
 
     /// <summary>
     /// Describes a column's type, reading the members, sign and display width that only the declared type reports.
@@ -50,6 +50,9 @@ internal static class MySqlColumnTypeMetadata
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(dataTypeName);
 
+        var isMemberType = string.Equals(dataTypeName, EnumTypeName, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(dataTypeName, SetTypeName, StringComparison.OrdinalIgnoreCase);
+
         var metadata = new ColumnTypeMetadata
         {
             TypeName = Identifier.CreateQualifiedIdentifier(dataTypeName),
@@ -57,11 +60,11 @@ internal static class MySqlColumnTypeMetadata
             MaxLength = ClampMaxLength(maxLength),
             NumericPrecision = numericPrecision,
             FractionalSecondsPrecision = fractionalSecondsPrecision,
-            IsUnsigned = columnType?.Contains(UnsignedSuffix, StringComparison.OrdinalIgnoreCase) == true,
+            // an enum or a set cannot be unsigned, but its members may well spell the word
+            IsUnsigned = !isMemberType && HasUnsignedAttribute(columnType),
         };
 
-        if (string.Equals(dataTypeName, EnumTypeName, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(dataTypeName, SetTypeName, StringComparison.OrdinalIgnoreCase))
+        if (isMemberType)
         {
             metadata.EnumValues = ParseMemberValues(columnType);
         }
@@ -86,6 +89,40 @@ internal static class MySqlColumnTypeMetadata
     /// that reaches the cap is ever rendered.
     /// </remarks>
     public static int ClampMaxLength(long maxLength) => (int)Math.Min(maxLength, int.MaxValue);
+
+    /// <summary>
+    /// Determines whether a declared type carries the <c>unsigned</c> attribute.
+    /// </summary>
+    /// <param name="columnType">A declared type, e.g. <c>int(10) unsigned zerofill</c>.</param>
+    /// <returns><see langword="true" /> if <c>unsigned</c> is one of the attributes that follow the type; otherwise <see langword="false" />.</returns>
+    /// <remarks>
+    /// Attributes are printed as separate words after the type name and any parenthesised length or
+    /// precision, so only the words outside the parentheses are considered. Anything inside them,
+    /// such as a quoted member value, cannot be mistaken for the attribute.
+    /// </remarks>
+    public static bool HasUnsignedAttribute(string? columnType)
+    {
+        if (columnType.IsNullOrWhiteSpace())
+            return false;
+
+        var attributes = columnType.AsSpan();
+        if (attributes.Contains('('))
+        {
+            var closingParen = attributes.LastIndexOf(')');
+            if (closingParen < 0)
+                return false;
+
+            attributes = attributes[(closingParen + 1)..];
+        }
+
+        foreach (var range in attributes.Split(' '))
+        {
+            if (attributes[range].Trim().Equals(UnsignedAttribute, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Reads the permitted values out of a declared enum or set type.

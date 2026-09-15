@@ -210,4 +210,31 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
 
         Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
     }
+
+    [TestCase("enum_column", "enum('signed', 'unsigned')")]
+    [TestCase("set_column", "set('unsigned_only')")]
+    public async Task Columns_WhenGivenMemberTypeColumnWithUnsignedInMembers_ReturnsSignedColumnType(string columnName, string expectedDefinition)
+    {
+        const string tableName = "table_test_table_38";
+
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.IsUnsigned, Is.False);
+            Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenUnsignedZerofillColumn_ReturnsUnsignedColumnType()
+    {
+        const string tableName = "table_test_table_38";
+
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "unsigned_column", StringComparison.Ordinal));
+
+        Assert.That(column.Type.IsUnsigned, Is.True);
+    }
 }

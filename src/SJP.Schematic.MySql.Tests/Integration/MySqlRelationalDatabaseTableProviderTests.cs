@@ -198,6 +198,11 @@ create table if not exists table_test_table_41 (
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_35 ( test_column int not null primary key auto_increment )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_36 ( json_column json )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_38 (
+    enum_column enum('signed','unsigned'),
+    set_column set('unsigned_only'),
+    unsigned_column int(10) unsigned zerofill
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists trigger_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists trigger_test_table_2 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
@@ -292,6 +297,7 @@ end
         "drop table if exists table_test_table_34",
         "drop table if exists table_test_table_35",
         "drop table if exists table_test_table_36",
+        "drop table if exists table_test_table_38",
         "drop table if exists trigger_test_table_1",
         "drop table if exists trigger_test_table_2"
     );

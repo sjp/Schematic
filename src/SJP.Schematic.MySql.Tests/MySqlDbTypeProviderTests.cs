@@ -284,6 +284,46 @@ internal static class MySqlDbTypeProviderTests
         }
     }
 
+    [TestCase("enum", "enum('signed','unsigned')", "enum('signed', 'unsigned')")]
+    [TestCase("set", "set('unsigned_only')", "set('unsigned_only')")]
+    public static void CreateColumnType_GivenMemberTypeWithUnsignedInMembers_ReturnsSignedTypeWithDefinition(
+        string dataTypeName,
+        string declaredType,
+        string expectedDefinition)
+    {
+        var metadata = MySqlColumnTypeMetadata.Create(
+            dataTypeName,
+            declaredType,
+            Option<Identifier>.None,
+            0,
+            Option<INumericPrecision>.None,
+            Option<int>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.IsUnsigned, Is.False);
+            Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+        }
+    }
+
+    [TestCase("int unsigned", true)]
+    [TestCase("int(10) unsigned", true)]
+    [TestCase("int(10) unsigned zerofill", true)]
+    [TestCase("decimal(10,2) unsigned", true)]
+    [TestCase("BIGINT UNSIGNED", true)]
+    [TestCase("int", false)]
+    [TestCase("int(11)", false)]
+    [TestCase("int(10) zerofill", false)]
+    [TestCase("enum('unsigned')", false)]
+    [TestCase("int(10", false)]
+    [TestCase("", false)]
+    [TestCase(null, false)]
+    public static void HasUnsignedAttribute_GivenDeclaredType_ReturnsExpectedResult(string columnType, bool expected)
+    {
+        Assert.That(MySqlColumnTypeMetadata.HasUnsignedAttribute(columnType), Is.EqualTo(expected));
+    }
+
     [Test]
     public static void CreateColumnType_GivenTinyIntWithDisplayWidthOfOne_ResolvesBooleanDataType()
     {
