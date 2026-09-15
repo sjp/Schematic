@@ -2,6 +2,7 @@ import { Link, getRouteApi } from "@tanstack/react-router";
 
 import { LintFindings } from "@/components/LintFindings";
 import { ReferencedObjectList } from "@/components/ReferencedObjectList";
+import { TypeLink } from "@/components/TypeLink";
 import { useDetail } from "@/hooks/useReportData";
 import type { RoutineDetail, RoutineParameter } from "@/types/report";
 
@@ -75,7 +76,9 @@ function ParameterTable({ parameters }: { parameters: RoutineParameter[] }) {
                   <span className="text-muted-foreground italic">positional</span>
                 )}
               </td>
-              <td className="px-3 py-2">{parameter.type}</td>
+              <td className="px-3 py-2">
+                <TypeLink type={parameter.type} typeUrl={parameter.typeUrl} />
+              </td>
               <td className="px-3 py-2">{directionLabels[parameter.direction]}</td>
               <td className="px-3 py-2">
                 {parameter.defaultValue ? (
@@ -120,7 +123,12 @@ export function RoutineDetailPage() {
       <dl className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
         <Property label="Kind" value={data.routineType} />
         <Property label="Language" value={data.language ?? "—"} />
-        <Property label="Returns" value={data.returnType ?? "—"} />
+        <Property
+          label="Returns"
+          value={
+            data.returnType ? <TypeLink type={data.returnType} typeUrl={data.returnTypeUrl} /> : "—"
+          }
+        />
       </dl>
 
       {!isOverloaded && (
@@ -137,7 +145,12 @@ export function RoutineDetailPage() {
               <div key={index} className="space-y-3">
                 <h3 className="text-sm font-semibold text-muted-foreground">
                   Overload {index + 1}
-                  {overload.returnType && ` → ${overload.returnType}`}
+                  {overload.returnType && (
+                    <>
+                      {" → "}
+                      <TypeLink type={overload.returnType} typeUrl={overload.returnTypeUrl} />
+                    </>
+                  )}
                 </h3>
                 <ParameterTable parameters={overload.parameters} />
                 <pre className="overflow-x-auto rounded-md border p-3 text-xs">

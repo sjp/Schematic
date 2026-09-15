@@ -42,6 +42,7 @@ public sealed class Columns
             int ordinal,
             string columnName,
             string typeDefinition,
+            Option<Uri> typeUrl,
             bool isNullable,
             Option<string> defaultValue,
             bool isPrimaryKey,
@@ -58,6 +59,7 @@ public sealed class Columns
             Ordinal = ordinal;
             ColumnName = columnName;
             Type = typeDefinition ?? string.Empty;
+            TypeUrl = typeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             IsNullable = isNullable;
             DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
             IsPrimaryKey = isPrimaryKey;
@@ -76,6 +78,12 @@ public sealed class Columns
         public string ColumnName { get; }
 
         public string Type { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type the column is declared with. Omitted from the
+        /// JSON when the column's type is not one of the report's user-defined types.
+        /// </summary>
+        public string? TypeUrl { get; }
 
         public bool IsNullable { get; }
 

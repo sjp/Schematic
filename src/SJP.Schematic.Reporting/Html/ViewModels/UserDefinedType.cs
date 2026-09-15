@@ -16,6 +16,7 @@ public sealed class UserDefinedType
         Identifier typeName,
         UserDefinedTypeKind kind,
         Option<IDbType> baseType,
+        Option<Uri> baseTypeUrl,
         bool isNullable,
         Option<string> defaultValue,
         Option<string> definition,
@@ -31,6 +32,7 @@ public sealed class UserDefinedType
 
         Kind = UserDefinedTypeKindNames.GetName(kind);
         BaseType = baseType.Match(static t => t.Definition, static () => string.Empty);
+        BaseTypeUrl = baseTypeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
         IsNullable = isNullable;
         DefaultValue = defaultValue.Match(static d => d ?? string.Empty, static () => string.Empty);
         Definition = definition.Match(static d => d ?? string.Empty, static () => string.Empty);
@@ -57,6 +59,12 @@ public sealed class UserDefinedType
     /// another one, or the database does not report it.
     /// </summary>
     public string BaseType { get; }
+
+    /// <summary>
+    /// The hash route of the user-defined type this type is defined in terms of. Omitted from the
+    /// JSON when there is no base type, or it is not one of the report's user-defined types.
+    /// </summary>
+    public string? BaseTypeUrl { get; }
 
     public bool IsNullable { get; }
 
@@ -89,6 +97,7 @@ public sealed class UserDefinedType
             int ordinal,
             bool isNullable,
             string typeDefinition,
+            Option<Uri> typeUrl,
             Option<string> defaultValue
         )
         {
@@ -96,6 +105,7 @@ public sealed class UserDefinedType
             Ordinal = ordinal;
             IsNullable = isNullable;
             Type = typeDefinition ?? string.Empty;
+            TypeUrl = typeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
         }
 
@@ -106,6 +116,12 @@ public sealed class UserDefinedType
         public bool IsNullable { get; }
 
         public string Type { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type the attribute is declared with. Omitted from the
+        /// JSON when the attribute's type is not one of the report's user-defined types.
+        /// </summary>
+        public string? TypeUrl { get; }
 
         public string DefaultValue { get; }
     }

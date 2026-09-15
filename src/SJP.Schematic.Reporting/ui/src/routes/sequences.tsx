@@ -4,6 +4,7 @@ import { Check, ListOrdered, Minus } from "lucide-react";
 import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
+import { TypeLink } from "@/components/TypeLink";
 import { useSummary } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { SequenceSummary, SequencesSummary } from "@/types/report";
@@ -31,7 +32,11 @@ export function SequencesPage() {
           </Link>
         ),
       },
-      { accessorKey: "type", header: "Type" },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => <TypeLink type={row.original.type} typeUrl={row.original.typeUrl} />,
+      },
       { accessorKey: "start", header: "Start" },
       { accessorKey: "increment", header: "Increment" },
       {

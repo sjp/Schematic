@@ -20,18 +20,19 @@ internal sealed class UserDefinedTypeRenderer : IDataRenderer
         return RenderTaskRunner.RunAllAsync(
             data.UserDefinedTypes,
             static t => $"user-defined type '{t.Name.ToVisibleName()}'",
-            (userDefinedType, ct) => RenderUserDefinedTypeAsync(userDefinedType, mapper, context, dataDirectory, ct),
+            (userDefinedType, ct) => RenderUserDefinedTypeAsync(userDefinedType, mapper, data.UserDefinedTypeTargets, context, dataDirectory, ct),
             cancellationToken);
     }
 
     private static async Task RenderUserDefinedTypeAsync(
         IDatabaseUserDefinedType userDefinedType,
         UserDefinedTypeModelMapper mapper,
+        UserDefinedTypeTargets userDefinedTypeTargets,
         RenderContext context,
         DirectoryInfo dataDirectory,
         CancellationToken cancellationToken)
     {
-        var viewModel = mapper.Map(userDefinedType);
+        var viewModel = mapper.Map(userDefinedType, userDefinedTypeTargets);
 
         var safeKey = userDefinedType.Name.ToSafeKey();
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));

@@ -23,6 +23,7 @@ internal static class ReportDataFactory
         string databaseVersion = null!,
         ReferencedObjectTargets referencedObjectTargets = null!,
         SynonymTargets synonymTargets = null!,
+        UserDefinedTypeTargets userDefinedTypeTargets = null!,
         IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics = null!)
     {
         return new ReportData(
@@ -37,6 +38,7 @@ internal static class ReportDataFactory
             databaseVersion,
             referencedObjectTargets ?? new ReferencedObjectTargets(new EmptyDependencyProvider(), [], [], [], [], [], []),
             synonymTargets ?? new SynonymTargets([], [], [], [], [], []),
+            userDefinedTypeTargets ?? new UserDefinedTypeTargets([]),
             tableStatistics ?? new Dictionary<Identifier, ITableStatistics>());
     }
 

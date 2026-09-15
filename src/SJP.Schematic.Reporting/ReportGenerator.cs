@@ -202,7 +202,11 @@ public class ReportGenerator
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
         var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames, userDefinedTypeNames);
 
-        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, databaseVersion, referencedObjectTargets, synonymTargets, tableStatistics);
+        // Type resolution maps the type a column, parameter, sequence or attribute declares to the
+        // hash route of the user-defined type it names.
+        var userDefinedTypeTargets = new UserDefinedTypeTargets(userDefinedTypeNames);
+
+        return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, databaseVersion, referencedObjectTargets, synonymTargets, userDefinedTypeTargets, tableStatistics);
     }
 
     // Statistics decorate the report rather than form it, and reading them needs privileges that a

@@ -19,6 +19,7 @@ public sealed class Routine
         Option<string> language,
         IEnumerable<Parameter> parameters,
         Option<string> returnType,
+        Option<Uri> returnTypeUrl,
         IEnumerable<Overload> overloads,
         IEnumerable<ReferencedObject> referencedObjects
     )
@@ -36,6 +37,7 @@ public sealed class Routine
         ParametersCount = parameters.UCount();
 
         ReturnType = returnType.MatchUnsafe(static t => t, static () => (string?)null);
+        ReturnTypeUrl = returnTypeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
 
         Overloads = overloads ?? throw new ArgumentNullException(nameof(overloads));
         OverloadsCount = overloads.UCount();
@@ -60,6 +62,12 @@ public sealed class Routine
 
     public string? ReturnType { get; }
 
+    /// <summary>
+    /// The hash route of the user-defined type the routine returns. Omitted from the JSON when the
+    /// routine returns nothing, or returns a type that is not one of the report's user-defined types.
+    /// </summary>
+    public string? ReturnTypeUrl { get; }
+
     public IEnumerable<Overload> Overloads { get; }
 
     public uint OverloadsCount { get; }
@@ -73,10 +81,11 @@ public sealed class Routine
     /// </summary>
     public sealed class Parameter
     {
-        public Parameter(Option<Identifier> parameterName, string typeDefinition, RoutineParameterDirection direction, Option<string> defaultValue, int ordinal)
+        public Parameter(Option<Identifier> parameterName, string typeDefinition, Option<Uri> typeUrl, RoutineParameterDirection direction, Option<string> defaultValue, int ordinal)
         {
             ParameterName = parameterName.MatchUnsafe(static name => name.LocalName, static () => (string?)null);
             Type = typeDefinition ?? throw new ArgumentNullException(nameof(typeDefinition));
+            TypeUrl = typeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             Direction = direction.ToString();
             DefaultValue = defaultValue.MatchUnsafe(static value => value, static () => (string?)null);
             Ordinal = ordinal;
@@ -85,6 +94,12 @@ public sealed class Routine
         public string? ParameterName { get; }
 
         public string Type { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type the parameter is declared with. Omitted from the
+        /// JSON when the parameter's type is not one of the report's user-defined types.
+        /// </summary>
+        public string? TypeUrl { get; }
 
         public string Direction { get; }
 
@@ -98,11 +113,12 @@ public sealed class Routine
     /// </summary>
     public sealed class Overload
     {
-        public Overload(string definition, IEnumerable<Parameter> parameters, Option<string> returnType)
+        public Overload(string definition, IEnumerable<Parameter> parameters, Option<string> returnType, Option<Uri> returnTypeUrl)
         {
             Definition = definition ?? throw new ArgumentNullException(nameof(definition));
             Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
             ReturnType = returnType.MatchUnsafe(static t => t, static () => (string?)null);
+            ReturnTypeUrl = returnTypeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
         }
 
         public string Definition { get; }
@@ -110,5 +126,11 @@ public sealed class Routine
         public IEnumerable<Parameter> Parameters { get; }
 
         public string? ReturnType { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type this signature returns. Omitted from the JSON
+        /// when it returns nothing, or a type that is not one of the report's user-defined types.
+        /// </summary>
+        public string? ReturnTypeUrl { get; }
     }
 }

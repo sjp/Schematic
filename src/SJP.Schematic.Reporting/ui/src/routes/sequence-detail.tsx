@@ -1,6 +1,7 @@
 import { Link, getRouteApi } from "@tanstack/react-router";
 
 import { LintFindings } from "@/components/LintFindings";
+import { TypeLink } from "@/components/TypeLink";
 import { useDetail } from "@/hooks/useReportData";
 import type { SequenceDetail } from "@/types/report";
 
@@ -41,7 +42,7 @@ export function SequenceDetailPage() {
       <LintFindings objectUrl={`#/sequences/${sequenceKey}`} />
 
       <dl className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-3">
-        <Property label="Type" value={data.type} />
+        <Property label="Type" value={<TypeLink type={data.type} typeUrl={data.typeUrl} />} />
         <Property label="Start" value={data.start} />
         <Property label="Increment" value={data.increment} />
         <Property label="Min Value" value={data.minValue ?? "—"} />

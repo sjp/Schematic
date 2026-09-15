@@ -20,18 +20,19 @@ internal sealed class SequenceRenderer : IDataRenderer
         return RenderTaskRunner.RunAllAsync(
             data.Sequences,
             static s => $"sequence '{s.Name.ToVisibleName()}'",
-            (sequence, ct) => RenderSequenceAsync(sequence, mapper, context, dataDirectory, ct),
+            (sequence, ct) => RenderSequenceAsync(sequence, mapper, data.UserDefinedTypeTargets, context, dataDirectory, ct),
             cancellationToken);
     }
 
     private static async Task RenderSequenceAsync(
         IDatabaseSequence sequence,
         SequenceModelMapper mapper,
+        UserDefinedTypeTargets userDefinedTypeTargets,
         RenderContext context,
         DirectoryInfo dataDirectory,
         CancellationToken cancellationToken)
     {
-        var viewModel = mapper.Map(sequence);
+        var viewModel = mapper.Map(sequence, userDefinedTypeTargets);
 
         var safeKey = sequence.Name.ToSafeKey();
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));

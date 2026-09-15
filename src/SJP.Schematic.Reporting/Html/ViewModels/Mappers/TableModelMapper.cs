@@ -20,9 +20,16 @@ internal sealed class TableModelMapper
     /// </summary>
     private IReadOnlySet<Identifier> TableNames { get; }
 
-    public Table Map(IRelationalDatabaseTable table)
+    /// <summary>
+    /// Maps a table to its detail payload.
+    /// </summary>
+    /// <param name="table">The table to map.</param>
+    /// <param name="userDefinedTypeTargets">Resolves a column's declared type to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public Table Map(IRelationalDatabaseTable table, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         var tableColumns = table.Columns.Select(static (c, i) => new { Column = c, Ordinal = i + 1 }).ToList();
         var primaryKey = table.PrimaryKey;
@@ -71,6 +78,7 @@ internal sealed class TableModelMapper
                 tableColumn.Ordinal,
                 tableColumn.Column.IsNullable,
                 tableColumn.Column.Type.Definition,
+                userDefinedTypeTargets.GetTypeUrl(tableColumn.Column.Type),
                 tableColumn.Column.DefaultValue,
                 keyColumns.PrimaryKeyColumns.Contains(columnName),
                 keyColumns.UniqueKeyColumns.Contains(columnName),

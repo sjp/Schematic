@@ -17,7 +17,7 @@ internal sealed class UserDefinedTypesRenderer : IDataRenderer
 
         var mapper = new MainModelMapper();
 
-        var typeViewModels = data.UserDefinedTypes.Select(mapper.Map).ToList();
+        var typeViewModels = data.UserDefinedTypes.Select(t => mapper.Map(t, data.UserDefinedTypeTargets)).ToList();
         var typesVm = new UserDefinedTypes(typeViewModels);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "userDefinedTypes.json"));

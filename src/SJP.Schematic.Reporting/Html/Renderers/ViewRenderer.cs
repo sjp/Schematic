@@ -20,7 +20,7 @@ internal sealed class ViewRenderer : IDataRenderer
         return RenderTaskRunner.RunAllAsync(
             data.Views,
             static v => $"view '{v.Name.ToVisibleName()}'",
-            (view, ct) => RenderViewAsync(view, mapper, data.ReferencedObjectTargets, context, dataDirectory, ct),
+            (view, ct) => RenderViewAsync(view, mapper, data.ReferencedObjectTargets, data.UserDefinedTypeTargets, context, dataDirectory, ct),
             cancellationToken);
     }
 
@@ -28,11 +28,12 @@ internal sealed class ViewRenderer : IDataRenderer
         IDatabaseView view,
         ViewModelMapper mapper,
         ReferencedObjectTargets referencedObjectTargets,
+        UserDefinedTypeTargets userDefinedTypeTargets,
         RenderContext context,
         DirectoryInfo dataDirectory,
         CancellationToken cancellationToken)
     {
-        var viewModel = mapper.Map(view, referencedObjectTargets);
+        var viewModel = mapper.Map(view, referencedObjectTargets, userDefinedTypeTargets);
 
         var safeKey = view.Name.ToSafeKey();
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));

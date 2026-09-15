@@ -17,8 +17,8 @@ internal sealed class ColumnsRenderer : IDataRenderer
 
         var mapper = new ColumnsModelMapper();
 
-        var tableColumns = data.Tables.SelectMany(mapper.Map);
-        var viewColumns = data.Views.SelectMany(mapper.Map);
+        var tableColumns = data.Tables.SelectMany(t => mapper.Map(t, data.UserDefinedTypeTargets));
+        var viewColumns = data.Views.SelectMany(v => mapper.Map(v, data.UserDefinedTypeTargets));
 
         var orderedColumns = tableColumns
             .Concat(viewColumns)

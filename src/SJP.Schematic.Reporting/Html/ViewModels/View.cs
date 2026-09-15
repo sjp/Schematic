@@ -120,6 +120,7 @@ public sealed class View
             int ordinal,
             bool isNullable,
             string typeDefinition,
+            Option<Uri> typeUrl,
             Option<string> defaultValue
         )
         {
@@ -127,6 +128,7 @@ public sealed class View
             Ordinal = ordinal;
             IsNullable = isNullable;
             Type = typeDefinition ?? string.Empty;
+            TypeUrl = typeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             DefaultValue = defaultValue.Match(static def => def ?? string.Empty, static () => string.Empty);
         }
 
@@ -137,6 +139,12 @@ public sealed class View
         public bool IsNullable { get; }
 
         public string Type { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type the column is declared with. Omitted from the
+        /// JSON when the column's type is not one of the report's user-defined types.
+        /// </summary>
+        public string? TypeUrl { get; }
 
         public string DefaultValue { get; }
     }

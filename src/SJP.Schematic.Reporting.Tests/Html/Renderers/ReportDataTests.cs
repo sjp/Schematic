@@ -14,7 +14,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullDatabase_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(null!, [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(null!, [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("database"));
     }
 
@@ -22,7 +22,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullTables_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), null!, [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), null!, [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables"));
     }
 
@@ -30,7 +30,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullViews_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], null!, [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], null!, [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views"));
     }
 
@@ -38,7 +38,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSequences_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], null!, [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], null!, [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences"));
     }
 
@@ -46,7 +46,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSynonyms_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], null!, [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], null!, [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms"));
     }
 
@@ -54,7 +54,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullRoutines_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], null!, [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], [], null!, [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines"));
     }
 
@@ -62,7 +62,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSchemas_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], null!, [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], null!, [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemas"));
     }
 
@@ -70,7 +70,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullUserDefinedTypes_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], [], null!, "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], [], null!, "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
 
@@ -78,7 +78,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullReferencedObjectTargets_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", null!, EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", null!, EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("referencedObjectTargets"));
     }
 
@@ -86,7 +86,7 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullSynonymTargets_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), null!, EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), null!, EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonymTargets"));
     }
 
@@ -94,15 +94,23 @@ internal static class ReportDataTests
     public static void Ctor_GivenNullDatabaseVersion_DoesNotThrow()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], null, EmptyTargets(), EmptySynonymTargets(), EmptyStatistics()),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], null, EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), EmptyStatistics()),
             Throws.Nothing);
+    }
+
+    [Test]
+    public static void Ctor_GivenNullUserDefinedTypeTargets_ThrowsArgumentNullException()
+    {
+        Assert.That(
+            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), null!, EmptyStatistics()),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypeTargets"));
     }
 
     [Test]
     public static void Ctor_GivenNullTableStatistics_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), null!),
+            () => new ReportData(MockDatabase(), [], [], [], [], [], [], [], "1.0", EmptyTargets(), EmptySynonymTargets(), EmptyUserDefinedTypeTargets(), null!),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableStatistics"));
     }
 
@@ -111,6 +119,8 @@ internal static class ReportDataTests
     private static ReferencedObjectTargets EmptyTargets() => new(new EmptyDependencyProvider(), [], [], [], [], [], []);
 
     private static SynonymTargets EmptySynonymTargets() => new([], [], [], [], [], []);
+
+    private static UserDefinedTypeTargets EmptyUserDefinedTypeTargets() => new([]);
 
     private static IReadOnlyDictionary<Identifier, ITableStatistics> EmptyStatistics() => new Dictionary<Identifier, ITableStatistics>();
 }

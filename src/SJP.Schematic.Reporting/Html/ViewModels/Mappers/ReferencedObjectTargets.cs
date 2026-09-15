@@ -30,7 +30,7 @@ internal sealed class ReferencedObjectTargets
         // links are built once up front. Adding the kinds in a fixed order keeps each name's links
         // ordered by kind (table, view, sequence, synonym, routine, user-defined type), then by
         // position in the source list.
-        var targets = new Dictionary<(string? Schema, string LocalName), List<ReferencedObject>>(SchemaLocalNameComparer.Instance);
+        var targets = new Dictionary<(string? Schema, string LocalName), List<ReferencedObject>>(SchemaLocalNameComparer.OrdinalIgnoreCase);
         AddTargets(targets, tableNames, UrlRouter.GetTableUrl);
         AddTargets(targets, viewNames, UrlRouter.GetViewUrl);
         AddTargets(targets, sequenceNames, UrlRouter.GetSequenceUrl);
@@ -120,23 +120,6 @@ internal sealed class ReferencedObjectTargets
             }
 
             links.Add(new ReferencedObject(objectName.ToVisibleName(), urlFactory(objectName)));
-        }
-    }
-
-    private sealed class SchemaLocalNameComparer : IEqualityComparer<(string? Schema, string LocalName)>
-    {
-        public static SchemaLocalNameComparer Instance { get; } = new();
-
-        public bool Equals((string? Schema, string LocalName) x, (string? Schema, string LocalName) y)
-        {
-            return string.Equals(x.Schema, y.Schema, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(x.LocalName, y.LocalName, StringComparison.OrdinalIgnoreCase);
-        }
-
-        public int GetHashCode((string? Schema, string LocalName) obj)
-        {
-            var schemaHash = obj.Schema is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Schema);
-            return HashCode.Combine(schemaHash, StringComparer.OrdinalIgnoreCase.GetHashCode(obj.LocalName));
         }
     }
 }

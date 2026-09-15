@@ -16,6 +16,26 @@ internal static class TableModelMapperTests
     private static readonly Identifier LinesName = Identifier.CreateQualifiedIdentifier("test_schema", "order_lines");
 
     [Test]
+    public static void Map_GivenColumnsOfUserDefinedAndBuiltInTypes_LinksOnlyTheUserDefinedOne()
+    {
+        var moodName = Identifier.CreateQualifiedIdentifier("test_schema", "mood");
+        IDatabaseColumn[] columns =
+        [
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null),
+            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, null, null),
+        ];
+        var table = new RelationalDatabaseTable(OrdersName, columns, Option<IDatabaseKey>.None, [], [], [], [], [], []);
+
+        var model = new TableModelMapper([OrdersName]).Map(table, new UserDefinedTypeTargets([moodName]));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(GetColumn(model, "id").TypeUrl, Is.Null);
+            Assert.That(GetColumn(model, "current_mood").TypeUrl, Is.EqualTo(UrlRouter.GetUserDefinedTypeUrl(moodName)));
+        }
+    }
+
+    [Test]
     public static void Map_GivenCompositeForeignKey_LinksEachColumnToParentColumnAtSamePosition()
     {
         var model = MapOrders();
@@ -104,7 +124,7 @@ internal static class TableModelMapperTests
 
         var orders = new RelationalDatabaseTable(OrdersName, orderColumns, ordersKey, [], parentKeys, childKeys, [], [], []);
 
-        return new TableModelMapper([OrdersName, CustomersName, LinesName]).Map(orders);
+        return new TableModelMapper([OrdersName, CustomersName, LinesName]).Map(orders, new UserDefinedTypeTargets([]));
     }
 
     private static IReadOnlyList<IDatabaseColumn> CreateColumns(params string[] names)

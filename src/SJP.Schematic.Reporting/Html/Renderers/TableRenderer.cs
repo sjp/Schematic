@@ -22,18 +22,19 @@ internal sealed class TableRenderer : IDataRenderer
         return RenderTaskRunner.RunAllAsync(
             data.Tables,
             static t => $"table '{t.Name.ToVisibleName()}'",
-            (table, ct) => RenderTableAsync(table, mapper, context, tablesDataDirectory, ct),
+            (table, ct) => RenderTableAsync(table, mapper, data.UserDefinedTypeTargets, context, tablesDataDirectory, ct),
             cancellationToken);
     }
 
     private static async Task RenderTableAsync(
         IRelationalDatabaseTable table,
         TableModelMapper mapper,
+        UserDefinedTypeTargets userDefinedTypeTargets,
         RenderContext context,
         DirectoryInfo tablesDataDirectory,
         CancellationToken cancellationToken)
     {
-        var tableModel = mapper.Map(table);
+        var tableModel = mapper.Map(table, userDefinedTypeTargets);
 
         // The payload carries no relationship diagrams. The report derives each table's neighbourhood
         // from the schema-wide relationships graph, so a table's payload does not grow with the number

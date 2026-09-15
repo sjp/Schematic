@@ -217,6 +217,7 @@ public sealed class Main
         public Sequence(
             Identifier sequenceName,
             string type,
+            Option<Uri> typeUrl,
             decimal start,
             decimal increment,
             Option<decimal> minValue,
@@ -233,6 +234,7 @@ public sealed class Main
             SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
 
             Type = type;
+            TypeUrl = typeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             Start = start;
             Increment = increment;
             MinValue = minValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
@@ -247,6 +249,12 @@ public sealed class Main
         public string SequenceUrl { get; }
 
         public string Type { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type the sequence generates values of. Omitted from the
+        /// JSON when that type is not one of the report's user-defined types.
+        /// </summary>
+        public string? TypeUrl { get; }
 
         public decimal Start { get; }
 
@@ -322,6 +330,7 @@ public sealed class Main
             Identifier typeName,
             UserDefinedTypeKind kind,
             Option<IDbType> baseType,
+            Option<Uri> baseTypeUrl,
             bool isNullable,
             uint attributesCount,
             uint enumValuesCount
@@ -334,6 +343,7 @@ public sealed class Main
 
             Kind = UserDefinedTypeKindNames.GetName(kind);
             BaseType = baseType.Match(static t => t.Definition, static () => string.Empty);
+            BaseTypeUrl = baseTypeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             IsNullable = isNullable;
             AttributesCount = attributesCount;
             EnumValuesCount = enumValuesCount;
@@ -351,6 +361,12 @@ public sealed class Main
         /// of another one, or the database does not report it.
         /// </summary>
         public string BaseType { get; }
+
+        /// <summary>
+        /// The hash route of the user-defined type this type is defined in terms of. Omitted from
+        /// the JSON when there is no base type, or it is not one of the report's user-defined types.
+        /// </summary>
+        public string? BaseTypeUrl { get; }
 
         public bool IsNullable { get; }
 

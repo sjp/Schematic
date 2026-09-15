@@ -87,6 +87,8 @@ export interface UserDefinedTypeSummary {
   kind: string;
   /** The type this one is defined in terms of. Empty when there is none, or it is not reported. */
   baseType: string;
+  /** Hash route of the base type's own page. Omitted when it is not a user-defined type. */
+  baseTypeUrl?: string;
   isNullable: boolean;
   attributesCount: number;
   enumValuesCount: number;
@@ -104,6 +106,8 @@ export interface UserDefinedTypeAttribute {
   attributeName: string;
   isNullable: boolean;
   type: string;
+  /** Hash route of the user-defined type the attribute is declared with. Omitted when it is not one. */
+  typeUrl?: string;
   defaultValue: string;
 }
 
@@ -122,6 +126,8 @@ export interface UserDefinedTypeDetail {
   kind: string;
   /** The type this one is defined in terms of. Empty when there is none, or it is not reported. */
   baseType: string;
+  /** Hash route of the base type's own page. Omitted when it is not a user-defined type. */
+  baseTypeUrl?: string;
   isNullable: boolean;
   /** The default for a column of this type. Empty when the type declares none. */
   defaultValue: string;
@@ -177,6 +183,8 @@ export interface TableColumn {
   columnName: string;
   isNullable: boolean;
   type: string;
+  /** Hash route of the user-defined type the column is declared with. Omitted when it is not one. */
+  typeUrl?: string;
   defaultValue: string;
   isPrimaryKey: boolean;
   isUniqueKey: boolean;
@@ -328,6 +336,8 @@ export interface ViewColumn {
   columnName: string;
   isNullable: boolean;
   type: string;
+  /** Hash route of the user-defined type the column is declared with. Omitted when it is not one. */
+  typeUrl?: string;
   defaultValue: string;
 }
 
@@ -387,6 +397,8 @@ export interface RoutineParameter {
   /** Omitted from the JSON when the parameter is positional. */
   parameterName?: string;
   type: string;
+  /** Hash route of the user-defined type the parameter is declared with. Omitted when it is not one. */
+  typeUrl?: string;
   direction: RoutineParameterDirection;
   /** Omitted from the JSON when the parameter has no default. */
   defaultValue?: string;
@@ -399,6 +411,8 @@ export interface RoutineOverload {
   parameters: RoutineParameter[];
   /** Omitted from the JSON when the signature returns nothing. */
   returnType?: string;
+  /** Hash route of the user-defined type returned. Omitted when it is not one. */
+  returnTypeUrl?: string;
 }
 
 /** `data/routines/<safeKey>.json`. */
@@ -413,6 +427,8 @@ export interface RoutineDetail {
   parametersCount: number;
   /** Omitted from the JSON when the routine returns nothing. */
   returnType?: string;
+  /** Hash route of the user-defined type returned. Omitted when it is not one. */
+  returnTypeUrl?: string;
   /** Empty unless the routine's name carries more than one signature. */
   overloads: RoutineOverload[];
   overloadsCount: number;
@@ -427,6 +443,8 @@ export interface SequenceSummary {
   sequenceUrl: string;
   /** The declared type of the generated values, e.g. `bigint`. */
   type: string;
+  /** Hash route of the user-defined type the values are declared with. Omitted when it is not one. */
+  typeUrl?: string;
   start: number;
   increment: number;
   /** Omitted from the JSON when the sequence has no minimum. */
@@ -504,6 +522,8 @@ export interface ColumnRow {
   ordinal: number;
   columnName: string;
   type: string;
+  /** Hash route of the user-defined type the column is declared with. Omitted when it is not one. */
+  typeUrl?: string;
   isNullable: boolean;
   defaultValue: string;
   isPrimaryKey: boolean;

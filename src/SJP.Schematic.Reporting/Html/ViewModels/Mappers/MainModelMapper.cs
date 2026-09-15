@@ -36,13 +36,21 @@ internal sealed class MainModelMapper
         return new Main.View(view.Name, columnCount, view.IsMaterialized);
     }
 
-    public Main.Sequence Map(IDatabaseSequence sequence)
+    /// <summary>
+    /// Maps a sequence to a row of the sequences list.
+    /// </summary>
+    /// <param name="sequence">The sequence to map.</param>
+    /// <param name="userDefinedTypeTargets">Resolves the sequence's declared type to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="sequence"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public Main.Sequence Map(IDatabaseSequence sequence, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(sequence);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         return new Main.Sequence(
             sequence.Name,
             sequence.Type.Definition,
+            userDefinedTypeTargets.GetTypeUrl(sequence.Type),
             sequence.Start,
             sequence.Increment,
             sequence.MinValue,
@@ -70,14 +78,22 @@ internal sealed class MainModelMapper
         return new Main.Routine(routine.Name, routine.RoutineType);
     }
 
-    public Main.UserDefinedType Map(IDatabaseUserDefinedType userDefinedType)
+    /// <summary>
+    /// Maps a user-defined type to a row of the types list.
+    /// </summary>
+    /// <param name="userDefinedType">The type to map.</param>
+    /// <param name="userDefinedTypeTargets">Resolves the type's base type to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="userDefinedType"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public Main.UserDefinedType Map(IDatabaseUserDefinedType userDefinedType, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(userDefinedType);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         return new Main.UserDefinedType(
             userDefinedType.Name,
             userDefinedType.Kind,
             userDefinedType.BaseType,
+            userDefinedType.BaseType.Bind(baseType => userDefinedTypeTargets.GetTypeUrl(baseType)),
             userDefinedType.IsNullable,
             (uint)userDefinedType.Attributes.Count,
             (uint)userDefinedType.EnumValues.Count

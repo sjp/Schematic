@@ -7,20 +7,29 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class ViewModelMapper
 {
-    public View Map(IDatabaseView view, ReferencedObjectTargets referencedObjectTargets)
+    /// <summary>
+    /// Maps a view to its detail payload.
+    /// </summary>
+    /// <param name="view">The view to map.</param>
+    /// <param name="referencedObjectTargets">Resolves the objects the view's definition references to their pages.</param>
+    /// <param name="userDefinedTypeTargets">Resolves a column's declared type to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException">Any argument is <see langword="null" />.</exception>
+    public View Map(IDatabaseView view, ReferencedObjectTargets referencedObjectTargets, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(view);
         ArgumentNullException.ThrowIfNull(referencedObjectTargets);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         var referencedObjects = referencedObjectTargets.GetReferencedObjects(view.Name, view.Definition);
 
         var viewColumns = view.Columns.ToList();
-        var columns = viewColumns.Select(static (vc, i) =>
+        var columns = viewColumns.Select((vc, i) =>
             new View.ViewColumn(
                 vc.Name?.LocalName ?? string.Empty,
                 i + 1,
                 vc.IsNullable,
                 vc.Type.Definition,
+                userDefinedTypeTargets.GetTypeUrl(vc.Type),
                 vc.DefaultValue
             )).ToList();
 

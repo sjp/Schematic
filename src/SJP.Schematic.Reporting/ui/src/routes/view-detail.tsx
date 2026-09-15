@@ -8,6 +8,7 @@ import { IconTooltip } from "@/components/IconTooltip";
 import { IndexStatus } from "@/components/IndexStatus";
 import { LintFindings } from "@/components/LintFindings";
 import { ReferencedObjectList } from "@/components/ReferencedObjectList";
+import { TypeLink } from "@/components/TypeLink";
 import {
   Table,
   TableBody,
@@ -56,7 +57,11 @@ export function ViewDetailPage() {
         header: "Name",
         cell: ({ row }) => <span className="font-medium">{row.original.columnName}</span>,
       },
-      { accessorKey: "type", header: "Type" },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => <TypeLink type={row.original.type} typeUrl={row.original.typeUrl} />,
+      },
       {
         accessorKey: "isNullable",
         header: "Nullable",

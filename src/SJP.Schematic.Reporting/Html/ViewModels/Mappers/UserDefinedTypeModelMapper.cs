@@ -6,16 +6,24 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class UserDefinedTypeModelMapper
 {
-    public UserDefinedType Map(IDatabaseUserDefinedType userDefinedType)
+    /// <summary>
+    /// Maps a user-defined type to its detail payload.
+    /// </summary>
+    /// <param name="userDefinedType">The type to map.</param>
+    /// <param name="userDefinedTypeTargets">Resolves the type's base type, and each attribute's declared type, to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="userDefinedType"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public UserDefinedType Map(IDatabaseUserDefinedType userDefinedType, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(userDefinedType);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         var attributes = userDefinedType.Attributes
-            .Select(static (attribute, i) => new UserDefinedType.Attribute(
+            .Select((attribute, i) => new UserDefinedType.Attribute(
                 attribute.Name.LocalName,
                 i + 1,
                 attribute.IsNullable,
                 attribute.Type.Definition,
+                userDefinedTypeTargets.GetTypeUrl(attribute.Type),
                 attribute.DefaultValue
             ))
             .ToList();
@@ -28,6 +36,7 @@ internal sealed class UserDefinedTypeModelMapper
             userDefinedType.Name,
             userDefinedType.Kind,
             userDefinedType.BaseType,
+            userDefinedType.BaseType.Bind(baseType => userDefinedTypeTargets.GetTypeUrl(baseType)),
             userDefinedType.IsNullable,
             userDefinedType.DefaultValue,
             userDefinedType.Definition,

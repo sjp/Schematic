@@ -4,6 +4,7 @@ import { Check, Minus, Shapes } from "lucide-react";
 import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
+import { TypeLink } from "@/components/TypeLink";
 import { useSummary } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { UserDefinedTypeSummary, UserDefinedTypesSummary } from "@/types/report";
@@ -40,10 +41,14 @@ export function UserDefinedTypesPage() {
       {
         accessorKey: "baseType",
         header: "Base Type",
-        cell: ({ getValue }) => {
-          const v = getValue<string>();
-          return v ? <code className="text-xs">{v}</code> : "—";
-        },
+        cell: ({ row }) =>
+          row.original.baseType ? (
+            <code className="text-xs">
+              <TypeLink type={row.original.baseType} typeUrl={row.original.baseTypeUrl} />
+            </code>
+          ) : (
+            "—"
+          ),
       },
       {
         accessorKey: "isNullable",

@@ -4,6 +4,7 @@ import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
 import { IconTooltip } from "@/components/IconTooltip";
+import { TypeLink } from "@/components/TypeLink";
 import { useSummary } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
 import type { ColumnRow, ColumnsSummary } from "@/types/report";
@@ -55,7 +56,11 @@ export function ColumnsPage() {
         header: "Column",
         cell: ({ row }) => <span className="font-medium">{row.original.columnName}</span>,
       },
-      { accessorKey: "type", header: "Data Type" },
+      {
+        accessorKey: "type",
+        header: "Data Type",
+        cell: ({ row }) => <TypeLink type={row.original.type} typeUrl={row.original.typeUrl} />,
+      },
       {
         accessorKey: "isNullable",
         header: "Nullable",

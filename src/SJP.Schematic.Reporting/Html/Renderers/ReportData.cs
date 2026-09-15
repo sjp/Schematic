@@ -8,7 +8,7 @@ namespace SJP.Schematic.Reporting.Html.Renderers;
 /// <summary>
 /// The full set of database objects for a single report run, plus the lookups derived from them
 /// (<see cref="ReferencedObjectTargets"/>, <see cref="SynonymTargets"/>,
-/// <see cref="ResolvedSchemas"/>). Renderers receive this as a
+/// <see cref="UserDefinedTypeTargets"/>, <see cref="ResolvedSchemas"/>). Renderers receive this as a
 /// <see cref="IDataRenderer.RenderAsync"/> parameter rather than via their constructor, so a single
 /// renderer instance can be reused across calls and tested without rebuilding it per case.
 /// </summary>
@@ -28,6 +28,7 @@ internal sealed class ReportData
         string? databaseVersion,
         ReferencedObjectTargets referencedObjectTargets,
         SynonymTargets synonymTargets,
+        UserDefinedTypeTargets userDefinedTypeTargets,
         IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics
     )
     {
@@ -42,6 +43,7 @@ internal sealed class ReportData
         DatabaseVersion = databaseVersion;
         ReferencedObjectTargets = referencedObjectTargets ?? throw new ArgumentNullException(nameof(referencedObjectTargets));
         SynonymTargets = synonymTargets ?? throw new ArgumentNullException(nameof(synonymTargets));
+        UserDefinedTypeTargets = userDefinedTypeTargets ?? throw new ArgumentNullException(nameof(userDefinedTypeTargets));
         TableStatistics = tableStatistics ?? throw new ArgumentNullException(nameof(tableStatistics));
 
         // Resolving the schemas walks every object in the report, and four renderers need the same
@@ -71,6 +73,12 @@ internal sealed class ReportData
     public ReferencedObjectTargets ReferencedObjectTargets { get; }
 
     public SynonymTargets SynonymTargets { get; }
+
+    /// <summary>
+    /// The routes of the report's user-defined types, keyed by name, so that every page showing a
+    /// declared type can link it to the type's own page.
+    /// </summary>
+    public UserDefinedTypeTargets UserDefinedTypeTargets { get; }
 
     /// <summary>
     /// The statistics the database records for its tables, keyed by table name. Empty when no

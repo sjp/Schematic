@@ -17,7 +17,7 @@ internal sealed class SequencesRenderer : IDataRenderer
 
         var mapper = new MainModelMapper();
 
-        var sequenceViewModels = data.Sequences.Select(mapper.Map).ToList();
+        var sequenceViewModels = data.Sequences.Select(s => mapper.Map(s, data.UserDefinedTypeTargets)).ToList();
         var sequencesVm = new Sequences(sequenceViewModels);
 
         var outputFile = new FileInfo(Path.Combine(context.ExportDirectory.FullName, "data", "sequences.json"));

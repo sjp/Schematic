@@ -9,6 +9,7 @@ import { IconTooltip } from "@/components/IconTooltip";
 import { IndexStatus } from "@/components/IndexStatus";
 import { LintFindings } from "@/components/LintFindings";
 import { RelationshipDiagram } from "@/components/RelationshipDiagram";
+import { TypeLink } from "@/components/TypeLink";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -185,7 +186,11 @@ export function TableDetailPage() {
           </span>
         ),
       },
-      { accessorKey: "type", header: "Type" },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => <TypeLink type={row.original.type} typeUrl={row.original.typeUrl} />,
+      },
       {
         accessorKey: "isNullable",
         header: "Nullable",

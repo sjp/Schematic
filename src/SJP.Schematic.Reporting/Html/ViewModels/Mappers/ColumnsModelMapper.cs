@@ -8,9 +8,16 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class ColumnsModelMapper
 {
-    public IEnumerable<Columns.ColumnSummary> Map(IRelationalDatabaseTable table)
+    /// <summary>
+    /// Maps a table's columns to rows of the columns summary list.
+    /// </summary>
+    /// <param name="table">The table whose columns are listed.</param>
+    /// <param name="userDefinedTypeTargets">Resolves a column's declared type to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public IEnumerable<Columns.ColumnSummary> Map(IRelationalDatabaseTable table, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         var keyColumns = table.GetKeyColumns();
 
@@ -28,6 +35,7 @@ internal sealed class ColumnsModelMapper
                 i + 1,
                 columnName,
                 column.Type.Definition,
+                userDefinedTypeTargets.GetTypeUrl(column.Type),
                 column.IsNullable,
                 column.DefaultValue,
                 keyColumns.PrimaryKeyColumns.Contains(columnName),
@@ -37,9 +45,16 @@ internal sealed class ColumnsModelMapper
         }).ToList();
     }
 
-    public IEnumerable<Columns.ColumnSummary> Map(IDatabaseView view)
+    /// <summary>
+    /// Maps a view's columns to rows of the columns summary list.
+    /// </summary>
+    /// <param name="view">The view whose columns are listed.</param>
+    /// <param name="userDefinedTypeTargets">Resolves a column's declared type to the page of the user-defined type it names.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="view"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public IEnumerable<Columns.ColumnSummary> Map(IDatabaseView view, UserDefinedTypeTargets userDefinedTypeTargets)
     {
         ArgumentNullException.ThrowIfNull(view);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
 
         var columns = view.Columns.ToList();
         var viewUrl = UrlRouter.GetViewUrl(view.Name);
@@ -52,6 +67,7 @@ internal sealed class ColumnsModelMapper
                 i + 1,
                 c.Name.LocalName,
                 c.Type.Definition,
+                userDefinedTypeTargets.GetTypeUrl(c.Type),
                 c.IsNullable,
                 Option<string>.None,
                 false,

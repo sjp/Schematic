@@ -20,7 +20,7 @@ internal sealed class RoutineRenderer : IDataRenderer
         return RenderTaskRunner.RunAllAsync(
             data.Routines,
             static r => $"routine '{r.Name.ToVisibleName()}'",
-            (routine, ct) => RenderRoutineAsync(routine, mapper, data.ReferencedObjectTargets, context, dataDirectory, ct),
+            (routine, ct) => RenderRoutineAsync(routine, mapper, data.ReferencedObjectTargets, data.UserDefinedTypeTargets, context, dataDirectory, ct),
             cancellationToken);
     }
 
@@ -28,11 +28,12 @@ internal sealed class RoutineRenderer : IDataRenderer
         IDatabaseRoutine routine,
         RoutineModelMapper mapper,
         ReferencedObjectTargets referencedObjectTargets,
+        UserDefinedTypeTargets userDefinedTypeTargets,
         RenderContext context,
         DirectoryInfo dataDirectory,
         CancellationToken cancellationToken)
     {
-        var viewModel = mapper.Map(routine, referencedObjectTargets);
+        var viewModel = mapper.Map(routine, referencedObjectTargets, userDefinedTypeTargets);
 
         var safeKey = routine.Name.ToSafeKey();
         var outputFile = new FileInfo(Path.Combine(dataDirectory.FullName, safeKey + ".json"));

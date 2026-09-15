@@ -4,6 +4,7 @@ import { Check, Minus } from "lucide-react";
 import { useMemo } from "react";
 
 import { DataTable } from "@/components/DataTable";
+import { TypeLink } from "@/components/TypeLink";
 import {
   Table,
   TableBody,
@@ -64,7 +65,11 @@ export function UserDefinedTypeDetailPage() {
         header: "Name",
         cell: ({ row }) => <span className="font-medium">{row.original.attributeName}</span>,
       },
-      { accessorKey: "type", header: "Type" },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => <TypeLink type={row.original.type} typeUrl={row.original.typeUrl} />,
+      },
       {
         accessorKey: "isNullable",
         header: "Nullable",
@@ -113,7 +118,15 @@ export function UserDefinedTypeDetailPage() {
         <Property label="Kind" value={data.kind || "—"} />
         <Property
           label="Base Type"
-          value={data.baseType ? <code className="text-xs">{data.baseType}</code> : "—"}
+          value={
+            data.baseType ? (
+              <code className="text-xs">
+                <TypeLink type={data.baseType} typeUrl={data.baseTypeUrl} />
+              </code>
+            ) : (
+              "—"
+            )
+          }
         />
         <Property label="Nullable" value={data.isNullable ? "Yes" : "No"} />
         <Property
