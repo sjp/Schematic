@@ -348,4 +348,31 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(foreignKey.SetNullColumns, Is.Empty);
         }
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenForeignKeyToTableWithNameDifferingOnlyInCaseFromAnother_ResolvesReferencedTable()
+    {
+        var table = await GetTableAsync("case_twin_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("CaseTwinParent"));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_case_twin_mixed"));
+        }
+    }
+
+    [Test]
+    public async Task GetAllTables_WhenGivenForeignKeyToTableWithNameDifferingOnlyInCaseFromAnother_ResolvesReferencedTable()
+    {
+        var tables = await GetAllTables();
+        var table = tables.Single(static t => t.Name.LocalName == "case_twin_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("CaseTwinParent"));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_case_twin_mixed"));
+        }
+    }
 }

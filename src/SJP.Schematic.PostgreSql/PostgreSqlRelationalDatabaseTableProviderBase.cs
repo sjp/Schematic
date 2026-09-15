@@ -74,8 +74,13 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A token that cancels every query the cache has started. Pass the token of the operation that owns the cache, since the cached queries are shared by every part of that operation.</param>
     /// <returns>A query cache.</returns>
+    /// <remarks>
+    /// Table names in the cache are matched exactly, without applying the identifier resolution strategy, because
+    /// foreign-key loading looks them up using names read from the catalog. Case-folding a catalog name could match
+    /// a different table whose name differs only in case.
+    /// </remarks>
     protected PostgreSqlTableQueryCache CreateQueryCache(CancellationToken cancellationToken) => new(
-        new AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache>((tableName, _, token) => GetResolvedTableName(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, Option<Identifier>, PostgreSqlTableQueryCache>((tableName, _, token) => GetResolvedTableNameStrict(tableName, token).ToOption(), cancellationToken),
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, PostgreSqlTableQueryCache>((tableName, _, token) => LoadColumnsAsync(tableName, token), cancellationToken),
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, PostgreSqlTableQueryCache>(async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)), cancellationToken),
         new AsyncCache<Identifier, TableKeys, PostgreSqlTableQueryCache>(LoadKeysAsync, cancellationToken),
@@ -91,11 +96,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryCache = CreateQueryCache(cancellationToken);
-
-        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName)
-            .ToListAsync(cancellationToken);
+        var tableNames = await LoadTableNamesAsync(queryCache, cancellationToken);
 
         var tables = tableNames.SelectOrderedPrefetchAsync(
             (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
@@ -114,16 +115,27 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
         var queryCache = CreateQueryCache(cancellationToken);
-
-        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName)
-            .ToListAsync(cancellationToken);
+        var tableNames = await LoadTableNamesAsync(queryCache, cancellationToken);
 
         return await tableNames.SelectBoundedAsync(
             (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
             Math.Max(1, DbConnection.MaxConcurrentQueries),
             cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<Identifier>> LoadTableNamesAsync(PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .ToListAsync(cancellationToken);
+
+        // These names come straight from the catalog, so foreign keys between the tables being loaded
+        // can find each other's names without querying for them again.
+        foreach (var tableName in tableNames)
+            queryCache.TryAddTableName(GetTableNameCacheKey(tableName), tableName);
+
+        return tableNames;
     }
 
     /// <summary>
@@ -198,9 +210,26 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         ArgumentNullException.ThrowIfNull(queryCache);
 
         var candidateTableName = QualifyTableName(tableName);
-        return GetResolvedTableName(candidateTableName, cancellationToken)
+        return ResolveTableNameAsync(candidateTableName, queryCache, cancellationToken)
             .MapAsync(name => LoadTableAsyncCore(name, queryCache, cancellationToken));
     }
+
+    private async Task<Option<Identifier>> ResolveTableNameAsync(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        // Each candidate is looked up exactly, through the query cache and under the same key that foreign-key
+        // loading uses. When the table references itself, that foreign key's lookup of this table's name then
+        // finds the result instead of querying for it again.
+        foreach (var candidateTableName in IdentifierResolver.GetResolutionOrder(tableName))
+        {
+            var resolvedTableName = await queryCache.GetTableNameAsync(GetTableNameCacheKey(QualifyTableName(candidateTableName)), cancellationToken);
+            if (resolvedTableName.IsSome)
+                return resolvedTableName;
+        }
+
+        return Option<Identifier>.None;
+    }
+
+    private static Identifier GetTableNameCacheKey(Identifier tableName) => Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName);
 
     private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, PostgreSqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
@@ -1137,6 +1166,21 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Adds a table name that is already known to exist, so that looking up <paramref name="tableName"/> does not query the database.
+        /// </summary>
+        /// <param name="tableName">A table name, in the form it will be looked up with.</param>
+        /// <param name="resolvedTableName">The resolved name of the table.</param>
+        /// <returns><see langword="true" /> if the name was added; <see langword="false" /> if <paramref name="tableName"/> is already cached.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="resolvedTableName"/> is <see langword="null" />.</exception>
+        public bool TryAddTableName(Identifier tableName, Identifier resolvedTableName)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+            ArgumentNullException.ThrowIfNull(resolvedTableName);
+
+            return _tableNames.TryAdd(tableName, Option<Identifier>.Some(resolvedTableName));
         }
 
         /// <summary>

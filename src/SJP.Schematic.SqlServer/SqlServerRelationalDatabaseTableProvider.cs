@@ -79,11 +79,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     public async IAsyncEnumerable<IRelationalDatabaseTable> EnumerateAllTables([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var queryCache = CreateQueryCache(cancellationToken);
-
-        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName)
-            .ToListAsync(cancellationToken);
+        var tableNames = await LoadTableNamesAsync(queryCache, cancellationToken);
 
         var tables = tableNames.SelectOrderedPrefetchAsync(
             (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
@@ -102,16 +98,27 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     public async Task<IReadOnlyCollection<IRelationalDatabaseTable>> GetAllTables(CancellationToken cancellationToken = default)
     {
         var queryCache = CreateQueryCache(cancellationToken);
-
-        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
-            .Select(QualifyTableName)
-            .ToListAsync(cancellationToken);
+        var tableNames = await LoadTableNamesAsync(queryCache, cancellationToken);
 
         return await tableNames.SelectBoundedAsync(
             (tableName, ct) => LoadTableAsyncCore(tableName, queryCache, ct),
             Math.Max(1, DbConnection.MaxConcurrentQueries),
             cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<Identifier>> LoadTableNamesAsync(SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var tableNames = await DbConnection.QueryEnumerableAsync<GetAllTableNames.Result>(GetAllTableNames.Sql, cancellationToken)
+            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.TableName))
+            .Select(QualifyTableName)
+            .ToListAsync(cancellationToken);
+
+        // These names come straight from the catalog, so foreign keys between the tables being loaded
+        // can find each other's names without querying for them again.
+        foreach (var tableName in tableNames)
+            queryCache.TryAddTableName(GetTableNameCacheKey(tableName), tableName);
+
+        return tableNames;
     }
 
     /// <summary>
@@ -166,9 +173,21 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         ArgumentNullException.ThrowIfNull(queryCache);
 
         var candidateTableName = QualifyTableName(tableName);
-        return GetResolvedTableName(candidateTableName, cancellationToken)
+        return ResolveTableNameAsync(candidateTableName, queryCache, cancellationToken)
             .MapAsync(name => LoadTableAsyncCore(name, queryCache, cancellationToken));
     }
+
+    private static async Task<Option<Identifier>> ResolveTableNameAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        // The name is resolved through the query cache, under the same key that foreign-key loading uses, so that
+        // a self-referencing table or its child tables do not query for this table's name again. The collation may
+        // match a name that differs in case from the one requested, so the name as stored in the catalog is cached too.
+        var resolvedTableName = await queryCache.GetTableNameAsync(GetTableNameCacheKey(tableName), cancellationToken);
+        resolvedTableName.IfSome(name => queryCache.TryAddTableName(GetTableNameCacheKey(name), name));
+        return resolvedTableName;
+    }
+
+    private static Identifier GetTableNameCacheKey(Identifier tableName) => Identifier.CreateQualifiedIdentifier(tableName.Schema, tableName.LocalName);
 
     private async Task<IRelationalDatabaseTable> LoadTableAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
@@ -955,6 +974,21 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _tableNames.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Adds a table name that is already known to exist, so that looking up <paramref name="tableName"/> does not query the database.
+        /// </summary>
+        /// <param name="tableName">A table name, in the form it will be looked up with.</param>
+        /// <param name="resolvedTableName">The resolved name of the table.</param>
+        /// <returns><see langword="true" /> if the name was added; <see langword="false" /> if <paramref name="tableName"/> is already cached.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="resolvedTableName"/> is <see langword="null" />.</exception>
+        public bool TryAddTableName(Identifier tableName, Identifier resolvedTableName)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+            ArgumentNullException.ThrowIfNull(resolvedTableName);
+
+            return _tableNames.TryAdd(tableName, Option<Identifier>.Some(resolvedTableName));
         }
 
         /// <summary>

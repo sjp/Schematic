@@ -330,6 +330,16 @@ create table child_key_round_trip_child (
     parent_id int references child_key_round_trip_parent (id),
     other_id int references child_key_round_trip_other (id)
 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table self_ref_round_trip ( id int primary key, parent_id int references self_ref_round_trip (id) )", TestContext.CurrentContext.CancellationToken);
+
+        // Two tables whose names differ only in case, so that a foreign key to one of them must not be matched to the other.
+        await DbConnection.ExecuteAsync(@"create table ""CaseTwinParent"" ( id int, constraint pk_case_twin_mixed primary key (id) )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table casetwinparent ( id int, constraint pk_case_twin_lower primary key (id) )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table case_twin_child (
+    parent_id int,
+    constraint fk_case_twin_child foreign key (parent_id) references ""CaseTwinParent"" (id)
+)", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
@@ -444,6 +454,10 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table child_key_round_trip_child",
         "drop table child_key_round_trip_other",
         "drop table child_key_round_trip_parent",
+        "drop table self_ref_round_trip",
+        "drop table case_twin_child",
+        @"drop table ""CaseTwinParent""",
+        "drop table casetwinparent",
         "drop table trigger_test_table_1",
         "drop table trigger_test_table_2",
         "drop function test_trigger_fn()"

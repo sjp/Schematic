@@ -93,6 +93,24 @@ public class AsyncCache<TKey, TValue, TCache>
         ).Task.WaitAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Adds an already known value for a key, so that later requests for that key do not run the factory.
+    /// </summary>
+    /// <param name="key">The key to use as a cache key.</param>
+    /// <param name="value">The value to cache for <paramref name="key"/>.</param>
+    /// <returns><see langword="true" /> if the value was added; <see langword="false" /> if the key is already present, in which case the cache is left unchanged.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="key"/> is <see langword="null" />.</exception>
+    /// <remarks>
+    /// A key that is already present keeps its existing entry, including a factory invocation that is still in
+    /// progress or one that will later fail and be retried.
+    /// </remarks>
+    public bool TryAdd(TKey key, TValue value)
+    {
+        ArgumentNullException.ThrowIfNull(key);
+
+        return _cache.TryAdd(key, new AsyncLazy<TValue>(() => Task.FromResult(value), AsyncLazyFlags.ExecuteOnCallingThread));
+    }
+
     private readonly ConcurrentDictionary<TKey, AsyncLazy<TValue>> _cache = new();
     private readonly Func<TKey, TCache, CancellationToken, Task<TValue>> _query;
     private readonly CancellationToken _lifetimeToken;

@@ -221,4 +221,65 @@ internal static class AsyncCacheTests
             Assert.That(counter, Is.EqualTo(2));
         }
     }
+
+    [Test]
+    public static void TryAdd_GivenNullKey_ThrowsArgumentNullException()
+    {
+        var cache = new AsyncCache<object, object, object>((_, __, ___) => Task.FromResult(new object()));
+
+        Assert.That(() => cache.TryAdd(null, new object()), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static async Task TryAdd_GivenNewKey_ReturnsTrueAndGetByKeyAsyncReturnsValueWithoutInvokingFactory()
+    {
+        var counter = 0;
+        var cache = new AsyncCache<string, string, string>((_, __, ___) =>
+        {
+            counter++;
+            return Task.FromResult("factory");
+        });
+
+        var added = cache.TryAdd("a", "added");
+        var result = await cache.GetByKeyAsync("a", "cache_ignore");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(added, Is.True);
+            Assert.That(result, Is.EqualTo("added"));
+            Assert.That(counter, Is.Zero);
+        }
+    }
+
+    [Test]
+    public static async Task TryAdd_GivenKeyAlreadyRetrieved_ReturnsFalseAndKeepsExistingValue()
+    {
+        var cache = new AsyncCache<string, string, string>((_, __, ___) => Task.FromResult("factory"));
+
+        await cache.GetByKeyAsync("a", "cache_ignore");
+        var added = cache.TryAdd("a", "added");
+        var result = await cache.GetByKeyAsync("a", "cache_ignore");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(added, Is.False);
+            Assert.That(result, Is.EqualTo("factory"));
+        }
+    }
+
+    [Test]
+    public static async Task TryAdd_GivenKeyAlreadyAdded_ReturnsFalseAndKeepsFirstValue()
+    {
+        var cache = new AsyncCache<string, string, string>((_, __, ___) => Task.FromResult("factory"));
+
+        cache.TryAdd("a", "first");
+        var added = cache.TryAdd("a", "second");
+        var result = await cache.GetByKeyAsync("a", "cache_ignore");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(added, Is.False);
+            Assert.That(result, Is.EqualTo("first"));
+        }
+    }
 }
