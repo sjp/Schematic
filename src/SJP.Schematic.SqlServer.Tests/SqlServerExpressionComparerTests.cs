@@ -352,4 +352,29 @@ internal static class SqlServerExpressionComparerTests
 
         Assert.That(equals, Is.True);
     }
+
+    [TestCase("(((1)))", "1", false)]
+    [TestCase("(((1)))", "((1))", false)]
+    [TestCase("x + ((1))", "x + 1", false)]
+    [TestCase("x + ((1))", "x + (1)", false)]
+    [TestCase("((1)) + ((2))", "1) + (2", true)]
+    [TestCase("((1)) + ((2))", "(1) + (2)", true)]
+    [TestCase("((1)) + ((2))", "1 + 2", false)]
+    [TestCase("(a) + (b)", "a) + (b", true)]
+    [TestCase("(a) + (b)", "a + b", false)]
+    [TestCase("x + (y)", "x + y", false)]
+    [TestCase("(1) + (2) * (3)", "1 + 2 * 3", false)]
+    [TestCase("x + (1) + (2) * (3)", "x + 1 + 2 * 3", true)]
+    [TestCase("()", "", true)]
+    [TestCase("(", "(", true)]
+    public static void Equals_GivenParenWrappedExpressions_UnwrapsOuterParensAndSingleNumberParensOnce(string inputX, string inputY, bool expected)
+    {
+        var comparer = new SqlServerExpressionComparer();
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(comparer.Equals(inputX, inputY), Is.EqualTo(expected));
+            Assert.That(comparer.Equals(inputY, inputX), Is.EqualTo(expected));
+        });
+    }
 }

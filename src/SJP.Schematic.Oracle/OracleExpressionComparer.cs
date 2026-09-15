@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Antlr4.Runtime;
-using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Oracle.Parsing.Antlr;
 
 namespace SJP.Schematic.Oracle;
@@ -36,7 +35,7 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
     /// <exception cref="ArgumentException"><paramref name="x"/> or <paramref name="y"/> are expressions that could not be parsed as a SQL expression.</exception>
     public bool Equals(string? x, string? y)
     {
-        if (x is null && y is null)
+        if (ReferenceEquals(x, y))
             return true;
         if (x is null || y is null)
             return false;
@@ -90,40 +89,39 @@ public sealed class OracleExpressionComparer : IEqualityComparer<string>
         return comparer.Equals(x.Text, y.Text);
     }
 
-    private static IReadOnlyList<IToken> StripWrappingParens(IReadOnlyList<IToken> tokens)
+    /// <summary>
+    /// Removes a leading '(' and trailing ')' pair, then unwraps every number enclosed directly in
+    /// parentheses, e.g. <c>(1)</c>.
+    /// </summary>
+    /// <remarks>
+    /// The outer pair is removed whenever the first and last tokens are parentheses, whether or not
+    /// they match each other. Each parenthesised number is unwrapped once only, so <c>x + ((1))</c>
+    /// becomes <c>x + (1)</c>, not <c>x + 1</c>.
+    /// </remarks>
+    private static List<IToken> StripWrappingParens(IReadOnlyList<IToken> tokens)
     {
-        if (tokens.Empty())
-            return [];
-
-        var result = new List<IToken>(tokens);
-
-        var lastIndex = result.Count - 1;
-        if (result[0].Type == PlSqlLexer.LEFT_PAREN && result[lastIndex].Type == PlSqlLexer.RIGHT_PAREN)
+        var start = 0;
+        var end = tokens.Count;
+        if (end >= 2 && tokens[0].Type == PlSqlLexer.LEFT_PAREN && tokens[end - 1].Type == PlSqlLexer.RIGHT_PAREN)
         {
-            result.RemoveAt(lastIndex);
-            result.RemoveAt(0);
+            start++;
+            end--;
         }
 
-        for (var i = 0; i < result.Count; i++)
+        var result = new List<IToken>(end - start);
+        for (var i = start; i < end; i++)
         {
-            if (!IsNumber(result[i].Type))
-                continue;
-
-            // can't unwrap first char, no prefix to strip
-            // same applies to last char
-            if (i == 0 || i == (result.Count - 1))
-                continue;
-
-            var prevToken = result[i - 1];
-            var nextToken = result[i + 1];
-            if (prevToken.Type == PlSqlLexer.LEFT_PAREN
-                && nextToken.Type == PlSqlLexer.RIGHT_PAREN)
+            if (tokens[i].Type == PlSqlLexer.LEFT_PAREN
+                && i + 2 < end
+                && IsNumber(tokens[i + 1].Type)
+                && tokens[i + 2].Type == PlSqlLexer.RIGHT_PAREN)
             {
-                // remove next first
-                result.RemoveAt(i + 1);
-                result.RemoveAt(i - 1);
-                i--; // decrement because we've just removed a prefix
+                result.Add(tokens[i + 1]);
+                i += 2;
+                continue;
             }
+
+            result.Add(tokens[i]);
         }
 
         return result;

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
-using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -44,11 +42,11 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
         var xTokens = ScriptDomTokenizer.Tokenize(x, nameof(x));
         var yTokens = ScriptDomTokenizer.Tokenize(y, nameof(y));
 
-        var xWhitespaceRemoved = xTokens.Where(t => !IsWhitespace(t)).ToList();
-        var yWhitespaceRemoved = yTokens.Where(t => !IsWhitespace(t)).ToList();
+        var xCleanedTokens = RemoveWhitespace(xTokens);
+        var yCleanedTokens = RemoveWhitespace(yTokens);
 
-        var xCleanedTokens = StripWrappingParens(xWhitespaceRemoved);
-        var yCleanedTokens = StripWrappingParens(yWhitespaceRemoved);
+        StripWrappingParens(xCleanedTokens);
+        StripWrappingParens(yCleanedTokens);
 
         if (xCleanedTokens.Count != yCleanedTokens.Count)
             return false;
@@ -93,47 +91,55 @@ public sealed class SqlServerExpressionComparer : IEqualityComparer<string>
         || token.TokenType == TSqlTokenType.Numeric
         || token.TokenType == TSqlTokenType.Double;
 
-    private static IReadOnlyList<TSqlParserToken> StripWrappingParens(IReadOnlyList<TSqlParserToken> tokens)
+    private static List<TSqlParserToken> RemoveWhitespace(IList<TSqlParserToken> tokens)
     {
-        ArgumentNullException.ThrowIfNull(tokens);
-
-        // copy to mutable result set
-        if (tokens.Empty())
-            return [];
-
-        var result = new List<TSqlParserToken>();
-        result.AddRange(tokens);
-
-        var lastIndex = tokens.Count - 1;
-        if (result[0].TokenType == TSqlTokenType.LeftParenthesis && result[lastIndex].TokenType == TSqlTokenType.RightParenthesis)
+        var result = new List<TSqlParserToken>(tokens.Count);
+        foreach (var token in tokens)
         {
-            result.RemoveAt(lastIndex);
-            result.RemoveAt(0);
-        }
-
-        for (var i = 0; i < result.Count; i++)
-        {
-            var token = result[i];
-            if (!IsNumeric(token))
-                continue;
-
-            // can't unwrap first char, no prefix to strip
-            // same applies to last char
-            if (i == 0 || i == (result.Count - 1))
-                continue;
-
-            var prevToken = result[i - 1];
-            var nextToken = result[i + 1];
-            if (prevToken.TokenType == TSqlTokenType.LeftParenthesis
-                && nextToken.TokenType == TSqlTokenType.RightParenthesis)
-            {
-                // remove next first
-                result.RemoveAt(i + 1);
-                result.RemoveAt(i - 1);
-                i--; // decrement because we've just removed a prefix
-            }
+            if (!IsWhitespace(token))
+                result.Add(token);
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Removes a leading '(' and trailing ')' pair, then unwraps every number enclosed directly in
+    /// parentheses, e.g. <c>(1)</c>. The tokens are modified in place.
+    /// </summary>
+    /// <remarks>
+    /// The outer pair is removed whenever the first and last tokens are parentheses, whether or not
+    /// they match each other. Each parenthesised number is unwrapped once only, so <c>x + ((1))</c>
+    /// becomes <c>x + (1)</c>, not <c>x + 1</c>.
+    /// </remarks>
+    private static void StripWrappingParens(List<TSqlParserToken> tokens)
+    {
+        var count = tokens.Count;
+        var start = 0;
+        var end = count;
+        if (count >= 2 && tokens[0].TokenType == TSqlTokenType.LeftParenthesis && tokens[count - 1].TokenType == TSqlTokenType.RightParenthesis)
+        {
+            start++;
+            end--;
+        }
+
+        // The write position never passes the read position, so tokens still to be read are never overwritten.
+        var write = 0;
+        for (var read = start; read < end; read++)
+        {
+            var token = tokens[read];
+            if (token.TokenType == TSqlTokenType.LeftParenthesis
+                && read + 2 < end
+                && IsNumeric(tokens[read + 1])
+                && tokens[read + 2].TokenType == TSqlTokenType.RightParenthesis)
+            {
+                token = tokens[read + 1];
+                read += 2;
+            }
+
+            tokens[write++] = token;
+        }
+
+        tokens.RemoveRange(write, count - write);
     }
 }
