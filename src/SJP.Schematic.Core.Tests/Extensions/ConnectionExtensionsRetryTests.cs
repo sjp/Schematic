@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using Polly;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Tests.Fakes;
 using SJP.Schematic.Sqlite;
@@ -223,6 +226,42 @@ internal static class ConnectionExtensionsRetryTests
         Assert.That(async () => await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None), Throws.InstanceOf<TimeoutException>());
     }
 
+    [Test]
+    public static async Task QueryAsync_WhenRunManyTimesAgainstOneFactory_ReadsRetryPolicyOnce()
+    {
+        var connectionFactory = new PerQueryFailingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"));
+
+        for (var i = 0; i < 100; i++)
+        {
+            await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None);
+            await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None));
+        }
+
+        Assert.That(connectionFactory.RetryPolicyReadCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public static async Task QueryAsync_WhenManyConcurrentQueriesEachFailTwice_EveryQueryRetriesAndSucceeds()
+    {
+        const int queryCount = 32;
+        const int failuresPerQuery = 2;
+        var connectionFactory = new PerQueryFailingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"));
+
+        var outcomes = await Task.WhenAll(Enumerable.Range(0, queryCount).Select(async _ =>
+        {
+            var failureState = PerQueryFailingConnectionFactory.BeginQuery(failuresPerQuery);
+            var results = await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None);
+
+            return (Results: results, Attempts: failureState.OpenCount);
+        }));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(outcomes.Select(o => o.Results), Is.All.EqualTo(new[] { "first", "second", "third" }));
+            Assert.That(outcomes.Select(o => o.Attempts), Is.All.EqualTo(failuresPerQuery + 1));
+        }
+    }
+
     private static IDbConnectionFactory CreateFaultInjectingConnectionFactory(FaultInjector injector) =>
         new FaultInjectingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"), injector);
 
@@ -239,5 +278,81 @@ internal static class ConnectionExtensionsRetryTests
     private sealed record TestQuery : ISqlQuery<string>
     {
         public required string Test { get; init; }
+    }
+
+    /// <summary>
+    /// A connection factory that counts how often its retry policy is read, and fails the first few connection opens
+    /// of each query independently of any other query running at the same time.
+    /// </summary>
+    private sealed class PerQueryFailingConnectionFactory : IDbConnectionFactory
+    {
+        public PerQueryFailingConnectionFactory(IDbConnectionFactory innerFactory)
+        {
+            _innerFactory = innerFactory ?? throw new ArgumentNullException(nameof(innerFactory));
+        }
+
+        public int RetryPolicyReadCount => Volatile.Read(ref _retryPolicyReadCount);
+
+        /// <summary>
+        /// Sets how many connection opens should fail for queries started from the calling asynchronous flow.
+        /// </summary>
+        public static QueryFailureState BeginQuery(int failureCount)
+        {
+            var state = new QueryFailureState(failureCount);
+            CurrentQuery.Value = state;
+            return state;
+        }
+
+        public DbConnection CreateConnection() => _innerFactory.CreateConnection();
+
+        public DbConnection OpenConnection() => throw new NotSupportedException();
+
+        public Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
+        {
+            var state = CurrentQuery.Value;
+            if (state != null && state.BeginOpen())
+                throw new TimeoutException("A transient failure occurred while opening a connection.");
+
+            return _innerFactory.OpenConnectionAsync(cancellationToken);
+        }
+
+        public bool DisposeConnection => _innerFactory.DisposeConnection;
+
+        public PolicyBuilder RetryPolicy
+        {
+            get
+            {
+                Interlocked.Increment(ref _retryPolicyReadCount);
+                return Policy.Handle<TimeoutException>();
+            }
+        }
+
+        private static readonly AsyncLocal<QueryFailureState> CurrentQuery = new();
+
+        private readonly IDbConnectionFactory _innerFactory;
+        private int _retryPolicyReadCount;
+    }
+
+    private sealed class QueryFailureState
+    {
+        public QueryFailureState(int failureCount)
+        {
+            _remainingFailures = failureCount;
+        }
+
+        public int OpenCount { get; private set; }
+
+        public bool BeginOpen()
+        {
+            OpenCount++;
+
+            if (_remainingFailures == 0)
+                return false;
+
+            _remainingFailures--;
+            return true;
+        }
+
+        private int _remainingFailures;
     }
 }

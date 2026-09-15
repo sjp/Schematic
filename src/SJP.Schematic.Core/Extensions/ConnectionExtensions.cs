@@ -437,12 +437,20 @@ public static class ConnectionExtensions
             : Option<T>.None;
     }
 
-    private static IAsyncPolicy BuildRetryPolicy(IDbConnectionFactory connectionFactory)
-    {
-        return connectionFactory.RetryPolicy.WaitAndRetryAsync(
+    /// <summary>
+    /// Gets the retry policy that wraps every query run against a given factory.
+    /// </summary>
+    /// <remarks>
+    /// Built once per factory instance, from the first value its <see cref="IDbConnectionFactory.RetryPolicy"/> returns.
+    /// Sharing the policy between concurrent queries is safe: each execution enumerates the sleep durations afresh,
+    /// so every query gets its own jittered backoff sequence, and the jitter's random source is synchronized.
+    /// </remarks>
+    private static IAsyncPolicy GetRetryPolicy(IDbConnectionFactory connectionFactory)
+        => RetryPolicies.GetValue(connectionFactory, static factory => factory.RetryPolicy.WaitAndRetryAsync(
             Backoff.DecorrelatedJitterBackoffV2(TimeSpan.FromMilliseconds(100), MaxRetryAttempts)
-        );
-    }
+        ));
+
+    private static readonly ConditionalWeakTable<IDbConnectionFactory, IAsyncPolicy> RetryPolicies = [];
 
     /// <summary>
     /// Gets the semaphore that limits how many queries may run concurrently against a given factory.
@@ -471,7 +479,7 @@ public static class ConnectionExtensions
     /// </remarks>
     private static Task<TResult> ExecuteWithRetryAsync<TResult>(IDbConnectionFactory connectionFactory, Func<DbConnection, Task<TResult>> query, CancellationToken cancellationToken)
     {
-        var retryPolicy = BuildRetryPolicy(connectionFactory);
+        var retryPolicy = GetRetryPolicy(connectionFactory);
         var querySemaphore = GetQuerySemaphore(connectionFactory);
 
         return retryPolicy.ExecuteAsync(async _ =>
@@ -503,7 +511,7 @@ public static class ConnectionExtensions
     /// </remarks>
     private static async IAsyncEnumerable<T> QueryEnumerableWithRetryAsync<T>(IDbConnectionFactory connectionFactory, Func<DbConnection, IAsyncEnumerable<T>> query, [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        var retryPolicy = BuildRetryPolicy(connectionFactory);
+        var retryPolicy = GetRetryPolicy(connectionFactory);
         var (connectionDisposer, enumerator, hasNext) = await retryPolicy.ExecuteAsync(_ => StartEnumerationAsync(connectionFactory, query, cancellationToken), cancellationToken);
 
         await using (connectionDisposer)

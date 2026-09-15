@@ -39,6 +39,10 @@ public interface IDbConnectionFactory
     /// Gets a database command retry policy builder.
     /// </summary>
     /// <value>A retry policy builder.</value>
+    /// <remarks>
+    /// Queries run through this factory build their retry policy from this builder once, the first time the factory is
+    /// used, and reuse that policy for every later query. A value that changes after that point has no effect.
+    /// </remarks>
     PolicyBuilder RetryPolicy { get; }
 
     /// <summary>
