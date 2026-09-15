@@ -23,6 +23,8 @@ internal static class GetTableKeys
         public required string ColumnName { get; init; }
     }
 
+    // MariaDB fills information_schema tables by opening each table unless the schema and table name are
+    // constants, so key_column_usage is filtered on the table itself instead of through the join.
     internal const string Sql = $"""
 
 select
@@ -31,10 +33,10 @@ select
     kc.column_name as `{nameof(Result.ColumnName)}`
 from information_schema.table_constraints tc
 inner join information_schema.key_column_usage kc
-    on kc.constraint_schema = tc.constraint_schema
+    on kc.table_schema = @{nameof(Query.SchemaName)}
+    and kc.table_name = @{nameof(Query.TableName)}
+    and kc.constraint_schema = tc.constraint_schema
     and kc.constraint_name = tc.constraint_name
-    and kc.table_schema = tc.table_schema
-    and kc.table_name = tc.table_name
 where tc.table_schema = @{nameof(Query.SchemaName)} and tc.table_name = @{nameof(Query.TableName)}
     and tc.constraint_type in ('PRIMARY KEY', 'UNIQUE')
 order by kc.ordinal_position

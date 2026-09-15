@@ -32,6 +32,10 @@ internal static class GetTableParentKeys
         public required string UpdateAction { get; init; }
     }
 
+    // MariaDB fills information_schema tables by opening each table unless the schema and table name are
+    // constants, so key_column_usage is filtered on the table itself instead of through the join. A primary
+    // key is always named PRIMARY and no other index may use that name, so the parent key type comes from the
+    // referenced constraint's name. Joining table_constraints on the parent table would open every table.
     internal const string Sql = $"""
 
 select
@@ -41,20 +45,17 @@ select
     rc.unique_constraint_name as `{nameof(Result.ParentKeyName)}`,
     kc.column_name as `{nameof(Result.ColumnName)}`,
     kc.ordinal_position as `{nameof(Result.ConstraintColumnId)}`,
-    ptc.constraint_type as `{nameof(Result.ParentKeyType)}`,
+    case when rc.unique_constraint_name = 'PRIMARY' then 'PRIMARY KEY' else 'UNIQUE' end as `{nameof(Result.ParentKeyType)}`,
     rc.delete_rule as `{nameof(Result.DeleteAction)}`,
     rc.update_rule as `{nameof(Result.UpdateAction)}`
 from information_schema.referential_constraints rc
 inner join information_schema.key_column_usage kc
-    on kc.constraint_schema = rc.constraint_schema
+    on kc.table_schema = @{nameof(Query.SchemaName)}
+    and kc.table_name = @{nameof(Query.TableName)}
+    and kc.constraint_schema = rc.constraint_schema
     and kc.constraint_name = rc.constraint_name
-    and kc.table_schema = rc.constraint_schema
-    and kc.table_name = rc.table_name
-inner join information_schema.table_constraints ptc
-    on ptc.table_schema = rc.unique_constraint_schema
-    and ptc.table_name = rc.referenced_table_name
-    and ptc.constraint_name = rc.unique_constraint_name
 where rc.constraint_schema = @{nameof(Query.SchemaName)} and rc.table_name = @{nameof(Query.TableName)}
+    and rc.unique_constraint_name is not null
 order by rc.constraint_name, kc.ordinal_position
 """;
 }

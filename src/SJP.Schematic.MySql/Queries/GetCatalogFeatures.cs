@@ -20,6 +20,12 @@ internal static class GetCatalogFeatures
         public required bool HasConstraintEnforcedColumn { get; init; }
 
         /// <summary>
+        /// Whether <c>information_schema.check_constraints</c> has a <c>table_name</c> column. MariaDB has one,
+        /// because it names check constraints per table rather than per schema; MySQL does not.
+        /// </summary>
+        public required bool HasCheckConstraintTableNameColumn { get; init; }
+
+        /// <summary>
         /// Whether <c>information_schema.statistics</c> has an <c>expression</c> column. MySQL added it alongside
         /// functional key parts in 8.0.13; MariaDB has no equivalent syntax and reports index visibility
         /// through an inverted <c>ignored</c> column instead of <c>is_visible</c>.
@@ -38,6 +44,10 @@ select
         select 1 from information_schema.columns
         where table_schema = 'information_schema' and table_name = 'TABLE_CONSTRAINTS' and column_name = 'ENFORCED'
     ) as `{nameof(Result.HasConstraintEnforcedColumn)}`,
+    exists (
+        select 1 from information_schema.columns
+        where table_schema = 'information_schema' and table_name = 'CHECK_CONSTRAINTS' and column_name = 'TABLE_NAME'
+    ) as `{nameof(Result.HasCheckConstraintTableNameColumn)}`,
     exists (
         select 1 from information_schema.columns
         where table_schema = 'information_schema' and table_name = 'STATISTICS' and column_name = 'EXPRESSION'

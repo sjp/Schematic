@@ -25,12 +25,25 @@ partition by range columns (part_key) (
     partition p0 values less than (100),
     partition p1 values less than (maxvalue)
 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table table_kind_subpartitioned_1 (
+    part_key int not null,
+    sub_key int not null,
+    primary key (part_key, sub_key)
+)
+partition by range (part_key)
+subpartition by hash (sub_key)
+subpartitions 2 (
+    partition p0 values less than (100),
+    partition p1 values less than maxvalue
+)", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public Task CleanUp() => DropTablesAsync(
         "table_kind_regular_1",
-        "table_kind_partitioned_1"
+        "table_kind_partitioned_1",
+        "table_kind_subpartitioned_1"
     );
 
     [Test]
@@ -61,6 +74,20 @@ partition by range columns (part_key) (
             Assert.That(partitioning.Strategy, Is.EqualTo("RANGE COLUMNS"));
             Assert.That(partitioning.Columns.Select(static c => c.Name.LocalName), Is.EqualTo(new[] { "part_key" }));
             Assert.That(partitioning.Partitions.Select(static p => p.LocalName), Is.EqualTo(new[] { "p0", "p1" }));
+        }
+    }
+
+    [Test]
+    public async Task GetTable_GivenSubpartitionedTable_ReturnsPartitionParentWithItsPartitioningStrategy()
+    {
+        var table = await TableProvider.GetTable("table_kind_subpartitioned_1").UnwrapSomeAsync();
+
+        var partitioning = table.Partitioning.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Kind, Is.EqualTo(TableKind.PartitionParent));
+            Assert.That(partitioning.Strategy, Is.EqualTo("RANGE"));
         }
     }
 }

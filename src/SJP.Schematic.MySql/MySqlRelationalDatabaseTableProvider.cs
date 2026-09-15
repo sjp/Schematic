@@ -691,7 +691,12 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (!features.HasCheckConstraints)
             return [];
 
-        var sql = features.HasConstraintEnforcedColumn ? GetTableCheckConstraints.Sql : GetTableCheckConstraints.SqlWithoutEnforced;
+        var sql = (features.HasConstraintEnforcedColumn, features.HasCheckConstraintTableNameColumn) switch
+        {
+            (true, _) => GetTableCheckConstraints.Sql,
+            (false, true) => GetTableCheckConstraints.SqlByTableName,
+            (false, false) => GetTableCheckConstraints.SqlWithoutEnforced,
+        };
 
         return await DbConnection.QueryEnumerableAsync(
                 sql,
