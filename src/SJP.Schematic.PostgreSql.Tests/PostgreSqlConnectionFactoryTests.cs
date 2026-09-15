@@ -109,6 +109,60 @@ internal static class PostgreSqlConnectionFactoryTests
         }
     }
 
+    [Test]
+    public static void Ctor_GivenNoAutoPrepareSettings_EnablesAutoPrepare()
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Host=127.0.0.1;");
+
+        var dataSourceSettings = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dataSourceSettings.MaxAutoPrepare, Is.EqualTo(32));
+            Assert.That(dataSourceSettings.AutoPrepareMinUsages, Is.EqualTo(2));
+        }
+    }
+
+    [TestCase("Max Auto Prepare=0;")]
+    [TestCase("MaxAutoPrepare=0;")]
+    [TestCase("max auto prepare=0;")]
+    public static void Ctor_GivenMaxAutoPrepareDisabled_KeepsAutoPrepareDisabled(string maxAutoPrepareSetting)
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Host=127.0.0.1;" + maxAutoPrepareSetting);
+
+        var dataSourceSettings = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString);
+
+        Assert.That(dataSourceSettings.MaxAutoPrepare, Is.Zero);
+    }
+
+    [Test]
+    public static void Ctor_GivenAutoPrepareSettings_KeepsSettingsOnDataSource()
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Host=127.0.0.1;Max Auto Prepare=100;AutoPrepareMinUsages=7;");
+
+        var dataSourceSettings = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dataSourceSettings.MaxAutoPrepare, Is.EqualTo(100));
+            Assert.That(dataSourceSettings.AutoPrepareMinUsages, Is.EqualTo(7));
+        }
+    }
+
+    [Test]
+    public static void Ctor_GivenOnlyAutoPrepareMinUsages_KeepsMinUsagesAndEnablesAutoPrepare()
+    {
+        using var factory = new DataSourceExposingConnectionFactory("Host=127.0.0.1;Auto Prepare Min Usages=9;");
+
+        var dataSourceSettings = new Npgsql.NpgsqlConnectionStringBuilder(factory.DataSourceConnectionString);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dataSourceSettings.MaxAutoPrepare, Is.EqualTo(32));
+            Assert.That(dataSourceSettings.AutoPrepareMinUsages, Is.EqualTo(9));
+        }
+    }
+
     private sealed class DataSourceExposingConnectionFactory(string connectionString) : PostgreSqlConnectionFactory(connectionString)
     {
         public string DataSourceConnectionString => DataSource.ConnectionString;
