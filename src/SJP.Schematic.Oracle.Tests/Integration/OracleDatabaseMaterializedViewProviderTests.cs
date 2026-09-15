@@ -24,6 +24,9 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_2 as select table_id as test from mview_view_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table mview_view_test_table_2 (not_null_column number not null, nullable_column number)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_3 as select not_null_column, nullable_column from mview_view_test_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table mview_view_test_table_3 (test_column varchar2(20))", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_4 as select test_column from mview_view_test_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index mview_view_test_view_4_ix_1 on mview_view_test_view_4 (upper(test_column))", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -35,7 +38,9 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
             "drop materialized view mview_view_test_view_2",
             "drop table mview_view_test_table_1",
             "drop materialized view mview_view_test_view_3",
-            "drop table mview_view_test_table_2");
+            "drop table mview_view_test_table_2",
+            "drop materialized view mview_view_test_view_4",
+            "drop table mview_view_test_table_3");
     }
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -267,6 +272,24 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         var column = view.Columns.Single(c => c.Name.LocalName == "NULLABLE_COLUMN");
 
         Assert.That(column.IsNullable, Is.True);
+    }
+
+    // a function-based index adds a system-generated hidden column to the view's container table
+    [Test]
+    public async Task Columns_WhenViewHasFunctionBasedIndex_ContainsOnlySelectedColumns()
+    {
+        var view = await GetViewAsync("mview_view_test_view_4");
+        var columnNames = view.Columns.Select(c => c.Name.LocalName).ToList();
+
+        Assert.That(columnNames, Is.EqualTo(new[] { "TEST_COLUMN" }));
+    }
+
+    [Test]
+    public async Task Columns_WhenViewHasFunctionBasedIndex_ReturnsVisibleColumns()
+    {
+        var view = await GetViewAsync("mview_view_test_view_4");
+
+        Assert.That(view.Columns.Select(c => c.IsHidden), Is.All.False);
     }
 
     // A materialized view load issues 6 queries: one to resolve the view's name, then columns (including

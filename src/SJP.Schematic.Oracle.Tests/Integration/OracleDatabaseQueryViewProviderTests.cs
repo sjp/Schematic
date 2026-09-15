@@ -24,6 +24,7 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create materialized view query_view_test_view_2 as select table_id as test from query_view_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table query_view_test_table_2 (not_null_column number not null, nullable_column number)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_3 as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_4 (visible_column, invisible_column invisible) as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -35,6 +36,7 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
             "drop materialized view query_view_test_view_2",
             "drop table query_view_test_table_1",
             "drop view query_view_test_view_3",
+            "drop view query_view_test_view_4",
             "drop table query_view_test_table_2");
     }
 
@@ -267,6 +269,33 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         var column = view.Columns.Single(c => c.Name.LocalName == "NULLABLE_COLUMN");
 
         Assert.That(column.IsNullable, Is.True);
+    }
+
+    [Test]
+    public async Task Columns_WhenColumnDeclaredInvisible_ReturnsHiddenColumn()
+    {
+        var view = await GetViewAsync("query_view_test_view_4");
+        var column = view.Columns.Single(c => c.Name.LocalName == "INVISIBLE_COLUMN");
+
+        Assert.That(column.IsHidden, Is.True);
+    }
+
+    [Test]
+    public async Task Columns_WhenColumnNotDeclaredInvisible_ReturnsVisibleColumn()
+    {
+        var view = await GetViewAsync("query_view_test_view_4");
+        var column = view.Columns.Single(c => c.Name.LocalName == "VISIBLE_COLUMN");
+
+        Assert.That(column.IsHidden, Is.False);
+    }
+
+    [Test]
+    public async Task Columns_WhenViewHasInvisibleColumn_ReturnsInvisibleColumnLast()
+    {
+        var view = await GetViewAsync("query_view_test_view_4");
+        var columnNames = view.Columns.Select(c => c.Name.LocalName).ToList();
+
+        Assert.That(columnNames, Is.EqualTo(new[] { "VISIBLE_COLUMN", "INVISIBLE_COLUMN" }));
     }
 
     // A view load issues 5 queries: one to resolve the view's name, then columns (including their

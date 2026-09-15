@@ -301,8 +301,20 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
             var isNullable = !string.Equals(row.IsNullable, NoValue, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
             var defaultValue = OracleDefaultValueParser.Parse(row.DefaultValue);
+            // only a column declared INVISIBLE reaches this point; the query filters out the
+            // system-generated hidden columns that back function-based indexes
+            var isHidden = string.Equals(row.IsHidden, HiddenValue, StringComparison.Ordinal);
 
-            var column = new OracleDatabaseColumn(columnName, columnType, isNullable, defaultValue);
+            var column = new OracleDatabaseColumn(
+                columnName,
+                columnType,
+                isNullable,
+                defaultValue,
+                Option<IAutoIncrement>.None,
+                false,
+                Option<string>.None,
+                ComputedColumnStorage.Unknown,
+                isHidden);
 
             result.Add(column);
         }
@@ -327,4 +339,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
     private const string NoValue = "N";
 
     private const string YesValue = "Y";
+
+    // ALL_TAB_COLS.HIDDEN_COLUMN value
+    private const string HiddenValue = "YES";
 }
