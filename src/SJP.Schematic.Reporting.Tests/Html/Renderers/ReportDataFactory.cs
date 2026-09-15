@@ -35,8 +35,8 @@ internal static class ReportDataFactory
             schemas ?? [],
             userDefinedTypes ?? [],
             databaseVersion,
-            referencedObjectTargets ?? new ReferencedObjectTargets(new Mock<IDependencyProvider>().Object, [], [], [], [], []),
-            synonymTargets ?? new SynonymTargets([], [], [], [], []),
+            referencedObjectTargets ?? new ReferencedObjectTargets(new Mock<IDependencyProvider>().Object, [], [], [], [], [], []),
+            synonymTargets ?? new SynonymTargets([], [], [], [], [], []),
             tableStatistics ?? new Dictionary<Identifier, ITableStatistics>());
     }
 

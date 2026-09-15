@@ -194,12 +194,13 @@ public class ReportGenerator
         var sequenceNames = sequences.Select(static s => s.Name).ToList();
         var synonymNames = synonyms.Select(static s => s.Name).ToList();
         var routineNames = routines.Select(static r => r.Name).ToList();
+        var userDefinedTypeNames = userDefinedTypes.Select(static t => t.Name).ToList();
 
         var dependencyProvider = Connection.Dialect.GetDependencyProvider();
-        var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames);
+        var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames, userDefinedTypeNames);
 
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
-        var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames);
+        var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames, userDefinedTypeNames);
 
         return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, databaseVersion, referencedObjectTargets, synonymTargets, tableStatistics);
     }

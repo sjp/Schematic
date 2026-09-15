@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Linq;
-using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
@@ -12,27 +10,7 @@ internal sealed class SynonymModelMapper
         ArgumentNullException.ThrowIfNull(synonym);
         ArgumentNullException.ThrowIfNull(targets);
 
-        var targetUrl = GetSynonymTargetUrl(synonym.Target, targets);
+        var targetUrl = targets.GetTargetUrl(synonym.Target);
         return new Synonym(synonym.Name, synonym.Target, targetUrl);
-    }
-
-    private static Option<Uri> GetSynonymTargetUrl(Identifier identifier, SynonymTargets targets)
-    {
-        if (targets.TableNames.Contains(identifier))
-            return new Uri(UrlRouter.GetTableUrl(identifier), UriKind.Relative);
-
-        if (targets.ViewNames.Contains(identifier))
-            return new Uri(UrlRouter.GetViewUrl(identifier), UriKind.Relative);
-
-        if (targets.SequenceNames.Contains(identifier))
-            return new Uri(UrlRouter.GetSequenceUrl(identifier), UriKind.Relative);
-
-        if (targets.SynonymNames.Contains(identifier))
-            return new Uri(UrlRouter.GetSynonymUrl(identifier), UriKind.Relative);
-
-        if (targets.RoutineNames.Contains(identifier))
-            return new Uri(UrlRouter.GetRoutineUrl(identifier), UriKind.Relative);
-
-        return Option<Uri>.None;
     }
 }

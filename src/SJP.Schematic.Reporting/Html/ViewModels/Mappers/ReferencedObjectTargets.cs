@@ -14,7 +14,8 @@ internal sealed class ReferencedObjectTargets
         IEnumerable<Identifier> viewNames,
         IEnumerable<Identifier> sequenceNames,
         IEnumerable<Identifier> synonymNames,
-        IEnumerable<Identifier> routineNames
+        IEnumerable<Identifier> routineNames,
+        IEnumerable<Identifier> userDefinedTypeNames
     )
     {
         DependencyProvider = dependencyProvider ?? throw new ArgumentNullException(nameof(dependencyProvider));
@@ -23,16 +24,18 @@ internal sealed class ReferencedObjectTargets
         ArgumentNullException.ThrowIfNull(sequenceNames);
         ArgumentNullException.ThrowIfNull(synonymNames);
         ArgumentNullException.ThrowIfNull(routineNames);
+        ArgumentNullException.ThrowIfNull(userDefinedTypeNames);
 
         // Every view resolves each of its dependencies against every object name, so the links are
         // built once up front. Adding the kinds in a fixed order keeps each name's links ordered by
-        // kind (table, view, sequence, synonym, routine), then by position in the source list.
+        // kind (table, view, sequence, synonym, routine, user-defined type), then by position in the source list.
         var targets = new Dictionary<(string? Schema, string LocalName), List<View.ReferencedObject>>(SchemaLocalNameComparer.Instance);
         AddTargets(targets, tableNames, UrlRouter.GetTableUrl);
         AddTargets(targets, viewNames, UrlRouter.GetViewUrl);
         AddTargets(targets, sequenceNames, UrlRouter.GetSequenceUrl);
         AddTargets(targets, synonymNames, UrlRouter.GetSynonymUrl);
         AddTargets(targets, routineNames, UrlRouter.GetRoutineUrl);
+        AddTargets(targets, userDefinedTypeNames, UrlRouter.GetUserDefinedTypeUrl);
         Targets = targets;
     }
 

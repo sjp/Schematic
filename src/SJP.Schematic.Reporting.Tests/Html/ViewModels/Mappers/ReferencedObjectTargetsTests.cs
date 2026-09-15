@@ -21,7 +21,8 @@ internal static class ReferencedObjectTargetsTests
             viewNames: [orders],
             sequenceNames: [orders],
             synonymNames: [orders],
-            routineNames: [orders]
+            routineNames: [orders],
+            userDefinedTypeNames: [orders]
         );
 
         var urls = targets.GetReferencedObjects(ViewName, "select 1").Select(static o => o.Url);
@@ -33,6 +34,7 @@ internal static class ReferencedObjectTargetsTests
             UrlRouter.GetSequenceUrl(orders),
             UrlRouter.GetSynonymUrl(orders),
             UrlRouter.GetRoutineUrl(orders),
+            UrlRouter.GetUserDefinedTypeUrl(orders),
         }));
     }
 
@@ -105,13 +107,29 @@ internal static class ReferencedObjectTargetsTests
         Assert.That(names, Is.EqualTo(new[] { "app.customers", "app.orders" }));
     }
 
+    [Test]
+    public static void GetReferencedObjects_GivenReferenceToUserDefinedType_LinksToTypePage()
+    {
+        var mood = Identifier.CreateQualifiedIdentifier("app", "mood");
+        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("app", "Mood")], userDefinedTypeNames: [mood]);
+
+        var links = targets.GetReferencedObjects(ViewName, "select 1").ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(links.Select(static o => o.Name), Is.EqualTo(new[] { "app.mood" }));
+            Assert.That(links.Select(static o => o.Url), Is.EqualTo(new[] { UrlRouter.GetUserDefinedTypeUrl(mood) }));
+        }
+    }
+
     private static ReferencedObjectTargets CreateTargets(
         IReadOnlyCollection<Identifier> dependencies,
         IEnumerable<Identifier> tableNames = null,
         IEnumerable<Identifier> viewNames = null,
         IEnumerable<Identifier> sequenceNames = null,
         IEnumerable<Identifier> synonymNames = null,
-        IEnumerable<Identifier> routineNames = null)
+        IEnumerable<Identifier> routineNames = null,
+        IEnumerable<Identifier> userDefinedTypeNames = null)
     {
         var dependencyProvider = new Mock<IDependencyProvider>();
         dependencyProvider
@@ -124,7 +142,8 @@ internal static class ReferencedObjectTargetsTests
             viewNames ?? [],
             sequenceNames ?? [],
             synonymNames ?? [],
-            routineNames ?? []
+            routineNames ?? [],
+            userDefinedTypeNames ?? []
         );
     }
 }

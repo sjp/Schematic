@@ -34,7 +34,7 @@ internal static class SynonymRendererTests
         var synonymName = new Identifier("test_synonym");
         Identifier targetTableName = "target_table";
         var synonym = new DatabaseSynonym(synonymName, targetTableName);
-        var targets = new SynonymTargets([targetTableName], [], [], [], []);
+        var targets = new SynonymTargets([targetTableName], [], [], [], [], []);
 
         var renderer = new SynonymRenderer();
         var data = ReportDataFactory.Create(synonyms: [synonym], synonymTargets: targets);

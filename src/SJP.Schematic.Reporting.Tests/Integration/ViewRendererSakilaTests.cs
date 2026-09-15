@@ -52,5 +52,5 @@ internal sealed class ViewRendererSakilaTests : SakilaTest
         Assert.That(bundleContent, Does.Contain($"window.__schematic[\"view\"][\"{firstView.Name.ToSafeKey()}\"] = "));
     }
 
-    private ReferencedObjectTargets EmptyTargets() => new(Connection.Dialect.GetDependencyProvider(), [], [], [], [], []);
+    private ReferencedObjectTargets EmptyTargets() => new(Connection.Dialect.GetDependencyProvider(), [], [], [], [], [], []);
 }
