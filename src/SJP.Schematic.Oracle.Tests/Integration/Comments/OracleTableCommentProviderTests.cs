@@ -230,7 +230,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
         };
         var comments = await GetTableCommentsAsync("TABLE_COMMENT_TABLE_2");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]

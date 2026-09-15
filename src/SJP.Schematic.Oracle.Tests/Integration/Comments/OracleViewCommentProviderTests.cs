@@ -210,7 +210,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
 
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_VIEW_1");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -246,7 +246,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         };
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_VIEW_2");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -404,7 +404,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
 
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_MVIEW_1");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -440,7 +440,7 @@ internal sealed class OracleViewCommentProviderTests : OracleTest
         };
         var comments = await GetViewCommentsAsync("WRAPPER_VIEW_COMMENT_MVIEW_2");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]

@@ -203,7 +203,7 @@ internal sealed class OracleQueryViewCommentProviderTests : OracleTest
 
         var comments = await GetViewCommentsAsync("VIEW_COMMENT_VIEW_1");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
@@ -239,7 +239,7 @@ internal sealed class OracleQueryViewCommentProviderTests : OracleTest
         };
         var comments = await GetViewCommentsAsync("VIEW_COMMENT_VIEW_2");
 
-        Assert.That(comments.ColumnComments.Keys, Is.EqualTo(columnNames));
+        Assert.That(comments.ColumnComments.Keys.Order(), Is.EqualTo(columnNames));
     }
 
     [Test]
