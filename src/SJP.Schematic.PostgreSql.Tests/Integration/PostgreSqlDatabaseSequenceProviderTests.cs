@@ -15,13 +15,19 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "create sequence db_test_sequence_1",
+            "create sequence \"DB_Test_Sequence_2\""
+        );
     }
 
     [OneTimeTearDown]
     public async Task CleanUp()
     {
-        await DbConnection.ExecuteAsync("drop sequence db_test_sequence_1", TestContext.CurrentContext.CancellationToken);
+        await ExecuteBatchAsync(
+            "drop sequence db_test_sequence_1",
+            "drop sequence \"DB_Test_Sequence_2\""
+        );
     }
 
     [Test]
@@ -179,9 +185,9 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     }
 
     // A name with no uppercase letters has a single resolution candidate, even when it contains
-    // underscores or digits, so looking up a missing sequence costs one name query.
+    // underscores or digits, so looking up a missing sequence costs one query.
     [Test]
-    public async Task GetSequence_WhenLowercaseSequenceMissingInLowercaseSchema_IssuesOneNameQuery()
+    public async Task GetSequence_WhenLowercaseSequenceMissingInLowercaseSchema_IssuesOneQuery()
     {
         var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
         var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
@@ -193,6 +199,41 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
         {
             Assert.That(sequenceIsNone, Is.True);
             Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(1));
+        }
+    }
+
+    // The definition query also confirms the sequence exists, so no separate name lookup is made.
+    [Test]
+    public async Task GetSequence_WhenSequencePresent_IssuesOneQuery()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var sequenceProvider = new PostgreSqlDatabaseSequenceProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        var sequenceIsSome = await sequenceProvider.GetSequence("db_test_sequence_1", TestContext.CurrentContext.CancellationToken).IsSome;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequenceIsSome, Is.True);
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(1));
+        }
+    }
+
+    // The lowercased candidate is tried first and misses, then the name as written matches.
+    [Test]
+    public async Task GetSequence_WhenQuotedMixedCaseSequencePresent_ReturnsSequenceAfterTryingLowercasedName()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var sequenceProvider = new PostgreSqlDatabaseSequenceProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+        var expectedSequenceName = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "DB_Test_Sequence_2");
+
+        var sequence = await sequenceProvider.GetSequence("DB_Test_Sequence_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.Name, Is.EqualTo(expectedSequenceName));
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(2));
         }
     }
 }

@@ -13,6 +13,10 @@ internal static class GetUserDefinedTypeDefinition
 
     internal sealed record Result : IUserDefinedTypeDefinitionRow
     {
+        public required string SchemaName { get; init; }
+
+        public required string TypeName { get; init; }
+
         /// <summary>
         /// <c>ALL_TYPES.TYPECODE</c>, i.e. <c>OBJECT</c> or <c>COLLECTION</c>.
         /// </summary>
@@ -34,6 +38,8 @@ internal static class GetUserDefinedTypeDefinition
     internal const string Sql = $"""
 
 select
+    t.OWNER as "{nameof(Result.SchemaName)}",
+    t.TYPE_NAME as "{nameof(Result.TypeName)}",
     t.TYPECODE as "{nameof(Result.TypeCode)}",
     ct.ELEM_TYPE_OWNER as "{nameof(Result.ElementTypeSchema)}",
     ct.ELEM_TYPE_NAME as "{nameof(Result.ElementTypeName)}",

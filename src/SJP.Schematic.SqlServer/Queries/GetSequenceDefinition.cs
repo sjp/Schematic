@@ -13,6 +13,10 @@ internal static class GetSequenceDefinition
 
     internal sealed record Result : ISequenceDefinitionRow
     {
+        public required string SchemaName { get; init; }
+
+        public required string SequenceName { get; init; }
+
         public required string TypeSchemaName { get; init; }
 
         public required string TypeName { get; init; }
@@ -40,6 +44,8 @@ internal static class GetSequenceDefinition
 
     internal const string Sql = @$"
 select
+    schema_name(s.schema_id) as [{nameof(Result.SchemaName)}],
+    s.name as [{nameof(Result.SequenceName)}],
     schema_name(t.schema_id) as [{nameof(Result.TypeSchemaName)}],
     t.name as [{nameof(Result.TypeName)}],
     cast(t.max_length as int) as [{nameof(Result.TypeMaxLength)}],

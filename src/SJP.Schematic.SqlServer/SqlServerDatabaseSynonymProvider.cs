@@ -137,26 +137,27 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
         ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
-        return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
-            .Bind(name =>
-            {
-                return Connection.QueryFirstOrNone(
-                    GetSynonymDefinition.Sql,
-                    new GetSynonymDefinition.Query { SchemaName = synonymName.Schema!, SynonymName = synonymName.LocalName },
-                    cancellationToken
-                ).Map<IDatabaseSynonym>(synonymData =>
-                {
-                    var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
-                    var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
-                    var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
-                    var localName = synonymData.TargetObjectName;
 
-                    var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
-                    var qualifiedTargetName = QualifySynonymTargetName(targetName);
+        // the definition query doubles as the existence check, and reports the name as the catalog
+        // stores it rather than as the caller spelled it
+        return Connection.QueryFirstOrNone(
+            GetSynonymDefinition.Sql,
+            new GetSynonymDefinition.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
+            cancellationToken
+        ).Map<IDatabaseSynonym>(synonymData =>
+        {
+            var name = Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, synonymData.SchemaName, synonymData.SynonymName);
 
-                    return new DatabaseSynonym(name, qualifiedTargetName);
-                });
-            });
+            var serverName = !synonymData.TargetServerName.IsNullOrWhiteSpace() ? synonymData.TargetServerName : null;
+            var databaseName = !synonymData.TargetDatabaseName.IsNullOrWhiteSpace() ? synonymData.TargetDatabaseName : null;
+            var schemaName = !synonymData.TargetSchemaName.IsNullOrWhiteSpace() ? synonymData.TargetSchemaName : null;
+            var localName = synonymData.TargetObjectName;
+
+            var targetName = Identifier.CreateQualifiedIdentifier(serverName, databaseName, schemaName, localName);
+            var qualifiedTargetName = QualifySynonymTargetName(targetName);
+
+            return new DatabaseSynonym(name, qualifiedTargetName);
+        });
     }
 
     /// <summary>

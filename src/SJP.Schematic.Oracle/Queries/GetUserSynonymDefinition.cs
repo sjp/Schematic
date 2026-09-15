@@ -11,6 +11,8 @@ internal static class GetUserSynonymDefinition
 
     internal sealed record Result
     {
+        public required string SynonymName { get; init; }
+
         public required string? TargetDatabaseName { get; init; }
 
         public required string? TargetSchemaName { get; init; }
@@ -21,6 +23,7 @@ internal static class GetUserSynonymDefinition
     internal const string Sql = $"""
 
 select
+    s.SYNONYM_NAME as "{nameof(Result.SynonymName)}",
     s.DB_LINK as "{nameof(Result.TargetDatabaseName)}",
     s.TABLE_OWNER as "{nameof(Result.TargetSchemaName)}",
     s.TABLE_NAME as "{nameof(Result.TargetObjectName)}"

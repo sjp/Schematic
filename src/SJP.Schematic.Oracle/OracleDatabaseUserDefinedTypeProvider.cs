@@ -142,17 +142,22 @@ public class OracleDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTypePro
         ArgumentNullException.ThrowIfNull(typeName);
 
         var candidateTypeName = QualifyUserDefinedTypeName(typeName);
-        return GetResolvedUserDefinedTypeName(candidateTypeName, cancellationToken)
-            .Bind(name => LoadUserDefinedTypeData(name, cancellationToken));
+        return LoadUserDefinedTypeData(candidateTypeName, cancellationToken);
     }
 
+    // the definition query matches the name strictly, so it doubles as the existence check and
+    // reports the name as the catalog stores it
     private OptionAsync<IDatabaseUserDefinedType> LoadUserDefinedTypeData(Identifier typeName, CancellationToken cancellationToken)
     {
         return Connection.QueryFirstOrNone(
             GetUserDefinedTypeDefinition.Sql,
             new GetUserDefinedTypeDefinition.Query { SchemaName = typeName.Schema!, TypeName = typeName.LocalName },
             cancellationToken
-        ).MapAsync(row => BuildUserDefinedTypeAsync(typeName, row, cancellationToken));
+        ).MapAsync(row =>
+        {
+            var resolvedName = Identifier.CreateQualifiedIdentifier(typeName.Server, typeName.Database, row.SchemaName, row.TypeName);
+            return BuildUserDefinedTypeAsync(resolvedName, row, cancellationToken);
+        });
     }
 
     private async Task<IDatabaseUserDefinedType> BuildUserDefinedTypeAsync(Identifier typeName, GetUserDefinedTypeDefinition.Result row, CancellationToken cancellationToken)

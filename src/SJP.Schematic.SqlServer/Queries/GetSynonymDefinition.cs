@@ -13,6 +13,10 @@ internal static class GetSynonymDefinition
 
     internal sealed record Result
     {
+        public required string SchemaName { get; init; }
+
+        public required string SynonymName { get; init; }
+
         public required string? TargetServerName { get; init; }
 
         public required string? TargetDatabaseName { get; init; }
@@ -24,6 +28,8 @@ internal static class GetSynonymDefinition
 
     internal const string Sql = @$"
 select
+    schema_name(schema_id) as [{nameof(Result.SchemaName)}],
+    name as [{nameof(Result.SynonymName)}],
     PARSENAME(base_object_name, 4) as [{nameof(Result.TargetServerName)}],
     PARSENAME(base_object_name, 3) as [{nameof(Result.TargetDatabaseName)}],
     PARSENAME(base_object_name, 2) as [{nameof(Result.TargetSchemaName)}],

@@ -370,4 +370,20 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
 
         Assert.That(sequence.IsOrdered, Is.True);
     }
+
+    // The definition query also confirms the sequence exists, so no separate name lookup is made.
+    [Test]
+    public async Task GetSequence_WhenSequencePresent_IssuesOneQuery()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var sequenceProvider = new SqlServerDatabaseSequenceProvider(countingConnectionFactory, IdentifierDefaults);
+
+        var sequenceIsSome = await sequenceProvider.GetSequence("db_test_sequence_1", TestContext.CurrentContext.CancellationToken).IsSome;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequenceIsSome, Is.True);
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(1));
+        }
+    }
 }

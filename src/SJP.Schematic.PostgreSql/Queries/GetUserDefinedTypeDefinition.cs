@@ -13,6 +13,10 @@ internal static class GetUserDefinedTypeDefinition
 
     internal sealed record Result : IUserDefinedTypeDefinitionRow
     {
+        public required string SchemaName { get; init; }
+
+        public required string TypeName { get; init; }
+
         /// <summary>
         /// The <c>pg_type.typtype</c> of the type.
         /// </summary>
@@ -57,6 +61,8 @@ internal static class GetUserDefinedTypeDefinition
     internal const string Sql = $"""
 
 select
+    n.nspname as "{nameof(Result.SchemaName)}",
+    t.typname as "{nameof(Result.TypeName)}",
     t.typtype::text as "{nameof(Result.TypeKind)}",
     t.typnotnull as "{nameof(Result.IsNotNull)}",
     t.typdefault as "{nameof(Result.DefaultValue)}",

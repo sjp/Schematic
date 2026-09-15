@@ -13,6 +13,10 @@ internal static class GetUserDefinedTypeDefinition
 
     internal sealed record Result : IUserDefinedTypeDefinitionRow
     {
+        public required string SchemaName { get; init; }
+
+        public required string TypeName { get; init; }
+
         public required bool IsTableType { get; init; }
 
         public required bool IsAssemblyType { get; init; }
@@ -45,6 +49,8 @@ internal static class GetUserDefinedTypeDefinition
 
     internal const string Sql = @$"
 select
+    schema_name(t.schema_id) as [{nameof(Result.SchemaName)}],
+    t.name as [{nameof(Result.TypeName)}],
     t.is_table_type as [{nameof(Result.IsTableType)}],
     t.is_assembly_type as [{nameof(Result.IsAssemblyType)}],
     t.is_nullable as [{nameof(Result.IsNullable)}],

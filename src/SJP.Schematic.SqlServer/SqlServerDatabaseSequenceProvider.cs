@@ -125,10 +125,11 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
         ArgumentNullException.ThrowIfNull(sequenceName);
 
         var candidateSequenceName = QualifySequenceName(sequenceName);
-        return GetResolvedSequenceName(candidateSequenceName, cancellationToken)
-            .Bind(name => LoadSequenceData(name, cancellationToken));
+        return LoadSequenceData(candidateSequenceName, cancellationToken);
     }
 
+    // the definition query doubles as the existence check, and reports the name as the catalog
+    // stores it rather than as the caller spelled it
     private OptionAsync<IDatabaseSequence> LoadSequenceData(Identifier sequenceName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
@@ -137,7 +138,11 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             GetSequenceDefinition.Sql,
             new GetSequenceDefinition.Query { SchemaName = sequenceName.Schema!, SequenceName = sequenceName.LocalName },
             cancellationToken
-        ).Map<IDatabaseSequence>(row => BuildSequence(sequenceName, row));
+        ).Map<IDatabaseSequence>(row =>
+        {
+            var resolvedName = Identifier.CreateQualifiedIdentifier(sequenceName.Server, sequenceName.Database, row.SchemaName, row.SequenceName);
+            return BuildSequence(resolvedName, row);
+        });
     }
 
     private DatabaseSequence BuildSequence(Identifier sequenceName, ISequenceDefinitionRow row)

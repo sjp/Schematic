@@ -13,6 +13,10 @@ internal static class GetSequenceDefinition
 
     internal sealed record Result : ISequenceDefinitionRow
     {
+        public required string SchemaName { get; init; }
+
+        public required string SequenceName { get; init; }
+
         public required int CacheSize { get; init; }
 
         public required string? Cycle { get; init; }
@@ -29,13 +33,17 @@ internal static class GetSequenceDefinition
     internal const string Sql = $"""
 
 select
-    INCREMENT_BY as "{nameof(Result.Increment)}",
-    MIN_VALUE as "{nameof(Result.MinValue)}",
-    MAX_VALUE as "{nameof(Result.MaxValue)}",
-    CYCLE_FLAG as "{nameof(Result.Cycle)}",
-    ORDER_FLAG as "{nameof(Result.Order)}",
-    CACHE_SIZE as "{nameof(Result.CacheSize)}"
-from SYS.ALL_SEQUENCES
-where SEQUENCE_OWNER = :{nameof(Query.SchemaName)} and SEQUENCE_NAME = :{nameof(Query.SequenceName)}
+    s.SEQUENCE_OWNER as "{nameof(Result.SchemaName)}",
+    s.SEQUENCE_NAME as "{nameof(Result.SequenceName)}",
+    s.INCREMENT_BY as "{nameof(Result.Increment)}",
+    s.MIN_VALUE as "{nameof(Result.MinValue)}",
+    s.MAX_VALUE as "{nameof(Result.MaxValue)}",
+    s.CYCLE_FLAG as "{nameof(Result.Cycle)}",
+    s.ORDER_FLAG as "{nameof(Result.Order)}",
+    s.CACHE_SIZE as "{nameof(Result.CacheSize)}"
+from SYS.ALL_SEQUENCES s
+inner join SYS.ALL_OBJECTS o on s.SEQUENCE_OWNER = o.OWNER and s.SEQUENCE_NAME = o.OBJECT_NAME
+where s.SEQUENCE_OWNER = :{nameof(Query.SchemaName)} and s.SEQUENCE_NAME = :{nameof(Query.SequenceName)}
+    and o.OBJECT_TYPE = 'SEQUENCE' and o.ORACLE_MAINTAINED <> 'Y'
 """;
 }

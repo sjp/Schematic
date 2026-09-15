@@ -13,6 +13,10 @@ internal static class GetSequenceDefinition
 
     internal sealed record Result : ISequenceDefinitionRow
     {
+        public required string SchemaName { get; init; }
+
+        public required string SequenceName { get; init; }
+
         public required string TypeName { get; init; }
 
         public required int CacheSize { get; init; }
@@ -31,6 +35,8 @@ internal static class GetSequenceDefinition
     internal const string Sql = $"""
 
 select
+    schemaname as "{nameof(Result.SchemaName)}",
+    sequencename as "{nameof(Result.SequenceName)}",
     pg_catalog.format_type(data_type, null) as "{nameof(Result.TypeName)}",
     start_value as "{nameof(Result.StartValue)}",
     min_value as "{nameof(Result.MinValue)}",
@@ -40,6 +46,7 @@ select
     cache_size as "{nameof(Result.CacheSize)}"
 from pg_catalog.pg_sequences
 where schemaname = @{nameof(Query.SchemaName)} and sequencename = @{nameof(Query.SequenceName)}
+    and schemaname not in ('pg_catalog', 'information_schema')
 limit 1
 """;
 }

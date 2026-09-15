@@ -194,10 +194,15 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         ArgumentNullException.ThrowIfNull(synonymName);
 
         var candidateSynonymName = QualifySynonymName(synonymName);
-        return GetResolvedSynonymName(candidateSynonymName, cancellationToken)
-            .Bind(name => LoadSynonymAsyncCore(name, cancellationToken));
+        return IdentifierResolver
+            .GetResolutionOrder(candidateSynonymName)
+            .Select(QualifySynonymName)
+            .Select(name => LoadSynonymAsyncCore(name, cancellationToken))
+            .FirstSome(cancellationToken);
     }
 
+    // the definition queries match the name strictly, so they double as the existence check for a
+    // resolution candidate and report the name as the catalog stores it
     private OptionAsync<IDatabaseSynonym> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
     {
         // SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
@@ -222,7 +227,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
             var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
 
-            var qualifiedSynonymName = QualifySynonymName(synonymName);
+            var qualifiedSynonymName = Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, row.SchemaName, row.SynonymName);
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             var qualifiedTargetName = QualifySynonymTargetName(targetName);
 
@@ -244,7 +249,7 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
             var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
 
-            var qualifiedSynonymName = QualifySynonymName(synonymName);
+            var qualifiedSynonymName = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, row.SynonymName);
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             var qualifiedTargetName = QualifySynonymTargetName(targetName);
 

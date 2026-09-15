@@ -187,4 +187,20 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
 
         Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
     }
+
+    // The definition query also confirms the synonym exists, so no separate name lookup is made.
+    [Test]
+    public async Task GetSynonym_WhenSynonymPresent_IssuesOneQuery()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var synonymProvider = new OracleDatabaseSynonymProvider(countingConnectionFactory, IdentifierDefaults, IdentifierResolver);
+
+        var synonymIsSome = await synonymProvider.GetSynonym("DB_TEST_SYNONYM_1", TestContext.CurrentContext.CancellationToken).IsSome;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(synonymIsSome, Is.True);
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(1));
+        }
+    }
 }
