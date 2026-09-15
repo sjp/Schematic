@@ -30,8 +30,11 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
         ArgumentNullException.ThrowIfNull(identifierDefaults);
         ArgumentNullException.ThrowIfNull(identifierResolver);
 
-        QueryViewCommentProvider = new PostgreSqlQueryViewCommentProvider(connection, identifierDefaults, identifierResolver);
-        MaterializedViewCommentProvider = new PostgreSqlMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
+        _connectionFactory = connection;
+        _queryViewCommentProvider = new PostgreSqlQueryViewCommentProvider(connection, identifierDefaults, identifierResolver);
+        _materializedViewCommentProvider = new PostgreSqlMaterializedViewCommentProvider(connection, identifierDefaults, identifierResolver);
+        QueryViewCommentProvider = _queryViewCommentProvider;
+        MaterializedViewCommentProvider = _materializedViewCommentProvider;
     }
 
     /// <summary>
@@ -53,17 +56,21 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
     /// <returns>A collection of view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var (queryViews, materializedViews) = await (
-            QueryViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken),
-            MaterializedViewCommentProvider.EnumerateAllViewComments(cancellationToken).ToListAsync(cancellationToken)
+        var (queryViewNames, materializedViewNames) = await (
+            _queryViewCommentProvider.GetAllViewNamesAsync(cancellationToken),
+            _materializedViewCommentProvider.GetAllViewNamesAsync(cancellationToken)
         ).WhenAll();
 
-        var viewComments = queryViews
-            .Concat(materializedViews)
-            .OrderBy(static v => v.ViewName.Schema, StringComparer.Ordinal)
-            .ThenBy(static v => v.ViewName.LocalName, StringComparer.Ordinal);
+        // order the names rather than the loaded comments, so that each view's comments can be returned as soon as they are loaded
+        var viewNames = queryViewNames
+            .Select(static name => (Name: name, IsMaterialized: false))
+            .Concat(materializedViewNames.Select(static name => (Name: name, IsMaterialized: true)))
+            .OrderBy(static v => v.Name.Schema, StringComparer.Ordinal)
+            .ThenBy(static v => v.Name.LocalName, StringComparer.Ordinal);
 
-        foreach (var comment in viewComments)
+        var comments = viewNames.SelectOrderedPrefetchAsync(LoadViewCommentsAsyncCore, Math.Max(1, _connectionFactory.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var comment in comments.WithCancellation(cancellationToken))
             yield return comment;
     }
 
@@ -100,4 +107,15 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
         return QueryViewCommentProvider.GetViewComments(viewName, cancellationToken)
             | MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken);
     }
+
+    private Task<IDatabaseViewComments> LoadViewCommentsAsyncCore((Identifier Name, bool IsMaterialized) view, CancellationToken cancellationToken)
+    {
+        return view.IsMaterialized
+            ? _materializedViewCommentProvider.LoadViewCommentsAsyncCore(view.Name, cancellationToken)
+            : _queryViewCommentProvider.LoadViewCommentsAsyncCore(view.Name, cancellationToken);
+    }
+
+    private readonly IDbConnectionFactory _connectionFactory;
+    private readonly PostgreSqlQueryViewCommentProvider _queryViewCommentProvider;
+    private readonly PostgreSqlMaterializedViewCommentProvider _materializedViewCommentProvider;
 }

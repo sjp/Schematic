@@ -186,6 +186,31 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
     }
 
     [Test]
+    public async Task EnumerateAllViews_WhenEnumerated_ReturnsSameOrderAsGetAllViews()
+    {
+        var enumeratedNames = await ViewProvider.EnumerateAllViews()
+            .Select(static v => v.Name)
+            .ToListAsync();
+        var views = await ViewProvider.GetAllViews();
+        var expectedNames = views.Select(static v => v.Name).ToList();
+
+        Assert.That(enumeratedNames, Is.EqualTo(expectedNames));
+    }
+
+    [Test]
+    public async Task EnumerateAllViews_WhenEnumerated_InterleavesMaterializedViewsByName()
+    {
+        string[] testViewNames = ["db_test_view_1", "view_test_matview_1", "view_test_view_1", "view_test_view_2"];
+
+        var enumeratedNames = await ViewProvider.EnumerateAllViews()
+            .Where(v => string.Equals(v.Name.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal) && testViewNames.Contains(v.Name.LocalName, StringComparer.Ordinal))
+            .Select(static v => v.Name.LocalName)
+            .ToListAsync();
+
+        Assert.That(enumeratedNames, Is.EqualTo(testViewNames));
+    }
+
+    [Test]
     public async Task Definition_PropertyGet_ReturnsCorrectDefinition()
     {
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_1");

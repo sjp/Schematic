@@ -205,6 +205,31 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
     }
 
     [Test]
+    public async Task EnumerateAllViewComments_WhenEnumerated_ReturnsSameOrderAsGetAllViewComments()
+    {
+        var enumeratedNames = await ViewCommentProvider.EnumerateAllViewComments()
+            .Select(static c => c.ViewName)
+            .ToListAsync();
+        var viewComments = await ViewCommentProvider.GetAllViewComments();
+        var expectedNames = viewComments.Select(static c => c.ViewName).ToList();
+
+        Assert.That(enumeratedNames, Is.EqualTo(expectedNames));
+    }
+
+    [Test]
+    public async Task EnumerateAllViewComments_WhenEnumerated_OrdersMaterializedViewsWithQueryViewsByName()
+    {
+        string[] testViewNames = ["wrapper_view_comment_matview_1", "wrapper_view_comment_matview_2", "wrapper_view_comment_view_1", "wrapper_view_comment_view_2"];
+
+        var enumeratedNames = await ViewCommentProvider.EnumerateAllViewComments()
+            .Where(c => string.Equals(c.ViewName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal) && testViewNames.Contains(c.ViewName.LocalName, StringComparer.Ordinal))
+            .Select(static c => c.ViewName.LocalName)
+            .ToListAsync();
+
+        Assert.That(enumeratedNames, Is.EqualTo(testViewNames));
+    }
+
+    [Test]
     public async Task GetViewComments_WhenViewMissingComment_ReturnsNone()
     {
         var comments = await GetViewCommentsAsync("wrapper_view_comment_view_1");

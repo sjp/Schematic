@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -28,8 +29,11 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
         ArgumentNullException.ThrowIfNull(identifierDefaults);
         ArgumentNullException.ThrowIfNull(identifierResolver);
 
-        SimpleRoutineProvider = new OracleDatabaseSimpleRoutineProvider(connection, identifierDefaults, identifierResolver);
-        PackageProvider = new OracleDatabasePackageProvider(connection, identifierDefaults, identifierResolver);
+        _connectionFactory = connection;
+        _simpleRoutineProvider = new OracleDatabaseSimpleRoutineProvider(connection, identifierDefaults, identifierResolver);
+        _packageProvider = new OracleDatabasePackageProvider(connection, identifierDefaults, identifierResolver);
+        SimpleRoutineProvider = _simpleRoutineProvider;
+        PackageProvider = _packageProvider;
     }
 
     /// <summary>
@@ -49,12 +53,24 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database routines.</returns>
-    public IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return SimpleRoutineProvider.EnumerateAllRoutines(cancellationToken)
-            .Concat(PackageProvider.EnumerateAllPackages(cancellationToken))
+        var (simpleRoutineNames, packageNames) = await (
+            _simpleRoutineProvider.GetAllRoutineNamesAsync(cancellationToken),
+            _packageProvider.GetAllPackageNamesAsync(cancellationToken)
+        ).WhenAll();
+
+        // order the names rather than the loaded routines, so that each routine can be returned as soon as it is loaded
+        var routineNames = simpleRoutineNames
+            .Select(static name => (Name: name, IsPackage: false))
+            .Concat(packageNames.Select(static name => (Name: name, IsPackage: true)))
             .OrderBy(static r => r.Name.Schema, StringComparer.Ordinal)
             .ThenBy(static r => r.Name.LocalName, StringComparer.Ordinal);
+
+        var routines = routineNames.SelectOrderedPrefetchAsync(LoadRoutineAsyncCore, Math.Max(1, _connectionFactory.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var routine in routines.WithCancellation(cancellationToken))
+            yield return routine;
     }
 
     /// <summary>
@@ -90,4 +106,15 @@ public class OracleDatabaseRoutineProvider : IDatabaseRoutineProvider
         return SimpleRoutineProvider.GetRoutine(routineName, cancellationToken)
             .OrElse(() => PackageProvider.GetPackage(routineName, cancellationToken).Map<IDatabaseRoutine>(static p => p));
     }
+
+    private async Task<IDatabaseRoutine> LoadRoutineAsyncCore((Identifier Name, bool IsPackage) routine, CancellationToken cancellationToken)
+    {
+        return routine.IsPackage
+            ? await _packageProvider.LoadPackageAsyncCore(routine.Name, cancellationToken)
+            : await _simpleRoutineProvider.LoadRoutineAsyncCore(routine.Name, cancellationToken);
+    }
+
+    private readonly IDbConnectionFactory _connectionFactory;
+    private readonly OracleDatabaseSimpleRoutineProvider _simpleRoutineProvider;
+    private readonly OracleDatabasePackageProvider _packageProvider;
 }

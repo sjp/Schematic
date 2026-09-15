@@ -58,10 +58,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <returns>A collection of materialized view comments.</returns>
     public async IAsyncEnumerable<IDatabaseViewComments> EnumerateAllViewComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var viewNames = await Connection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
-            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName)
-            .ToListAsync(cancellationToken);
+        var viewNames = await GetAllViewNamesAsync(cancellationToken);
 
         var results = viewNames.SelectOrderedPrefetchAsync(LoadViewCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
 
@@ -76,12 +73,17 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
     /// <returns>A collection of materialized view comments.</returns>
     public async Task<IReadOnlyCollection<IDatabaseViewComments>> GetAllViewComments(CancellationToken cancellationToken = default)
     {
-        var viewNames = await Connection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
+        var viewNames = await GetAllViewNamesAsync(cancellationToken);
+
+        return await viewNames.SelectBoundedAsync(LoadViewCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+    }
+
+    internal ValueTask<List<Identifier>> GetAllViewNamesAsync(CancellationToken cancellationToken)
+    {
+        return Connection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
             .ToListAsync(cancellationToken);
-
-        return await viewNames.SelectBoundedAsync(LoadViewCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>
@@ -156,7 +158,7 @@ public class PostgreSqlMaterializedViewCommentProvider : IDatabaseViewCommentPro
             .MapAsync(name => LoadViewCommentsAsyncCore(name, cancellationToken));
     }
 
-    private async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    internal async Task<IDatabaseViewComments> LoadViewCommentsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await Connection.QueryAsync(
             GetMaterializedViewComments.Sql,

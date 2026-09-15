@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
@@ -28,8 +29,11 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(identifierDefaults);
         ArgumentNullException.ThrowIfNull(identifierResolver);
 
-        QueryViewProvider = new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver);
-        MaterializedViewProvider = new PostgreSqlDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver);
+        _connectionFactory = connection.ConnectionFactory;
+        _queryViewProvider = new PostgreSqlDatabaseQueryViewProvider(connection, identifierDefaults, identifierResolver);
+        _materializedViewProvider = new PostgreSqlDatabaseMaterializedViewProvider(connection, identifierDefaults, identifierResolver);
+        QueryViewProvider = _queryViewProvider;
+        MaterializedViewProvider = _materializedViewProvider;
     }
 
     /// <summary>
@@ -49,12 +53,24 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database views.</returns>
-    public IAsyncEnumerable<IDatabaseView> EnumerateAllViews(CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        return QueryViewProvider.EnumerateAllViews(cancellationToken)
-            .Concat(MaterializedViewProvider.EnumerateAllViews(cancellationToken))
+        var (queryViewNames, materializedViewNames) = await (
+            _queryViewProvider.GetAllViewNamesAsync(cancellationToken),
+            _materializedViewProvider.GetAllViewNamesAsync(cancellationToken)
+        ).WhenAll();
+
+        // order the names rather than the loaded views, so that each view can be returned as soon as it is loaded
+        var viewNames = queryViewNames
+            .Select(static name => (Name: name, IsMaterialized: false))
+            .Concat(materializedViewNames.Select(static name => (Name: name, IsMaterialized: true)))
             .OrderBy(static v => v.Name.Schema, StringComparer.Ordinal)
             .ThenBy(static v => v.Name.LocalName, StringComparer.Ordinal);
+
+        var views = viewNames.SelectOrderedPrefetchAsync(LoadViewAsyncCore, Math.Max(1, _connectionFactory.MaxConcurrentQueries), cancellationToken);
+
+        await foreach (var view in views.WithCancellation(cancellationToken))
+            yield return view;
     }
 
     /// <summary>
@@ -90,4 +106,15 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
         return QueryViewProvider.GetView(viewName, cancellationToken)
             | MaterializedViewProvider.GetView(viewName, cancellationToken);
     }
+
+    private Task<IDatabaseView> LoadViewAsyncCore((Identifier Name, bool IsMaterialized) view, CancellationToken cancellationToken)
+    {
+        return view.IsMaterialized
+            ? _materializedViewProvider.LoadViewAsyncCore(view.Name, cancellationToken)
+            : _queryViewProvider.LoadViewAsyncCore(view.Name, cancellationToken);
+    }
+
+    private readonly IDbConnectionFactory _connectionFactory;
+    private readonly PostgreSqlDatabaseQueryViewProvider _queryViewProvider;
+    private readonly PostgreSqlDatabaseMaterializedViewProvider _materializedViewProvider;
 }

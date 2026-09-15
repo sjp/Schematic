@@ -68,10 +68,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <returns>A collection of materialized views.</returns>
     public async IAsyncEnumerable<IDatabaseView> EnumerateAllViews([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var viewNames = await DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
-            .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
-            .Select(QualifyViewName)
-            .ToListAsync(cancellationToken);
+        var viewNames = await GetAllViewNamesAsync(cancellationToken);
 
         var results = viewNames.SelectOrderedPrefetchAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
 
@@ -86,12 +83,17 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
     /// <returns>A collection of materialized views.</returns>
     public async Task<IReadOnlyCollection<IDatabaseView>> GetAllViews(CancellationToken cancellationToken = default)
     {
-        var viewNames = await DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
+        var viewNames = await GetAllViewNamesAsync(cancellationToken);
+
+        return await viewNames.SelectBoundedAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
+    }
+
+    internal ValueTask<List<Identifier>> GetAllViewNamesAsync(CancellationToken cancellationToken)
+    {
+        return DbConnection.QueryEnumerableAsync<GetAllMaterializedViewNames.Result>(GetAllMaterializedViewNames.Sql, cancellationToken)
             .Select(dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.ViewName))
             .Select(QualifyViewName)
             .ToListAsync(cancellationToken);
-
-        return await viewNames.SelectBoundedAsync(LoadViewAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>
@@ -166,7 +168,7 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
             .MapAsync(name => LoadViewAsyncCore(name, cancellationToken));
     }
 
-    private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
         var (columns, definition, indexRows, isPopulated) = await (
             LoadColumnsAsync(viewName, cancellationToken),

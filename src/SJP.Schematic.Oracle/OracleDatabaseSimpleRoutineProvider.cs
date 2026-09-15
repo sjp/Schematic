@@ -62,10 +62,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken);
+        var routineNames = await GetAllRoutineNamesAsync(cancellationToken);
 
         var results = routineNames.SelectOrderedPrefetchAsync(LoadRoutineAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
 
@@ -80,12 +77,17 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        var routineNames = await Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
+        var routineNames = await GetAllRoutineNamesAsync(cancellationToken);
+
+        return await routineNames.SelectBoundedAsync(LoadRoutineAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+    }
+
+    internal ValueTask<List<Identifier>> GetAllRoutineNamesAsync(CancellationToken cancellationToken)
+    {
+        return Connection.QueryEnumerableAsync<GetAllRoutineNames.Result>(GetAllRoutineNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
-
-        return await routineNames.SelectBoundedAsync(LoadRoutineAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>
@@ -160,7 +162,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             .MapAsync(name => LoadRoutineAsyncCore(name, cancellationToken));
     }
 
-    private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
+    internal async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
         var definition = await LoadDefinitionAsync(routineName, cancellationToken);
         var signatureRows = await Connection.QueryAsync(

@@ -56,10 +56,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <returns>A collection of database packages.</returns>
     public async IAsyncEnumerable<IOracleDatabasePackage> EnumerateAllPackages([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var packageNames = await Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
-            .Select(QualifyPackageName)
-            .ToListAsync(cancellationToken);
+        var packageNames = await GetAllPackageNamesAsync(cancellationToken);
 
         var results = packageNames.SelectOrderedPrefetchAsync(LoadPackageAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
 
@@ -74,12 +71,17 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
     /// <returns>A collection of database packages.</returns>
     public async Task<IReadOnlyCollection<IOracleDatabasePackage>> GetAllPackages(CancellationToken cancellationToken = default)
     {
-        var packageNames = await Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
+        var packageNames = await GetAllPackageNamesAsync(cancellationToken);
+
+        return await packageNames.SelectBoundedAsync(LoadPackageAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+    }
+
+    internal ValueTask<List<Identifier>> GetAllPackageNamesAsync(CancellationToken cancellationToken)
+    {
+        return Connection.QueryEnumerableAsync<GetAllPackageNames.Result>(GetAllPackageNames.Sql, cancellationToken)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.PackageName))
             .Select(QualifyPackageName)
             .ToListAsync(cancellationToken);
-
-        return await packageNames.SelectBoundedAsync(LoadPackageAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
     }
 
     /// <summary>
@@ -154,7 +156,7 @@ public class OracleDatabasePackageProvider : IOracleDatabasePackageProvider
             .MapAsync(name => LoadPackageAsyncCore(name, cancellationToken));
     }
 
-    private async Task<IOracleDatabasePackage> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
+    internal async Task<IOracleDatabasePackage> LoadPackageAsyncCore(Identifier packageName, CancellationToken cancellationToken)
     {
         if (string.Equals(packageName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal)) // fast path
             return await LoadUserPackageAsyncCore(packageName, cancellationToken);
