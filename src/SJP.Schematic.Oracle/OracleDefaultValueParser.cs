@@ -75,6 +75,11 @@ internal static partial class OracleDefaultValueParser
     // identity column, or order_seq.nextval as a user would usually write it.
     private static Option<Identifier> TryGetSequenceName(string input)
     {
+        // most defaults are not sequence references, so rule them out before splitting the name;
+        // an unquoted last part matches in any case, a quoted one only as written
+        if (!input.EndsWith("NEXTVAL", StringComparison.OrdinalIgnoreCase) && !input.EndsWith("NEXTVAL\"", StringComparison.Ordinal))
+            return Option<Identifier>.None;
+
         var parts = SplitQualifiedName(input);
         if (parts == null || parts.Count < 2)
             return Option<Identifier>.None;

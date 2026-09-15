@@ -41,6 +41,12 @@ internal static class OracleDefaultValueParserTests
     [TestCase("a.b + c.d", DefaultValueKind.Expression)]
     [TestCase("TEST_SEQ.NEXTVAL", DefaultValueKind.SequenceNextValue)]
     [TestCase("\"HR\".\"TEST_SEQ\".\"NEXTVAL\"", DefaultValueKind.SequenceNextValue)]
+    [TestCase("test_seq.NextVal ", DefaultValueKind.SequenceNextValue)]
+    // a quoted pseudocolumn name is case sensitive
+    [TestCase("\"HR\".\"TEST_SEQ\".\"nextval\"", DefaultValueKind.Expression)]
+    [TestCase("NEXTVAL", DefaultValueKind.Expression)]
+    [TestCase("TEST_SEQ.NEXTVAL + 1", DefaultValueKind.Expression)]
+    [TestCase("1 + TEST_SEQ.NEXTVAL", DefaultValueKind.Expression)]
     public static void Parse_GivenDefinition_ReturnsExpectedKind(string definition, DefaultValueKind expectedKind)
     {
         var result = OracleDefaultValueParser.Parse(definition).UnwrapSome();

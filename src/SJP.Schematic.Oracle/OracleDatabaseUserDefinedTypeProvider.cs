@@ -75,20 +75,24 @@ public class OracleDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTypePro
             Connection.QueryAsync<GetAllUserDefinedTypeSpecifications.Result>(GetAllUserDefinedTypeSpecifications.Sql, cancellationToken)
         ).WhenAll();
 
-        var attributesByType = attributes.GroupAsDictionary(static row => Identifier.CreateQualifiedIdentifier(row.SchemaName, row.TypeName));
-        var specificationsByType = specifications.GroupAsDictionary(static row => Identifier.CreateQualifiedIdentifier(row.SchemaName, row.TypeName));
+        // grouped by the catalog's (owner, name) strings rather than an identifier, as there is one
+        // specification row per source line of every type
+        var attributesByType = attributes.GroupAsDictionary(static row => (row.SchemaName, row.TypeName));
+        var specificationsByType = specifications.GroupAsDictionary(static row => (row.SchemaName, row.TypeName));
 
         return definitions
             .Select(row =>
             {
-                var unqualifiedName = Identifier.CreateQualifiedIdentifier(row.SchemaName, row.TypeName);
-                var typeAttributes = attributesByType.TryGetValue(unqualifiedName, out var attributeRows)
+                var typeKey = (row.SchemaName, row.TypeName);
+                var typeAttributes = attributesByType.TryGetValue(typeKey, out var attributeRows)
                     ? OracleUserDefinedTypeMapper.MapAttributes(attributeRows, TypeProvider)
                     : [];
-                var specification = specificationsByType.TryGetValue(unqualifiedName, out var specificationRows)
-                    ? BuildSpecification(specificationRows.OrderBy(static line => line.LineNumber).Select(static line => line.Definition))
+                // the query returns each type's lines in order and grouping keeps that order
+                var specification = specificationsByType.TryGetValue(typeKey, out var specificationRows)
+                    ? BuildSpecification(specificationRows.Select(static line => line.Definition))
                     : Option<string>.None;
 
+                var unqualifiedName = Identifier.CreateQualifiedIdentifier(row.SchemaName, row.TypeName);
                 return OracleUserDefinedTypeMapper.MapType(QualifyUserDefinedTypeName(unqualifiedName), row, typeAttributes, specification, TypeProvider);
             })
             .ToList();

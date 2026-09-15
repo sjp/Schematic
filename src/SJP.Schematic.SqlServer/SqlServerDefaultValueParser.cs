@@ -49,15 +49,18 @@ internal static partial class SqlServerDefaultValueParser
 
     private static string RemoveEnclosingParentheses(string input)
     {
-        var result = input;
+        var result = input.AsSpan();
 
         while (result.Length > 1 && result[0] == '(' && result[^1] == ')' && IsEnclosedByOuterParentheses(result))
             result = result[1..^1].Trim();
 
-        return result;
+        // stripping a pair always shortens the input, so an unchanged length means nothing was removed
+        return result.Length == input.Length
+            ? input
+            : result.ToString();
     }
 
-    private static bool IsEnclosedByOuterParentheses(string input)
+    private static bool IsEnclosedByOuterParentheses(ReadOnlySpan<char> input)
     {
         var depth = 0;
         var inStringLiteral = false;
