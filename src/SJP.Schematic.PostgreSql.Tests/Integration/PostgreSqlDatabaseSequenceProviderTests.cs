@@ -177,4 +177,22 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
 
         Assert.That(sequence.IsOrdered, Is.True);
     }
+
+    // A name with no uppercase letters has a single resolution candidate, even when it contains
+    // underscores or digits, so looking up a missing sequence costs one name query.
+    [Test]
+    public async Task GetSequence_WhenLowercaseSequenceMissingInLowercaseSchema_IssuesOneNameQuery()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var sequenceProvider = new PostgreSqlDatabaseSequenceProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        var sequenceIsNone = await sequenceProvider.GetSequence(new Identifier("missing_schema_1", "missing_sequence_1"), TestContext.CurrentContext.CancellationToken).IsNone;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequenceIsNone, Is.True);
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(1));
+        }
+    }
 }

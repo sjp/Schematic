@@ -162,4 +162,55 @@ internal static class DefaultPostgreSqlIdentifierResolutionStrategyTests
 
         Assert.That(result, Is.EqualTo(expectedResults));
     }
+
+    [Test]
+    public static void GetResolutionOrder_GivenAlreadyLowercaseLocalNameContainingUnderscoresAndDigits_ReturnsOneIdentifier()
+    {
+        var input = new Identifier("a", "b", "c", "my_table_1");
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+        var result = identifierResolver.GetResolutionOrder(input).ToList();
+
+        Assert.That(result, Is.EqualTo(new[] { input }));
+    }
+
+    [Test]
+    public static void GetResolutionOrder_GivenAlreadyLowercaseSchemaAndLocalNameContainingUnderscoresAndDigits_ReturnsOneIdentifier()
+    {
+        var input = new Identifier("a", "b", "test_schema", "my_table_1");
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+        var result = identifierResolver.GetResolutionOrder(input).ToList();
+
+        Assert.That(result, Is.EqualTo(new[] { input }));
+    }
+
+    [Test]
+    public static void GetResolutionOrder_GivenAlreadyLowercaseLocalNameOnlyContainingUnderscore_ReturnsOneIdentifier()
+    {
+        var input = new Identifier("my_table");
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+        var result = identifierResolver.GetResolutionOrder(input).ToList();
+
+        Assert.That(result, Is.EqualTo(new[] { input }));
+    }
+
+    [Test]
+    public static void GetResolutionOrder_GivenMixedCaseSchemaAndLocalNameContainingUnderscores_ReturnsExpectedResults()
+    {
+        var input = new Identifier("a", "b", "Test_Schema", "My_Table");
+        var expectedResults = new[]
+        {
+            new Identifier("a", "b", "test_schema", "my_table"),
+            new Identifier("a", "b", "test_schema", "My_Table"),
+            new Identifier("a", "b", "Test_Schema", "my_table"),
+            input,
+        };
+        var identifierResolver = new DefaultPostgreSqlIdentifierResolutionStrategy();
+
+        var result = identifierResolver.GetResolutionOrder(input).ToList();
+
+        Assert.That(result, Is.EqualTo(expectedResults));
+    }
 }

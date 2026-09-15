@@ -104,7 +104,7 @@ public class PostgreSqlDatabaseViewProvider : IDatabaseViewProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         return QueryViewProvider.GetView(viewName, cancellationToken)
-            | MaterializedViewProvider.GetView(viewName, cancellationToken);
+            .OrElse(() => MaterializedViewProvider.GetView(viewName, cancellationToken));
     }
 
     private Task<IDatabaseView> LoadViewAsyncCore((Identifier Name, bool IsMaterialized) view, CancellationToken cancellationToken)

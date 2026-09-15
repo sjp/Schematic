@@ -105,7 +105,7 @@ public class PostgreSqlViewCommentProvider : IDatabaseViewCommentProvider
         ArgumentNullException.ThrowIfNull(viewName);
 
         return QueryViewCommentProvider.GetViewComments(viewName, cancellationToken)
-            | MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken);
+            .OrElse(() => MaterializedViewCommentProvider.GetViewComments(viewName, cancellationToken));
     }
 
     private Task<IDatabaseViewComments> LoadViewCommentsAsyncCore((Identifier Name, bool IsMaterialized) view, CancellationToken cancellationToken)

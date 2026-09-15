@@ -313,4 +313,21 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
 
         Assert.That(containsColumn, Is.True);
     }
+
+    // A plain view resolves through the query view provider, so the materialized view provider must not
+    // be asked for it at all.
+    [Test]
+    public async Task GetView_WhenQueryViewPresent_DoesNotQueryMaterializedViews()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new PostgreSqlDatabaseViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+        var queryViewCountingFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var queryViewProvider = new PostgreSqlDatabaseQueryViewProvider(new SchematicConnection(queryViewCountingFactory, Dialect), IdentifierDefaults, IdentifierResolver);
+
+        _ = await viewProvider.GetView("view_test_view_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        _ = await queryViewProvider.GetView("view_test_view_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(queryViewCountingFactory.QueryCount));
+    }
 }

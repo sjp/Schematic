@@ -522,4 +522,20 @@ internal sealed class PostgreSqlViewCommentProviderTests : PostgreSqlTest
 
         Assert.That(comment, Is.EqualTo(expectedComment));
     }
+
+    // Comments for a plain view resolve through the query view comment provider, so the materialized
+    // view comment provider must not be asked for them at all.
+    [Test]
+    public async Task GetViewComments_WhenQueryViewPresent_DoesNotQueryMaterializedViews()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var commentProvider = new PostgreSqlViewCommentProvider(countingConnectionFactory, IdentifierDefaults, IdentifierResolver);
+        var queryViewCountingFactory = new CountingDbConnectionFactory(DbConnection);
+        var queryViewCommentProvider = new PostgreSqlQueryViewCommentProvider(queryViewCountingFactory, IdentifierDefaults, IdentifierResolver);
+
+        _ = await commentProvider.GetViewComments("wrapper_view_comment_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        _ = await queryViewCommentProvider.GetViewComments("wrapper_view_comment_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(queryViewCountingFactory.QueryCount));
+    }
 }

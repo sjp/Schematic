@@ -43,9 +43,12 @@ public class DefaultPostgreSqlIdentifierResolutionStrategy : IIdentifierResoluti
 
     private static IEnumerable<string> GetResolutionOrder(string identifierComponent)
     {
-        var isLowerCase = identifierComponent.All(char.IsLower);
-        if (!isLowerCase)
-            yield return identifierComponent.ToLowerInvariant();
+        // Compare against the lowercased form rather than testing each character with char.IsLower,
+        // which is false for digits, underscores and other caseless characters. That test would make an
+        // already-lowercase name such as my_table yield itself twice, and every candidate costs a query.
+        var lowerCased = identifierComponent.ToLowerInvariant();
+        if (!string.Equals(lowerCased, identifierComponent, StringComparison.Ordinal))
+            yield return lowerCased;
 
         yield return identifierComponent;
     }
