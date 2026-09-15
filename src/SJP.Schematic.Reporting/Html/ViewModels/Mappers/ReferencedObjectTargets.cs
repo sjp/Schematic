@@ -18,24 +18,27 @@ internal sealed class ReferencedObjectTargets
     )
     {
         DependencyProvider = dependencyProvider ?? throw new ArgumentNullException(nameof(dependencyProvider));
-        TableNames = tableNames ?? throw new ArgumentNullException(nameof(tableNames));
-        ViewNames = viewNames ?? throw new ArgumentNullException(nameof(viewNames));
-        SequenceNames = sequenceNames ?? throw new ArgumentNullException(nameof(sequenceNames));
-        SynonymNames = synonymNames ?? throw new ArgumentNullException(nameof(synonymNames));
-        RoutineNames = routineNames ?? throw new ArgumentNullException(nameof(routineNames));
+        ArgumentNullException.ThrowIfNull(tableNames);
+        ArgumentNullException.ThrowIfNull(viewNames);
+        ArgumentNullException.ThrowIfNull(sequenceNames);
+        ArgumentNullException.ThrowIfNull(synonymNames);
+        ArgumentNullException.ThrowIfNull(routineNames);
+
+        // Every view resolves each of its dependencies against every object name, so the links are
+        // built once up front. Adding the kinds in a fixed order keeps each name's links ordered by
+        // kind (table, view, sequence, synonym, routine), then by position in the source list.
+        var targets = new Dictionary<(string? Schema, string LocalName), List<View.ReferencedObject>>(SchemaLocalNameComparer.Instance);
+        AddTargets(targets, tableNames, UrlRouter.GetTableUrl);
+        AddTargets(targets, viewNames, UrlRouter.GetViewUrl);
+        AddTargets(targets, sequenceNames, UrlRouter.GetSequenceUrl);
+        AddTargets(targets, synonymNames, UrlRouter.GetSynonymUrl);
+        AddTargets(targets, routineNames, UrlRouter.GetRoutineUrl);
+        Targets = targets;
     }
 
     private IDependencyProvider DependencyProvider { get; }
 
-    private IEnumerable<Identifier> TableNames { get; }
-
-    private IEnumerable<Identifier> ViewNames { get; }
-
-    private IEnumerable<Identifier> SequenceNames { get; }
-
-    private IEnumerable<Identifier> SynonymNames { get; }
-
-    private IEnumerable<Identifier> RoutineNames { get; }
+    private IReadOnlyDictionary<(string? Schema, string LocalName), List<View.ReferencedObject>> Targets { get; }
 
     /// <summary>
     /// Resolves the objects referenced by <paramref name="expression"/> to structured links
@@ -61,8 +64,14 @@ internal sealed class ReferencedObjectTargets
             .ToList();
         foreach (var name in orderedNames)
         {
-            var qualifiedName = QualifyReferenceName(objectName, name);
-            var targetLinks = GetReferenceTargetLinks(objectName, qualifiedName);
+            // Targets are matched on schema and local name only, so an unqualified reference
+            // only needs the referencing object's schema filled in.
+            var schema = name.Schema ?? objectName.Schema;
+            var isSelfReference = string.Equals(objectName.Schema, schema, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(objectName.LocalName, name.LocalName, StringComparison.OrdinalIgnoreCase);
+            if (isSelfReference || !Targets.TryGetValue((schema, name.LocalName), out var targetLinks))
+                continue;
+
             foreach (var link in targetLinks)
             {
                 if (seenUrls.Add(link.Url))
@@ -73,52 +82,43 @@ internal sealed class ReferencedObjectTargets
         return result;
     }
 
-    private IReadOnlyCollection<View.ReferencedObject> GetReferenceTargetLinks(Identifier objectName, Identifier referenceName)
+    private static void AddTargets(
+        Dictionary<(string? Schema, string LocalName), List<View.ReferencedObject>> targets,
+        IEnumerable<Identifier> objectNames,
+        Func<Identifier, string> urlFactory)
     {
-        ArgumentNullException.ThrowIfNull(objectName);
-        ArgumentNullException.ThrowIfNull(referenceName);
+        var seenNames = new HashSet<Identifier>();
+        foreach (var objectName in objectNames)
+        {
+            ArgumentNullException.ThrowIfNull(objectName);
+            if (!seenNames.Add(objectName))
+                continue;
 
-        var qualifiedReference = QualifyReferenceName(objectName, referenceName);
-        var isSelfReference = string.Equals(objectName.Schema, qualifiedReference.Schema, StringComparison.OrdinalIgnoreCase)
-            && string.Equals(objectName.LocalName, qualifiedReference.LocalName, StringComparison.OrdinalIgnoreCase);
-        if (isSelfReference)
-            return [];
+            var key = (objectName.Schema, objectName.LocalName);
+            if (!targets.TryGetValue(key, out var links))
+            {
+                links = [];
+                targets[key] = links;
+            }
 
-        var result = new List<View.ReferencedObject>();
-
-        result.AddRange(GetMatchingObjects(TableNames, qualifiedReference)
-            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetTableUrl(name))));
-        result.AddRange(GetMatchingObjects(ViewNames, qualifiedReference)
-            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetViewUrl(name))));
-        result.AddRange(GetMatchingObjects(SequenceNames, qualifiedReference)
-            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetSequenceUrl(name))));
-        result.AddRange(GetMatchingObjects(SynonymNames, qualifiedReference)
-            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetSynonymUrl(name))));
-        result.AddRange(GetMatchingObjects(RoutineNames, qualifiedReference)
-            .Select(static name => new View.ReferencedObject(name.ToVisibleName(), UrlRouter.GetRoutineUrl(name))));
-
-        return result;
+            links.Add(new View.ReferencedObject(objectName.ToVisibleName(), urlFactory(objectName)));
+        }
     }
 
-    private static IReadOnlyCollection<Identifier> GetMatchingObjects(IEnumerable<Identifier> objectNames, Identifier referenceName)
+    private sealed class SchemaLocalNameComparer : IEqualityComparer<(string? Schema, string LocalName)>
     {
-        return objectNames
-            .Where(name => string.Equals(name.Schema, referenceName.Schema, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(name.LocalName, referenceName.LocalName, StringComparison.OrdinalIgnoreCase))
-            .Distinct()
-            .ToList();
-    }
+        public static SchemaLocalNameComparer Instance { get; } = new();
 
-    private static Identifier QualifyReferenceName(Identifier objectName, Identifier referenceName)
-    {
-        ArgumentNullException.ThrowIfNull(objectName);
-        ArgumentNullException.ThrowIfNull(referenceName);
+        public bool Equals((string? Schema, string LocalName) x, (string? Schema, string LocalName) y)
+        {
+            return string.Equals(x.Schema, y.Schema, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(x.LocalName, y.LocalName, StringComparison.OrdinalIgnoreCase);
+        }
 
-        return Identifier.CreateQualifiedIdentifier(
-            referenceName.Server ?? objectName.Server,
-            referenceName.Database ?? objectName.Database,
-            referenceName.Schema ?? objectName.Schema,
-            referenceName.LocalName ?? objectName.LocalName
-        );
+        public int GetHashCode((string? Schema, string LocalName) obj)
+        {
+            var schemaHash = obj.Schema is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Schema);
+            return HashCode.Combine(schemaHash, StringComparer.OrdinalIgnoreCase.GetHashCode(obj.LocalName));
+        }
     }
 }
