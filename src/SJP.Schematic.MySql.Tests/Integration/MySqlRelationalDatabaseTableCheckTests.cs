@@ -16,7 +16,7 @@ internal sealed class MySqlRelationalDatabaseTableCheckTests : MySqlTest
     [OneTimeSetUp]
     public async Task Init()
     {
-        await DbConnection.ExecuteAsync("create table table_check_test_1 ( first_value int, check (first_value > 0) )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table table_check_test_1 ( `first_value` int, check (`first_value` > 0) )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_check_test_2 ( second_value int, check (second_value < 5) )", TestContext.CurrentContext.CancellationToken);
     }
 
