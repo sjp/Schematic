@@ -19,18 +19,8 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
     /// Initializes a new instance of the <see cref="PostgreSqlConnectionFactory"/> class.
     /// </summary>
     /// <param name="connectionString">
-    /// <para>
-    /// The connection string. Pool size, connection timeout and command timeout fall back to Npgsql's
-    /// defaults when the connection string does not set them.
-    /// </para>
-    /// <para>
-    /// Automatic statement preparation is the one exception: unless the connection string sets them,
-    /// <c>Max Auto Prepare</c> defaults to <c>32</c> and <c>Auto Prepare Min Usages</c> to <c>2</c>, because
-    /// schema loading runs the same catalog queries for every object and preparing them saves the server
-    /// from planning each execution again. Set <c>Max Auto Prepare=0</c> to turn preparation off, for example
-    /// when connecting through PgBouncer in transaction or statement pooling mode without
-    /// <c>max_prepared_statements</c> configured.
-    /// </para>
+    /// The connection string. Its settings are used as given: pool size, connection timeout and
+    /// command timeout all fall back to Npgsql's defaults when the connection string does not set them.
     /// </param>
     /// <param name="connectionConfiguration">
     /// An optional callback used to configure each <see cref="NpgsqlConnection"/> before it is opened.
@@ -43,33 +33,10 @@ public class PostgreSqlConnectionFactory : IDbConnectionFactory, IDisposable, IA
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(connectionString);
 
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
-        ApplyAutoPrepareDefaults(dataSourceBuilder.ConnectionStringBuilder);
-
-        DataSource = dataSourceBuilder.Build();
+        DataSource = new NpgsqlDataSourceBuilder(connectionString).Build();
         ConnectionConfiguration = connectionConfiguration;
-        MaxConcurrentQueries = dataSourceBuilder.ConnectionStringBuilder.MaxPoolSize;
+        MaxConcurrentQueries = new NpgsqlConnectionStringBuilder(connectionString).MaxPoolSize;
     }
-
-    private static void ApplyAutoPrepareDefaults(NpgsqlConnectionStringBuilder builder)
-    {
-        // Npgsql rewrites every accepted spelling of a keyword to its canonical name, but its own
-        // ContainsKey reports whether a keyword is known rather than whether it was set.
-        var explicitSettings = new DbConnectionStringBuilder { ConnectionString = builder.ConnectionString };
-
-        if (!explicitSettings.ContainsKey(MaxAutoPrepareKeyword))
-            builder.MaxAutoPrepare = DefaultMaxAutoPrepare;
-        if (!explicitSettings.ContainsKey(AutoPrepareMinUsagesKeyword))
-            builder.AutoPrepareMinUsages = DefaultAutoPrepareMinUsages;
-    }
-
-    private const string MaxAutoPrepareKeyword = "Max Auto Prepare";
-    private const string AutoPrepareMinUsagesKeyword = "Auto Prepare Min Usages";
-
-    // More than the distinct catalog statements a single object load issues, while bounding the
-    // plans each server connection keeps.
-    private const int DefaultMaxAutoPrepare = 32;
-    private const int DefaultAutoPrepareMinUsages = 2;
 
     /// <summary>
     /// Gets the database provider's connection factory.

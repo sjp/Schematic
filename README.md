@@ -104,12 +104,6 @@ variable isn't set, the command fails immediately with a clear error rather than
 value. `schematic init` can offer to write a placeholder like this for you instead of the literal
 password when you choose the guided setup.
 
-For PostgreSQL, Schematic turns on Npgsql's automatic statement preparation (`Max Auto Prepare=32`,
-`Auto Prepare Min Usages=2`) unless the connection string sets those keys itself. Schema loading runs the same
-catalog queries for every table, view and routine, so preparing them noticeably shortens large runs. If you
-connect through PgBouncer in transaction or statement pooling mode without `max_prepared_statements`
-configured, add `Max Auto Prepare=0` to the connection string to turn it off.
-
 ### Lint rules that read data
 
 A few lint rules query the database rather than just its schema: they look for empty tables, for nullable
