@@ -58,6 +58,10 @@ internal static class DefensiveCopyExtensions
         if (source is FrozenDictionary<TKey, TValue> frozen)
             return frozen;
 
+        // an empty dictionary never consults its comparer, so every empty source can share one instance
+        if (source.Count == 0)
+            return FrozenDictionary<TKey, TValue>.Empty;
+
         var comparer = source is Dictionary<TKey, TValue> dictionary
             ? dictionary.Comparer
             : EqualityComparer<TKey>.Default;

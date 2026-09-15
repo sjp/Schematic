@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace SJP.Schematic.Core.Extensions;
 
@@ -40,6 +39,7 @@ public static class DictionaryExtensions
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(comparer);
 
-        return source.ToDictionary(static kv => kv.Key, static kv => kv.Value, comparer);
+        // the copy constructor reuses stored hash codes when the source is a dictionary with the same comparer
+        return new Dictionary<TKey, TValue>(source, comparer);
     }
 }

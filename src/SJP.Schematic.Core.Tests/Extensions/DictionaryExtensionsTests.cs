@@ -92,4 +92,45 @@ internal static class DictionaryExtensionsTests
             Assert.That(result["B"], Is.EqualTo("B"));
         }
     }
+
+    [Test]
+    public static void ToReadOnlyDictionary_WithComparerGivenKeysEqualUnderComparer_ThrowsArgumentException()
+    {
+        var input = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["a"] = "A",
+            ["A"] = "B",
+        };
+
+        Assert.That(() => input.ToReadOnlyDictionary(StringComparer.OrdinalIgnoreCase), Throws.ArgumentException);
+    }
+
+    [Test]
+    public static void ToReadOnlyDictionary_WithComparerGivenNonDictionarySource_ReturnsDictionaryWithEqualKeysAndValues()
+    {
+        var input = new[]
+        {
+            new KeyValuePair<string, string>("a", "A"),
+            new KeyValuePair<string, string>("b", "B"),
+        };
+        var result = input.ToReadOnlyDictionary(StringComparer.OrdinalIgnoreCase);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result, Has.Count.EqualTo(2));
+            Assert.That(result["A"], Is.EqualTo("A"));
+            Assert.That(result["B"], Is.EqualTo("B"));
+        }
+    }
+
+    [Test]
+    public static void ToReadOnlyDictionary_WhenSourceModifiedAfterCopy_DoesNotReflectChanges()
+    {
+        var input = new Dictionary<string, string>(StringComparer.Ordinal) { ["a"] = "A" };
+
+        var result = input.ToReadOnlyDictionary(StringComparer.Ordinal);
+        input["a"] = "changed";
+
+        Assert.That(result["a"], Is.EqualTo("A"));
+    }
 }
