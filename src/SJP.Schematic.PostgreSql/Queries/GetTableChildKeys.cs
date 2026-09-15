@@ -80,9 +80,31 @@ select
             then fk_extras.set_null_cols @> pg_catalog.to_jsonb(child_cols.attnum)
         else false
     end as "{nameof(Result.IsSetNullColumn)}"
-from pg_catalog.pg_namespace ns
-inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
+from pg_catalog.pg_namespace pns
+inner join pg_catalog.pg_class pt on pt.relnamespace = pns.oid
+-- pg_constraint has no index on confrelid, so filtering on it directly scans every constraint in the
+-- database. Every foreign key records a dependency on the referenced table's key columns, and pg_depend
+-- is indexed by the referenced object, so the candidate constraints are found there and then fetched by
+-- OID. The lateral distinct subquery keeps the planner on the index; a plain IN (...) semi-join does not.
+-- The dependency rows also include the table's own constraints and anything else referencing it, which
+-- the confrelid and contype filters remove.
+cross join lateral (
+    select distinct d.objid
+    from pg_catalog.pg_depend d
+    where d.refclassid = 'pg_catalog.pg_class'::pg_catalog.regclass
+        and d.refobjid = pt.oid
+        and d.classid = 'pg_catalog.pg_constraint'::pg_catalog.regclass
+) dep
+inner join pg_catalog.pg_constraint c
+    on c.oid = dep.objid
+    and c.confrelid = pt.oid
+    and c.contype = 'f'
+    -- since PG 11 a foreign key declared on a partitioned table is cloned onto each of its
+    -- partitions, with the same name and a non-zero conparentid. Only the constraint as declared is
+    -- wanted, whether it was declared on a partitioned table or on a partition of its own accord.
+    and c.conparentid = 0
+inner join pg_catalog.pg_class t on t.oid = c.conrelid
+inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
 -- confdelsetcols (the column subset of ON DELETE SET NULL) only exists from PG 15. Reading it out of
 -- the row as jsonb keeps this query parseable on earlier versions, where the key is simply absent and
 -- every column reports false. to_jsonb() is cheap here because conbin, the only bulky pg_constraint
@@ -90,8 +112,6 @@ inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f'
 cross join lateral (select pg_catalog.to_jsonb(c) -> 'confdelsetcols' as set_null_cols) fk_extras
 cross join pg_catalog.unnest(c.conkey) with ordinality as child_cols(attnum, con_index)
 inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = child_cols.attnum
-inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
-inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
 -- a foreign key's conindid is the OID of the unique index on the *referenced* table; that index may be
 -- backed by a pkey/unique constraint, or it may be a bare unique index with no backing constraint
 inner join pg_catalog.pg_class pki on pki.oid = c.conindid
@@ -100,9 +120,5 @@ left join pg_catalog.pg_constraint pkc
     and pkc.conrelid = c.confrelid
     and pkc.contype in ('p', 'u')
 where pt.relname = @{nameof(Query.TableName)} and pns.nspname = @{nameof(Query.SchemaName)}
-    -- since PG 11 a foreign key declared on a partitioned table is cloned onto each of its
-    -- partitions, with the same name and a non-zero conparentid. Only the constraint as declared is
-    -- wanted, whether it was declared on a partitioned table or on a partition of its own accord.
-    and c.conparentid = 0
 """;
 }
