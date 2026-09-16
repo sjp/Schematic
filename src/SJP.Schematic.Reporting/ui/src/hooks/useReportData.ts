@@ -29,12 +29,16 @@ export function useDetail<T>(type: string, key: string) {
   return useQuery(detailQueryOptions<T>(type, key));
 }
 
-/** Prefetch helper so TanStack Router route loaders can `ensureQueryData`. */
+/**
+ * Prefetch helper for TanStack Router route loaders. A report's payloads never change once it
+ * has been generated, so `staleTime: "static"` serves whatever is already cached and fetches
+ * only the first time a key is asked for.
+ */
 export function ensureSummary<T>(key: string) {
-  return queryClient.ensureQueryData(summaryQueryOptions<T>(key));
+  return queryClient.query({ ...summaryQueryOptions<T>(key), staleTime: "static" });
 }
 
-/** Prefetch helper so TanStack Router route loaders can `ensureQueryData`. */
+/** Prefetch helper for TanStack Router route loaders. See {@link ensureSummary}. */
 export function ensureDetail<T>(type: string, key: string) {
-  return queryClient.ensureQueryData(detailQueryOptions<T>(type, key));
+  return queryClient.query({ ...detailQueryOptions<T>(type, key), staleTime: "static" });
 }

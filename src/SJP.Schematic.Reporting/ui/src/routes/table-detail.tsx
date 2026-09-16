@@ -22,6 +22,7 @@ import {
 import { useDetail, useSummary } from "@/hooks/useReportData";
 import { getTableDiagrams } from "@/lib/relationshipNeighbourhood";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
+import { hasText } from "@/lib/utils";
 import type {
   KeyConstraint,
   LinkedTable,
@@ -79,7 +80,7 @@ function KeyIcons({
           label={
             <>
               <span className="font-medium">Primary key</span>
-              {primaryKey?.constraintName && <> · {primaryKey.constraintName}</>}
+              {hasText(primaryKey?.constraintName) && <> · {primaryKey.constraintName}</>}
             </>
           }
         >
@@ -226,10 +227,8 @@ export function TableDetailPage() {
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
-  if (isError || !data) {
-    return (
-      <p className="text-destructive">Failed to load table: {error?.message ?? "not found"}</p>
-    );
+  if (isError) {
+    return <p className="text-destructive">Failed to load table: {error.message}</p>;
   }
 
   const diagram = diagrams[activeDiagram] ?? diagrams[0];
@@ -476,7 +475,9 @@ export function TableDetailPage() {
                     key={d.name}
                     variant={i === activeDiagram ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setActiveDiagram(i)}
+                    onClick={() => {
+                      setActiveDiagram(i);
+                    }}
                   >
                     {d.name}
                   </Button>

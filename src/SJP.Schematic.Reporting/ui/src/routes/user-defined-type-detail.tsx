@@ -95,8 +95,8 @@ export function UserDefinedTypeDetailPage() {
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
-  if (isError || !data) {
-    return <p className="text-destructive">Failed to load type: {error?.message ?? "not found"}</p>;
+  if (isError) {
+    return <p className="text-destructive">Failed to load type: {error.message}</p>;
   }
 
   return (

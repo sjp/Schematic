@@ -14,6 +14,7 @@ import {
 import { useMemo } from "react";
 
 import { useSummary } from "@/hooks/useReportData";
+import { hasText } from "@/lib/utils";
 import type { SearchEntry, SearchSummary } from "@/types/report";
 
 // Stable display order for the grouped result sections.
@@ -58,7 +59,7 @@ export function SearchCommand({
       list.push(entry);
       byType.set(entry.objectType, list);
     }
-    return [...byType.entries()].sort(
+    return [...byType.entries()].toSorted(
       ([a], [b]) => (TYPE_ORDER.indexOf(a) + 1 || 99) - (TYPE_ORDER.indexOf(b) + 1 || 99),
     );
   }, [data]);
@@ -105,12 +106,14 @@ export function SearchCommand({
                       <Command.Item
                         key={`${type}:${entry.parent ?? ""}:${entry.name}:${entry.url}:${i}`}
                         value={`${entry.name} ${entry.parent ?? ""} ${type}`}
-                        onSelect={() => go(entry.url)}
+                        onSelect={() => {
+                          go(entry.url);
+                        }}
                         className="flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm text-foreground data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground"
                       >
                         <Icon className="size-4 shrink-0 text-muted-foreground" />
                         <span className="truncate">{entry.name}</span>
-                        {entry.parent && (
+                        {hasText(entry.parent) && (
                           <span className="ml-auto truncate text-xs text-muted-foreground">
                             {entry.parent}
                           </span>

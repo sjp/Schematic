@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // `dataSource.ts` decides its mode from `location.protocol` once, at module-evaluation
 // time, so each scenario stubs `location` *before* a fresh dynamic import.
 function stubProtocol(protocol: "file:" | "http:") {
-  vi.stubGlobal("location", { ...window.location, protocol });
+  vi.stubGlobal("location", { href: window.location.href, protocol });
 }
 
 describe("dataSource — served over http", () => {
@@ -18,10 +18,7 @@ describe("dataSource — served over http", () => {
   });
 
   it("loadSummary fetches and parses the summary json", async () => {
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ tablesCount: 2 }),
-    } as Response);
+    vi.mocked(fetch).mockResolvedValue(Response.json({ tablesCount: 2 }));
 
     const { loadSummary } = await import("@/lib/dataSource");
     await expect(loadSummary("tables")).resolves.toEqual({ tablesCount: 2 });
@@ -29,17 +26,14 @@ describe("dataSource — served over http", () => {
   });
 
   it("loadSummary throws when the response is not ok", async () => {
-    vi.mocked(fetch).mockResolvedValue({ ok: false, status: 404 } as Response);
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 404 }));
 
     const { loadSummary } = await import("@/lib/dataSource");
     await expect(loadSummary("tables")).rejects.toThrow("Failed to load data/tables.json (404)");
   });
 
   it("loadDetail fetches and parses the detail json", async () => {
-    vi.mocked(fetch).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ name: "actor" }),
-    } as Response);
+    vi.mocked(fetch).mockResolvedValue(Response.json({ name: "actor" }));
 
     const { loadDetail } = await import("@/lib/dataSource");
     await expect(loadDetail("table", "actor_abc123")).resolves.toEqual({
@@ -49,7 +43,7 @@ describe("dataSource — served over http", () => {
   });
 
   it("loadDetail throws when the response is not ok", async () => {
-    vi.mocked(fetch).mockResolvedValue({ ok: false, status: 404 } as Response);
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 404 }));
 
     const { loadDetail } = await import("@/lib/dataSource");
     await expect(loadDetail("table", "missing")).rejects.toThrow(
@@ -74,7 +68,10 @@ function answerScripts(respond: ScriptResponse) {
   const added: HTMLScriptElement[] = [];
   vi.spyOn(document.head, "append").mockImplementation((...nodes) => {
     for (const node of nodes) {
-      const script = node as HTMLScriptElement;
+      if (!(node instanceof HTMLScriptElement)) {
+        continue;
+      }
+      const script = node;
       added.push(script);
       const src = script.getAttribute("src")!;
       setTimeout(() => {

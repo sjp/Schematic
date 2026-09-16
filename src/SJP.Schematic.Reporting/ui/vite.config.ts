@@ -22,8 +22,8 @@ function fileProtocolHtml(): Plugin {
     enforce: "post",
     transformIndexHtml(html) {
       return html
-        .replace(/\s+crossorigin(=("|')[^"']*\2)?/g, "")
-        .replace(/<script\s+type="module"/g, "<script defer");
+        .replace(/\s+crossorigin(=("|')[^"']*\2)?/gu, "")
+        .replace(/<script\s+type="module"/gu, "<script defer");
     },
   };
 }
@@ -43,7 +43,7 @@ export default defineConfig({
     // and the polyfill emits a module script that breaks `file://` loading.
     modulePreload: { polyfill: false },
     cssCodeSplit: false,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         // A single self-contained IIFE bundle so the app loads as a classic
         // script over both `file://` and `http://`. Vite disables code

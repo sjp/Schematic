@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, type MockInstance, vi } from "vitest";
 
 // `elkLayout.ts` keeps its layout engine in module state, so each test starts from a fresh import.
 async function importElkLayout() {
@@ -23,7 +23,7 @@ class FakeWorker extends EventTarget {
   static instances: FakeWorker[] = [];
 
   onmessage: ((event: { data: unknown }) => void) | null = null;
-  terminate = vi.fn();
+  terminate = vi.fn<() => void>();
   layoutRequests = 0;
 
   constructor() {
@@ -44,7 +44,7 @@ class FakeWorker extends EventTarget {
         if (behaviour === "hang") return;
         const laidOut = {
           ...message.graph,
-          children: message.graph!.children.map((c) => ({ ...c, x: 1, y: 2 })),
+          children: message.graph!.children.map((c) => Object.assign({}, c, { x: 1, y: 2 })),
         };
         this.onmessage?.({ data: { id: message.id, data: laidOut } });
         return;
@@ -85,12 +85,14 @@ describe("layoutElkGraph — without Web Workers", () => {
 });
 
 describe("layoutElkGraph — with Web Workers", () => {
+  let createObjectURL: MockInstance<typeof URL.createObjectURL>;
+
   beforeEach(() => {
     vi.resetModules();
     FakeWorker.behaviour = "answer";
     FakeWorker.instances = [];
     vi.stubGlobal("Worker", FakeWorker);
-    vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:elk");
+    createObjectURL = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:elk");
   });
 
   afterEach(() => {
@@ -107,18 +109,13 @@ describe("layoutElkGraph — with Web Workers", () => {
     expect(laidOut.children![0]).toMatchObject({ x: 1, y: 2 });
     expect(FakeWorker.instances).toHaveLength(1);
     expect(FakeWorker.instances[0]!.layoutRequests).toBe(2);
-    expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+    expect(createObjectURL).toHaveBeenCalledTimes(1);
   });
 
   it("falls back to the calling thread when a worker cannot be constructed", async () => {
-    vi.stubGlobal(
-      "Worker",
-      class {
-        constructor() {
-          throw new DOMException("refused", "SecurityError");
-        }
-      },
-    );
+    vi.stubGlobal("Worker", function RefusedWorker(): never {
+      throw new DOMException("refused", "SecurityError");
+    });
     const layoutElkGraph = await importElkLayout();
 
     const laidOut = await layoutElkGraph(graph());
@@ -147,7 +144,9 @@ describe("layoutElkGraph — with Web Workers", () => {
 
     FakeWorker.behaviour = "hang";
     const pending = layoutElkGraph(graph());
-    await vi.waitFor(() => expect(FakeWorker.instances[0]!.layoutRequests).toBe(2));
+    await vi.waitFor(() => {
+      expect(FakeWorker.instances[0]!.layoutRequests).toBe(2);
+    });
     FakeWorker.instances[0]!.crash("out of memory");
 
     await expect(pending).rejects.toThrow("out of memory");
@@ -163,7 +162,9 @@ describe("layoutElkGraph — with Web Workers", () => {
     const controller = new AbortController();
 
     const pending = layoutElkGraph(graph(), controller.signal);
-    await vi.waitFor(() => expect(FakeWorker.instances[0]!.layoutRequests).toBe(1));
+    await vi.waitFor(() => {
+      expect(FakeWorker.instances[0]!.layoutRequests).toBe(1);
+    });
     controller.abort(new Error("superseded"));
 
     await expect(pending).rejects.toThrow("superseded");
@@ -196,7 +197,9 @@ describe("layoutElkGraph — with Web Workers", () => {
 
     const abandoned = layoutElkGraph(graph(), controller.signal);
     void layoutElkGraph(graph());
-    await vi.waitFor(() => expect(FakeWorker.instances[0]!.layoutRequests).toBe(2));
+    await vi.waitFor(() => {
+      expect(FakeWorker.instances[0]!.layoutRequests).toBe(2);
+    });
     controller.abort(new Error("superseded"));
 
     await expect(abandoned).rejects.toThrow("superseded");

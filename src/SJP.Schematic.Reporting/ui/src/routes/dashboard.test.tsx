@@ -3,10 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useSummary } from "@/hooks/useReportData";
 import { DashboardPage } from "@/routes/dashboard";
+import { loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { LintSummary, MainSummary } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 const mockUseSummary = vi.mocked(useSummary);
@@ -57,14 +58,9 @@ const LINT: LintSummary = {
 function stubSummaries({ lint }: { lint?: LintSummary }) {
   mockUseSummary.mockImplementation((key: string) => {
     if (key === "lint") {
-      return {
-        isPending: lint === undefined,
-        isError: false,
-        data: lint,
-        error: null,
-      } as never;
+      return lint === undefined ? pendingQuery() : loadedQuery(lint);
     }
-    return { isPending: false, isError: false, data: MAIN, error: null } as never;
+    return loadedQuery(MAIN);
   });
 }
 

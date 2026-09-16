@@ -3,10 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useSummary } from "@/hooks/useReportData";
 import { ColumnsPage } from "@/routes/columns";
+import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { ColumnRow, ColumnsSummary } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 const mockUseSummary = vi.mocked(useSummary<ColumnsSummary>);
@@ -34,34 +35,22 @@ function rowByColumnName(name: string) {
 
 describe("ColumnsPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: true,
-      isError: false,
-      data: undefined,
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(pendingQuery());
 
     render(<ColumnsPage />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
   it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: true,
-      data: undefined,
-      error: new Error("boom"),
-    } as never);
+    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
 
     render(<ColumnsPage />);
     expect(screen.getByText("Failed to load columns: boom")).toBeInTheDocument();
   });
 
   it("renders a PK/UK/FK badge for each key membership on the row", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: {
+    mockUseSummary.mockReturnValue(
+      loadedQuery({
         columnsCount: 1,
         tableColumns: [
           columnRow({
@@ -70,9 +59,8 @@ describe("ColumnsPage", () => {
             isForeignKey: true,
           }),
         ],
-      },
-      error: null,
-    } as never);
+      }),
+    );
 
     render(<ColumnsPage />);
     const row = rowByColumnName("actor_id");
@@ -82,15 +70,12 @@ describe("ColumnsPage", () => {
   });
 
   it("shows a 'no key' icon when a column has no key membership", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: {
+    mockUseSummary.mockReturnValue(
+      loadedQuery({
         columnsCount: 1,
         tableColumns: [columnRow({ columnName: "description" })],
-      },
-      error: null,
-    } as never);
+      }),
+    );
 
     render(<ColumnsPage />);
     const row = rowByColumnName("description");
@@ -98,18 +83,15 @@ describe("ColumnsPage", () => {
   });
 
   it("shows the nullable icon based on isNullable", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: {
+    mockUseSummary.mockReturnValue(
+      loadedQuery({
         columnsCount: 2,
         tableColumns: [
           columnRow({ columnName: "optional_col", isNullable: true }),
           columnRow({ columnName: "required_col", isNullable: false }),
         ],
-      },
-      error: null,
-    } as never);
+      }),
+    );
 
     render(<ColumnsPage />);
     expect(within(rowByColumnName("optional_col")).getByLabelText("Nullable")).toBeInTheDocument();

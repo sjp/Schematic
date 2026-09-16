@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useSummary } from "@/hooks/useReportData";
 import { LINT_LEVELS, compareMessages, levelRank, levelStyle } from "@/lib/lint";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
-import { cn } from "@/lib/utils";
+import { cn, hasText } from "@/lib/utils";
 import type { LintLevel, LintMessage, LintRule, LintSummary } from "@/types/report";
 
 const routeApi = getRouteApi("/lint");
@@ -46,7 +46,7 @@ export function LintPage() {
     return data.messages
       .filter((m) => search.level === undefined || m.level === search.level)
       .filter((m) => activeRule === undefined || m.ruleId === activeRule.ruleId)
-      .sort(compareMessages);
+      .toSorted(compareMessages);
   }, [data, search.level, activeRule]);
 
   const rules = useMemo(() => {
@@ -55,7 +55,9 @@ export function LintPage() {
     }
     return data.lintRules
       .filter((r) => search.level === undefined || r.level === search.level)
-      .sort((a, b) => levelRank(a.level) - levelRank(b.level) || b.messageCount - a.messageCount);
+      .toSorted(
+        (a, b) => levelRank(a.level) - levelRank(b.level) || b.messageCount - a.messageCount,
+      );
   }, [data, search.level]);
 
   const messageColumns = useMemo<ColumnDef<AppTableFeatures, LintMessage>[]>(
@@ -75,7 +77,9 @@ export function LintPage() {
         cell: ({ row }) => (
           <button
             type="button"
-            onClick={() => setSearch({ rule: row.original.ruleId })}
+            onClick={() => {
+              setSearch({ rule: row.original.ruleId });
+            }}
             className="text-left text-primary hover:underline"
           >
             {row.original.ruleTitle}
@@ -86,7 +90,7 @@ export function LintPage() {
         accessorKey: "objectName",
         header: "Object",
         cell: ({ row }) =>
-          row.original.objectUrl ? (
+          hasText(row.original.objectUrl) ? (
             <a href={row.original.objectUrl} className="font-medium text-primary hover:underline">
               {row.original.objectName}
             </a>
@@ -119,7 +123,9 @@ export function LintPage() {
         cell: ({ row }) => (
           <button
             type="button"
-            onClick={() => setSearch({ rule: row.original.ruleId })}
+            onClick={() => {
+              setSearch({ rule: row.original.ruleId });
+            }}
             className="text-left font-medium text-primary hover:underline"
           >
             {row.original.ruleTitle}
@@ -167,7 +173,9 @@ export function LintPage() {
             level={level}
             count={countFor(data, level)}
             active={search.level === level}
-            onToggle={() => setSearch({ level: search.level === level ? undefined : level })}
+            onToggle={() => {
+              setSearch({ level: search.level === level ? undefined : level });
+            }}
           />
         ))}
         <div className="flex items-center gap-3 rounded-lg border bg-card p-4">
@@ -181,7 +189,13 @@ export function LintPage() {
       {activeRule ? (
         <section className="space-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <Button variant="outline" size="sm" onClick={() => setSearch({ rule: undefined })}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setSearch({ rule: undefined });
+              }}
+            >
               <ArrowLeft className="size-4" />
               All rules
             </Button>
@@ -202,15 +216,25 @@ export function LintPage() {
             <ViewTab
               label="By rule"
               active={search.view !== "messages"}
-              onSelect={() => setSearch({ view: "rules" })}
+              onSelect={() => {
+                setSearch({ view: "rules" });
+              }}
             />
             <ViewTab
               label="All messages"
               active={search.view === "messages"}
-              onSelect={() => setSearch({ view: "messages" })}
+              onSelect={() => {
+                setSearch({ view: "messages" });
+              }}
             />
             {search.level !== undefined && (
-              <Button variant="ghost" size="sm" onClick={() => setSearch({ level: undefined })}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch({ level: undefined });
+                }}
+              >
                 Clear severity filter
               </Button>
             )}
@@ -258,14 +282,12 @@ export function parseLintSearch(search: Record<string, unknown>): LintSearch {
 }
 
 function countFor(data: LintSummary, level: LintLevel): number {
-  switch (level) {
-    case "Error":
-      return data.errorCount;
-    case "Warning":
-      return data.warningCount;
-    case "Information":
-      return data.informationCount;
-  }
+  const counts: Record<LintLevel, number> = {
+    Error: data.errorCount,
+    Warning: data.warningCount,
+    Information: data.informationCount,
+  };
+  return counts[level];
 }
 
 function LintHeader({ data }: { data: LintSummary }) {

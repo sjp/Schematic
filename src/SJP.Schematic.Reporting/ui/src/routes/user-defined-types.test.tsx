@@ -3,10 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useSummary } from "@/hooks/useReportData";
 import { UserDefinedTypesPage } from "@/routes/user-defined-types";
+import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { UserDefinedTypesSummary } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 // `user-defined-types.tsx` only imports `Link` from this package; stub it as a plain anchor
@@ -49,36 +50,23 @@ const TYPE = {
 
 describe("UserDefinedTypesPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: true,
-      isError: false,
-      data: undefined,
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(pendingQuery());
 
     render(<UserDefinedTypesPage />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
   it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: true,
-      data: undefined,
-      error: new Error("boom"),
-    } as never);
+    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
 
     render(<UserDefinedTypesPage />);
     expect(screen.getByText("Failed to load user-defined types: boom")).toBeInTheDocument();
   });
 
   it("links each row's name to its type detail route, derived from the hash url", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { userDefinedTypesCount: 1, allUserDefinedTypes: [TYPE] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(
+      loadedQuery({ userDefinedTypesCount: 1, allUserDefinedTypes: [TYPE] }),
+    );
 
     render(<UserDefinedTypesPage />);
     const link = screen.getByRole("link", { name: "public.mood" });
@@ -86,12 +74,9 @@ describe("UserDefinedTypesPage", () => {
   });
 
   it("shows an em dash for a type that is not defined in terms of another", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { userDefinedTypesCount: 1, allUserDefinedTypes: [TYPE] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(
+      loadedQuery({ userDefinedTypesCount: 1, allUserDefinedTypes: [TYPE] }),
+    );
 
     render(<UserDefinedTypesPage />);
     expect(screen.getByText("Enum")).toBeInTheDocument();
@@ -99,12 +84,9 @@ describe("UserDefinedTypesPage", () => {
   });
 
   it("shows the types count in the heading", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { userDefinedTypesCount: 3, allUserDefinedTypes: [] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(
+      loadedQuery({ userDefinedTypesCount: 3, allUserDefinedTypes: [] }),
+    );
 
     render(<UserDefinedTypesPage />);
     expect(screen.getByText("(3)")).toBeInTheDocument();

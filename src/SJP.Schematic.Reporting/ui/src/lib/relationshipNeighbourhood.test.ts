@@ -111,7 +111,7 @@ describe("selectNeighbourhood", () => {
 
     selectNeighbourhood(sakilaChain, degrees, 1);
 
-    expect(sakilaChain.nodes.some((n) => n.isHighlighted)).toBe(false);
+    expect(sakilaChain.nodes.some((n) => n.isHighlighted === true)).toBe(false);
   });
 
   it("keeps only edges whose tables are both included", () => {

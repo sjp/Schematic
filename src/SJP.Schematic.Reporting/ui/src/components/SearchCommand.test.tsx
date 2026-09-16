@@ -36,7 +36,7 @@ describe("SearchCommand", () => {
       ]),
     });
 
-    const headings = screen.getAllByText(/^(Table|View|Column)$/).map((el) => el.textContent);
+    const headings = screen.getAllByText(/^(Table|View|Column)$/u).map((el) => el.textContent);
     expect(headings).toEqual(["Table", "View", "Column"]);
   });
 
@@ -49,7 +49,7 @@ describe("SearchCommand", () => {
 
   it("navigates via the hash route and closes on selection", async () => {
     const user = userEvent.setup();
-    const onOpenChange = vi.fn();
+    const onOpenChange = vi.fn<(open: boolean) => void>();
     renderWithClient(<SearchCommand open onOpenChange={onOpenChange} />, {
       seed: seedSearch([{ name: "actor", objectType: "Table", url: "#/tables/actor-1" }]),
     });

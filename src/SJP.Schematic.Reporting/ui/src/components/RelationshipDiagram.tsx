@@ -62,7 +62,7 @@ function TableNodeComponent({ data }: NodeProps<TableFlowNode>) {
       style={{ width }}
       className={cn(
         "overflow-hidden rounded-md border bg-card text-xs shadow-sm",
-        table.isHighlighted ? "border-primary ring-2 ring-primary/40" : "border-border",
+        table.isHighlighted === true ? "border-primary ring-2 ring-primary/40" : "border-border",
       )}
     >
       {/* Both handles exist on every node so any table can be either endpoint of an edge. */}
@@ -71,7 +71,9 @@ function TableNodeComponent({ data }: NodeProps<TableFlowNode>) {
       <div
         className={cn(
           "truncate border-b px-2 py-1.5 font-semibold",
-          table.isHighlighted ? "border-primary bg-primary text-primary-foreground" : "bg-muted",
+          table.isHighlighted === true
+            ? "border-primary bg-primary text-primary-foreground"
+            : "bg-muted",
         )}
         title={table.name}
       >
@@ -228,7 +230,7 @@ export function RelationshipDiagram({
   // possible stops) a superseded layout. State is only set from the async callback (never
   // synchronously in the effect).
   useEffect(() => {
-    if (isEmpty || awaitingRequest || cached !== undefined) return;
+    if (isEmpty || awaitingRequest || cached !== undefined) return undefined;
 
     const controller = new AbortController();
     layoutGraph(graph, compact, controller.signal).then(
@@ -244,7 +246,9 @@ export function RelationshipDiagram({
         }
       },
     );
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+    };
   }, [graph, compact, isEmpty, awaitingRequest, cached]);
 
   const current =
@@ -269,7 +273,12 @@ export function RelationshipDiagram({
             This diagram has {graph.nodes.length} tables. Laying it out can take a while, and the
             page may respond slowly while it is shown.
           </p>
-          <Button size="sm" onClick={() => setRequestedGraph(graph)}>
+          <Button
+            size="sm"
+            onClick={() => {
+              setRequestedGraph(graph);
+            }}
+          >
             Show diagram
           </Button>
         </div>

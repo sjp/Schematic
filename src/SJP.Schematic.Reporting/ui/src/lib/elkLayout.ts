@@ -28,6 +28,9 @@ type LayoutEngine = {
 /** The engine failed before it ever answered, i.e. its worker could not start. */
 class WorkerStartError extends Error {}
 
+/** Placeholder for a callback that is replaced as soon as its promise is constructed. */
+const noop = () => {};
+
 let workerUrl: string | undefined;
 let current: LayoutEngine | undefined;
 let workersUnavailable = false;
@@ -39,7 +42,7 @@ function createWorkerEngine(): LayoutEngine {
 
   let worker: Worker | undefined;
   let answered = false;
-  let reject: (error: Error) => void = () => {};
+  let reject: (error: Error) => void = noop;
   const failed = new Promise<never>((_, rejectFailed) => {
     reject = rejectFailed;
   });
@@ -88,6 +91,8 @@ function createCallingThreadEngine(): LayoutEngine {
   // The worker script doubles as a CommonJS module that exports an in-process stand-in for a
   // worker, which is how ELK runs without one.
   const module: { exports: { Worker?: new () => Worker } } = { exports: {} };
+  // The source is bundled at build time from elkjs, not fetched or composed at runtime.
+  // oxlint-disable-next-line typescript/no-implied-eval
   new Function("module", "exports", elkWorkerSource)(module, module.exports);
   const FakeWorker = module.exports.Worker!;
   const elk = new ELK({ workerFactory: () => new FakeWorker() });
@@ -116,7 +121,13 @@ function whenAborted(signal: AbortSignal | undefined): Promise<never> {
       reject(signal.reason);
       return;
     }
-    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    signal.addEventListener(
+      "abort",
+      () => {
+        reject(signal.reason);
+      },
+      { once: true },
+    );
   });
 }
 
@@ -135,7 +146,7 @@ export async function layoutElkGraph<T extends ElkNode>(graph: T, signal?: Abort
   try {
     return await Promise.race([engine.elk.layout(graph), engine.failed, whenAborted(signal)]);
   } catch (error) {
-    if (signal?.aborted || error !== engine.failure) {
+    if (signal?.aborted === true || error !== engine.failure) {
       // Abandoned, or ELK itself rejected the graph.
       throw error;
     }
@@ -150,7 +161,12 @@ export async function layoutElkGraph<T extends ElkNode>(graph: T, signal?: Abort
     throw error;
   } finally {
     engine.running--;
-    if (signal?.aborted && engine.running === 0 && engine.terminate?.() && current === engine) {
+    if (
+      signal?.aborted === true &&
+      engine.running === 0 &&
+      engine.terminate?.() === true &&
+      current === engine
+    ) {
       current = undefined;
     }
   }

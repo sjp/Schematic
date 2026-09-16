@@ -15,8 +15,8 @@ describe("IconTooltip", () => {
     const icon = screen.getByTestId("icon");
     expect(icon).toBeInTheDocument();
 
-    const trigger = icon.closest("span[tabindex]");
-    expect(trigger).toHaveAttribute("tabindex", "0");
+    const trigger = icon.closest("button");
+    expect(trigger).toBeInTheDocument();
   });
 
   it("shows the label content when the trigger is focused", async () => {

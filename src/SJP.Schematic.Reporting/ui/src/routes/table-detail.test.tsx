@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useDetail, useSummary } from "@/hooks/useReportData";
 import { TableDetailPage } from "@/routes/table-detail";
+import { loadedQuery, pendingQuery } from "@/test/queryResult";
 import type {
   GraphTable,
   RelationshipGraph,
@@ -11,16 +12,26 @@ import type {
 } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useDetail: vi.fn(),
-  useSummary: vi.fn(),
+  useDetail: vi.fn<typeof useDetail>(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 // The route reads its param through `getRouteApi` and links with `Link`; stub both so the page can
 // render without a real TanStack Router context.
 vi.mock("@tanstack/react-router", () => ({
   getRouteApi: () => ({ useParams: () => ({ tableKey: "film_actor" }) }),
-  Link: ({ children, className }: { children: React.ReactNode; className?: string }) => (
-    <a className={className}>{children}</a>
+  Link: ({
+    to,
+    children,
+    className,
+  }: {
+    to?: string;
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <a href={to ?? "#"} className={className}>
+      {children}
+    </a>
   ),
 }));
 
@@ -35,7 +46,7 @@ vi.mock("@/components/RelationshipDiagram", () => ({
       {graph.nodes.map((n) => (
         <li key={n.id}>
           {n.id}
-          {n.isHighlighted ? " (focal)" : ""}
+          {n.isHighlighted === true ? " (focal)" : ""}
         </li>
       ))}
     </ul>
@@ -100,20 +111,9 @@ const RELATIONSHIPS: RelationshipsSummary = {
 };
 
 function stubData({ relationships }: { relationships?: RelationshipsSummary }) {
-  mockUseDetail.mockReturnValue({
-    isPending: false,
-    isError: false,
-    data: TABLE,
-    error: null,
-  } as never);
-  mockUseSummary.mockImplementation(
-    () =>
-      ({
-        isPending: relationships === undefined,
-        isError: false,
-        data: relationships,
-        error: null,
-      }) as never,
+  mockUseDetail.mockReturnValue(loadedQuery(TABLE));
+  mockUseSummary.mockImplementation(() =>
+    relationships === undefined ? pendingQuery() : loadedQuery(relationships),
   );
 }
 

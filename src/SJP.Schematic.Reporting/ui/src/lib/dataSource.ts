@@ -20,6 +20,20 @@ declare global {
 
 const fromDisk = location.protocol === "file:";
 
+/** Narrows a payload entry to an object, so a bundle that defined something else reads as absent. */
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+/**
+ * Reads a fetched payload as `T`. Payloads are generated alongside this app from the same schema
+ * and are never validated at runtime, so this is the one place that trust is taken.
+ */
+async function readJson<T>(response: Response): Promise<T> {
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
+  return (await response.json()) as T;
+}
+
 // Payloads being loaded from disk, by script path. Concurrent requests for the same payload share
 // one script, because the first to finish takes the payload off `window.__schematic`.
 const pendingScripts = new Map<string, Promise<unknown>>();
@@ -54,6 +68,9 @@ function loadFromScript<T>(
     }).finally(() => pendingScripts.delete(src));
     pendingScripts.set(src, pending);
   }
+  // The payload a bundle script defines is whatever the generator wrote for this `src`; see
+  // `readJson` for the same trust taken on the fetched path.
+  // oxlint-disable-next-line typescript/no-unsafe-type-assertion
   return pending as Promise<T>;
 }
 
@@ -70,7 +87,7 @@ export async function loadSummary<T>(key: string): Promise<T> {
   if (!response.ok) {
     throw new Error(`Failed to load data/${key}.json (${response.status})`);
   }
-  return (await response.json()) as T;
+  return readJson<T>(response);
 }
 
 /**
@@ -96,7 +113,8 @@ export async function loadDetail<T>(type: string, key: string): Promise<T> {
   }
   if (fromDisk) {
     return loadFromScript<T>(`data/bundle/${type}/${key}.js`, (data) => {
-      const typeMap = data[type] as Record<string, unknown> | undefined;
+      const entry = data[type];
+      const typeMap = isRecord(entry) ? entry : undefined;
       const payload = typeMap?.[key];
       delete typeMap?.[key];
       return payload;
@@ -106,5 +124,5 @@ export async function loadDetail<T>(type: string, key: string): Promise<T> {
   if (!response.ok) {
     throw new Error(`Failed to load data/${directory}/${key}.json (${response.status})`);
   }
-  return (await response.json()) as T;
+  return readJson<T>(response);
 }

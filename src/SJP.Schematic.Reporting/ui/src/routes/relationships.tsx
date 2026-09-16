@@ -35,14 +35,18 @@ export function RelationshipsPage() {
             <Button
               variant={compact ? "default" : "outline"}
               size="sm"
-              onClick={() => setCompact(true)}
+              onClick={() => {
+                setCompact(true);
+              }}
             >
               Compact
             </Button>
             <Button
               variant={compact ? "outline" : "default"}
               size="sm"
-              onClick={() => setCompact(false)}
+              onClick={() => {
+                setCompact(false);
+              }}
             >
               Large
             </Button>

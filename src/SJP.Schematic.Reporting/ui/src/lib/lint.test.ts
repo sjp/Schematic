@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { LINT_LEVELS, compareMessages, levelRank, levelStyle, messagesForObject } from "@/lib/lint";
-import type { LintLevel, LintMessage } from "@/types/report";
+import type { LintMessage } from "@/types/report";
 
 function message(overrides: Partial<LintMessage> = {}): LintMessage {
   return {
@@ -24,7 +24,7 @@ describe("levelRank", () => {
 
   it("ranks an unknown severity last", () => {
     // A severity added on the C# side and not yet known here must not outrank a real Error.
-    expect(levelRank("Critical" as LintLevel)).toBeGreaterThan(levelRank("Information"));
+    expect(levelRank("Critical")).toBeGreaterThan(levelRank("Information"));
   });
 });
 
@@ -37,26 +37,26 @@ describe("levelStyle", () => {
 
 describe("compareMessages", () => {
   it("orders by severity first", () => {
-    const sorted = [message({ level: "Information" }), message({ level: "Error" })].sort(
+    const sorted = [message({ level: "Information" }), message({ level: "Error" })].toSorted(
       compareMessages,
     );
     expect(sorted.map((m) => m.level)).toEqual(["Error", "Information"]);
   });
 
   it("orders by rule within a severity", () => {
-    const sorted = [message({ ruleId: "B" }), message({ ruleId: "A" })].sort(compareMessages);
+    const sorted = [message({ ruleId: "B" }), message({ ruleId: "A" })].toSorted(compareMessages);
     expect(sorted.map((m) => m.ruleId)).toEqual(["A", "B"]);
   });
 
   it("orders by object within a rule", () => {
-    const sorted = [message({ objectName: "b" }), message({ objectName: "a" })].sort(
+    const sorted = [message({ objectName: "b" }), message({ objectName: "a" })].toSorted(
       compareMessages,
     );
     expect(sorted.map((m) => m.objectName)).toEqual(["a", "b"]);
   });
 
   it("sorts a message with no object without throwing", () => {
-    const sorted = [message({ objectName: undefined }), message({ objectName: "a" })].sort(
+    const sorted = [message({ objectName: undefined }), message({ objectName: "a" })].toSorted(
       compareMessages,
     );
     expect(sorted).toHaveLength(2);

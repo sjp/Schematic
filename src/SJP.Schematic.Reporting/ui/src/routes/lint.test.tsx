@@ -4,14 +4,18 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useSummary } from "@/hooks/useReportData";
 import { LintPage, parseLintSearch, type LintSearch } from "@/routes/lint";
+import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { LintMessage, LintRule, LintSummary } from "@/types/report";
 
 // The page reads its severity/rule/view selection from the URL. Stubbing the route api keeps
 // these tests about the page rather than about router wiring, while still letting each test
 // drive the page from a given URL state and observe the navigations it requests.
 const { searchState, navigateSpy } = vi.hoisted(() => ({
-  searchState: { current: {} as Record<string, unknown> },
-  navigateSpy: vi.fn(),
+  searchState: { current: {} },
+  navigateSpy:
+    vi.fn<
+      (options: { search: (prev: object) => Record<string, unknown>; replace?: boolean }) => void
+    >(),
 }));
 
 vi.mock("@tanstack/react-router", () => ({
@@ -22,7 +26,7 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 const mockUseSummary = vi.mocked(useSummary<LintSummary>);
@@ -64,23 +68,18 @@ function summary(messages: LintMessage[], rules?: LintRule[]): LintSummary {
 }
 
 function loaded(data: LintSummary) {
-  mockUseSummary.mockReturnValue({
-    isPending: false,
-    isError: false,
-    data,
-    error: null,
-  } as never);
+  mockUseSummary.mockReturnValue(loadedQuery(data));
 }
 
 /** The search state the page would be navigated to by its most recent `setSearch` call. */
 function lastRequestedSearch(): Record<string, unknown> {
-  const calls = navigateSpy.mock.calls as Array<[{ search: (prev: object) => object }]>;
+  const calls = navigateSpy.mock.calls;
   const lastCall = calls[calls.length - 1];
   if (lastCall === undefined) {
     throw new Error("Expected the page to have requested a navigation, but it did not.");
   }
 
-  return lastCall[0].search(searchState.current) as Record<string, unknown>;
+  return lastCall[0].search(searchState.current);
 }
 
 describe("LintPage", () => {
@@ -90,24 +89,14 @@ describe("LintPage", () => {
   });
 
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: true,
-      isError: false,
-      data: undefined,
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(pendingQuery());
 
     render(<LintPage />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
   it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: true,
-      data: undefined,
-      error: new Error("network down"),
-    } as never);
+    mockUseSummary.mockReturnValue(failedQuery(new Error("network down")));
 
     render(<LintPage />);
     expect(screen.getByText("Failed to load lint results: network down")).toBeInTheDocument();
@@ -143,10 +132,10 @@ describe("LintPage", () => {
 
     render(<LintPage />);
 
-    const warnings = screen.getByRole("button", { name: /warnings/i });
+    const warnings = screen.getByRole("button", { name: /warnings/iu });
     expect(within(warnings).getByText("2")).toBeInTheDocument();
     expect(
-      within(screen.getByRole("button", { name: /errors/i })).getByText("1"),
+      within(screen.getByRole("button", { name: /errors/iu })).getByText("1"),
     ).toBeInTheDocument();
   });
 
@@ -221,7 +210,7 @@ describe("LintPage", () => {
     loaded(summary([message()]));
 
     render(<LintPage />);
-    await userEvent.click(screen.getByRole("button", { name: /errors/i }));
+    await userEvent.click(screen.getByRole("button", { name: /errors/iu }));
 
     expect(lastRequestedSearch()).toMatchObject({ level: undefined });
   });
@@ -254,7 +243,10 @@ describe("LintPage", () => {
 
     render(<LintPage />);
 
-    expect(screen.getByRole("link", { name: /sarif/i })).toHaveAttribute("href", "data/lint.sarif");
+    expect(screen.getByRole("link", { name: /sarif/iu })).toHaveAttribute(
+      "href",
+      "data/lint.sarif",
+    );
   });
 });
 

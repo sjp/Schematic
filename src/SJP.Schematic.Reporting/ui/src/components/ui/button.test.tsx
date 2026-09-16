@@ -24,7 +24,7 @@ describe("Button", () => {
 
   it("forwards arbitrary props such as onClick and disabled", async () => {
     const user = userEvent.setup();
-    const onClick = vi.fn();
+    const onClick = vi.fn<() => void>();
     render(
       <Button onClick={onClick} disabled>
         Disabled

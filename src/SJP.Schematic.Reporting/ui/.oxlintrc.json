@@ -1,13 +1,32 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "unicorn", "oxc"],
+  "plugins": ["react", "typescript", "unicorn", "oxc", "import", "jsx-a11y", "vitest", "promise"],
   "ignorePatterns": ["dist"],
   "options": {
     "typeAware": true,
     "typeCheck": true
   },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error"
+  },
   "rules": {
     "react/rules-of-hooks": "error",
-    "react/exhaustive-deps": "warn"
+    "react/exhaustive-deps": "error",
+
+    "eslint/eqeqeq": ["error", "always", { "null": "ignore" }],
+    "eslint/require-unicode-regexp": "error",
+    "typescript/no-confusing-void-expression": "error",
+    "typescript/no-deprecated": "error",
+    "typescript/require-await": "error",
+    "typescript/strict-boolean-expressions": "error",
+
+    "eslint/no-underscore-dangle": "off",
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "**/vitest"] }],
+    "promise/always-return": ["error", { "ignoreLastCallback": true }],
+    "react/no-array-index-key": "off",
+    "react/no-unstable-nested-components": ["error", { "allowAsProps": true }],
+    "react/react-in-jsx-scope": "off"
   }
 }

@@ -18,8 +18,12 @@ export function useColorScheme() {
     // The initial class is already applied pre-paint by the inline script in index.html, so we
     // only need to track subsequent changes to the OS preference here.
     const media = window.matchMedia(DARK_QUERY);
-    const onChange = (e: MediaQueryListEvent) => applyColorScheme(e.matches);
+    const onChange = (e: MediaQueryListEvent) => {
+      applyColorScheme(e.matches);
+    };
     media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+    return () => {
+      media.removeEventListener("change", onChange);
+    };
   }, []);
 }

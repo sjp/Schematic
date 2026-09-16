@@ -3,15 +3,25 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { useColorScheme } from "@/hooks/useColorScheme";
 
+type ChangeListener = (event: MediaQueryListEvent) => void;
+type ListenerRegistration = (type: "change", listener: ChangeListener) => void;
+
+/** The slice of `MediaQueryList` that `useColorScheme` actually touches. */
+interface MatchMediaStub {
+  matches: boolean;
+  addEventListener: ListenerRegistration;
+  removeEventListener: ListenerRegistration;
+}
+
 function mockMatchMedia() {
-  const listeners = new Set<(e: MediaQueryListEvent) => void>();
-  const removeEventListener = vi.fn((_: "change", listener: (e: MediaQueryListEvent) => void) => {
+  const listeners = new Set<ChangeListener>();
+  const removeEventListener = vi.fn<ListenerRegistration>((_, listener) => {
     listeners.delete(listener);
   });
-  const addEventListener = vi.fn((_: "change", listener: (e: MediaQueryListEvent) => void) => {
+  const addEventListener = vi.fn<ListenerRegistration>((_, listener) => {
     listeners.add(listener);
   });
-  const matchMedia = vi.fn().mockReturnValue({
+  const matchMedia = vi.fn<(query: string) => MatchMediaStub>().mockReturnValue({
     matches: false,
     addEventListener,
     removeEventListener,
@@ -24,7 +34,9 @@ function mockMatchMedia() {
     removeEventListener,
     fireChange: (matches: boolean) => {
       for (const listener of listeners) {
-        listener({ matches } as MediaQueryListEvent);
+        listener(
+          Object.assign(new Event("change"), { matches, media: "(prefers-color-scheme: dark)" }),
+        );
       }
     },
   };
@@ -39,7 +51,9 @@ describe("useColorScheme", () => {
   it("queries prefers-color-scheme: dark and subscribes to changes", () => {
     const { matchMedia, addEventListener } = mockMatchMedia();
 
-    renderHook(() => useColorScheme());
+    renderHook(() => {
+      useColorScheme();
+    });
 
     expect(matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
     expect(addEventListener).toHaveBeenCalledWith("change", expect.any(Function));
@@ -47,7 +61,9 @@ describe("useColorScheme", () => {
 
   it("toggles the dark class when the OS preference changes", () => {
     const { fireChange } = mockMatchMedia();
-    renderHook(() => useColorScheme());
+    renderHook(() => {
+      useColorScheme();
+    });
 
     fireChange(true);
     expect(document.documentElement.classList.contains("dark")).toBe(true);
@@ -58,7 +74,9 @@ describe("useColorScheme", () => {
 
   it("unsubscribes on unmount", () => {
     const { removeEventListener } = mockMatchMedia();
-    const { unmount } = renderHook(() => useColorScheme());
+    const { unmount } = renderHook(() => {
+      useColorScheme();
+    });
 
     unmount();
 

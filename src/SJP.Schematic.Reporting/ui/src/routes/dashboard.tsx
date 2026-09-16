@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { useSummary } from "@/hooks/useReportData";
+import { hasText } from "@/lib/utils";
 import type { LintSummary, MainSummary } from "@/types/report";
 
 type Stat = {
@@ -118,7 +119,7 @@ export function DashboardPage() {
               </div>
             </div>
           );
-          return stat.href ? (
+          return hasText(stat.href) ? (
             <a key={stat.label} href={stat.href} className="block">
               {card}
             </a>

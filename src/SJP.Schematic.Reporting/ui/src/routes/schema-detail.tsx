@@ -73,10 +73,8 @@ export function SchemaDetailPage() {
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
-  if (isError || !data) {
-    return (
-      <p className="text-destructive">Failed to load schema: {error?.message ?? "not found"}</p>
-    );
+  if (isError) {
+    return <p className="text-destructive">Failed to load schema: {error.message}</p>;
   }
 
   // A schema that declares nothing the report covers still has a page (the database declares it),

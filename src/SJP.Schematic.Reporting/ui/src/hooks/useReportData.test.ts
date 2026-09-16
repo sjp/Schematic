@@ -1,3 +1,4 @@
+import type { QueryFunctionContext, QueryKey } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -10,9 +11,21 @@ import { loadDetail, loadSummary } from "@/lib/dataSource";
 import { queryClient } from "@/lib/queryClient";
 
 vi.mock("@/lib/dataSource", () => ({
-  loadSummary: vi.fn(),
-  loadDetail: vi.fn(),
+  loadSummary: vi.fn<typeof loadSummary>(),
+  loadDetail: vi.fn<typeof loadDetail>(),
 }));
+
+/** The context TanStack Query passes a `queryFn`; these options ignore all of it but the call. */
+function queryContext<TQueryKey extends QueryKey>(
+  queryKey: TQueryKey,
+): QueryFunctionContext<TQueryKey> {
+  return {
+    client: queryClient,
+    queryKey,
+    signal: new AbortController().signal,
+    meta: undefined,
+  };
+}
 
 describe("summaryQueryOptions", () => {
   it("builds a queryKey scoped to the summary key", () => {
@@ -22,7 +35,7 @@ describe("summaryQueryOptions", () => {
   it("delegates queryFn to loadSummary with the same key", async () => {
     vi.mocked(loadSummary).mockResolvedValue({ tablesCount: 1 });
     const options = summaryQueryOptions("tables");
-    await expect(options.queryFn!({} as never)).resolves.toEqual({
+    await expect(options.queryFn!(queryContext(options.queryKey))).resolves.toEqual({
       tablesCount: 1,
     });
     expect(loadSummary).toHaveBeenCalledWith("tables");
@@ -41,7 +54,7 @@ describe("detailQueryOptions", () => {
   it("delegates queryFn to loadDetail with the same type/key", async () => {
     vi.mocked(loadDetail).mockResolvedValue({ name: "actor" });
     const options = detailQueryOptions("table", "actor_abc");
-    await expect(options.queryFn!({} as never)).resolves.toEqual({
+    await expect(options.queryFn!(queryContext(options.queryKey))).resolves.toEqual({
       name: "actor",
     });
     expect(loadDetail).toHaveBeenCalledWith("table", "actor_abc");

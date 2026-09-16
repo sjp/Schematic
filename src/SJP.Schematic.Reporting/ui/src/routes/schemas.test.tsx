@@ -3,10 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useSummary } from "@/hooks/useReportData";
 import { SchemasPage } from "@/routes/schemas";
+import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { SchemasSummary } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 // `schemas.tsx` only imports `Link` from this package; stub it as a plain anchor
@@ -54,36 +55,21 @@ const SCHEMA = {
 
 describe("SchemasPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: true,
-      isError: false,
-      data: undefined,
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(pendingQuery());
 
     render(<SchemasPage />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
   it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: true,
-      data: undefined,
-      error: new Error("boom"),
-    } as never);
+    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
 
     render(<SchemasPage />);
     expect(screen.getByText("Failed to load schemas: boom")).toBeInTheDocument();
   });
 
   it("links each row's name to its schema detail route, derived from the hash url", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { schemasCount: 1, allSchemas: [SCHEMA] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(loadedQuery({ schemasCount: 1, allSchemas: [SCHEMA] }));
 
     render(<SchemasPage />);
     const link = screen.getByRole("link", { name: "public" });
@@ -91,10 +77,8 @@ describe("SchemasPage", () => {
   });
 
   it("marks the default schema and shows an em dash for an unrecorded owner", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: {
+    mockUseSummary.mockReturnValue(
+      loadedQuery({
         schemasCount: 2,
         allSchemas: [
           SCHEMA,
@@ -107,9 +91,8 @@ describe("SchemasPage", () => {
             isSystem: true,
           },
         ],
-      },
-      error: null,
-    } as never);
+      }),
+    );
 
     render(<SchemasPage />);
     expect(screen.getByText("default")).toBeInTheDocument();
@@ -118,12 +101,7 @@ describe("SchemasPage", () => {
   });
 
   it("shows the schemas count in the heading", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { schemasCount: 3, allSchemas: [] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(loadedQuery({ schemasCount: 3, allSchemas: [] }));
 
     render(<SchemasPage />);
     expect(screen.getByText("(3)")).toBeInTheDocument();

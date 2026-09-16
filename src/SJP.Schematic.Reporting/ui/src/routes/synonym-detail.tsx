@@ -2,6 +2,7 @@ import { Link, getRouteApi } from "@tanstack/react-router";
 
 import { LintFindings } from "@/components/LintFindings";
 import { useDetail } from "@/hooks/useReportData";
+import { hasText } from "@/lib/utils";
 import type { SynonymDetail } from "@/types/report";
 
 const routeApi = getRouteApi("/synonyms/$synonymKey");
@@ -13,10 +14,8 @@ export function SynonymDetailPage() {
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
-  if (isError || !data) {
-    return (
-      <p className="text-destructive">Failed to load synonym: {error?.message ?? "not found"}</p>
-    );
+  if (isError) {
+    return <p className="text-destructive">Failed to load synonym: {error.message}</p>;
   }
 
   return (
@@ -34,7 +33,7 @@ export function SynonymDetailPage() {
       <dl className="flex flex-col gap-0.5">
         <dt className="text-sm text-muted-foreground">Target</dt>
         <dd className="font-medium">
-          {data.targetUrl ? (
+          {hasText(data.targetUrl) ? (
             <a href={data.targetUrl} className="text-primary hover:underline">
               {data.targetName}
             </a>

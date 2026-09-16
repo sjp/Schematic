@@ -8,6 +8,7 @@ import {
 import { NotFound } from "@/components/layout/NotFound";
 import { RootLayout } from "@/components/layout/RootLayout";
 import { ensureDetail, ensureSummary } from "@/hooks/useReportData";
+import { hasText } from "@/lib/utils";
 import { ColumnsPage } from "@/routes/columns";
 import { ConstraintsPage } from "@/routes/constraints";
 import { DashboardPage } from "@/routes/dashboard";
@@ -47,7 +48,7 @@ const pageTitle = (name: string) => `${name} · ${BRAND}`;
 // Falls back to the bare brand if no name is available (e.g. loader data not yet
 // resolved), avoiding a "· Schematic" title with an empty leading segment.
 const titleMeta = (name?: string) => ({
-  meta: [{ title: name ? pageTitle(name) : BRAND }],
+  meta: [{ title: hasText(name) ? pageTitle(name) : BRAND }],
 });
 
 const rootRoute = createRootRoute({

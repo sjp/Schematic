@@ -42,26 +42,31 @@ function Section({
   );
 }
 
+/** The columns primary-key and unique-key constraints share, which differ only in their row type. */
+function keyColumns<T extends PrimaryKeyConstraintRow | UniqueKeyRow>(): ColumnDef<
+  AppTableFeatures,
+  T
+>[] {
+  return [
+    {
+      accessorKey: "tableName",
+      header: "Table",
+      cell: ({ row }: { row: { original: T } }) => (
+        <TableLink name={row.original.tableName} url={row.original.tableUrl} />
+      ),
+    },
+    { accessorKey: "constraintName", header: "Constraint" },
+    { accessorKey: "columnNames", header: "Columns" },
+    {
+      id: "status",
+      header: "Status",
+      cell: ({ row }: { row: { original: T } }) => <ConstraintStatus {...row.original} />,
+    },
+  ];
+}
+
 export function ConstraintsPage() {
   const { data, isPending, isError, error } = useSummary<ConstraintsSummary>("constraints");
-
-  const keyColumns = <T extends PrimaryKeyConstraintRow | UniqueKeyRow>() =>
-    [
-      {
-        accessorKey: "tableName",
-        header: "Table",
-        cell: ({ row }: { row: { original: T } }) => (
-          <TableLink name={row.original.tableName} url={row.original.tableUrl} />
-        ),
-      },
-      { accessorKey: "constraintName", header: "Constraint" },
-      { accessorKey: "columnNames", header: "Columns" },
-      {
-        id: "status",
-        header: "Status",
-        cell: ({ row }: { row: { original: T } }) => <ConstraintStatus {...row.original} />,
-      },
-    ] as ColumnDef<AppTableFeatures, T>[];
 
   const pkColumns = useMemo(() => keyColumns<PrimaryKeyConstraintRow>(), []);
   const ukColumns = useMemo(() => keyColumns<UniqueKeyRow>(), []);

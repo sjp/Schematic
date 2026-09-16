@@ -3,10 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { LintFindings } from "@/components/LintFindings";
 import { useSummary } from "@/hooks/useReportData";
+import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { LintMessage, LintSummary } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 const mockUseSummary = vi.mocked(useSummary<LintSummary>);
@@ -25,10 +26,8 @@ function message(overrides: Partial<LintMessage> = {}): LintMessage {
 }
 
 function loaded(messages: LintMessage[]) {
-  mockUseSummary.mockReturnValue({
-    isPending: false,
-    isError: false,
-    data: {
+  mockUseSummary.mockReturnValue(
+    loadedQuery({
       lintRules: [],
       lintRulesCount: 0,
       messages,
@@ -37,9 +36,8 @@ function loaded(messages: LintMessage[]) {
       warningCount: 0,
       informationCount: 0,
       objectsAffectedCount: 0,
-    },
-    error: null,
-  } as never);
+    }),
+  );
 }
 
 describe("LintFindings", () => {
@@ -93,12 +91,7 @@ describe("LintFindings", () => {
   });
 
   it("stays silent while the lint summary is still loading", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: true,
-      isError: false,
-      data: undefined,
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(pendingQuery());
 
     const { container } = render(<LintFindings objectUrl="#/tables/actor-1" />);
 
@@ -106,12 +99,7 @@ describe("LintFindings", () => {
   });
 
   it("stays silent when the lint summary fails to load", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: true,
-      data: undefined,
-      error: new Error("network down"),
-    } as never);
+    mockUseSummary.mockReturnValue(failedQuery(new Error("network down")));
 
     // Lint is supplementary here — a failure must not put an error banner on an
     // otherwise-working detail page.

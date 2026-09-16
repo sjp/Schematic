@@ -5,11 +5,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LARGE_DIAGRAM_TABLE_COUNT, RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { layoutElkGraph } from "@/lib/elkLayout";
-import type { RelationshipGraph } from "@/types/report";
+import type { GraphTable, RelationshipGraph } from "@/types/report";
 
-vi.mock("@/lib/elkLayout", () => ({ layoutElkGraph: vi.fn() }));
+vi.mock("@/lib/elkLayout", () => ({ layoutElkGraph: vi.fn<typeof layoutElkGraph>() }));
 
-vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
+vi.mock("@tanstack/react-router", () => ({
+  useNavigate: () => vi.fn<(options: unknown) => void>(),
+}));
 
 // React Flow needs real layout measurements; the diagram's own logic only decides what it is given.
 vi.mock("@xyflow/react", async (importOriginal) => ({
@@ -27,30 +29,50 @@ vi.mock("@xyflow/react", async (importOriginal) => ({
   Controls: () => null,
 }));
 
+const noop = () => {};
+
 const mockLayout = vi.mocked(layoutElkGraph);
 
 function makeGraph(tableCount: number): RelationshipGraph {
-  const nodes = Array.from({ length: tableCount }, (_, i) => ({
+  const nodes: GraphTable[] = Array.from({ length: tableCount }, (_, i) => ({
     id: `t${i}`,
     name: `table_${i}`,
     tableUrl: `#/tables/t${i}`,
     columns: [
-      { name: "id", type: "int", isKey: true, isPrimaryKey: true },
-      { name: "name", type: "text", isKey: false },
+      {
+        name: "id",
+        type: "int",
+        isNullable: false,
+        isPrimaryKey: true,
+        isUniqueKey: false,
+        isForeignKey: false,
+        isKey: true,
+      },
+      {
+        name: "name",
+        type: "text",
+        isNullable: true,
+        isPrimaryKey: false,
+        isUniqueKey: false,
+        isForeignKey: false,
+        isKey: false,
+      },
     ],
     columnsCount: 2,
     parentKeysCount: 0,
     childKeysCount: 0,
-  })) as RelationshipGraph["nodes"];
+  }));
   return { nodes, nodesCount: tableCount, edges: [], edgesCount: 0 };
 }
 
 /** Resolves every layout with the graph as given, positioned at the origin. */
 function layOutImmediately() {
-  mockLayout.mockImplementation(async (graph: ElkNode) => ({
-    ...graph,
-    children: graph.children?.map((c) => ({ ...c, x: 0, y: 0 })),
-  }));
+  mockLayout.mockImplementation((graph: ElkNode) =>
+    Promise.resolve({
+      ...graph,
+      children: graph.children?.map((c) => ({ ...c, x: 0, y: 0 })),
+    }),
+  );
 }
 
 function placementOf(call: number) {
@@ -77,7 +99,7 @@ describe("RelationshipDiagram", () => {
 
     render(<RelationshipDiagram graph={makeGraph(LARGE_DIAGRAM_TABLE_COUNT + 1)} compact />);
 
-    expect(screen.getByText(/This diagram has 301 tables/)).toBeInTheDocument();
+    expect(screen.getByText(/This diagram has 301 tables/u)).toBeInTheDocument();
     expect(mockLayout).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole("button", { name: "Show diagram" }));
@@ -133,7 +155,7 @@ describe("RelationshipDiagram", () => {
     expect(mockLayout).toHaveBeenCalledTimes(1);
   });
 
-  it("abandons a layout that is superseded before it finishes", async () => {
+  it("abandons a layout that is superseded before it finishes", () => {
     const signals: AbortSignal[] = [];
     mockLayout.mockImplementation((_graph, signal) => {
       signals.push(signal!);
@@ -150,7 +172,7 @@ describe("RelationshipDiagram", () => {
   });
 
   it("reports a layout that fails", async () => {
-    let fail: (error: Error) => void = () => {};
+    let fail: (error: Error) => void = noop;
     mockLayout.mockImplementation(
       () =>
         new Promise((_, reject) => {
@@ -159,9 +181,14 @@ describe("RelationshipDiagram", () => {
     );
 
     render(<RelationshipDiagram graph={makeGraph(2)} />);
-    await act(async () => fail(new Error("worker crashed")));
+    // `act` only flushes pending promises when its callback is thenable, and `async` is what
+    // makes this one thenable.
+    // oxlint-disable-next-line typescript/require-await
+    await act(async () => {
+      fail(new Error("worker crashed"));
+    });
 
-    expect(screen.getByText(/could not be laid out: worker crashed/)).toBeInTheDocument();
+    expect(screen.getByText(/could not be laid out: worker crashed/u)).toBeInTheDocument();
   });
 
   it("says so when there are no tables", () => {

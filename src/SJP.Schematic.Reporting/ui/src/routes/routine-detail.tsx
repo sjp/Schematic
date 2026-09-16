@@ -4,6 +4,7 @@ import { LintFindings } from "@/components/LintFindings";
 import { ReferencedObjectList } from "@/components/ReferencedObjectList";
 import { TypeLink } from "@/components/TypeLink";
 import { useDetail } from "@/hooks/useReportData";
+import { hasText } from "@/lib/utils";
 import type { RoutineDetail, RoutineParameter } from "@/types/report";
 
 const routeApi = getRouteApi("/routines/$routineKey");
@@ -81,7 +82,7 @@ function ParameterTable({ parameters }: { parameters: RoutineParameter[] }) {
               </td>
               <td className="px-3 py-2">{directionLabels[parameter.direction]}</td>
               <td className="px-3 py-2">
-                {parameter.defaultValue ? (
+                {hasText(parameter.defaultValue) ? (
                   <code className="text-xs">{parameter.defaultValue}</code>
                 ) : null}
               </td>
@@ -100,10 +101,8 @@ export function RoutineDetailPage() {
   if (isPending) {
     return <p className="text-muted-foreground">Loading…</p>;
   }
-  if (isError || !data) {
-    return (
-      <p className="text-destructive">Failed to load routine: {error?.message ?? "not found"}</p>
-    );
+  if (isError) {
+    return <p className="text-destructive">Failed to load routine: {error.message}</p>;
   }
 
   const isOverloaded = data.overloadsCount > 0;
@@ -126,7 +125,11 @@ export function RoutineDetailPage() {
         <Property
           label="Returns"
           value={
-            data.returnType ? <TypeLink type={data.returnType} typeUrl={data.returnTypeUrl} /> : "—"
+            hasText(data.returnType) ? (
+              <TypeLink type={data.returnType} typeUrl={data.returnTypeUrl} />
+            ) : (
+              "—"
+            )
           }
         />
       </dl>
@@ -145,7 +148,7 @@ export function RoutineDetailPage() {
               <div key={index} className="space-y-3">
                 <h3 className="text-sm font-semibold text-muted-foreground">
                   Overload {index + 1}
-                  {overload.returnType && (
+                  {hasText(overload.returnType) && (
                     <>
                       {" → "}
                       <TypeLink type={overload.returnType} typeUrl={overload.returnTypeUrl} />

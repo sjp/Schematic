@@ -31,9 +31,12 @@ export function levelStyle(level: LintLevel): LevelStyle {
   return LEVEL_STYLES[level];
 }
 
-/** Sort key that puts the most severe findings first. */
-export function levelRank(level: LintLevel): number {
-  const rank = LINT_LEVELS.indexOf(level);
+/**
+ * Sort key that puts the most severe findings first. Takes any severity string, not just a known
+ * {@link LintLevel}, because the levels come from a report the C# side generated.
+ */
+export function levelRank(level: string): number {
+  const rank = LINT_LEVELS.findIndex((l) => l === level);
   // An unrecognised level sorts last rather than first, so a future severity added on the C#
   // side never silently outranks a real Error.
   return rank === -1 ? LINT_LEVELS.length : rank;
@@ -69,5 +72,5 @@ export function messagesForObject(
   messages: readonly LintMessage[],
   objectUrl: string,
 ): LintMessage[] {
-  return messages.filter((m) => m.objectUrl === objectUrl).sort(compareMessages);
+  return messages.filter((m) => m.objectUrl === objectUrl).toSorted(compareMessages);
 }

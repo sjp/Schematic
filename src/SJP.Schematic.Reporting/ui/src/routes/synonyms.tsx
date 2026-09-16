@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { DataTable } from "@/components/DataTable";
 import { useSummary } from "@/hooks/useReportData";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
+import { hasText } from "@/lib/utils";
 import type { SynonymSummary, SynonymsSummary } from "@/types/report";
 
 /** Extracts the route safeKey from a `#/synonyms/<key>` hash url. */
@@ -35,7 +36,7 @@ export function SynonymsPage() {
         accessorKey: "targetName",
         header: "Target",
         cell: ({ row }) =>
-          row.original.targetUrl ? (
+          hasText(row.original.targetUrl) ? (
             <a href={row.original.targetUrl} className="text-primary hover:underline">
               {row.original.targetName}
             </a>

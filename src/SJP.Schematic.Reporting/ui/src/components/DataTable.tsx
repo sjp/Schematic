@@ -44,11 +44,14 @@ interface DataTableProps<TData extends RowData> {
  * `@tanstack/react-table`, styled with the shadcn `Table` primitives. The stable shared API the
  * Wave 3 pages build on: pass `columns` (with cell renderers for links/icons) and `data`.
  */
+/** Shared empty default so an unsorted table does not get a fresh array on every render. */
+const NO_SORTING: SortingState = [];
+
 export function DataTable<TData extends RowData>({
   columns,
   data,
   filterPlaceholder = "Filter…",
-  initialSorting = [],
+  initialSorting = NO_SORTING,
   emptyMessage = "No results.",
   pageSize = 50,
 }: DataTableProps<TData>) {
@@ -64,8 +67,12 @@ export function DataTable<TData extends RowData>({
   });
 
   useEffect(() => {
-    const handle = setTimeout(() => setGlobalFilter(filterInput), 200);
-    return () => clearTimeout(handle);
+    const handle = setTimeout(() => {
+      setGlobalFilter(filterInput);
+    }, 200);
+    return () => {
+      clearTimeout(handle);
+    };
   }, [filterInput]);
 
   const table = useTable({
@@ -92,7 +99,9 @@ export function DataTable<TData extends RowData>({
       <div className="flex items-center justify-between gap-2">
         <Input
           value={filterInput}
-          onChange={(e) => setFilterInput(e.target.value)}
+          onChange={(e) => {
+            setFilterInput(e.target.value);
+          }}
           placeholder={filterPlaceholder}
           className="max-w-sm"
         />
@@ -118,7 +127,7 @@ export function DataTable<TData extends RowData>({
                           onClick={header.column.getToggleSortingHandler()}
                           className={cn(
                             "flex items-center gap-1 select-none hover:text-foreground",
-                            sorted && "text-foreground",
+                            sorted !== false && "text-foreground",
                           )}
                         >
                           {flexRender(header.column.columnDef.header, header.getContext())}
@@ -175,7 +184,9 @@ export function DataTable<TData extends RowData>({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => table.setPageIndex(0)}
+              onClick={() => {
+                table.setPageIndex(0);
+              }}
               disabled={!table.getCanPreviousPage()}
               aria-label="First page"
             >
@@ -184,7 +195,9 @@ export function DataTable<TData extends RowData>({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => table.previousPage()}
+              onClick={() => {
+                table.previousPage();
+              }}
               disabled={!table.getCanPreviousPage()}
               aria-label="Previous page"
             >
@@ -193,7 +206,9 @@ export function DataTable<TData extends RowData>({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => table.nextPage()}
+              onClick={() => {
+                table.nextPage();
+              }}
               disabled={!table.getCanNextPage()}
               aria-label="Next page"
             >
@@ -202,7 +217,9 @@ export function DataTable<TData extends RowData>({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => table.setPageIndex(pageCount - 1)}
+              onClick={() => {
+                table.setPageIndex(pageCount - 1);
+              }}
               disabled={!table.getCanNextPage()}
               aria-label="Last page"
             >

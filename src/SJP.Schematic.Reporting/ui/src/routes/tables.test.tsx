@@ -3,10 +3,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import { useSummary } from "@/hooks/useReportData";
 import { TablesPage } from "@/routes/tables";
+import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
 import type { TablesSummary } from "@/types/report";
 
 vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn(),
+  useSummary: vi.fn<typeof useSummary>(),
 }));
 
 // `tables.tsx` only imports `Link` from this package; stub it as a plain anchor
@@ -39,34 +40,22 @@ const mockUseSummary = vi.mocked(useSummary<TablesSummary>);
 
 describe("TablesPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: true,
-      isError: false,
-      data: undefined,
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(pendingQuery());
 
     render(<TablesPage />);
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
   it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: true,
-      data: undefined,
-      error: new Error("boom"),
-    } as never);
+    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
 
     render(<TablesPage />);
     expect(screen.getByText("Failed to load tables: boom")).toBeInTheDocument();
   });
 
   it("links each row's name to its table detail route, derived from the hash url", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: {
+    mockUseSummary.mockReturnValue(
+      loadedQuery({
         tablesCount: 1,
         allTables: [
           {
@@ -75,11 +64,11 @@ describe("TablesPage", () => {
             parentsCount: 0,
             childrenCount: 2,
             columnCount: 4,
+            kind: "",
           },
         ],
-      },
-      error: null,
-    } as never);
+      }),
+    );
 
     render(<TablesPage />);
     const link = screen.getByRole("link", { name: "actor" });
@@ -96,23 +85,15 @@ describe("TablesPage", () => {
       kind: "",
     };
 
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { tablesCount: 1, allTables: [table] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(loadedQuery({ tablesCount: 1, allTables: [table] }));
 
     const withoutCounts = render(<TablesPage />);
     expect(screen.queryByText("Rows (approx.)")).not.toBeInTheDocument();
     withoutCounts.unmount();
 
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { tablesCount: 1, allTables: [{ ...table, rowCount: 1234 }] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(
+      loadedQuery({ tablesCount: 1, allTables: [{ ...table, rowCount: 1234 }] }),
+    );
 
     render(<TablesPage />);
     expect(screen.getByText("Rows (approx.)")).toBeInTheDocument();
@@ -120,12 +101,7 @@ describe("TablesPage", () => {
   });
 
   it("shows the tables count in the heading", () => {
-    mockUseSummary.mockReturnValue({
-      isPending: false,
-      isError: false,
-      data: { tablesCount: 3, allTables: [] },
-      error: null,
-    } as never);
+    mockUseSummary.mockReturnValue(loadedQuery({ tablesCount: 3, allTables: [] }));
 
     render(<TablesPage />);
     expect(screen.getByText("(3)")).toBeInTheDocument();

@@ -94,7 +94,9 @@ export function RootLayout() {
       }
     }
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   return (
@@ -146,7 +148,9 @@ export function RootLayout() {
           <div className="text-sm text-muted-foreground">Database schema report</div>
           <button
             type="button"
-            onClick={() => setSearchOpen(true)}
+            onClick={() => {
+              setSearchOpen(true);
+            }}
             className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
             aria-label="Search schema"
           >
