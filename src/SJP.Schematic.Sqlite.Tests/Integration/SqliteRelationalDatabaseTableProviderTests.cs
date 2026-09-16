@@ -250,6 +250,7 @@ create table table_test_table_39 (
         await DbConnection.ExecuteAsync("create index ix_test_table_39_1 on table_test_table_39 (lower(test_column_1))", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create index ix_test_table_39_2 on table_test_table_39 (test_column_1 collate nocase, lower(test_column_2) desc)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create unique index ix_test_table_39_3 on table_test_table_39 (upper(test_column_1))", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_test_table_39_4 on table_test_table_39 (\"test_column_1\" || lower(test_column_2))", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"
 create table table_test_table_40 (

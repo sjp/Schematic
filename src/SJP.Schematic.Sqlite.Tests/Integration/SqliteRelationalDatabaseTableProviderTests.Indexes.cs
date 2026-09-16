@@ -144,12 +144,26 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     }
 
     [Test]
+    public async Task Indexes_WhenGivenTableWithQuotedExpressionIndex_ReturnsEveryDependentColumn()
+    {
+        var table = await GetTableAsync("table_test_table_39");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "ix_test_table_39_4");
+        var indexColumn = index.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.Expression, Is.EqualTo("\"test_column_1\" || lower(test_column_2)"));
+            Assert.That(indexColumn.DependentColumns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "test_column_1", "test_column_2" }));
+        }
+    }
+
+    [Test]
     public async Task Indexes_WhenGivenTableWithConstraintBackedIndexes_DoesNotIncludeThemInIndexes()
     {
         var table = await GetTableAsync("table_test_table_39");
         var indexNames = table.Indexes.Select(i => i.Name.LocalName).ToList();
 
-        Assert.That(indexNames, Is.EquivalentTo(new[] { "ix_test_table_39_1", "ix_test_table_39_2", "ix_test_table_39_3" }));
+        Assert.That(indexNames, Is.EquivalentTo(new[] { "ix_test_table_39_1", "ix_test_table_39_2", "ix_test_table_39_3", "ix_test_table_39_4" }));
     }
 
     [Test]

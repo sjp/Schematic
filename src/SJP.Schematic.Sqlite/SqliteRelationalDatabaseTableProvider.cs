@@ -548,9 +548,25 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             indexDefinitionLookup.TryGetValue(indexList.name, out var indexSchema);
 
             // the pragma does not report the expression behind a functional index column, so the
-            // definitions are recovered from the index DDL and paired with the key columns by position
+            // definitions are recovered from the index DDL and paired with the key columns by position.
+            // The DDL is lexed once and its tokens are shared by everything read out of it.
+            IReadOnlyList<IToken> indexTokens = [];
+            if (indexSchema != null)
+            {
+                try
+                {
+                    indexTokens = SqliteLexing.GetSignificantTokens(indexSchema);
+                }
+                catch (SqliteSyntaxErrorException)
+                {
+                    // Unable to lex the index definition; neither column definitions nor a filter
+                    // expression can be recovered from it.
+                    indexSchema = null;
+                }
+            }
+
             var columnDefinitions = indexSchema != null
-                ? GetIndexColumnDefinitions(indexSchema)
+                ? GetIndexColumnDefinitions(indexSchema, indexTokens)
                 : [];
 
             var keyColumnInfos = indexInfo
@@ -562,7 +578,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             for (var columnIndex = 0; columnIndex < keyColumnInfos.Count; columnIndex++)
             {
                 var columnInfo = keyColumnInfos[columnIndex];
-                var definition = columnIndex < columnDefinitions.Count ? columnDefinitions[columnIndex] : null;
+                IndexColumnDefinition? definition = columnIndex < columnDefinitions.Count ? columnDefinitions[columnIndex] : null;
                 var indexColumn = CreateIndexColumn(columnInfo, definition, columnLookup);
                 if (indexColumn != null)
                     indexColumns.Add(indexColumn);
@@ -583,7 +599,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             }
 
             var filterDefinition = indexSchema != null
-                ? GetIndexFilterDefinition(indexSchema)
+                ? GetIndexFilterDefinition(indexSchema, indexTokens)
                 : Option<string>.None;
 
             var index = new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, includedColumns, filterDefinition);
@@ -621,7 +637,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     // index DDL, and the columns it refers to are recovered by matching identifiers against the table.
     private IDatabaseIndexColumn? CreateIndexColumn(
         pragma_index_xinfo columnInfo,
-        string? columnDefinition,
+        IndexColumnDefinition? columnDefinition,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup
     )
     {
@@ -638,85 +654,83 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         // an index whose definition could not be recovered still covers a column, so it is described
         // as an unknown expression rather than dropped, which would leave the index looking empty
-        if (columnDefinition.IsNullOrWhiteSpace())
+        if (columnDefinition is not { } definition || definition.Definition.IsNullOrWhiteSpace())
             return new SqliteDatabaseIndexColumn(UnknownExpression, [], order, collation);
 
-        var dependentColumns = GetExpressionDependentColumns(columnDefinition, columnLookup);
-        return new SqliteDatabaseIndexColumn(columnDefinition, dependentColumns, order, collation);
+        var dependentColumns = GetExpressionDependentColumns(definition, columnLookup);
+        return new SqliteDatabaseIndexColumn(definition.Definition, dependentColumns, order, collation);
     }
 
+    // The pragma does not say which table columns an expression column reads, so they are recovered
+    // from the tokens of its definition: every identifier that does not qualify another identifier
+    // is a candidate column name, e.g. both 'a' and 'b' in 'a + t.b', but not 't'.
     private static IReadOnlyCollection<IDatabaseColumn> GetExpressionDependentColumns(
-        string expression,
+        IndexColumnDefinition definition,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup
     )
     {
-        IReadOnlyCollection<Identifier> dependencies;
-        try
-        {
-            dependencies = ExpressionDependencyProvider.GetDependencies(ExpressionObjectName, expression);
-        }
-        catch (ArgumentException)
-        {
-            return [];
-        }
+        var tokens = definition.Tokens;
+        List<IDatabaseColumn>? result = null;
 
-        var result = new List<IDatabaseColumn>();
-        foreach (var dependency in dependencies)
+        for (var i = definition.StartToken; i <= definition.EndToken; i++)
         {
-            if (columnLookup.TryGetValue(dependency.LocalName, out var column) && !result.Contains(column))
+            if (tokens[i].Type != SQLiteLexer.IDENTIFIER)
+                continue;
+
+            if (i + 2 <= definition.EndToken
+                && tokens[i + 1].Type == SQLiteLexer.DOT
+                && tokens[i + 2].Type == SQLiteLexer.IDENTIFIER)
+                continue;
+
+            var columnName = AntlrParsingExtensions.UnquoteIdentifier(tokens[i].Text);
+            if (columnName.IsNullOrWhiteSpace() || !columnLookup.TryGetValue(columnName, out var column))
+                continue;
+
+            result ??= [];
+            if (!result.Contains(column))
                 result.Add(column);
         }
 
-        return result;
+        return result is not null ? result : [];
     }
 
     // Splits the parenthesised column list of a CREATE INDEX statement on its top-level commas,
     // yielding one definition per key column, in the order that pragma index_xinfo reports them.
-    private static IReadOnlyList<string> GetIndexColumnDefinitions(string indexSchema)
+    private static IReadOnlyList<IndexColumnDefinition> GetIndexColumnDefinitions(string indexSchema, IReadOnlyList<IToken> tokens)
     {
-        try
+        var definitions = new List<IndexColumnDefinition>();
+        var depth = 0;
+        var segmentStart = -1;
+
+        for (var i = 0; i < tokens.Count; i++)
         {
-            var tokens = SqliteLexing.GetSignificantTokens(indexSchema);
-
-            var definitions = new List<string>();
-            var depth = 0;
-            var segmentStart = -1;
-
-            for (var i = 0; i < tokens.Count; i++)
+            var tokenType = tokens[i].Type;
+            if (tokenType == SQLiteLexer.OPEN_PAR)
             {
-                var tokenType = tokens[i].Type;
-                if (tokenType == SQLiteLexer.OPEN_PAR)
-                {
-                    depth++;
-                    if (depth == 1)
-                        segmentStart = i + 1;
-                }
-                else if (tokenType == SQLiteLexer.CLOSE_PAR)
-                {
-                    depth--;
-                    if (depth != 0)
-                        continue;
-
-                    AddColumnDefinition(definitions, indexSchema, tokens, segmentStart, i - 1);
-                    return definitions;
-                }
-                else if (depth == 1 && tokenType == SQLiteLexer.COMMA)
-                {
-                    AddColumnDefinition(definitions, indexSchema, tokens, segmentStart, i - 1);
+                depth++;
+                if (depth == 1)
                     segmentStart = i + 1;
-                }
             }
+            else if (tokenType == SQLiteLexer.CLOSE_PAR)
+            {
+                depth--;
+                if (depth != 0)
+                    continue;
 
-            return definitions;
+                AddColumnDefinition(definitions, indexSchema, tokens, segmentStart, i - 1);
+                return definitions;
+            }
+            else if (depth == 1 && tokenType == SQLiteLexer.COMMA)
+            {
+                AddColumnDefinition(definitions, indexSchema, tokens, segmentStart, i - 1);
+                segmentStart = i + 1;
+            }
         }
-        catch (SqliteSyntaxErrorException)
-        {
-            // Unable to lex the index definition; no column definitions can be recovered from it.
-            return [];
-        }
+
+        return definitions;
     }
 
-    private static void AddColumnDefinition(List<string> definitions, string indexSchema, IReadOnlyList<IToken> tokens, int startToken, int endToken)
+    private static void AddColumnDefinition(List<IndexColumnDefinition> definitions, string indexSchema, IReadOnlyList<IToken> tokens, int startToken, int endToken)
     {
         // a column definition may be followed by COLLATE <name> and/or ASC | DESC, none of which
         // form part of the expression being indexed
@@ -734,35 +748,30 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (endToken < startToken)
             return;
 
-        definitions.Add(indexSchema[tokens[startToken].StartIndex..(tokens[endToken].StopIndex + 1)]);
+        var definition = indexSchema[tokens[startToken].StartIndex..(tokens[endToken].StopIndex + 1)];
+        definitions.Add(new IndexColumnDefinition(definition, tokens, startToken, endToken));
     }
 
-    private static Option<string> GetIndexFilterDefinition(string indexSchema)
+    private static Option<string> GetIndexFilterDefinition(string indexSchema, IReadOnlyList<IToken> tokens)
     {
-        try
+        // The filter expression is everything following the WHERE keyword.
+        for (var i = 0; i < tokens.Count - 1; i++)
         {
-            var tokens = SqliteLexing.GetSignificantTokens(indexSchema);
+            if (tokens[i].Type != SQLiteLexer.WHERE_)
+                continue;
 
-            // The filter expression is everything following the WHERE keyword.
-            for (var i = 0; i < tokens.Count - 1; i++)
-            {
-                if (tokens[i].Type != SQLiteLexer.WHERE_)
-                    continue;
-
-                var definition = indexSchema[tokens[i + 1].StartIndex..];
-                return !definition.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(definition)
-                    : Option<string>.None;
-            }
-
-            return Option<string>.None;
+            var definition = indexSchema[tokens[i + 1].StartIndex..];
+            return !definition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(definition)
+                : Option<string>.None;
         }
-        catch (SqliteSyntaxErrorException)
-        {
-            // Unable to lex the index definition; treat it as having no filter expression.
-            return Option<string>.None;
-        }
+
+        return Option<string>.None;
     }
+
+    // One key column of a CREATE INDEX statement: its text, together with the tokens it was cut from
+    // and the range within them, so that the columns it refers to can be read without lexing again.
+    private readonly record struct IndexColumnDefinition(string Definition, IReadOnlyList<IToken> Tokens, int StartToken, int EndToken);
 
     /// <summary>
     /// Retrieves unique keys that relate to the given table.
@@ -1727,10 +1736,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private static readonly Version TableXInfoPragmaVersion = new(3, 31, 0);
 
     private const string UnknownExpression = "<unknown expression>";
-
-    private static readonly Identifier ExpressionObjectName = Identifier.CreateQualifiedIdentifier("index_column");
-
-    private static readonly SqliteDependencyProvider ExpressionDependencyProvider = new();
 
     private static class Constants
     {
