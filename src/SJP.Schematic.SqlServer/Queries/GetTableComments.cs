@@ -27,7 +27,7 @@ internal static class GetTableComments
 select
     'TABLE' as [{nameof(Result.ObjectType)}],
     t.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 left join sys.extended_properties ep on t.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TableName)} and t.is_ms_shipped = 0
@@ -38,7 +38,7 @@ union all
 select
     'COLUMN' as [{nameof(Result.ObjectType)}],
     c.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and c.column_id = ep.minor_id and ep.name = @{nameof(Query.CommentProperty)} and ep.class = 1
@@ -50,7 +50,7 @@ union all
 select
     'CHECK' as [{nameof(Result.ObjectType)}],
     cc.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.check_constraints cc on t.object_id = cc.parent_object_id
 left join sys.extended_properties ep on cc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
@@ -62,7 +62,7 @@ union all
 select
     'FOREIGN KEY' as [{nameof(Result.ObjectType)}],
     fk.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.foreign_keys fk on t.object_id = fk.parent_object_id
 left join sys.extended_properties ep on fk.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
@@ -74,7 +74,7 @@ union all
 select
     'UNIQUE' as [{nameof(Result.ObjectType)}],
     kc.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
@@ -87,7 +87,7 @@ union all
 select
     'PRIMARY' as [{nameof(Result.ObjectType)}],
     kc.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.key_constraints kc on t.object_id = kc.parent_object_id
 left join sys.extended_properties ep on kc.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
@@ -100,7 +100,7 @@ union all
 select
     'INDEX' as [{nameof(Result.ObjectType)}],
     i.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.indexes i on t.object_id = i.object_id
 left join sys.extended_properties ep on t.object_id = ep.major_id and i.index_id = ep.minor_id and ep.name = @{nameof(Query.CommentProperty)} and ep.class = 7
@@ -114,7 +114,7 @@ union all
 select
     'TRIGGER' as [{nameof(Result.ObjectType)}],
     tr.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.tables t
 inner join sys.triggers tr on t.object_id = tr.parent_id
 left join sys.extended_properties ep on tr.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1

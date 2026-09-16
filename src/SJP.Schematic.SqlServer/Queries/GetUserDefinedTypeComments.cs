@@ -26,7 +26,7 @@ internal static class GetUserDefinedTypeComments
 select
     'TYPE' as [{nameof(Result.ObjectType)}],
     t.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.types t
 left join sys.extended_properties ep on t.user_type_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 6
 where t.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and t.name = @{nameof(Query.TypeName)} and t.is_user_defined = 1

@@ -26,7 +26,7 @@ internal static class GetSynonymComments
 select
     'SYNONYM' as [{nameof(Result.ObjectType)}],
     s.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.synonyms s
 left join sys.extended_properties ep on s.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
 where s.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and s.name = @{nameof(Query.SynonymName)} and s.is_ms_shipped = 0
