@@ -51,12 +51,16 @@ public class OracleConnectionFactory : IDbConnectionFactory
     /// Creates a database connection instance, but does not open the connection.
     /// </summary>
     /// <returns>An object representing a database connection.</returns>
+    /// <remarks>
+    /// The connection is returned wrapped, so that the commands created from it retrieve <c>LONG</c> column
+    /// data with the row it belongs to rather than leaving it to be requested separately.
+    /// </remarks>
     public DbConnection CreateConnection()
     {
         var connection = new OracleConnection(ConnectionString);
         ConnectionConfiguration?.Invoke(connection);
 
-        return connection;
+        return new OracleLongPrefetchConnection(connection);
     }
 
     /// <summary>

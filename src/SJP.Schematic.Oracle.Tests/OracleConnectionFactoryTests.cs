@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using NUnit.Framework;
+using Oracle.ManagedDataAccess.Client;
 
 namespace SJP.Schematic.Oracle.Tests;
 
@@ -58,6 +59,18 @@ internal static class OracleConnectionFactoryTests
         using var connection = factory.CreateConnection();
 
         Assert.That(connection.ConnectionString, Is.EqualTo(expectedConnectionString));
+    }
+
+    [Test]
+    public static void CreateConnection_WhenInvoked_CreatesCommandsThatRetrieveEntireLongValues()
+    {
+        var factory = new OracleConnectionFactory("Data Source=127.0.0.1/orcl; User Id=SYSTEM; Password=oracle");
+        using var connection = factory.CreateConnection();
+
+        using var command = connection.CreateCommand();
+
+        Assert.That(command, Is.InstanceOf<OracleCommand>()
+            .With.Property(nameof(OracleCommand.InitialLONGFetchSize)).EqualTo(-1));
     }
 
     [Test]
