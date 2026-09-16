@@ -91,6 +91,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         new AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache>(GetParsedTableDefinitionAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyList<pragma_table_xinfo>, SqliteTableQueryCache>(LoadTableXInfoAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnsAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnLookupAsync, cancellationToken),
         new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache>(LoadParentKeysAsync, cancellationToken),
@@ -407,13 +408,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (pkColumnNames.Count == 0)
             return Option<IDatabaseKey>.None;
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        var keyColumns = pkColumnNames
-            .Where(name => columnLookup.ContainsKey(name))
-            .Select(name => columnLookup[name])
-            .ToList();
+        var keyColumns = new List<IDatabaseColumn>(pkColumnNames.Count);
+        foreach (var pkColumnName in pkColumnNames)
+        {
+            if (columnLookup.TryGetValue(pkColumnName, out var keyColumn))
+                keyColumns.Add(keyColumn);
+        }
 
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
 
@@ -519,8 +521,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (nonConstraintIndexLists.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var indexDefinitions = await DbConnection.QueryAsync(
             GetTableIndexDefinitions.Sql(Dialect, tableName.Schema!),
@@ -570,11 +571,16 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             if (indexColumns.Empty())
                 continue;
 
-            var includedColumns = indexInfo
-                .Where(i => !i.key && i.cid >= 0 && i.name != null && columnLookup.ContainsKey(i.name))
-                .OrderBy(static i => i.name, StringComparer.Ordinal)
-                .Select(i => columnLookup[i.name!])
-                .ToList();
+            var includedColumnInfos = indexInfo
+                .Where(static i => !i.key && i.cid >= 0 && i.name != null)
+                .OrderBy(static i => i.name, StringComparer.Ordinal);
+
+            var includedColumns = new List<IDatabaseColumn>();
+            foreach (var includedColumnInfo in includedColumnInfos)
+            {
+                if (columnLookup.TryGetValue(includedColumnInfo.name!, out var includedColumn))
+                    includedColumns.Add(includedColumn);
+            }
 
             var filterDefinition = indexSchema != null
                 ? GetIndexFilterDefinition(indexSchema)
@@ -654,11 +660,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             return [];
         }
 
-        return dependencies
-            .Where(dependency => columnLookup.ContainsKey(dependency.LocalName))
-            .Select(dependency => columnLookup[dependency.LocalName])
-            .Distinct()
-            .ToList();
+        var result = new List<IDatabaseColumn>();
+        foreach (var dependency in dependencies)
+        {
+            if (columnLookup.TryGetValue(dependency.LocalName, out var column) && !result.Contains(column))
+                result.Add(column);
+        }
+
+        return result;
     }
 
     // Splits the parenthesised column list of a CREATE INDEX statement on its top-level commas,
@@ -795,10 +804,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var result = new List<IDatabaseKey>(ukIndexLists.Count);
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
 
-        var columnLookup = GetColumnLookup(columns);
         var parsedUniqueConstraints = parsedTable.UniqueKeys;
 
         var ukIndexXInfos = await ukIndexLists
@@ -816,10 +824,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .ToList();
             var columnNames = orderedColumns
                 .ConvertAll(static i => i.name);
-            var keyColumns = orderedColumns
-                .Where(i => columnLookup.ContainsKey(i.name!))
-                .Select(i => columnLookup[i.name!])
-                .ToList();
+            var keyColumns = new List<IDatabaseColumn>(orderedColumns.Count);
+            foreach (var orderedColumn in orderedColumns)
+            {
+                if (columnLookup.TryGetValue(orderedColumn.name!, out var keyColumn))
+                    keyColumns.Add(keyColumn);
+            }
 
             var parsedUniqueConstraint = parsedUniqueConstraints
                 .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames, StringComparer.Ordinal));
@@ -1020,9 +1030,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (foreignKeys.Empty())
             return [];
 
-        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
-        var columnLookup = GetColumnLookup(columns);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
@@ -1045,13 +1054,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     if (hasImplicitParentColumns)
                         return parentPrimaryKey.Filter(pk => pk.Columns.Count == rows.Count).ToAsync();
 
-                    var parentTableColumns = await queryCache.GetColumnsAsync(name, cancellationToken);
-                    var parentTableColumnLookup = GetColumnLookup(parentTableColumns);
+                    var parentTableColumnLookup = await queryCache.GetColumnLookupAsync(name, cancellationToken);
 
-                    var parentColumns = rows
-                        .Where(row => parentTableColumnLookup.ContainsKey(row.to!))
-                        .Select(row => parentTableColumnLookup[row.to!])
-                        .ToList();
+                    var parentColumns = new List<IDatabaseColumn>(rows.Count);
+                    foreach (var row in rows)
+                    {
+                        if (parentTableColumnLookup.TryGetValue(row.to!, out var parentColumn))
+                            parentColumns.Add(parentColumn);
+                    }
 
                     var pkColumnsEqual = parentPrimaryKey
                         .Match(
@@ -1086,10 +1096,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                         : Option<ForeignKey>.None;
 
                     var childKeyName = parsedConstraintOption.Bind(fk => fk.Name.Map(Identifier.CreateQualifiedIdentifier));
-                    var childKeyColumns = rows
-                        .Where(row => columnLookup.ContainsKey(row.from))
-                        .Select(row => columnLookup[row.from])
-                        .ToList();
+                    var childKeyColumns = new List<IDatabaseColumn>(rows.Count);
+                    foreach (var row in rows)
+                    {
+                        if (columnLookup.TryGetValue(row.from, out var childKeyColumn))
+                            childKeyColumns.Add(childKeyColumn);
+                    }
 
                     // the pragma reports neither DEFERRABLE nor MATCH, so both are read from the
                     // parsed CREATE TABLE definition when the constraint could be matched to one
@@ -1216,7 +1228,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseColumn>();
-        var parsedColumns = parsedTable.Columns;
+        var parsedColumns = GetParsedColumnLookup(parsedTable);
         var rowidAliasColumnName = GetRowidAliasColumnName(parsedTable);
 
         foreach (var tableInfo in tableInfos)
@@ -1225,7 +1237,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 continue;
 
             // a virtual table has no parsed definition, so its columns are described by the pragma alone
-            var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
+            parsedColumns.TryGetValue(tableInfo.name, out var parsedColumnInfo);
             var columnTypeName = tableInfo.type;
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
@@ -1323,7 +1335,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var parsedTable = await queryCache.GetParsedTableAsync(tableName, cancellationToken);
 
         var result = new List<IDatabaseColumn>();
-        var parsedColumns = parsedTable.Columns;
+        var parsedColumns = GetParsedColumnLookup(parsedTable);
         var rowidAliasColumnName = GetRowidAliasColumnName(parsedTable);
 
         foreach (var tableInfo in tableInfos)
@@ -1332,7 +1344,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 continue;
 
             // a virtual table has no parsed definition, so its columns are described by the pragma alone
-            var parsedColumnInfo = parsedColumns.FirstOrDefault(col => string.Equals(col.Name, tableInfo.name, StringComparison.OrdinalIgnoreCase));
+            parsedColumns.TryGetValue(tableInfo.name, out var parsedColumnInfo);
             var columnTypeName = tableInfo.type;
 
             var affinity = AffinityParser.ParseTypeName(columnTypeName);
@@ -1356,6 +1368,19 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
             result.Add(column);
         }
+
+        return result;
+    }
+
+    // The parsed columns of a table, keyed the way a pragma's column names are matched against them.
+    // SQLite rejects a table that declares the same column twice, so a repeated name can only come from
+    // a definition it would not accept; the first declaration wins, as a linear search would find it.
+    private static Dictionary<string, Column> GetParsedColumnLookup(ParsedTableData parsedTable)
+    {
+        var result = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var column in parsedTable.Columns)
+            result.TryAdd(column.Name, column);
 
         return result;
     }
@@ -1459,6 +1484,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    private static async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var columns = await queryCache.GetColumnsAsync(tableName, cancellationToken);
+        return GetColumnLookup(columns);
     }
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyCollection<IDatabaseColumn> columns)
@@ -1722,6 +1753,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> _parsedTables;
         private readonly AsyncCache<Identifier, IReadOnlyList<pragma_table_xinfo>, SqliteTableQueryCache> _tableXInfos;
         private readonly AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> _columns;
+        private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqliteTableQueryCache> _columnLookups;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> _uniqueKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> _foreignKeys;
@@ -1737,19 +1769,21 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="parsedTableLoader">A table parsing result cache.</param>
         /// <param name="tableXInfoLoader">A table extra info pragma cache.</param>
         /// <param name="columnLoader">A column cache.</param>
+        /// <param name="columnLookupLoader">A cache of column lookups, keyed by table name.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="indexListLoader">An index list pragma cache.</param>
         /// <param name="foreignKeyListLoader">A foreign key list pragma cache.</param>
         /// <param name="childTableLookupLoader">A cache of child table lookups, keyed by schema name.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="tableXInfoLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="tableXInfoLoader"/>, <paramref name="columnLoader"/>, <paramref name="columnLookupLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
         public SqliteTableQueryCache(
             Func<CancellationToken, Task<IReadOnlyList<pragma_database_list>>> databaseListLoader,
             AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache> tableListLoader,
             AsyncCache<Identifier, ParsedTableData, SqliteTableQueryCache> parsedTableLoader,
             AsyncCache<Identifier, IReadOnlyList<pragma_table_xinfo>, SqliteTableQueryCache> tableXInfoLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqliteTableQueryCache> columnLoader,
+            AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqliteTableQueryCache> columnLookupLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> uniqueKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> foreignKeyLoader,
@@ -1766,6 +1800,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _parsedTables = parsedTableLoader ?? throw new ArgumentNullException(nameof(parsedTableLoader));
             _tableXInfos = tableXInfoLoader ?? throw new ArgumentNullException(nameof(tableXInfoLoader));
             _columns = columnLoader ?? throw new ArgumentNullException(nameof(columnLoader));
+            _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
@@ -1838,6 +1873,21 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _columns.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a lookup of a table's columns, keyed by column name, from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A lookup of columns, keyed by column name.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        /// <remarks>The lookup is shared by every caller in this context, so it must not be modified.</remarks>
+        public Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> GetColumnLookupAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _columnLookups.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>
