@@ -94,6 +94,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqliteTableQueryCache>(LoadColumnLookupAsync, cancellationToken),
         new AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache>(LoadPrimaryKeyAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueKeysAsync, cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache>(LoadUniqueIndexKeysAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache>(LoadParentKeysAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache>(LoadIndexListAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache>(LoadForeignKeyListAsync, cancellationToken),
@@ -866,6 +867,104 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
+    /// Retrieves keys formed by the unique indexes that a given table declares outside of any constraint.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="queryCache">A query cache for the given context.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of unique keys, each named after the index forming it.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="queryCache"/> are <see langword="null" />.</exception>
+    /// <remarks>
+    /// A <c>CREATE UNIQUE INDEX</c> statement enforces uniqueness without declaring a constraint, so
+    /// SQLite accepts the columns it covers as a foreign key's parent key while reporting the index
+    /// through <c>pragma index_list</c> with an origin of <c>c</c>. Such an index is not a constraint,
+    /// so it is not one of the table's unique keys; the keys returned here exist only to resolve the
+    /// foreign keys that reference them.
+    /// </remarks>
+    protected Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueIndexKeysAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+        ArgumentNullException.ThrowIfNull(queryCache);
+
+        return LoadUniqueIndexKeysAsyncCore(tableName, queryCache, cancellationToken);
+    }
+
+    private async Task<IReadOnlyCollection<IDatabaseKey>> LoadUniqueIndexKeysAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        if (tableName.Schema == null)
+        {
+            var resolvedName = await GetResolvedTableName(tableName, queryCache, cancellationToken)
+                .MatchUnsafe(static name => name, static () => (Identifier?)null);
+            if (resolvedName == null)
+                return [];
+            tableName = resolvedName;
+        }
+
+        var indexLists = await queryCache.GetIndexListAsync(tableName, cancellationToken);
+        if (indexLists.Empty())
+            return [];
+
+        // SQLite will not satisfy a foreign key with a partial index, so those are excluded.
+        var uniqueIndexLists = indexLists
+            .Where(static i => string.Equals(i.origin, Constants.CreateIndex, StringComparison.Ordinal) && i.unique && !i.partial && i.name != null)
+            .ToList();
+        if (uniqueIndexLists.Empty())
+            return [];
+
+        var pragma = GetDatabasePragma(tableName.Schema!);
+        var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
+
+        var indexXInfos = await uniqueIndexLists
+            .Select(i => pragma.IndexXInfoAsync(i.name, cancellationToken))
+            .ToArray()
+            .WhenAll();
+
+        var result = new List<IDatabaseKey>(uniqueIndexLists.Count);
+
+        for (var idx = 0; idx < uniqueIndexLists.Count; idx++)
+        {
+            var indexList = uniqueIndexLists[idx];
+            var indexXInfo = indexXInfos[idx];
+
+            var orderedColumns = indexXInfo
+                .Where(static i => i.key)
+                .OrderBy(static i => i.seqno)
+                .ToList();
+
+            // an index over an expression covers no column set that a foreign key can name, so it
+            // cannot form a parent key at all
+            if (orderedColumns.Count == 0 || orderedColumns.Exists(static i => i.cid < 0 || i.name == null))
+                continue;
+
+            var keyColumns = new List<IDatabaseColumn>(orderedColumns.Count);
+            foreach (var orderedColumn in orderedColumns)
+            {
+                if (columnLookup.TryGetValue(orderedColumn.name!, out var keyColumn))
+                    keyColumns.Add(keyColumn);
+            }
+
+            // a column the index covers but the table does not report leaves a key that no longer
+            // describes what the index enforces, so it is not reported either
+            if (keyColumns.Count != orderedColumns.Count)
+                continue;
+
+            var indexColumns = orderedColumns
+                .Select(i => CreateIndexColumn(i, null, columnLookup))
+                .Where(static i => i != null)
+                .Select(static i => i!)
+                .ToList();
+            var backingIndex = indexColumns.Count > 0
+                ? Option<IDatabaseIndex>.Some(new SqliteDatabaseIndex(indexList.name, indexList.unique, indexColumns, [], Option<string>.None))
+                : Option<IDatabaseIndex>.None;
+
+            var keyName = Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(indexList.name));
+            result.Add(new SqliteDatabaseKey(keyName, DatabaseKeyType.Unique, keyColumns, backingIndex));
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// Retrieves child keys that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -1072,20 +1171,28 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                             parentColumns.Add(parentColumn);
                     }
 
+                    // a constraint may name a parent column that does not exist, which SQLite only
+                    // rejects once the foreign key is checked. No key covers such a column set, so
+                    // matching on the columns that did resolve would find the wrong key.
+                    if (parentColumns.Count != rows.Count)
+                        return OptionAsync<IDatabaseKey>.None;
+
                     var pkColumnsEqual = parentPrimaryKey
-                        .Match(
-                            k => k.Columns.Select(static col => col.Name).SequenceEqual(parentColumns.Select(static col => col.Name)),
-                            static () => false
-                        );
+                        .Match(k => KeyMatchesColumnSet(k, parentColumns), static () => false);
                     if (pkColumnsEqual)
                         return parentPrimaryKey.ToAsync();
 
                     var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(name, cancellationToken);
-                    var parentUniqueKey = parentUniqueKeys.FirstOrDefault(uk =>
-                        uk.Columns.Select(static ukCol => ukCol.Name)
-                            .SequenceEqual(parentColumns.Select(static pc => pc.Name)));
-                    return parentUniqueKey != null
-                        ? OptionAsync<IDatabaseKey>.Some(parentUniqueKey)
+                    var parentUniqueKey = parentUniqueKeys.FirstOrDefault(uk => KeyMatchesColumnSet(uk, parentColumns));
+                    if (parentUniqueKey != null)
+                        return OptionAsync<IDatabaseKey>.Some(parentUniqueKey);
+
+                    // the constraint may also reference the columns of a unique index that no constraint
+                    // declared, which SQLite accepts as a parent key but does not report as a unique key
+                    var parentUniqueIndexKeys = await queryCache.GetUniqueIndexKeysAsync(name, cancellationToken);
+                    var parentUniqueIndexKey = parentUniqueIndexKeys.FirstOrDefault(uk => KeyMatchesColumnSet(uk, parentColumns));
+                    return parentUniqueIndexKey != null
+                        ? OptionAsync<IDatabaseKey>.Some(parentUniqueIndexKey)
                         : OptionAsync<IDatabaseKey>.None;
                 })
                 .Map(key =>
@@ -1128,6 +1235,33 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    // SQLite matches a foreign key to a parent key on the exact column set each covers, disregarding
+    // the order they are declared in, so a key whose columns the constraint names in a different order
+    // still satisfies it. Both column sets come from the same cached lookup, so they match by name.
+    private static bool KeyMatchesColumnSet(IDatabaseKey key, IReadOnlyList<IDatabaseColumn> columns)
+    {
+        if (key.Columns.Count != columns.Count)
+            return false;
+
+        foreach (var keyColumn in key.Columns)
+        {
+            var matched = false;
+            for (var i = 0; i < columns.Count; i++)
+            {
+                if (columns[i].Name == keyColumn.Name)
+                {
+                    matched = true;
+                    break;
+                }
+            }
+
+            if (!matched)
+                return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -1792,6 +1926,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqliteTableQueryCache> _columnLookups;
         private readonly AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> _primaryKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> _uniqueKeys;
+        private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> _uniqueIndexKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> _foreignKeys;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache> _indexLists;
         private readonly AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache> _foreignKeyLists;
@@ -1808,11 +1943,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="columnLookupLoader">A cache of column lookups, keyed by table name.</param>
         /// <param name="primaryKeyLoader">A primary key cache.</param>
         /// <param name="uniqueKeyLoader">A unique key cache.</param>
+        /// <param name="uniqueIndexKeyLoader">A cache of the keys formed by a table's unique indexes.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="indexListLoader">An index list pragma cache.</param>
         /// <param name="foreignKeyListLoader">A foreign key list pragma cache.</param>
         /// <param name="childTableLookupLoader">A cache of child table lookups, keyed by schema name.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="tableXInfoLoader"/>, <paramref name="columnLoader"/>, <paramref name="columnLookupLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="databaseListLoader"/>, <paramref name="tableListLoader"/>, <paramref name="parsedTableLoader"/>, <paramref name="tableXInfoLoader"/>, <paramref name="columnLoader"/>, <paramref name="columnLookupLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="uniqueIndexKeyLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexListLoader"/>, <paramref name="foreignKeyListLoader"/> or <paramref name="childTableLookupLoader"/> are <see langword="null" />.</exception>
         public SqliteTableQueryCache(
             Func<CancellationToken, Task<IReadOnlyList<pragma_database_list>>> databaseListLoader,
             AsyncCache<string, IReadOnlyDictionary<string, pragma_table_list>, SqliteTableQueryCache> tableListLoader,
@@ -1822,6 +1958,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqliteTableQueryCache> columnLookupLoader,
             AsyncCache<Identifier, Option<IDatabaseKey>, SqliteTableQueryCache> primaryKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> uniqueKeyLoader,
+            AsyncCache<Identifier, IReadOnlyCollection<IDatabaseKey>, SqliteTableQueryCache> uniqueIndexKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqliteTableQueryCache> foreignKeyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<pragma_index_list>, SqliteTableQueryCache> indexListLoader,
             AsyncCache<Identifier, IReadOnlyList<pragma_foreign_key_list>, SqliteTableQueryCache> foreignKeyListLoader,
@@ -1839,6 +1976,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
             _primaryKeys = primaryKeyLoader ?? throw new ArgumentNullException(nameof(primaryKeyLoader));
             _uniqueKeys = uniqueKeyLoader ?? throw new ArgumentNullException(nameof(uniqueKeyLoader));
+            _uniqueIndexKeys = uniqueIndexKeyLoader ?? throw new ArgumentNullException(nameof(uniqueIndexKeyLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             _indexLists = indexListLoader ?? throw new ArgumentNullException(nameof(indexListLoader));
             _foreignKeyLists = foreignKeyListLoader ?? throw new ArgumentNullException(nameof(foreignKeyListLoader));
@@ -1952,6 +2090,20 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _uniqueKeys.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves the keys formed by a table's unique indexes from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of keys formed by the table's unique indexes, which are not constraints and so are not among its unique keys.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueIndexKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _uniqueIndexKeys.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>
