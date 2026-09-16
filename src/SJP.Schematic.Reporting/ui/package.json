@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true});fs.rmSync('.tsbuild',{recursive:true,force:true})\"",
-    "lint": "oxlint",
+    "lint": "oxlint --type-aware",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "preview": "vite preview",
@@ -50,6 +50,7 @@
     "oxc-transform-react": "^0.148.0",
     "oxfmt": "^0.66.0",
     "oxlint": "^1.81.0",
+    "oxlint-tsgolint": "^7.0.2001",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"
