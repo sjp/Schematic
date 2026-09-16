@@ -375,4 +375,24 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_case_twin_mixed"));
         }
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKeyToBareUniqueIndex_ContainsConstraintWithIndexAsParentKey()
+    {
+        var table = await GetTableAsync("fk_bare_unique_child");
+        var foreignKey = table.ParentKeys.Single();
+
+        var backingIndex = foreignKey.ParentKey.BackingIndex.UnwrapSome();
+        var indexColumns = backingIndex.Columns.SelectMany(c => c.DependentColumns).Select(c => c.Name.LocalName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("fk_bare_unique_parent"));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
+            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(backingIndex.Name.LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
+            Assert.That(backingIndex.IsUnique, Is.True);
+            Assert.That(indexColumns, Is.EqualTo(new[] { "a" }));
+        }
+    }
 }

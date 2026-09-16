@@ -1013,11 +1013,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     // Synthesizes a key from a unique index so that a foreign key referencing a bare unique index (i.e. one with
-    // no backing UNIQUE constraint) can still be represented as an IDatabaseKey.
+    // no backing UNIQUE constraint) can still be represented as an IDatabaseKey. The index is what enforces the
+    // uniqueness the foreign key relies on, so it is also the key's backing index.
     private static IDatabaseKey CreateKeyFromUniqueIndex(IDatabaseIndex uniqueIndex)
     {
         var columns = uniqueIndex.Columns.SelectMany(static ic => ic.DependentColumns).ToList();
-        return new PostgreSqlDatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns);
+        return new PostgreSqlDatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns, Option<IDatabaseIndex>.Some(uniqueIndex));
     }
 
     /// <summary>

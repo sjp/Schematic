@@ -404,4 +404,21 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
             Assert.That(foreignKey.ChildKey.IsValidated, Is.False);
         }
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenTableWithForeignKeyToUniqueIndexWithNoBackingConstraint_ContainsConstraintWithIndexAsBackingIndex()
+    {
+        var table = await GetTableAsync("table_test_table_43");
+        var foreignKey = table.ParentKeys.Single();
+
+        var backingIndex = foreignKey.ParentKey.BackingIndex.UnwrapSome();
+        var indexColumns = backingIndex.Columns.SelectMany(c => c.DependentColumns).Select(c => c.Name.LocalName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(backingIndex.Name.LocalName, Is.EqualTo("uk_test_table_42"));
+            Assert.That(backingIndex.IsUnique, Is.True);
+            Assert.That(indexColumns, Is.EqualTo(new[] { "first_name_parent", "last_name_parent" }));
+        }
+    }
 }
