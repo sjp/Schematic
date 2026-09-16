@@ -35,9 +35,9 @@ internal static class GetAllSequenceDefinitions
 
     internal const string Sql = @$"
 select
-    schema_name(s.schema_id) as [{nameof(Result.SchemaName)}],
+    ss.name as [{nameof(Result.SchemaName)}],
     s.name as [{nameof(Result.SequenceName)}],
-    schema_name(t.schema_id) as [{nameof(Result.TypeSchemaName)}],
+    ts.name as [{nameof(Result.TypeSchemaName)}],
     t.name as [{nameof(Result.TypeName)}],
     cast(t.max_length as int) as [{nameof(Result.TypeMaxLength)}],
     cast(s.precision as int) as [{nameof(Result.Precision)}],
@@ -50,7 +50,9 @@ select
     s.is_cached as [{nameof(Result.IsCached)}],
     s.cache_size as [{nameof(Result.CacheSize)}]
 from sys.sequences s
+inner join sys.schemas ss on s.schema_id = ss.schema_id
 inner join sys.types t on s.user_type_id = t.user_type_id
+inner join sys.schemas ts on t.schema_id = ts.schema_id
 where s.is_ms_shipped = 0
-order by [{nameof(Result.SchemaName)}], [{nameof(Result.SequenceName)}]";
+order by ss.name, s.name";
 }

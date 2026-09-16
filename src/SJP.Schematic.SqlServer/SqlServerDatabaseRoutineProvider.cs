@@ -224,13 +224,14 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
     {
-        var results = await Connection.QueryAsync(
+        // a routine name is unique within its schema, so at most one row can match
+        var detail = await Connection.QueryFirstOrNone(
             GetRoutineDefinition.Sql,
             new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
-        );
+        ).ToOption();
 
-        return results.FirstOrDefault();
+        return detail.MatchUnsafe(static row => row, static () => (GetRoutineDefinition.Result?)null);
     }
 
     /// <summary>

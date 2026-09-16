@@ -11,9 +11,10 @@ internal static class GetAllUserDefinedTypeNames
 
     internal const string Sql = @$"
 select
-    schema_name(schema_id) as [{nameof(Result.SchemaName)}],
-    name as [{nameof(Result.TypeName)}]
-from sys.types
-where is_user_defined = 1
-order by schema_name(schema_id), name";
+    s.name as [{nameof(Result.SchemaName)}],
+    t.name as [{nameof(Result.TypeName)}]
+from sys.types t
+inner join sys.schemas s on t.schema_id = s.schema_id
+where t.is_user_defined = 1
+order by s.name, t.name";
 }

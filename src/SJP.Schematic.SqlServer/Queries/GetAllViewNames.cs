@@ -10,8 +10,9 @@ internal static class GetAllViewNames
     }
 
     internal const string Sql = @$"
-select schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.ViewName)}]
-from sys.views
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+select s.name as [{nameof(Result.SchemaName)}], v.name as [{nameof(Result.ViewName)}]
+from sys.views v
+inner join sys.schemas s on v.schema_id = s.schema_id
+where v.is_ms_shipped = 0
+order by s.name, v.name";
 }

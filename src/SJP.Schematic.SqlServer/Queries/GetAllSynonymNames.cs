@@ -11,9 +11,10 @@ internal static class GetAllSynonymNames
 
     internal const string Sql = @$"
 select
-    schema_name(schema_id) as [{nameof(Result.SchemaName)}],
-    name as [{nameof(Result.SynonymName)}]
-from sys.synonyms
-where is_ms_shipped = 0
-order by schema_name(schema_id), name";
+    s.name as [{nameof(Result.SchemaName)}],
+    syn.name as [{nameof(Result.SynonymName)}]
+from sys.synonyms syn
+inner join sys.schemas s on syn.schema_id = s.schema_id
+where syn.is_ms_shipped = 0
+order by s.name, syn.name";
 }

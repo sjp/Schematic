@@ -9,5 +9,5 @@ internal static class GetCompatibilityLevel
 
     internal const string Sql = @$"
 select compatibility_level as [{nameof(Result.CompatibilityLevel)}]
-from sys.databases where name = db_name()";
+from sys.databases where database_id = db_id()";
 }

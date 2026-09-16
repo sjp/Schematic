@@ -41,10 +41,10 @@ internal static class GetAllUserDefinedTypeAttributes
 
     internal const string Sql = @$"
 select
-    schema_name(tt.schema_id) as [{nameof(Result.SchemaName)}],
+    s.name as [{nameof(Result.SchemaName)}],
     tt.name as [{nameof(Result.TypeName)}],
     c.name as [{nameof(Result.ColumnName)}],
-    schema_name(st.schema_id) as [{nameof(Result.ColumnTypeSchema)}],
+    sts.name as [{nameof(Result.ColumnTypeSchema)}],
     st.name as [{nameof(Result.ColumnTypeName)}],
     c.max_length as [{nameof(Result.MaxLength)}],
     c.precision as [{nameof(Result.Precision)}],
@@ -59,11 +59,13 @@ select
     (convert(bigint, ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
     (convert(bigint, ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
 from sys.table_types tt
+inner join sys.schemas s on tt.schema_id = s.schema_id
 inner join sys.columns c on tt.type_table_object_id = c.object_id
 left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id
 left join sys.computed_columns cc on c.object_id = cc.object_id and c.column_id = cc.column_id
 left join sys.identity_columns ic on c.object_id = ic.object_id and c.column_id = ic.column_id
 left join sys.types st on c.user_type_id = st.user_type_id
+left join sys.schemas sts on st.schema_id = sts.schema_id
 where tt.is_user_defined = 1
-order by schema_name(tt.schema_id), tt.name, c.column_id";
+order by s.name, tt.name, c.column_id";
 }

@@ -40,7 +40,7 @@ internal static class GetAllUserDefinedTypeDefinitions
 
     internal const string Sql = @$"
 select
-    schema_name(t.schema_id) as [{nameof(Result.SchemaName)}],
+    s.name as [{nameof(Result.SchemaName)}],
     t.name as [{nameof(Result.TypeName)}],
     t.is_table_type as [{nameof(Result.IsTableType)}],
     t.is_assembly_type as [{nameof(Result.IsAssemblyType)}],
@@ -54,10 +54,11 @@ select
     ast.assembly_class as [{nameof(Result.AssemblyClass)}],
     dm.definition as [{nameof(Result.DefaultValue)}]
 from sys.types t
+inner join sys.schemas s on t.schema_id = s.schema_id
 left join sys.types bt on t.system_type_id = bt.user_type_id and bt.is_user_defined = 0
 left join sys.assembly_types ast on t.user_type_id = ast.user_type_id
 left join sys.assemblies a on ast.assembly_id = a.assembly_id
 left join sys.sql_modules dm on t.default_object_id = dm.object_id
 where t.is_user_defined = 1
-order by schema_name(t.schema_id), t.name";
+order by s.name, t.name";
 }

@@ -10,8 +10,9 @@ internal static class GetAllTableNames
     }
 
     internal const string Sql = @$"
-select schema_name(schema_id) as [{nameof(Result.SchemaName)}], name as [{nameof(Result.TableName)}]
-from sys.tables
-where is_ms_shipped = 0
-order by [{nameof(Result.SchemaName)}], [{nameof(Result.TableName)}]";
+select s.name as [{nameof(Result.SchemaName)}], t.name as [{nameof(Result.TableName)}]
+from sys.tables t
+inner join sys.schemas s on t.schema_id = s.schema_id
+where t.is_ms_shipped = 0
+order by s.name, t.name";
 }
