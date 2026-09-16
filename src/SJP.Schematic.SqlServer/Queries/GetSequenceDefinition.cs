@@ -43,6 +43,8 @@ internal static class GetSequenceDefinition
     }
 
     internal const string Sql = @$"
+-- sys.sequences reports the bounds as sql_variant, whose runtime type follows the sequence's
+-- own data type, so they're converted to a single type wide enough to hold any of them
 select
     schema_name(s.schema_id) as [{nameof(Result.SchemaName)}],
     s.name as [{nameof(Result.SequenceName)}],
@@ -51,10 +53,10 @@ select
     cast(t.max_length as int) as [{nameof(Result.TypeMaxLength)}],
     cast(s.precision as int) as [{nameof(Result.Precision)}],
     cast(s.scale as int) as [{nameof(Result.Scale)}],
-    s.start_value as [{nameof(Result.StartValue)}],
-    s.increment as [{nameof(Result.Increment)}],
-    s.minimum_value as [{nameof(Result.MinValue)}],
-    s.maximum_value as [{nameof(Result.MaxValue)}],
+    convert(decimal(38, 0), s.start_value) as [{nameof(Result.StartValue)}],
+    convert(decimal(38, 0), s.increment) as [{nameof(Result.Increment)}],
+    convert(decimal(38, 0), s.minimum_value) as [{nameof(Result.MinValue)}],
+    convert(decimal(38, 0), s.maximum_value) as [{nameof(Result.MaxValue)}],
     s.is_cycling as [{nameof(Result.Cycle)}],
     s.is_cached as [{nameof(Result.IsCached)}],
     s.cache_size as [{nameof(Result.CacheSize)}]

@@ -21,7 +21,7 @@ internal static class GetSchemaComments
     internal const string Sql = @$"
 select
     s.name as [{nameof(Result.SchemaName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.schemas s
 left join sys.extended_properties ep on s.schema_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 3
 where s.name = @{nameof(Query.SchemaName)}";

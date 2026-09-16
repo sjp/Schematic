@@ -26,7 +26,7 @@ internal static class GetRoutineComments
 select
     'ROUTINE' as [{nameof(Result.ObjectType)}],
     r.name as [{nameof(Result.ObjectName)}],
-    ep.value as [{nameof(Result.Comment)}]
+    convert(nvarchar(max), ep.value) as [{nameof(Result.Comment)}]
 from sys.objects r
 left join sys.extended_properties ep on r.object_id = ep.major_id and ep.name = @{nameof(Query.CommentProperty)} and ep.minor_id = 0 and ep.class = 1
 where r.schema_id = SCHEMA_ID(@{nameof(Query.SchemaName)}) and r.name = @{nameof(Query.RoutineName)} and r.is_ms_shipped = 0
