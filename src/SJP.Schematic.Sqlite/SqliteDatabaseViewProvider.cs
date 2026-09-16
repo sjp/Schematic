@@ -321,17 +321,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         await foreach (var triggerInfo in triggerInfos.WithCancellation(cancellationToken))
         {
             var triggerSql = triggerInfo.Sql;
-            var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
-            {
-                try
-                {
-                    return TriggerParser.Parse(sql);
-                }
-                catch (SqliteTriggerParsingException ex)
-                {
-                    throw new SqliteTriggerParsingException(viewName, sql, ex.Message);
-                }
-            })).Value;
+            var triggerName = Identifier.CreateQualifiedIdentifier(viewName.Schema, triggerInfo.Name);
+            var parsedTrigger = ParseTriggerDefinition(viewName, triggerName, triggerSql);
 
             var trigger = new SqliteDatabaseTrigger(
                 triggerInfo.Name,
@@ -345,6 +336,28 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         }
 
         return result;
+    }
+
+    // Parse results are kept against the trigger's name rather than its text, so that a redefined
+    // trigger replaces what was remembered for it instead of adding another entry that lives as
+    // long as this provider does.
+    private ParsedTriggerData ParseTriggerDefinition(Identifier viewName, Identifier triggerName, string triggerSql)
+    {
+        if (_triggerParserCache.TryGetValue(triggerName, out var cached) && string.Equals(cached.Sql, triggerSql, StringComparison.Ordinal))
+            return cached.Parsed;
+
+        ParsedTriggerData parsed;
+        try
+        {
+            parsed = TriggerParser.Parse(triggerSql);
+        }
+        catch (SqliteTriggerParsingException ex)
+        {
+            throw new SqliteTriggerParsingException(viewName, triggerSql, ex.Message);
+        }
+
+        _triggerParserCache[triggerName] = (triggerSql, parsed);
+        return parsed;
     }
 
     /// <summary>
@@ -507,9 +520,13 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     }
 
     private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<Identifier, (string Sql, ParsedTriggerData Parsed)> _triggerParserCache = new(IdentifierComparer.OrdinalIgnoreCase);
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
     private static readonly SqliteTriggerParser TriggerParser = new();
+
+    // Exposed so that tests can show the parse cache stays bounded by the number of triggers in the
+    // database, rather than growing with every definition ever seen.
+    internal int ParsedTriggerCacheCount => _triggerParserCache.Count;
 
     private const int SqliteError = 1;
 }

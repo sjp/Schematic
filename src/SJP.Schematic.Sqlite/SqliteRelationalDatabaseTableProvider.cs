@@ -1469,17 +1469,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         await foreach (var triggerInfo in triggerInfos.WithCancellation(cancellationToken))
         {
             var triggerSql = triggerInfo.Sql;
-            var parsedTrigger = _triggerParserCache.GetOrAdd(triggerSql, sql => new Lazy<ParsedTriggerData>(() =>
-            {
-                try
-                {
-                    return TriggerParser.Parse(sql);
-                }
-                catch (SqliteTriggerParsingException ex)
-                {
-                    throw new SqliteTriggerParsingException(tableName, sql, ex.Message);
-                }
-            })).Value;
+            var triggerName = Identifier.CreateQualifiedIdentifier(tableName.Schema, triggerInfo.Name);
+            var parsedTrigger = ParseTriggerDefinition(tableName, triggerName, triggerSql);
 
             var trigger = new SqliteDatabaseTrigger(
                 triggerInfo.Name,
@@ -1493,6 +1484,28 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         }
 
         return result;
+    }
+
+    // Parse results are kept against the trigger's name rather than its text, so that a redefined
+    // trigger replaces what was remembered for it instead of adding another entry that lives as
+    // long as this provider does.
+    private ParsedTriggerData ParseTriggerDefinition(Identifier tableName, Identifier triggerName, string triggerSql)
+    {
+        if (_triggerParserCache.TryGetValue(triggerName, out var cached) && string.Equals(cached.Sql, triggerSql, StringComparison.Ordinal))
+            return cached.Parsed;
+
+        ParsedTriggerData parsed;
+        try
+        {
+            parsed = TriggerParser.Parse(triggerSql);
+        }
+        catch (SqliteTriggerParsingException ex)
+        {
+            throw new SqliteTriggerParsingException(tableName, triggerSql, ex.Message);
+        }
+
+        _triggerParserCache[triggerName] = (triggerSql, parsed);
+        return parsed;
     }
 
     private static async Task<IReadOnlyDictionary<Identifier, IDatabaseColumn>> LoadColumnLookupAsync(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
@@ -1557,17 +1570,29 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (tableListEntry != null && string.Equals(tableListEntry.type, VirtualTableType, StringComparison.OrdinalIgnoreCase))
             return ParsedTableData.Empty(tableSql!);
 
-        return _tableParserCache.GetOrAdd(tableSql!, sql => new Lazy<ParsedTableData>(() =>
+        return ParseTableDefinition(tableName, tableSql!);
+    }
+
+    // Parse results are kept against the table's name rather than its text, so that an altered
+    // table replaces what was remembered for it instead of adding another entry that lives as long
+    // as this provider does.
+    private ParsedTableData ParseTableDefinition(Identifier tableName, string tableSql)
+    {
+        if (_tableParserCache.TryGetValue(tableName, out var cached) && string.Equals(cached.Sql, tableSql, StringComparison.Ordinal))
+            return cached.Parsed;
+
+        ParsedTableData parsed;
+        try
         {
-            try
-            {
-                return TableParser.Parse(sql);
-            }
-            catch (SqliteTableParsingException ex)
-            {
-                throw new SqliteTableParsingException(tableName, sql, ex.Message);
-            }
-        })).Value;
+            parsed = TableParser.Parse(tableSql);
+        }
+        catch (SqliteTableParsingException ex)
+        {
+            throw new SqliteTableParsingException(tableName, tableSql, ex.Message);
+        }
+
+        _tableParserCache[tableName] = (tableSql, parsed);
+        return parsed;
     }
 
     /// <summary>
@@ -1705,11 +1730,17 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return databaseList.ToList();
     }
 
-    private readonly ConcurrentDictionary<string, Lazy<ParsedTableData>> _tableParserCache = new(StringComparer.Ordinal);
-    private readonly ConcurrentDictionary<string, Lazy<ParsedTriggerData>> _triggerParserCache = new(StringComparer.Ordinal);
+    private readonly ConcurrentDictionary<Identifier, (string Sql, ParsedTableData Parsed)> _tableParserCache = new(IdentifierComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<Identifier, (string Sql, ParsedTriggerData Parsed)> _triggerParserCache = new(IdentifierComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
 
     private readonly AsyncLazy<Version> _dbVersion;
+
+    // Exposed so that tests can show the parse caches stay bounded by the number of objects in the
+    // database, rather than growing with every definition ever seen.
+    internal int ParsedTableCacheCount => _tableParserCache.Count;
+
+    internal int ParsedTriggerCacheCount => _triggerParserCache.Count;
 
     private static readonly FrozenDictionary<string, ReferentialAction> RelationalUpdateMapping = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
     {
