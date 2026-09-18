@@ -20,21 +20,15 @@
         <PackageProjectUrl>https://github.com/sjp/Schematic</PackageProjectUrl>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageTags>database;schema;sql;metadata</PackageTags>
-        <!-- Compares each pack against the previously shipped surface so an accidental API break
-             fails the build. Add PackageValidationBaselineVersion once a version has been
-             published; until then this only validates the package's internal consistency. -->
         <EnablePackageValidation>true</EnablePackageValidation>
-        <!-- IsTrimmable/IsAotCompatible are deliberately unset; the dependency graph relies on
-             reflection throughout. See the packaging section of CONTRIBUTING.md. -->
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
         <EnableNUnitRunner>true</EnableNUnitRunner>
-        <!-- The checked-in ANTLR generated parser emits [CLSCompliant(false)] attributes which
-         trigger CS3021 (redundant because the assembly is not CLS-compliant). Harmless. -->
-    <NoWarn>$(NoWarn);CS3021</NoWarn>
+        <!-- The checked-in ANTLR generated parser emits [CLSCompliant(false)] -->
+        <NoWarn>$(NoWarn);CS3021</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
