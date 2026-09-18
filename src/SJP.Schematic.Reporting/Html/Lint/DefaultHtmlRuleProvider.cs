@@ -114,6 +114,8 @@ public sealed class DefaultHtmlRuleProvider : IRuleProvider
             new IndexOnLargeTextColumnRule(level),
             new InvalidSequenceConfigurationRule(level),
             new InvalidViewDefinitionRule(connection, level),
+            new LikelyMisspelledNameRule(level),
+            new NearDuplicateColumnNameRule(level),
             new NoIndexesPresentOnTableRule(level),
             new NoNonNullableColumnsPresentRule(level),
             new NoRowsPresentOnTableRule(connection, level, TableStatistics),

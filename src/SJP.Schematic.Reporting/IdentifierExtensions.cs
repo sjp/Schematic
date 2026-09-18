@@ -2,8 +2,8 @@
 using System.Buffers;
 using System.Collections.Concurrent;
 using System.Globalization;
+using System.IO.Hashing;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -142,14 +142,14 @@ internal static partial class IdentifierExtensions
         return input[..Math.Min(input.Length, maxChars)];
     }
 
-    // The hash is the SHA-512 of the UTF-16 text formed by concatenating the upper-case hexadecimal
-    // SHA-512 of each part of the name (server, database, schema, local name) that is present, where
-    // each part is hashed from its UTF-16 encoding. The key keeps the leading hexadecimal digits of
-    // that hash, in lower case. Changing any step changes every key, and keys are persisted as file
-    // names and links in generated reports.
+    // The hash is the XxHash3 of the UTF-16 text formed by concatenating the hexadecimal XxHash3 of
+    // each part of the name (server, database, schema, local name) that is present, where each part
+    // is hashed from its UTF-16 encoding. The key keeps the leading hexadecimal digits of that hash,
+    // in lower case. Changing any step changes every key, and keys are persisted as file names and
+    // links in generated reports.
     private static string GenerateHashKey(Identifier identifier)
     {
-        Span<char> partHashes = stackalloc char[MaxNameParts * Sha512HexLength];
+        Span<char> partHashes = stackalloc char[MaxNameParts * XxHash3HexLength];
         var length = 0;
 
         if (identifier.Server != null)
@@ -160,7 +160,7 @@ internal static partial class IdentifierExtensions
             length += WriteHexHash(identifier.Schema, partHashes[length..]);
         length += WriteHexHash(identifier.LocalName, partHashes[length..]);
 
-        Span<byte> hash = stackalloc byte[SHA512.HashSizeInBytes];
+        Span<byte> hash = stackalloc byte[XxHash3SizeInBytes];
         HashUtf16(partHashes[..length], hash);
 
         return Convert.ToHexStringLower(hash[..(HashKeyLength / 2)]);
@@ -168,7 +168,7 @@ internal static partial class IdentifierExtensions
 
     private static int WriteHexHash(string input, Span<char> destination)
     {
-        Span<byte> hash = stackalloc byte[SHA512.HashSizeInBytes];
+        Span<byte> hash = stackalloc byte[XxHash3SizeInBytes];
         HashUtf16(input, hash);
 
         Convert.TryToHexString(hash, destination, out var charsWritten);
@@ -190,7 +190,7 @@ internal static partial class IdentifierExtensions
         try
         {
             var bytesWritten = Encoding.Unicode.GetBytes(input, buffer);
-            SHA512.HashData(buffer[..bytesWritten], destination);
+            XxHash3.Hash(buffer[..bytesWritten], destination);
         }
         finally
         {
@@ -200,7 +200,8 @@ internal static partial class IdentifierExtensions
     }
 
     private const int MaxNameParts = 4;
-    private const int Sha512HexLength = SHA512.HashSizeInBytes * 2;
+    private const int XxHash3SizeInBytes = 8;
+    private const int XxHash3HexLength = XxHash3SizeInBytes * 2;
     private const int HashKeyLength = 8;
     private const string IdentifierSeparator = "-";
 }

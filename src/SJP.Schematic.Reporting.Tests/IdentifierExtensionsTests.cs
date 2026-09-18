@@ -145,26 +145,26 @@ internal static partial class IdentifierExtensionsTests
         static TestCaseData Case(string name, Identifier identifier, string expectedKey) =>
             new TestCaseData(identifier, expectedKey).SetArgDisplayNames(name);
 
-        yield return Case("local", new Identifier("test_table"), "test-table-9795b31f");
-        yield return Case("schema", new Identifier("dbo", "test_table"), "test-table-b125c010");
-        yield return Case("database", new Identifier("sakila", "dbo", "test_table"), "test-table-39c6e720");
-        yield return Case("server", new Identifier("localhost", "sakila", "dbo", "test_table"), "test-table-f6d4d6af");
-        yield return Case("mixed case", new Identifier("Public", "Film_Actor"), "film-actor-34184c7b");
-        yield return Case("diacritics", new Identifier("Café Ångström"), "cafe-angstrom-8fe6ae10");
-        yield return Case("sharp s and ligature", new Identifier("straße ﬁle"), "strae-le-d6fd4890");
-        yield return Case("cjk", new Identifier("日本語"), "unnamed-ef465cfc");
-        yield return Case("cjk mixed", new Identifier("表 table 1"), "table-1-43dd0f72");
-        yield return Case("all symbols", new Identifier("+++"), "unnamed-af9f905e");
-        yield return Case("hyphens only", new Identifier("---"), "----f3db6c40");
-        yield return Case("underscore and period", new Identifier("_order.line_item_"), "-order-line-item--59d901db");
-        yield return Case("mixed whitespace", new Identifier("  order \t\t line\r\nitem  "), "order-line-item-454aa179");
-        yield return Case("file name characters", new Identifier("a/b\\c:d*e?f\"g<h>i|j"), "abcdefghij-f77ce5e9");
-        yield return Case("long", new Identifier(new string('a', 100)), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-42368401");
-        yield return Case("long with space at limit", new Identifier(new string('b', 44) + " cdef"), "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-db06b969");
-        yield return Case("long with spaces", new Identifier("this is a very long table name that goes well past the slug length limit"), "this-is-a-very-long-table-name-that-goes-well-1a2fe6af");
-        yield return Case("whitespace in qualifier", new Identifier("my schema", "my table"), "my-table-b62450fe");
-        yield return Case("very long", new Identifier("srv", "db", "schema", string.Concat(Enumerable.Repeat("long_name ", 300))), "long-name-long-name-long-name-long-name-long--a3bee898");
-        yield return Case("unpaired surrogate in qualifier", new Identifier("bad\uD800schema", "name"), "name-c2dd906c");
+        yield return Case("local", new Identifier("test_table"), "test-table-f240ad48");
+        yield return Case("schema", new Identifier("dbo", "test_table"), "test-table-b1cefadc");
+        yield return Case("database", new Identifier("sakila", "dbo", "test_table"), "test-table-f2c9d7b0");
+        yield return Case("server", new Identifier("localhost", "sakila", "dbo", "test_table"), "test-table-60833428");
+        yield return Case("mixed case", new Identifier("Public", "Film_Actor"), "film-actor-ede86731");
+        yield return Case("diacritics", new Identifier("Café Ångström"), "cafe-angstrom-66d608ad");
+        yield return Case("sharp s and ligature", new Identifier("straße ﬁle"), "strae-le-7913d40a");
+        yield return Case("cjk", new Identifier("日本語"), "unnamed-01ba3fe7");
+        yield return Case("cjk mixed", new Identifier("表 table 1"), "table-1-22d06adc");
+        yield return Case("all symbols", new Identifier("+++"), "unnamed-4563cb61");
+        yield return Case("hyphens only", new Identifier("---"), "----52598ecf");
+        yield return Case("underscore and period", new Identifier("_order.line_item_"), "-order-line-item--f3788695");
+        yield return Case("mixed whitespace", new Identifier("  order \t\t line\r\nitem  "), "order-line-item-4172cd2b");
+        yield return Case("file name characters", new Identifier("a/b\\c:d*e?f\"g<h>i|j"), "abcdefghij-f28c7f4a");
+        yield return Case("long", new Identifier(new string('a', 100)), "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-136ee6ab");
+        yield return Case("long with space at limit", new Identifier(new string('b', 44) + " cdef"), "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb-64f8f105");
+        yield return Case("long with spaces", new Identifier("this is a very long table name that goes well past the slug length limit"), "this-is-a-very-long-table-name-that-goes-well-f1238e2d");
+        yield return Case("whitespace in qualifier", new Identifier("my schema", "my table"), "my-table-681b54e3");
+        yield return Case("very long", new Identifier("srv", "db", "schema", string.Concat(Enumerable.Repeat("long_name ", 300))), "long-name-long-name-long-name-long-name-long--1fb5bba7");
+        yield return Case("unpaired surrogate in qualifier", new Identifier("bad\uD800schema", "name"), "name-f918ad6f");
     }
 
     [Test]

@@ -27,6 +27,7 @@
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded">
       <TreatAsUsed>true</TreatAsUsed>
     </PackageReference>
+    <PackageReference Include="System.IO.Hashing" />
   </ItemGroup>
 
   <!-- ============================================================================

@@ -42,7 +42,7 @@ internal static class DefaultHtmlRuleProviderTests
 
         var rules = provider.GetRules(mockConnection.Object, RuleLevel.Warning).ToList();
 
-        Assert.That(rules, Has.Count.EqualTo(40));
+        Assert.That(rules, Has.Count.EqualTo(42));
     }
 
     [Test]
@@ -112,7 +112,7 @@ internal static class DefaultHtmlRuleProviderTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(schemaOnly, Is.EqualTo(expected));
-            Assert.That(schemaOnly, Has.Count.EqualTo(36));
+            Assert.That(schemaOnly, Has.Count.EqualTo(38));
         }
     }
 
