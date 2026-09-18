@@ -1,7 +1,7 @@
 using System;
 using System.Buffers;
 
-namespace SJP.Schematic.Lint.Rules;
+namespace SJP.Schematic.Lint.Naming;
 
 /// <summary>
 /// String comparisons shared by the rules that look for names which are almost, but not quite,

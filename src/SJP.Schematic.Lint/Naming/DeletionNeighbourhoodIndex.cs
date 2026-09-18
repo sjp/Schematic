@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SJP.Schematic.Lint.Rules;
+namespace SJP.Schematic.Lint.Naming;
 
 /// <summary>
 /// An index of names that answers, for any one of them, which of the others are a single edit away.

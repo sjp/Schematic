@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using SJP.Schematic.Lint.Rules;
+using SJP.Schematic.Lint.Naming;
 
-namespace SJP.Schematic.Lint.Tests.Rules;
+namespace SJP.Schematic.Lint.Tests.Naming;
 
 internal static class DeletionNeighbourhoodIndexTests
 {

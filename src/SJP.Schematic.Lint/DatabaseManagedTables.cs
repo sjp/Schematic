@@ -1,6 +1,6 @@
 using SJP.Schematic.Core;
 
-namespace SJP.Schematic.Lint.Rules;
+namespace SJP.Schematic.Lint;
 
 /// <summary>
 /// Identifies tables whose shape and contents are decided by the database rather than by whoever

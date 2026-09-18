@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace SJP.Schematic.Lint.Rules;
+namespace SJP.Schematic.Lint.Naming;
 
 /// <summary>
 /// Splits a database identifier into the words it was written from, following the naming

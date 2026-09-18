@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Core;
+using SJP.Schematic.Lint.Naming;
 
 namespace SJP.Schematic.Lint.Rules;
 
