@@ -1,6 +1,5 @@
 using System;
 using Microsoft.Extensions.Configuration;
-using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite;
 using SJP.Schematic.Sqlite.Pragma;

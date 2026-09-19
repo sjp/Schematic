@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Lint.Rules;

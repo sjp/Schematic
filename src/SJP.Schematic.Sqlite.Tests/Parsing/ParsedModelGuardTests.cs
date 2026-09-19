@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Parsing;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing;

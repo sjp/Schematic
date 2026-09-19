@@ -1,6 +1,5 @@
 using LanguageExt;
 using NUnit.Framework;
-using SJP.Schematic.Core;
 using SJP.Schematic.Core.Comments;
 using SJP.Schematic.Serialization.Mapping.Comments;
 using SJP.Schematic.Tests.Utilities;
