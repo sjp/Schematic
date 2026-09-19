@@ -157,18 +157,6 @@ public sealed class IdentifierComparer : IEqualityComparer<Identifier>, ICompare
     /// <value>A <see cref="IdentifierComparer"/> object.</value>
     public static IdentifierComparer OrdinalIgnoreCase { get; } = new IdentifierComparer(StringComparer.OrdinalIgnoreCase);
 
-    /// <summary>
-    /// Gets a <see cref="IdentifierComparer"/> object that performs a case-sensitive identifier comparison using the word comparison rules of the invariant culture.
-    /// </summary>
-    /// <value>A <see cref="IdentifierComparer"/> object.</value>
-    public static IdentifierComparer InvariantCulture { get; } = new IdentifierComparer(StringComparer.InvariantCulture);
-
-    /// <summary>
-    /// Gets a <see cref="IdentifierComparer"/> object that performs a case-insensitive identifier comparison using the word comparison rules of the invariant culture.
-    /// </summary>
-    /// <value>A <see cref="IdentifierComparer"/> object.</value>
-    public static IdentifierComparer InvariantCultureIgnoreCase { get; } = new IdentifierComparer(StringComparer.InvariantCultureIgnoreCase);
-
     private readonly string? _defaultSchema;
     private readonly string? _defaultDatabase;
     private readonly string? _defaultServer;

@@ -1065,11 +1065,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     protected static class Constants
     {
         /// <summary>
-        /// The built-in system schema.
-        /// </summary>
-        public const string PgCatalog = "pg_catalog";
-
-        /// <summary>
         /// Determines whether a key type is a primary key.
         /// </summary>
         public const string PrimaryKeyType = "p";

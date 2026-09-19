@@ -18,17 +18,6 @@ public sealed class ParsedTriggerData
     /// </summary>
     /// <param name="queryTiming">A query timing.</param>
     /// <param name="events">Trigger events.</param>
-    /// <exception cref="ArgumentException"><paramref name="queryTiming"/> or <paramref name="events"/> are invalid enum values.</exception>
-    public ParsedTriggerData(TriggerQueryTiming queryTiming, TriggerEvent events)
-        : this(queryTiming, events, Option<string>.None, [])
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ParsedTriggerData"/> class.
-    /// </summary>
-    /// <param name="queryTiming">A query timing.</param>
-    /// <param name="events">Trigger events.</param>
     /// <param name="condition">The <c>WHEN</c> clause that gates the trigger body, if any.</param>
     /// <param name="updateColumns">The <c>UPDATE OF</c> column list, empty when updates to any column fire the trigger.</param>
     /// <exception cref="ArgumentNullException"><paramref name="updateColumns"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>

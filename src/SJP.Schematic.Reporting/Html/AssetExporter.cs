@@ -9,14 +9,6 @@ namespace SJP.Schematic.Reporting.Html;
 
 internal sealed class AssetExporter
 {
-    public Task SaveAssetsAsync(string directory, bool overwrite = true, CancellationToken cancellationToken = default)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(directory);
-
-        var dirInfo = new DirectoryInfo(directory);
-        return SaveAssetsAsync(dirInfo, overwrite, cancellationToken);
-    }
-
     public Task SaveAssetsAsync(DirectoryInfo directory, bool overwrite = true, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(directory);

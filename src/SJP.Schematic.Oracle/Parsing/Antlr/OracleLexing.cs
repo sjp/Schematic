@@ -19,23 +19,12 @@ internal static class OracleLexing
     public static IReadOnlyList<IToken> GetSignificantTokens(string sql)
         => Lex(sql, ThrowingErrorListener.Instance);
 
-    /// <summary>
-    /// Lexes SQL text and returns the significant tokens on a best-effort basis. Unlike
-    /// <see cref="GetSignificantTokens(string)"/> this never throws on a lexical error; the lexer
-    /// instead skips offending input and continues.
-    /// </summary>
-    /// <param name="sql">SQL text to lex.</param>
-    /// <returns>The significant tokens in source order.</returns>
-    public static IReadOnlyList<IToken> GetSignificantTokensSafe(string sql)
-        => Lex(sql, errorListener: null);
-
-    private static IReadOnlyList<IToken> Lex(string sql, IAntlrErrorListener<int>? errorListener)
+    private static IReadOnlyList<IToken> Lex(string sql, IAntlrErrorListener<int> errorListener)
     {
         var inputStream = new AntlrInputStream(sql);
         var lexer = new PlSqlLexer(inputStream);
         lexer.RemoveErrorListeners();
-        if (errorListener != null)
-            lexer.AddErrorListener(errorListener);
+        lexer.AddErrorListener(errorListener);
 
         // Pull tokens straight from the lexer rather than buffering every token, hidden ones included,
         // in a token stream first.

@@ -17,18 +17,6 @@ public class ForeignKey
     /// Initializes a new instance of the <see cref="ForeignKey"/> class.
     /// </summary>
     /// <param name="constraintName">The constraint name.</param>
-    /// <param name="columnName">The column name.</param>
-    /// <param name="parentTable">The parent table that the foreign key refers to.</param>
-    /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to. Should be a single column name, or empty when the constraint omitted the parent column list.</param>
-    public ForeignKey(Option<string> constraintName, string columnName, Identifier parentTable, IReadOnlyCollection<string> parentColumnNames)
-        : this(constraintName, [columnName], parentTable, parentColumnNames)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ForeignKey"/> class.
-    /// </summary>
-    /// <param name="constraintName">The constraint name.</param>
     /// <param name="columnNames">The column names comprising this foreign key.</param>
     /// <param name="parentTable">The parent table that the foreign key refers to.</param>
     /// <param name="parentColumnNames">The column names in the parent table that the foreign key refers to, or empty when the constraint omitted the parent column list.</param>

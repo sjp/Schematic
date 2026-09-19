@@ -23,11 +23,6 @@ public class ReportGenerator
     {
     }
 
-    public ReportGenerator(ISchematicConnection connection, IRelationalDatabaseProvider databaseProvider, IRelationalDatabase database, DirectoryInfo directory, ITableStatisticsProvider? tableStatistics = null)
-        : this(connection, databaseProvider, database, directory, tableStatistics, ruleProvider: null)
-    {
-    }
-
     /// <summary>
     /// Creates a report generator whose lint page is produced by the given rules.
     /// </summary>

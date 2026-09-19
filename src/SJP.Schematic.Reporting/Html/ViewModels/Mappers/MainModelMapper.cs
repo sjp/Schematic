@@ -6,8 +6,6 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class MainModelMapper
 {
-    public Main.Table Map(IRelationalDatabaseTable table) => Map(table, Option<ITableStatistics>.None);
-
     public Main.Table Map(IRelationalDatabaseTable table, Option<ITableStatistics> statistics)
     {
         ArgumentNullException.ThrowIfNull(table);

@@ -127,62 +127,6 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
     }
 
     /// <summary>
-    /// Gets the resolved name of the synonym. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="synonymName">A synonym name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
-    public OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(synonymName);
-
-        var resolvedNames = IdentifierResolver
-            .GetResolutionOrder(synonymName)
-            .Select(QualifySynonymName);
-
-        return resolvedNames
-            .Select(name => GetResolvedSynonymNameStrict(name, cancellationToken))
-            .FirstSome(cancellationToken);
-    }
-
-    /// <summary>
-    /// Gets the resolved synonym name strictly. If there is no match, the synonym does not exist.
-    /// </summary>
-    /// <param name="synonymName">A synonym name to be strictly matched.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A resolved synonym name, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<Identifier> GetResolvedSynonymNameStrict(Identifier synonymName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(synonymName);
-
-        var candidateSynonymName = QualifySynonymName(synonymName);
-
-        // fast path, SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
-        var isUserSynonym = string.Equals(candidateSynonymName.Database, IdentifierDefaults.Database, StringComparison.Ordinal)
-            && string.Equals(candidateSynonymName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal);
-        if (isUserSynonym)
-        {
-            var userSynonymName = Connection.QueryFirstOrNone(
-                GetUserSynonymName.Sql,
-                new GetUserSynonymName.Query { SynonymName = candidateSynonymName.LocalName },
-                cancellationToken
-            );
-
-            return userSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, name));
-        }
-
-        var qualifiedSynonymName = Connection.QueryFirstOrNone(
-            GetSynonymName.Sql,
-            new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
-            cancellationToken
-        );
-
-        return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.SynonymName));
-    }
-
-    /// <summary>
     /// Retrieves a database synonym, if available.
     /// </summary>
     /// <param name="synonymName">A synonym name.</param>
@@ -197,22 +141,12 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
         return IdentifierResolver
             .GetResolutionOrder(candidateSynonymName)
             .Select(QualifySynonymName)
-            .Select(name => LoadSynonymAsyncCore(name, cancellationToken))
+            .Select(name => LoadSynonymData(name, cancellationToken))
             .FirstSome(cancellationToken);
     }
 
-    // the definition queries match the name strictly, so they double as the existence check for a
-    // resolution candidate and report the name as the catalog stores it
-    private OptionAsync<IDatabaseSynonym> LoadSynonymAsyncCore(Identifier synonymName, CancellationToken cancellationToken)
-    {
-        // SYS.ALL_SYNONYMS is much slower than SYS.USER_SYNONYMS so prefer the latter where possible
-        var isUserSynonym = string.Equals(synonymName.Database, IdentifierDefaults.Database, StringComparison.Ordinal)
-            && string.Equals(synonymName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal);
-        return isUserSynonym
-            ? LoadUserSynonymData(synonymName.LocalName, cancellationToken)
-            : LoadSynonymData(synonymName, cancellationToken);
-    }
-
+    // the definition query matches the name strictly, so it doubles as the existence check for a
+    // resolution candidate and reports the name as the catalog stores it
     private OptionAsync<IDatabaseSynonym> LoadSynonymData(Identifier synonymName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(synonymName);
@@ -228,28 +162,6 @@ public class OracleDatabaseSynonymProvider : IDatabaseSynonymProvider
             var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
 
             var qualifiedSynonymName = Identifier.CreateQualifiedIdentifier(synonymName.Server, synonymName.Database, row.SchemaName, row.SynonymName);
-            var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
-            var qualifiedTargetName = QualifySynonymTargetName(targetName);
-
-            return new DatabaseSynonym(qualifiedSynonymName, qualifiedTargetName);
-        });
-    }
-
-    private OptionAsync<IDatabaseSynonym> LoadUserSynonymData(string synonymName, CancellationToken cancellationToken)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(synonymName);
-
-        return Connection.QueryFirstOrNone(
-            GetUserSynonymDefinition.Sql,
-            new GetUserSynonymDefinition.Query { SynonymName = synonymName },
-            cancellationToken
-        ).Map<IDatabaseSynonym>(row =>
-        {
-            var databaseName = !row.TargetDatabaseName.IsNullOrWhiteSpace() ? row.TargetDatabaseName : null;
-            var schemaName = !row.TargetSchemaName.IsNullOrWhiteSpace() ? row.TargetSchemaName : null;
-            var localName = !row.TargetObjectName.IsNullOrWhiteSpace() ? row.TargetObjectName : null;
-
-            var qualifiedSynonymName = Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, row.SynonymName);
             var targetName = Identifier.CreateQualifiedIdentifier(databaseName, schemaName, localName);
             var qualifiedTargetName = QualifySynonymTargetName(targetName);
 

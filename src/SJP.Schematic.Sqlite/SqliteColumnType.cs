@@ -26,17 +26,6 @@ public class SqliteColumnType : IDbType
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SqliteColumnType"/> class.
-    /// </summary>
-    /// <param name="typeAffinity">The type affinity.</param>
-    /// <param name="collation">The collation.</param>
-    /// <exception cref="ArgumentException"><paramref name="collation"/> or <paramref name="typeAffinity"/> are invalid enum values. Alternatively if the <paramref name="collation"/> is not <see cref="SqliteTypeAffinity.Text"/>.</exception>
-    public SqliteColumnType(SqliteTypeAffinity typeAffinity, SqliteCollation collation)
-        : this(null, typeAffinity, collation)
-    {
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="SqliteColumnType"/> class, preserving the type as it was declared.
     /// </summary>
     /// <param name="declaredTypeName">The type as it was declared in the table definition, e.g. <c>VARCHAR(50)</c>. When absent, the affinity names the type instead.</param>
