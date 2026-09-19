@@ -293,16 +293,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// Retrieves a table from the database, if available.
     /// </summary>
     /// <param name="tableName">A table name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A table, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<IRelationalDatabaseTable> LoadTable(Identifier tableName, CancellationToken cancellationToken)
-        => LoadTable(tableName, CreateQueryCache(cancellationToken), cancellationToken);
-
-    /// <summary>
-    /// Retrieves a table from the database, if available.
-    /// </summary>
-    /// <param name="tableName">A table name.</param>
     /// <param name="queryCache">The query cache.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A table, if available.</returns>

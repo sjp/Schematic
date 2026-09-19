@@ -15,16 +15,6 @@ public abstract class PlSqlLexerBase : Lexer
     /// Initializes a new instance of the <see cref="PlSqlLexerBase"/> class.
     /// </summary>
     /// <param name="input">The character stream to lex.</param>
-    protected PlSqlLexerBase(ICharStream input)
-        : base(input)
-    {
-        _input = input;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PlSqlLexerBase"/> class.
-    /// </summary>
-    /// <param name="input">The character stream to lex.</param>
     /// <param name="output">The writer used for standard output.</param>
     /// <param name="errorOutput">The writer used for error output.</param>
     protected PlSqlLexerBase(ICharStream input, TextWriter output, TextWriter errorOutput)

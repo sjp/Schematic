@@ -189,20 +189,6 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         return Option<IDatabaseView>.None;
     }
 
-    /// <summary>
-    /// Gets the resolved name of the view. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A view name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<Identifier> GetResolvedViewName(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return GetResolvedViewNameAsyncCore(viewName, CreateDatabaseListLoader(cancellationToken), cancellationToken).ToAsync();
-    }
-
     private async Task<Option<Identifier>> GetResolvedViewNameAsyncCore(Identifier viewName, AsyncLazy<IReadOnlyList<pragma_database_list>> databaseList, CancellationToken cancellationToken)
     {
         if (viewName.Schema != null)
@@ -247,20 +233,6 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         }
 
         return Option<Identifier>.None;
-    }
-
-    /// <summary>
-    /// Retrieves a database view, if available.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A view definition, if available.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<IDatabaseView> LoadView(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadView(viewName, CreateDatabaseListLoader(cancellationToken), cancellationToken);
     }
 
     private OptionAsync<IDatabaseView> LoadView(Identifier viewName, AsyncLazy<IReadOnlyList<pragma_database_list>> databaseList, CancellationToken cancellationToken)

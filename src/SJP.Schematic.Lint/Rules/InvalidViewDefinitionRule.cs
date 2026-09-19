@@ -76,28 +76,6 @@ public class InvalidViewDefinitionRule : Rule, IViewRule
     }
 
     /// <summary>
-    /// Analyses a database view. Reports messages when the view definitions is invalid.
-    /// </summary>
-    /// <param name="view">A database view.</param>
-    /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
-    /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="view"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyCollection<IRuleMessage>> AnalyseViewAsync(IDatabaseView view, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(view);
-
-        return AnalyseViewAsyncCore(view, cancellationToken);
-    }
-
-    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseViewAsyncCore(IDatabaseView view, CancellationToken cancellationToken)
-    {
-        var invalidViewNames = await FindInvalidViewNamesAsync([view], cancellationToken);
-        return invalidViewNames
-            .Select(BuildMessage)
-            .ToArray();
-    }
-
-    /// <summary>
     /// Determines which views in a batch have invalid definitions.
     /// </summary>
     /// <remarks>

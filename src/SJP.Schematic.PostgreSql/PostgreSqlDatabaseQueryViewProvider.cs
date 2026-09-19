@@ -213,46 +213,6 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
         return PostgreSqlCatalogMapper.MapTriggers(queryResult);
     }
 
-    /// <summary>
-    /// Retrieves the check option and updatability of a view.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>The view's check option, and whether rows can be written through it.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadOptionsAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<(ViewCheckOption CheckOption, bool IsUpdatable)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (_, checkOption, isUpdatable) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
-        return (checkOption, isUpdatable);
-    }
-
-    /// <summary>
-    /// Retrieves the definition of a view.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadDefinitionAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (definition, _, _) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
-        return definition;
-    }
-
     // The definition and the options all come from the view's pg_class row, so they are read together.
     private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
     {

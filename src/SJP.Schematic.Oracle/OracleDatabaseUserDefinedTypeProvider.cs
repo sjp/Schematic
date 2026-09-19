@@ -114,27 +114,6 @@ public class OracleDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTypePro
     }
 
     /// <summary>
-    /// Gets the resolved name of the user-defined type. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="typeName">A user-defined type name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A type name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<Identifier> GetResolvedUserDefinedTypeName(Identifier typeName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        var candidateTypeName = QualifyUserDefinedTypeName(typeName);
-        var qualifiedTypeName = Connection.QueryFirstOrNone(
-            GetUserDefinedTypeName.Sql,
-            new GetUserDefinedTypeName.Query { SchemaName = candidateTypeName.Schema!, TypeName = candidateTypeName.LocalName },
-            cancellationToken
-        );
-
-        return qualifiedTypeName.Map(name => Identifier.CreateQualifiedIdentifier(candidateTypeName.Server, candidateTypeName.Database, name.SchemaName, name.TypeName));
-    }
-
-    /// <summary>
     /// Retrieves database user-defined type information.
     /// </summary>
     /// <param name="typeName">A database user-defined type name.</param>

@@ -229,21 +229,6 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         return RoutineType.Unknown;
     }
 
-    /// <summary>
-    /// Retrieves the definition of the routine from the database.
-    /// </summary>
-    /// <param name="routineName">A routine name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A routine definition.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected async Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(routineName);
-
-        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
-        return routineDetail?.Definition;
-    }
-
     private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         var results = await DbConnection.QueryAsync(

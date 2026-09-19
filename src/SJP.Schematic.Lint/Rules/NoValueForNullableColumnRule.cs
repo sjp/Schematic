@@ -109,28 +109,6 @@ public class NoValueForNullableColumnRule : Rule, ITableRule
             : Option<ITableStatistics>.None;
     }
 
-    /// <summary>
-    /// Analyses a database table. Reports messages when no non-null values exist for a nullable column in a table.
-    /// </summary>
-    /// <param name="table">A database table.</param>
-    /// <param name="cancellationToken">A cancellation token used to interrupt analysis.</param>
-    /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(table);
-
-        return AnalyseTableWithStatisticsAsync(table, cancellationToken);
-    }
-
-    // a table analysed on its own has its statistics retrieved on their own, unlike the whole-set
-    // analysis, which retrieves them for every table at once
-    private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableWithStatisticsAsync(IRelationalDatabaseTable table, CancellationToken cancellationToken)
-    {
-        var statistics = await TableStatistics.GetTableStatistics(table.Name, cancellationToken).ToOption();
-        return await AnalyseTableAsyncCore(table, statistics, cancellationToken);
-    }
-
     private async Task<IReadOnlyCollection<IRuleMessage>> AnalyseTableAsyncCore(IRelationalDatabaseTable table, Option<ITableStatistics> statistics, CancellationToken cancellationToken)
     {
         var nullableColumns = table.Columns.Where(static c => c.IsNullable).ToArray();

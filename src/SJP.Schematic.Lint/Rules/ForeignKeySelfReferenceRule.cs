@@ -42,15 +42,9 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
     protected ISchematicConnection Connection { get; }
 
     /// <summary>
-    /// A database connection factory.
-    /// </summary>
-    /// <value>The database connection factory.</value>
-    protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
-
-    /// <summary>
     /// A database dialect.
     /// </summary>
-    /// <value>The dialect associated with <see cref="DbConnection"/>.</value>
+    /// <value>The dialect associated with <see cref="Connection"/>.</value>
     protected IDatabaseDialect Dialect => Connection.Dialect;
 
     /// <summary>

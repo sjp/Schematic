@@ -50,21 +50,6 @@ public class ForeignKeyMissingRule : Rule, ITableRule
     /// Analyses a database table. Reports messages when a foreign key relationship is implied, but missing a foreign key constraint to enforce it.
     /// </summary>
     /// <param name="table">A database table.</param>
-    /// <param name="tableNames">Other table names in the database.</param>
-    /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <see langword="null" />.</exception>
-    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IEnumerable<Identifier> tableNames)
-    {
-        ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(tableNames);
-
-        return AnalyseTable(table, BuildTableNameLookup(tableNames));
-    }
-
-    /// <summary>
-    /// Analyses a database table. Reports messages when a foreign key relationship is implied, but missing a foreign key constraint to enforce it.
-    /// </summary>
-    /// <param name="table">A database table.</param>
     /// <param name="tableNames">Other table names in the database, keyed by their local names.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="tableNames"/> is <see langword="null" />.</exception>

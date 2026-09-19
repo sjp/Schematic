@@ -226,26 +226,6 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         );
     }
 
-    /// <summary>
-    /// Retrieves the refresh metadata of a materialized view.
-    /// </summary>
-    /// <param name="viewName">A materialized view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>When and how the view is refreshed, and whether it currently holds data.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<(MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadOptionsAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<(MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadOptionsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (_, refreshMode, refreshMethod, isPopulated) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
-        return (refreshMode, refreshMethod, isPopulated);
-    }
-
     // The definition and the refresh metadata come from the same SYS.ALL_MVIEWS row, so they are read together.
     private async Task<(string? Definition, MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
@@ -284,26 +264,6 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Retrieves the definition of a materialized view.
-    /// </summary>
-    /// <param name="viewName">A materialized view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a materialized view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadDefinitionAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (definition, _, _, _) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
-        return definition;
     }
 
     /// <summary>

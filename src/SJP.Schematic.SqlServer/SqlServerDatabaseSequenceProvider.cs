@@ -93,27 +93,6 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
     }
 
     /// <summary>
-    /// Gets the resolved name of the sequence. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="sequenceName">A sequence name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A sequence name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<Identifier> GetResolvedSequenceName(Identifier sequenceName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(sequenceName);
-
-        var candidateSequenceName = QualifySequenceName(sequenceName);
-        var qualifiedSequenceName = Connection.QueryFirstOrNone(
-            GetSequenceName.Sql,
-            new GetSequenceName.Query { SchemaName = candidateSequenceName.Schema!, SequenceName = candidateSequenceName.LocalName },
-            cancellationToken
-        );
-
-        return qualifiedSequenceName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSequenceName.Server, candidateSequenceName.Database, name.SchemaName, name.SequenceName));
-    }
-
-    /// <summary>
     /// Retrieves database sequence information.
     /// </summary>
     /// <param name="sequenceName">A database sequence name.</param>

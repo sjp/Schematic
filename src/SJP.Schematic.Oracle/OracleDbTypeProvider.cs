@@ -112,19 +112,6 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
     }
 
     /// <summary>
-    /// Gets the length of the is fixed.
-    /// </summary>
-    /// <param name="typeName">Name of the type.</param>
-    /// <returns><see langword="true" /> if the type has a fixed length, otherwise <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static bool GetIsFixedLength(Identifier typeName)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetTypeInfo(typeName.LocalName)?.IsFixedLength ?? false;
-    }
-
-    /// <summary>
     /// Removes the precision and scale arguments from a type name.
     /// </summary>
     /// <param name="typeName">A type name, e.g. <c>INTERVAL DAY(3) TO SECOND(6)</c>.</param>
@@ -235,22 +222,6 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         };
     }
 
-    /// <summary>
-    /// Gets the name of the formatted type.
-    /// </summary>
-    /// <param name="typeMetadata">The type metadata.</param>
-    /// <returns>A string representing a type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="typeMetadata"/> does not have a type name.</exception>
-    protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
-    {
-        ArgumentNullException.ThrowIfNull(typeMetadata);
-        if (typeMetadata.TypeName == null)
-            throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
-
-        return GetFormattedTypeName(typeMetadata, typeMetadata.TypeName, GetTypeInfo(typeMetadata.TypeName.LocalName));
-    }
-
     private static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata, Identifier typeName, TypeInfo? typeInfo)
     {
         var builder = StringBuilderCache.Acquire(typeName.LocalName.Length * 2);
@@ -291,19 +262,6 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         return builder.GetStringAndRelease();
     }
 
-    /// <summary>
-    /// Gets the type of the data.
-    /// </summary>
-    /// <param name="typeName">Name of the type.</param>
-    /// <returns>A general data type class.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static DataType GetDataType(Identifier typeName)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetDataType(typeName, GetTypeInfo(typeName.LocalName));
-    }
-
     private static DataType GetDataType(Identifier typeName, TypeInfo? typeInfo)
     {
         if (typeInfo != null)
@@ -313,48 +271,6 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         // The catalog does not say which from the column alone, so it is left unclassified rather
         // than guessed at.
         return typeName.Schema.IsNullOrWhiteSpace() ? DataType.Unknown : DataType.Other;
-    }
-
-    /// <summary>
-    /// Gets the CLR type for the associated type name.
-    /// </summary>
-    /// <param name="typeName">A type name.</param>
-    /// <returns>A CLR type for the associated database type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static Type GetClrType(Identifier typeName)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetTypeInfo(typeName.LocalName)?.ClrType ?? typeof(object);
-    }
-
-    /// <summary>
-    /// Quotes an identifier component.
-    /// </summary>
-    /// <param name="identifier">An identifier component.</param>
-    /// <returns>A quoted identifier component.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
-    protected static string QuoteIdentifier(string identifier)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
-
-        return "\"" + identifier + "\"";
-    }
-
-    /// <summary>
-    /// Quotes a type name.
-    /// </summary>
-    /// <param name="name">A type name.</param>
-    /// <returns>A quoted type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
-    protected static string QuoteName(Identifier name)
-    {
-        ArgumentNullException.ThrowIfNull(name);
-
-        var builder = StringBuilderCache.Acquire();
-        AppendQuotedName(builder, name);
-        return builder.GetStringAndRelease();
     }
 
     private static void AppendQuotedName(StringBuilder builder, Identifier name)

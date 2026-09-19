@@ -89,19 +89,6 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
     }
 
     /// <summary>
-    /// Determines whether the data type is required to be of fixed length.
-    /// </summary>
-    /// <param name="typeName">The type name.</param>
-    /// <returns><see langword="true" /> if the data type must be a fixed length.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static bool GetIsFixedLength(Identifier typeName)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetSystemTypeInfo(typeName)?.IsFixedLength ?? false;
-    }
-
-    /// <summary>
     /// Gets the default name of the type, given sufficient metadata.
     /// </summary>
     /// <param name="typeMetadata">Column type metadata.</param>
@@ -154,46 +141,14 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
         };
     }
 
-    /// <summary>
-    /// Gets the fractional seconds precision that a temporal type declares.
-    /// </summary>
-    /// <param name="typeName">A type name.</param>
-    /// <param name="numericPrecision">The precision and scale the catalog reports for the column.</param>
-    /// <returns>The number of digits kept after the decimal point in the seconds of a value of the type, for a temporal type; otherwise none.</returns>
-    /// <remarks>
-    /// SQL Server describes a temporal column with the same precision and scale columns it uses for a
-    /// numeric one, where the scale is the fractional seconds precision. The scale means nothing of
-    /// the sort for any other type, so only the temporal types report one.
-    /// </remarks>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static LanguageExt.Option<int> GetFractionalSecondsPrecision(Identifier typeName, LanguageExt.Option<INumericPrecision> numericPrecision)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetFractionalSecondsPrecision(GetSystemTypeInfo(typeName), numericPrecision);
-    }
-
+    // SQL Server describes a temporal column with the same precision and scale columns it uses for a
+    // numeric one, where the scale is the fractional seconds precision. The scale means nothing of
+    // the sort for any other type, so only the temporal types report one.
     private static LanguageExt.Option<int> GetFractionalSecondsPrecision(SystemTypeInfo? typeInfo, LanguageExt.Option<INumericPrecision> numericPrecision)
     {
         return typeInfo?.Annotation == TypeAnnotation.FractionalSecondsPrecision
             ? numericPrecision.Map(static np => np.Scale)
             : LanguageExt.Option<int>.None;
-    }
-
-    /// <summary>
-    /// Gets the name of the formatted type.
-    /// </summary>
-    /// <param name="typeMetadata">Column type metadata.</param>
-    /// <returns>A formatted type name, sufficient for printing or use within queries.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeMetadata"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="typeMetadata"/> does not have a type name.</exception>
-    protected static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata)
-    {
-        ArgumentNullException.ThrowIfNull(typeMetadata);
-        if (typeMetadata.TypeName == null)
-            throw new ArgumentException("The type name is missing. A formatted type name cannot be generated.", nameof(typeMetadata));
-
-        return GetFormattedTypeName(typeMetadata, typeMetadata.TypeName, GetSystemTypeInfo(typeMetadata.TypeName));
     }
 
     private static string GetFormattedTypeName(ColumnTypeMetadata typeMetadata, Identifier typeName, SystemTypeInfo? typeInfo)
@@ -243,61 +198,6 @@ public class SqlServerDbTypeProvider : IDbTypeProvider
 
         builder.Append(')');
 
-        return builder.GetStringAndRelease();
-    }
-
-    /// <summary>
-    /// Gets the data type for an associated type name.
-    /// </summary>
-    /// <param name="typeName">A type name.</param>
-    /// <returns>A data type definition.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static DataType GetDataType(Identifier typeName)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetSystemTypeInfo(typeName)?.DataType ?? DataType.Unknown;
-    }
-
-    /// <summary>
-    /// Gets the CLR type for the associated type name.
-    /// </summary>
-    /// <param name="typeName">A type name.</param>
-    /// <returns>A CLR type.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected static Type GetClrType(Identifier typeName)
-    {
-        ArgumentNullException.ThrowIfNull(typeName);
-
-        return GetSystemTypeInfo(typeName)?.ClrType ?? typeof(object);
-    }
-
-    /// <summary>
-    /// Quotes an identifier component.
-    /// </summary>
-    /// <param name="identifier">An identifier component.</param>
-    /// <returns>A quoted identifier component.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="identifier"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="identifier"/> is empty or whitespace.</exception>
-    protected static string QuoteIdentifier(string identifier)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(identifier);
-
-        return $"[{identifier.Replace("]", "]]", StringComparison.Ordinal)}]";
-    }
-
-    /// <summary>
-    /// Quotes a type name.
-    /// </summary>
-    /// <param name="name">A type name.</param>
-    /// <returns>A quoted type name.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null" />.</exception>
-    protected static string QuoteName(Identifier name)
-    {
-        ArgumentNullException.ThrowIfNull(name);
-
-        var builder = StringBuilderCache.Acquire();
-        AppendQuotedName(builder, name);
         return builder.GetStringAndRelease();
     }
 

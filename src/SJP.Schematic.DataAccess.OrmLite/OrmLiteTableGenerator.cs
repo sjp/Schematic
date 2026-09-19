@@ -487,21 +487,6 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
     }
 
     /// <summary>
-    /// Determines whether a given column is a foreign key column for the table.
-    /// </summary>
-    /// <param name="table">A database table.</param>
-    /// <param name="column">A column in the given table.</param>
-    /// <returns><see langword="true" /> if the column is a foreign key column; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" /> or <paramref name="column"/> is <see langword="null" />.</exception>
-    protected static bool ColumnIsForeignKey(IRelationalDatabaseTable table, IDatabaseColumn column)
-    {
-        ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(column);
-
-        return ColumnRelationalKey(table, column) != null;
-    }
-
-    /// <summary>
     /// Retrieves the relational key associated with a given column, if available.
     /// </summary>
     /// <param name="table">A database table.</param>

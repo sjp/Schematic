@@ -105,27 +105,6 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     }
 
     /// <summary>
-    /// Gets the resolved name of the synonym. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="synonymName">A synonym name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A synonym name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="synonymName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<Identifier> GetResolvedSynonymName(Identifier synonymName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(synonymName);
-
-        var candidateSynonymName = QualifySynonymName(synonymName);
-        var qualifiedSynonymName = Connection.QueryFirstOrNone(
-            GetSynonymName.Sql,
-            new GetSynonymName.Query { SchemaName = candidateSynonymName.Schema!, SynonymName = candidateSynonymName.LocalName },
-            cancellationToken
-        );
-
-        return qualifiedSynonymName.Map(name => Identifier.CreateQualifiedIdentifier(candidateSynonymName.Server, candidateSynonymName.Database, name.SchemaName, name.SynonymName));
-    }
-
-    /// <summary>
     /// Retrieves a database synonym, if available.
     /// </summary>
     /// <param name="synonymName">A synonym name.</param>

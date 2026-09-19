@@ -155,27 +155,6 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     /// <summary>
-    /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="tableName">A table name that will be resolved.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        var resolvedNames = IdentifierResolver
-            .GetResolutionOrder(tableName)
-            .Select(QualifyTableName);
-
-        return resolvedNames
-            .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
-            .FirstSome(cancellationToken)
-            .ToOption();
-    }
-
-    /// <summary>
     /// Gets the resolved name of the table without name resolution. i.e. the name must match strictly to return a result.
     /// </summary>
     /// <param name="tableName">A table name that will be resolved.</param>
@@ -1016,26 +995,6 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         return "\"" + columnName + "\" IS NOT NULL";
     }
-
-    /// <summary>
-    /// A mapping from the referential actions as described in Oracle, to a <see cref="ReferentialAction"/> instance.
-    /// </summary>
-    /// <value>A mapping dictionary.</value>
-    protected IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = OracleCatalogMapper.ReferentialActionMapping;
-
-    /// <summary>
-    /// A mapping from the trigger query timings as described in Oracle, to a <see cref="TriggerQueryTiming"/> instance.
-    /// </summary>
-    /// <value>A mapping dictionary.</value>
-    protected IReadOnlyDictionary<string, TriggerQueryTiming> TimingMapping { get; } = OracleCatalogMapper.TimingMapping;
-
-    /// <summary>
-    /// A mapping from the trigger types as described in Oracle, to a <see cref="TriggerGranularity"/> instance.
-    /// A compound trigger has sections at both granularities, so it is reported as
-    /// <see cref="TriggerGranularity.Unknown"/> rather than picking one of them.
-    /// </summary>
-    /// <value>A mapping dictionary.</value>
-    protected IReadOnlyDictionary<string, TriggerGranularity> GranularityMapping { get; } = OracleCatalogMapper.GranularityMapping;
 
     /// <summary>
     /// Qualifies the name of a table, using known identifier defaults.

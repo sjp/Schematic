@@ -154,27 +154,6 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     /// <summary>
-    /// Gets the resolved name of the table. This enables non-strict name matching to be applied.
-    /// </summary>
-    /// <param name="tableName">A table name that will be resolved.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A table name that, if available, can be assumed to exist and applied strictly.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<Option<Identifier>> GetResolvedTableName(Identifier tableName, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        var resolvedNames = IdentifierResolver
-            .GetResolutionOrder(tableName)
-            .Select(QualifyTableName);
-
-        return resolvedNames
-            .Select(name => GetResolvedTableNameStrict(name, cancellationToken))
-            .FirstSome(cancellationToken)
-            .ToOption();
-    }
-
-    /// <summary>
     /// Gets the resolved name of the table without name resolution. i.e. the name must match strictly to return a result.
     /// </summary>
     /// <param name="tableName">A table name that will be resolved.</param>

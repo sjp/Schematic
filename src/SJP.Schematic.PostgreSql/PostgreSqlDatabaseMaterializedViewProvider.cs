@@ -203,27 +203,6 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
         );
     }
 
-    /// <summary>
-    /// Determines whether a materialized view currently holds data, i.e. whether it has been refreshed
-    /// since it was created.
-    /// </summary>
-    /// <param name="viewName">A materialized view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns><see langword="true" /> if the view holds data; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<bool> LoadIsPopulatedAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadIsPopulatedAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<bool> LoadIsPopulatedAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (_, isPopulated) = await LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken);
-        return isPopulated;
-    }
-
     // The definition and the populated state are columns of the same pg_matviews row, so they are read together.
     private async Task<(string? Definition, bool IsPopulated)> LoadDefinitionAndIsPopulatedAsync(Identifier viewName, CancellationToken cancellationToken)
     {
@@ -250,26 +229,6 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
         }
 
         return result;
-    }
-
-    /// <summary>
-    /// Retrieves the definition of a view.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadDefinitionAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (definition, _) = await LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken);
-        return definition;
     }
 
     /// <summary>

@@ -53,12 +53,6 @@ public class PostgreSqlDatabaseSequenceProvider : IDatabaseSequenceProvider
     protected IDbConnectionFactory DbConnection => Connection.ConnectionFactory;
 
     /// <summary>
-    /// The dialect for the associated database.
-    /// </summary>
-    /// <value>A database dialect.</value>
-    protected IDatabaseDialect Dialect => Connection.Dialect;
-
-    /// <summary>
     /// The underlying sequence provider. Constructed lazily so that <see cref="DbConnection"/>
     /// is only evaluated once a query is actually issued, not at construction time, and cached
     /// thereafter so that repeated calls do not each allocate a new provider.

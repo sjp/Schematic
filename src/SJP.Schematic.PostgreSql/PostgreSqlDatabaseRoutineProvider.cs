@@ -273,24 +273,6 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         _ => RoutineType.Unknown,
     };
 
-    /// <summary>
-    /// Retrieves the definition of a routine. When several overloads share the routine's name,
-    /// their definitions are returned in one string, separated by blank lines.
-    /// </summary>
-    /// <param name="routineName">A routine name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a routine.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected async Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(routineName);
-
-        var overloadRows = await LoadOverloadRowsAsync(routineName, cancellationToken);
-        return overloadRows.Count == 0
-            ? null
-            : overloadRows.Select(static row => row.Definition!).Join(OverloadDefinitionSeparator);
-    }
-
     private async Task<IReadOnlyList<GetRoutineDefinition.Result>> LoadOverloadRowsAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         var results = await Connection.QueryAsync(

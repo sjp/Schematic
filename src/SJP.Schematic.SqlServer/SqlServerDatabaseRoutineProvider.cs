@@ -207,21 +207,6 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
         _ => RoutineType.Unknown,
     };
 
-    /// <summary>
-    /// Retrieves the definition of a routine.
-    /// </summary>
-    /// <param name="routineName">A routine name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a routine.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected async Task<string?> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(routineName);
-
-        var routineDetail = await LoadRoutineDetailAsync(routineName, cancellationToken);
-        return routineDetail?.Definition;
-    }
-
     private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
     {
         // a routine name is unique within its schema, so at most one row can match

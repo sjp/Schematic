@@ -188,26 +188,6 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
         return result;
     }
 
-    /// <summary>
-    /// Retrieves the definition of a view.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a view.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<string?> LoadDefinitionAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadDefinitionAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (definition, _) = await LoadDefinitionAndCheckOptionAsync(viewName, cancellationToken);
-        return definition;
-    }
-
     // The check option is a column of sys.views, which the definition query already joins to.
     private async Task<(string? Definition, ViewCheckOption CheckOption)> LoadDefinitionAndCheckOptionAsync(Identifier viewName, CancellationToken cancellationToken)
     {
@@ -256,26 +236,6 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
             new GetViewIndexes.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
-    }
-
-    /// <summary>
-    /// Retrieves the check option that constrains rows written through a view.
-    /// </summary>
-    /// <param name="viewName">A view name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A check option.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="viewName"/> is <see langword="null" />.</exception>
-    protected Task<ViewCheckOption> LoadCheckOptionAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(viewName);
-
-        return LoadCheckOptionAsyncCore(viewName, cancellationToken);
-    }
-
-    private async Task<ViewCheckOption> LoadCheckOptionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var (_, checkOption) = await LoadDefinitionAndCheckOptionAsync(viewName, cancellationToken);
-        return checkOption;
     }
 
     /// <summary>
