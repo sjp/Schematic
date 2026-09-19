@@ -69,14 +69,11 @@ execute procedure table_comment_table_3_trigger_fn_1()", TestContext.CurrentCont
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop table table_comment_table_1",
-            "drop table table_comment_table_2",
-            "drop table table_comment_table_3",
-            "drop function table_comment_table_3_trigger_fn_1()");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop table table_comment_table_1",
+        "drop table table_comment_table_2",
+        "drop table table_comment_table_3",
+        "drop function table_comment_table_3_trigger_fn_1()");
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
     {

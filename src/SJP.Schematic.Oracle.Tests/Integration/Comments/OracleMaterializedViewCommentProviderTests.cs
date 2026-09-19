@@ -29,13 +29,10 @@ internal sealed class OracleMaterializedViewCommentProviderTests : OracleTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop materialized view mview_comment_mview_1",
-            "drop materialized view mview_comment_mview_2",
-            "drop table mview_comment_table_1");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop materialized view mview_comment_mview_1",
+        "drop materialized view mview_comment_mview_2",
+        "drop table mview_comment_table_1");
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)
     {

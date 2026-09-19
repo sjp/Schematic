@@ -33,13 +33,10 @@ partition by range (part_key) (
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DropTablesAsync(
-            "table_kind_regular_1",
-            "table_kind_iot_1",
-            "table_kind_partitioned_1");
-    }
+    public Task CleanUp() => DropTablesAsync(
+        "table_kind_regular_1",
+        "table_kind_iot_1",
+        "table_kind_partitioned_1");
 
     [Test]
     public async Task GetTable_GivenOrdinaryTable_ReturnsLoggedRegularTable()

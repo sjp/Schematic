@@ -29,13 +29,10 @@ internal sealed class PostgreSqlQueryViewCommentProviderTests : PostgreSqlTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop view view_comment_view_1",
-            "drop view view_comment_view_2",
-            "drop table view_comment_table_1");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop view view_comment_view_1",
+        "drop view view_comment_view_2",
+        "drop table view_comment_table_1");
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)
     {

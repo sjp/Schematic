@@ -39,12 +39,9 @@ END db_test_package_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop package db_test_package_1",
-            "drop package db_test_package_2");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop package db_test_package_1",
+        "drop package db_test_package_2");
 
     private Task<IOracleDatabasePackage> GetPackageAsync(Identifier packageName)
     {

@@ -42,15 +42,12 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop function db_test_routine_1(integer)",
-            "drop procedure db_test_routine_2",
-            "drop function db_test_routine_3(integer)",
-            "drop function db_test_routine_3(text)",
-            "drop function db_test_routine_4");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop function db_test_routine_1(integer)",
+        "drop procedure db_test_routine_2",
+        "drop function db_test_routine_3(integer)",
+        "drop function db_test_routine_3(text)",
+        "drop function db_test_routine_4");
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {

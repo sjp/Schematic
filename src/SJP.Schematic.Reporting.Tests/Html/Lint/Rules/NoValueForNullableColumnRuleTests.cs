@@ -22,10 +22,7 @@ internal sealed class NoValueForNullableColumnRuleTests : SqliteRuleTestBase
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop table reporting_table_for_nullable_columns_1", CancellationToken.None);
-    }
+    public Task CleanUp() => DbConnection.ExecuteAsync("drop table reporting_table_for_nullable_columns_1", CancellationToken.None);
 
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()

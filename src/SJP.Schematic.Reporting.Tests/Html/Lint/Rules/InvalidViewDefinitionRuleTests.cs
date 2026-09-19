@@ -15,16 +15,10 @@ namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 internal sealed class InvalidViewDefinitionRuleTests : SqliteRuleTestBase
 {
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await DbConnection.ExecuteAsync("create view reporting_invalid_view_1 as select x from unknown_table", CancellationToken.None);
-    }
+    public Task Init() => DbConnection.ExecuteAsync("create view reporting_invalid_view_1 as select x from unknown_table", CancellationToken.None);
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop view reporting_invalid_view_1", CancellationToken.None);
-    }
+    public Task CleanUp() => DbConnection.ExecuteAsync("drop view reporting_invalid_view_1", CancellationToken.None);
 
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()

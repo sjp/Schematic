@@ -27,16 +27,13 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop view db_test_view_1",
-            "drop view view_test_view_1",
-            "drop view view_test_view_2",
-            "drop view view_test_view_3",
-            "drop view view_test_view_4",
-            "drop table view_test_table_1");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop view db_test_view_1",
+        "drop view view_test_view_1",
+        "drop view view_test_view_2",
+        "drop view view_test_view_3",
+        "drop view view_test_view_4",
+        "drop table view_test_table_1");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {

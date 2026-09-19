@@ -12,24 +12,18 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     private IDatabaseUserDefinedTypeProvider TypeProvider => new OracleDatabaseUserDefinedTypeProvider(DbConnection, IdentifierDefaults);
 
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await ExecuteBatchAsync(
-            "create type db_test_udt_object_1 as object (attr_one number(10, 2), attr_two varchar2(50))",
-            "create type db_test_udt_varray_1 as varray(10) of number(9)",
-            "create type db_test_udt_nested_1 as table of varchar2(30)"
-        );
-    }
+    public Task Init() => ExecuteBatchAsync(
+        "create type db_test_udt_object_1 as object (attr_one number(10, 2), attr_two varchar2(50))",
+        "create type db_test_udt_varray_1 as varray(10) of number(9)",
+        "create type db_test_udt_nested_1 as table of varchar2(30)"
+    );
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop type db_test_udt_object_1",
-            "drop type db_test_udt_varray_1",
-            "drop type db_test_udt_nested_1"
-        );
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop type db_test_udt_object_1",
+        "drop type db_test_udt_varray_1",
+        "drop type db_test_udt_nested_1"
+    );
 
     [Test]
     public async Task GetUserDefinedType_WhenTypePresent_ReturnsType()

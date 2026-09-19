@@ -14,31 +14,25 @@ internal sealed class PostgreSqlUserDefinedTypeCommentProviderTests : PostgreSql
     private IDatabaseUserDefinedTypeCommentProvider TypeCommentProvider => new PostgreSqlUserDefinedTypeCommentProvider(DbConnection, IdentifierDefaults, IdentifierResolver);
 
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await ExecuteBatchAsync(
-            "create domain comment_test_udt_1 as integer",
-            "create domain comment_test_udt_2 as integer",
-            "create type comment_test_udt_3 as enum ('first', 'second')",
-            "create type comment_test_udt_4 as (first_attr integer, second_attr text)",
-            "create table comment_test_udt_table_1 (test_column integer)",
-            "comment on domain comment_test_udt_2 is 'This is a test domain.'",
-            "comment on type comment_test_udt_3 is 'This is a test enum.'",
-            "comment on type comment_test_udt_4 is 'This is a test composite type.'"
-        );
-    }
+    public Task Init() => ExecuteBatchAsync(
+        "create domain comment_test_udt_1 as integer",
+        "create domain comment_test_udt_2 as integer",
+        "create type comment_test_udt_3 as enum ('first', 'second')",
+        "create type comment_test_udt_4 as (first_attr integer, second_attr text)",
+        "create table comment_test_udt_table_1 (test_column integer)",
+        "comment on domain comment_test_udt_2 is 'This is a test domain.'",
+        "comment on type comment_test_udt_3 is 'This is a test enum.'",
+        "comment on type comment_test_udt_4 is 'This is a test composite type.'"
+    );
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop table comment_test_udt_table_1",
-            "drop type comment_test_udt_4",
-            "drop type comment_test_udt_3",
-            "drop domain comment_test_udt_2",
-            "drop domain comment_test_udt_1"
-        );
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop table comment_test_udt_table_1",
+        "drop type comment_test_udt_4",
+        "drop type comment_test_udt_3",
+        "drop domain comment_test_udt_2",
+        "drop domain comment_test_udt_1"
+    );
 
     [Test]
     public async Task GetUserDefinedTypeComments_WhenTypePresent_ReturnsTypeComment()

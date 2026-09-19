@@ -14,23 +14,17 @@ internal sealed class PostgreSqlSchemaCommentProviderTests : PostgreSqlTest
     private IDatabaseSchemaCommentProvider SchemaCommentProvider => new PostgreSqlSchemaCommentProvider(DbConnection, IdentifierDefaults);
 
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await ExecuteBatchAsync(
-            "create schema comment_test_schema_1",
-            "create schema comment_test_schema_2",
-            "comment on schema comment_test_schema_2 is 'This is a test schema.'"
-        );
-    }
+    public Task Init() => ExecuteBatchAsync(
+        "create schema comment_test_schema_1",
+        "create schema comment_test_schema_2",
+        "comment on schema comment_test_schema_2 is 'This is a test schema.'"
+    );
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop schema comment_test_schema_1",
-            "drop schema comment_test_schema_2"
-        );
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop schema comment_test_schema_1",
+        "drop schema comment_test_schema_2"
+    );
 
     [Test]
     public async Task GetSchemaComments_WhenSchemaPresent_ReturnsSchemaComment()

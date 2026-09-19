@@ -25,16 +25,13 @@ internal sealed class OracleDatabaseSynonymProviderTests : OracleTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop synonym db_test_synonym_1",
-            "drop view synonym_test_view_1",
-            "drop table synonym_test_table_1",
-            "drop synonym synonym_test_synonym_1",
-            "drop synonym synonym_test_synonym_2",
-            "drop synonym synonym_test_synonym_3");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop synonym db_test_synonym_1",
+        "drop view synonym_test_view_1",
+        "drop table synonym_test_table_1",
+        "drop synonym synonym_test_synonym_1",
+        "drop synonym synonym_test_synonym_2",
+        "drop synonym synonym_test_synonym_3");
 
     [Test]
     public async Task GetSynonym_WhenSynonymPresent_ReturnsSynonym()

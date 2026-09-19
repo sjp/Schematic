@@ -15,16 +15,10 @@ namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 internal sealed class NoRowsPresentOnTableRuleTests : SqliteRuleTestBase
 {
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await DbConnection.ExecuteAsync("create table reporting_table_with_no_rows_1 ( column_1 integer not null )", CancellationToken.None);
-    }
+    public Task Init() => DbConnection.ExecuteAsync("create table reporting_table_with_no_rows_1 ( column_1 integer not null )", CancellationToken.None);
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop table reporting_table_with_no_rows_1", CancellationToken.None);
-    }
+    public Task CleanUp() => DbConnection.ExecuteAsync("drop table reporting_table_with_no_rows_1", CancellationToken.None);
 
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()

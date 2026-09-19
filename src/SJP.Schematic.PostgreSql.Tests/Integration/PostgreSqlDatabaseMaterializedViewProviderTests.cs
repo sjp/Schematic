@@ -35,20 +35,17 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop view matview_db_test_view_1",
-            "drop view matview_view_test_view_1",
-            "drop view matview_view_test_view_2",
-            "drop materialized view matview_view_test_matview_1",
-            "drop materialized view matview_view_test_matview_2",
-            "drop materialized view matview_view_test_matview_3",
-            "drop materialized view matview_view_test_matview_4",
-            "drop table matview_view_test_table_2",
-            "drop table matview_view_test_table_3",
-            "drop table matview_view_test_table_1");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop view matview_db_test_view_1",
+        "drop view matview_view_test_view_1",
+        "drop view matview_view_test_view_2",
+        "drop materialized view matview_view_test_matview_1",
+        "drop materialized view matview_view_test_matview_2",
+        "drop materialized view matview_view_test_matview_3",
+        "drop materialized view matview_view_test_matview_4",
+        "drop table matview_view_test_table_2",
+        "drop table matview_view_test_table_3",
+        "drop table matview_view_test_table_1");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {

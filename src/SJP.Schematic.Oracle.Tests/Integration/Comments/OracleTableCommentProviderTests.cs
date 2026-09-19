@@ -27,10 +27,7 @@ internal sealed class OracleTableCommentProviderTests : OracleTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DropTablesAsync("table_comment_table_1", "table_comment_table_2");
-    }
+    public Task CleanUp() => DropTablesAsync("table_comment_table_1", "table_comment_table_2");
 
     private Task<IRelationalDatabaseTableComments> GetTableCommentsAsync(Identifier tableName)
     {

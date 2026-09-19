@@ -10,22 +10,16 @@ internal sealed class PostgreSqlDatabaseUserDefinedTypeProviderTests : PostgreSq
     private IDatabaseUserDefinedTypeProvider TypeProvider => new PostgreSqlDatabaseUserDefinedTypeProvider(DbConnection, IdentifierDefaults);
 
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await ExecuteBatchAsync(
-            "create domain db_test_udt_domain_1 as integer not null check (value > 0)",
-            "create table db_test_udt_table_1 (test_column int)"
-        );
-    }
+    public Task Init() => ExecuteBatchAsync(
+        "create domain db_test_udt_domain_1 as integer not null check (value > 0)",
+        "create table db_test_udt_table_1 (test_column int)"
+    );
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop domain db_test_udt_domain_1",
-            "drop table db_test_udt_table_1"
-        );
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop domain db_test_udt_domain_1",
+        "drop table db_test_udt_table_1"
+    );
 
     [Test]
     public async Task GetUserDefinedType_WhenTypePresentGivenLocalNameOnly_ReturnsTypeWithQualifiedName()

@@ -25,10 +25,7 @@ create table exists_probe_table_1 (
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop table exists_probe_table_1", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => DbConnection.ExecuteAsync("drop table exists_probe_table_1", TestContext.CurrentContext.CancellationToken);
 
     [Test]
     public static void GetForConnection_GivenNullConnection_ThrowsArgumentNullException()

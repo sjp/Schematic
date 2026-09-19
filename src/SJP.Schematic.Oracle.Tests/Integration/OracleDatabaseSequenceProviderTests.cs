@@ -32,22 +32,19 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop sequence db_test_sequence_1",
-            "drop sequence db_test_sequence_2",
-            "drop sequence db_test_sequence_3",
-            "drop sequence db_test_sequence_4",
-            "drop sequence db_test_sequence_5",
-            "drop sequence db_test_sequence_6",
-            "drop sequence db_test_sequence_7",
-            "drop sequence db_test_sequence_8",
-            "drop sequence db_test_sequence_9",
-            "drop sequence db_test_sequence_10",
-            "drop sequence db_test_sequence_11",
-            "drop sequence db_test_sequence_12");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop sequence db_test_sequence_1",
+        "drop sequence db_test_sequence_2",
+        "drop sequence db_test_sequence_3",
+        "drop sequence db_test_sequence_4",
+        "drop sequence db_test_sequence_5",
+        "drop sequence db_test_sequence_6",
+        "drop sequence db_test_sequence_7",
+        "drop sequence db_test_sequence_8",
+        "drop sequence db_test_sequence_9",
+        "drop sequence db_test_sequence_10",
+        "drop sequence db_test_sequence_11",
+        "drop sequence db_test_sequence_12");
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
     {

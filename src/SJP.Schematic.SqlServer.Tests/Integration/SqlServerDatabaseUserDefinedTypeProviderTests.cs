@@ -12,32 +12,26 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
     private IDatabaseUserDefinedTypeProvider TypeProvider => new SqlServerDatabaseUserDefinedTypeProvider(DbConnection, IdentifierDefaults);
 
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await ExecuteBatchAsync(
-            "create type db_test_udt_alias_1 from varchar(50) not null",
-            "create type db_test_udt_alias_2 from decimal(10, 5) null",
-            // a table type names its constraints itself; the syntax accepts no constraint name
-            """
-            create type db_test_udt_table_1 as table (
-                attr_one int not null identity(2, 3),
-                attr_two varchar(50) null,
-                attr_three as attr_one * 2,
-                check (attr_one > 0)
-            )
-            """
-        );
-    }
+    public Task Init() => ExecuteBatchAsync(
+        "create type db_test_udt_alias_1 from varchar(50) not null",
+        "create type db_test_udt_alias_2 from decimal(10, 5) null",
+        // a table type names its constraints itself; the syntax accepts no constraint name
+        """
+        create type db_test_udt_table_1 as table (
+            attr_one int not null identity(2, 3),
+            attr_two varchar(50) null,
+            attr_three as attr_one * 2,
+            check (attr_one > 0)
+        )
+        """
+    );
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop type db_test_udt_alias_1",
-            "drop type db_test_udt_alias_2",
-            "drop type db_test_udt_table_1"
-        );
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop type db_test_udt_alias_1",
+        "drop type db_test_udt_alias_2",
+        "drop type db_test_udt_table_1"
+    );
 
     [Test]
     public async Task GetUserDefinedType_WhenTypePresent_ReturnsType()

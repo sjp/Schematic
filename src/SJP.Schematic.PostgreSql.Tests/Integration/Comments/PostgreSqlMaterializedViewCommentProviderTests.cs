@@ -29,13 +29,10 @@ internal sealed class PostgreSqlMaterializedViewCommentProviderTests : PostgreSq
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop materialized view matview_comment_matview_1",
-            "drop materialized view matview_comment_matview_2",
-            "drop table matview_comment_table_1");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop materialized view matview_comment_matview_1",
+        "drop materialized view matview_comment_matview_2",
+        "drop table matview_comment_table_1");
 
     private Task<IDatabaseViewComments> GetViewCommentsAsync(Identifier viewName)
     {

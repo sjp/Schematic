@@ -40,20 +40,17 @@ end;
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop view mview_db_test_view_1",
-            "drop view mview_view_test_view_1",
-            "drop materialized view mview_view_test_view_2",
-            "drop table mview_view_test_table_1",
-            "drop materialized view mview_view_test_view_3",
-            "drop table mview_view_test_table_2",
-            "drop materialized view mview_view_test_view_4",
-            "drop table mview_view_test_table_3",
-            "drop materialized view mview_view_test_view_5",
-            "drop table mview_view_test_table_4");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop view mview_db_test_view_1",
+        "drop view mview_view_test_view_1",
+        "drop materialized view mview_view_test_view_2",
+        "drop table mview_view_test_table_1",
+        "drop materialized view mview_view_test_view_3",
+        "drop table mview_view_test_table_2",
+        "drop materialized view mview_view_test_view_4",
+        "drop table mview_view_test_table_3",
+        "drop materialized view mview_view_test_view_5",
+        "drop table mview_view_test_table_4");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {

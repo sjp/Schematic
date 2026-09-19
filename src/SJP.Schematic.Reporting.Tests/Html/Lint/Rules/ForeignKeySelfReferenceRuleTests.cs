@@ -27,10 +27,7 @@ create table reporting_table_with_self_referencing_columns_1 (
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop table reporting_table_with_self_referencing_columns_1", CancellationToken.None);
-    }
+    public Task CleanUp() => DbConnection.ExecuteAsync("drop table reporting_table_with_self_referencing_columns_1", CancellationToken.None);
 
     [Test]
     public static void Ctor_GivenNullConnection_ThrowsArgumentNullException()

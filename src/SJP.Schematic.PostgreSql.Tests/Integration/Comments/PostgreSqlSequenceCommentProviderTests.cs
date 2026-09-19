@@ -26,12 +26,9 @@ internal sealed class PostgreSqlSequenceCommentProviderTests : PostgreSqlTest
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop sequence comment_test_sequence_1",
-            "drop sequence comment_test_sequence_2");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop sequence comment_test_sequence_1",
+        "drop sequence comment_test_sequence_2");
 
     private Task<IDatabaseSequenceComments> GetSequenceCommentsAsync(Identifier sequenceName)
     {

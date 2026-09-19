@@ -54,21 +54,18 @@ execute procedure query_view_test_trigger_fn()", TestContext.CurrentContext.Canc
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop view query_db_test_view_1",
-            "drop view query_view_test_view_1",
-            "drop view query_view_test_view_2",
-            "drop materialized view query_view_test_matview_1",
-            "drop view query_view_test_view_3",
-            "drop view query_view_test_view_4",
-            "drop view query_view_test_view_5",
-            "drop view query_view_test_view_6",
-            "drop function query_view_test_trigger_fn()",
-            "drop table query_view_test_table_2",
-            "drop table query_view_test_table_1");
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop view query_db_test_view_1",
+        "drop view query_view_test_view_1",
+        "drop view query_view_test_view_2",
+        "drop materialized view query_view_test_matview_1",
+        "drop view query_view_test_view_3",
+        "drop view query_view_test_view_4",
+        "drop view query_view_test_view_5",
+        "drop view query_view_test_view_6",
+        "drop function query_view_test_trigger_fn()",
+        "drop table query_view_test_table_2",
+        "drop table query_view_test_table_1");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {

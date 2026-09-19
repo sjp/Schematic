@@ -27,10 +27,7 @@ LANGUAGE PLPGSQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", TestContext.CurrentContext.CancellationToken);
-    }
+    public Task CleanUp() => DbConnection.ExecuteAsync("drop function db_comment_test_routine_1(integer)", TestContext.CurrentContext.CancellationToken);
 
     [Test]
     public async Task GetRoutineComments_WhenRoutinePresent_ReturnsRoutineComment()

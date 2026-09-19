@@ -12,22 +12,16 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     private IDatabaseSequenceProvider SequenceProvider => new PostgreSqlDatabaseSequenceProvider(Connection, IdentifierDefaults, IdentifierResolver);
 
     [OneTimeSetUp]
-    public async Task Init()
-    {
-        await ExecuteBatchAsync(
-            "create sequence db_test_sequence_1",
-            "create sequence \"DB_Test_Sequence_2\""
-        );
-    }
+    public Task Init() => ExecuteBatchAsync(
+        "create sequence db_test_sequence_1",
+        "create sequence \"DB_Test_Sequence_2\""
+    );
 
     [OneTimeTearDown]
-    public async Task CleanUp()
-    {
-        await ExecuteBatchAsync(
-            "drop sequence db_test_sequence_1",
-            "drop sequence \"DB_Test_Sequence_2\""
-        );
-    }
+    public Task CleanUp() => ExecuteBatchAsync(
+        "drop sequence db_test_sequence_1",
+        "drop sequence \"DB_Test_Sequence_2\""
+    );
 
     [Test]
     public async Task GetSequence_WhenSequencePresent_ReturnsSequence()
