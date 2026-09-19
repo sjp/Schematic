@@ -82,8 +82,6 @@ internal abstract class SqlServerTest
 
     protected IIdentifierDefaults IdentifierDefaults => SqlServerIntegrationSetUp.IdentifierDefaults;
 
-    protected Version DatabaseVersion => SqlServerIntegrationSetUp.DatabaseVersion;
-
     /// <summary>
     /// Executes multiple DDL statements as a single T-SQL batch, in one round-trip. Every
     /// statement must be able to appear alongside others in a batch -- <c>create view</c>,

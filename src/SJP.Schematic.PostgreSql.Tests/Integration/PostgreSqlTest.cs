@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Npgsql;
@@ -115,11 +114,4 @@ internal abstract class PostgreSqlTest
     /// </summary>
     protected Task ExecuteBatchAsync(params string[] statements) =>
         DbConnection.ExecuteAsync(string.Join(";\n", statements), TestContext.CurrentContext.CancellationToken);
-
-    /// <summary>
-    /// Drops multiple tables in a single round-trip. Table names are dropped in the order given,
-    /// so pass them in dependency order (children before parents) exactly as with individual drops.
-    /// </summary>
-    protected Task DropTablesAsync(params string[] tableNames) =>
-        ExecuteBatchAsync([.. tableNames.Select(static t => "drop table " + t)]);
 }

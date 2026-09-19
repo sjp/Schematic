@@ -87,8 +87,6 @@ internal abstract class OracleTest
 
     protected IIdentifierDefaults IdentifierDefaults => OracleIntegrationSetUp.IdentifierDefaults;
 
-    protected Version DatabaseVersion => OracleIntegrationSetUp.DatabaseVersion;
-
     protected IIdentifierResolutionStrategy IdentifierResolver { get; } = new DefaultOracleIdentifierResolutionStrategy();
 
     /// <summary>
