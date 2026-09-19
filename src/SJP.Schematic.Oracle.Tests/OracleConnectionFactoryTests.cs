@@ -39,9 +39,11 @@ internal static class OracleConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
+        void configureConnection(OracleConnection _) => wasInvoked = true;
+
         var factory = new OracleConnectionFactory(
             "Data Source=127.0.0.1/orcl; User Id=SYSTEM; Password=oracle",
-            connection => wasInvoked = true);
+            configureConnection);
 
         using var connection = factory.CreateConnection();
 

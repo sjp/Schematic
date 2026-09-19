@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Threading.Tasks;
+using MySqlConnector;
 using NUnit.Framework;
 
 namespace SJP.Schematic.MySql.Tests;
@@ -39,9 +40,11 @@ internal static class MySqlConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
+        void configureConnection(MySqlConnection _) => wasInvoked = true;
+
         using var factory = new MySqlConnectionFactory(
             "Server=127.0.0.1;",
-            connection => wasInvoked = true);
+            configureConnection);
 
         using var connection = factory.CreateConnection();
 

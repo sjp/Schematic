@@ -1,4 +1,4 @@
-using System.IO;
+﻿using System.IO;
 using NUnit.Framework;
 using SJP.Schematic.Tool.Commands;
 
@@ -22,12 +22,14 @@ internal static class CommonSettingsTests
     [Test]
     public static void ResolveConfigFilePath_GivenNoConfigAndNoDefaultFile_ReturnsNull()
     {
-        RunInTemporaryDirectory(dir =>
+        static void assertResolvesToNull(string _)
         {
             var settings = new FakeSettings();
 
             Assert.That(settings.ResolveConfigFilePath(), Is.Null);
-        });
+        }
+
+        RunInTemporaryDirectory(assertResolvesToNull);
     }
 
     [Test]

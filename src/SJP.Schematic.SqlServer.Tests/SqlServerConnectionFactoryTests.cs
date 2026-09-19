@@ -39,9 +39,11 @@ internal static class SqlServerConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
+        void configureConnection(SqlConnection _) => wasInvoked = true;
+
         var factory = new SqlServerConnectionFactory(
             "Server=127.0.0.1; Integrated Security=True;",
-            connection => wasInvoked = true);
+            configureConnection);
 
         using var connection = factory.CreateConnection();
 
@@ -51,8 +53,8 @@ internal static class SqlServerConnectionFactoryTests
     [Test]
     public static void CreateConnection_GivenConnectionConfiguration_AppliesConfigurationToReturnedConnection()
     {
-        Func<SqlAuthenticationParameters, System.Threading.CancellationToken, System.Threading.Tasks.Task<SqlAuthenticationToken>> accessTokenCallback =
-            (parameters, cancellationToken) => throw new NotSupportedException("Not used in this test.");
+        static System.Threading.Tasks.Task<SqlAuthenticationToken> accessTokenCallback(SqlAuthenticationParameters _, System.Threading.CancellationToken __)
+            => throw new NotSupportedException("Not used in this test.");
 
         var factory = new SqlServerConnectionFactory(
             "Server=127.0.0.1;",

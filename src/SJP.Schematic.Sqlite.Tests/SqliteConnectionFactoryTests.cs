@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using Microsoft.Data.Sqlite;
 using NUnit.Framework;
 
 namespace SJP.Schematic.Sqlite.Tests;
@@ -35,9 +36,11 @@ internal static class SqliteConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
+        void configureConnection(SqliteConnection _) => wasInvoked = true;
+
         var factory = new SqliteConnectionFactory(
             "Data Source=:memory:",
-            connection => wasInvoked = true);
+            configureConnection);
 
         using var connection = factory.CreateConnection();
 

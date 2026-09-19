@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using Npgsql;
 using NUnit.Framework;
 
 namespace SJP.Schematic.PostgreSql.Tests;
@@ -35,9 +36,11 @@ internal static class PostgreSqlConnectionFactoryTests
     public static void CreateConnection_GivenConnectionConfiguration_InvokesCallbackBeforeReturning()
     {
         var wasInvoked = false;
+        void configureConnection(NpgsqlConnection _) => wasInvoked = true;
+
         using var factory = new PostgreSqlConnectionFactory(
             "Server=127.0.0.1;",
-            connection => wasInvoked = true);
+            configureConnection);
 
         using var connection = factory.CreateConnection();
 

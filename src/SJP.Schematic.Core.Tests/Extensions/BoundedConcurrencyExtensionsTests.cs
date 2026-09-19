@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -237,15 +237,17 @@ internal static class BoundedConcurrencyExtensionsTests
     [Test]
     public static void SelectOrderedPrefetchAsync_WhenAnItemThrows_PropagatesException()
     {
+        static async Task<int> selectAsync(int i, CancellationToken _)
+        {
+            await Task.Yield();
+            return i == 2
+                ? throw new InvalidOperationException("failed")
+                : i;
+        }
+
         var source = Enumerable.Range(0, 10);
         var results = source.SelectOrderedPrefetchAsync(
-            static async (i, ct) =>
-            {
-                await Task.Yield();
-                return i == 2
-                    ? throw new InvalidOperationException("failed")
-                    : i;
-            },
+            selectAsync,
             4,
             TestContext.CurrentContext.CancellationToken);
 
