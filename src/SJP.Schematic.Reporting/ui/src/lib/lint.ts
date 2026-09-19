@@ -1,6 +1,6 @@
 import { CircleAlert, Info, TriangleAlert } from "lucide-react";
 
-import type { LintLevel, LintMessage, LintObjectType } from "@/types/report";
+import type { LintLevel, LintMessage } from "@/types/report";
 
 /**
  * Presentation rules shared by every surface that shows lint findings: the lint page, the
@@ -41,15 +41,6 @@ export function levelRank(level: string): number {
   // side never silently outranks a real Error.
   return rank === -1 ? LINT_LEVELS.length : rank;
 }
-
-/** Route each object type links to, used for the icon/label on a message's object column. */
-export const OBJECT_TYPE_LABELS: Record<LintObjectType, string> = {
-  Table: "Table",
-  View: "View",
-  Sequence: "Sequence",
-  Synonym: "Synonym",
-  Routine: "Routine",
-};
 
 /** Most severe first, then by rule, then by object — the order a reader wants to work through. */
 export function compareMessages(a: LintMessage, b: LintMessage): number {

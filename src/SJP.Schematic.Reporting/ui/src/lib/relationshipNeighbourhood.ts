@@ -1,7 +1,7 @@
 import type { GraphTable, RelationshipGraph } from "@/types/report";
 
 /** A per-table relationship diagram, e.g. "One Degree", drawn from part of the schema-wide graph. */
-export interface NeighbourhoodDiagram {
+interface NeighbourhoodDiagram {
   name: string;
   graph: RelationshipGraph;
 }

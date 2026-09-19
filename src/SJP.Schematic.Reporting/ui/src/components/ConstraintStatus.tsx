@@ -3,7 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import { IconTooltip } from "@/components/IconTooltip";
 
 /** The parts of a constraint that say how, and how far, the database enforces it. */
-export interface ConstraintStatusProps {
+interface ConstraintStatusProps {
   isValidated: boolean;
   deferrabilityDescription: string;
 }

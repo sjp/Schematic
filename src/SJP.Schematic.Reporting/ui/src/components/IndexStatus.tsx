@@ -3,7 +3,7 @@ import { TriangleAlert } from "lucide-react";
 import { IconTooltip } from "@/components/IconTooltip";
 
 /** The parts of an index that say whether the query planner will actually use it. */
-export interface IndexStatusProps {
+interface IndexStatusProps {
   isEnabled: boolean;
   isValid: boolean;
   isVisible: boolean;
@@ -14,11 +14,7 @@ export interface IndexStatusProps {
  * incompletely, or it has been hidden from the planner. An index in none of those states is
  * simply usable, so nothing needs saying about it.
  */
-export function getIndexStatusReasons({
-  isEnabled,
-  isValid,
-  isVisible,
-}: IndexStatusProps): string[] {
+function getIndexStatusReasons({ isEnabled, isValid, isVisible }: IndexStatusProps): string[] {
   const reasons: string[] = [];
   if (!isEnabled) {
     reasons.push("Disabled");

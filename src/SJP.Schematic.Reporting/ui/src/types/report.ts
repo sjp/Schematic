@@ -112,7 +112,7 @@ export interface UserDefinedTypeAttribute {
 }
 
 /** A check constraint a value of a user-defined type must satisfy. */
-export interface UserDefinedTypeCheck {
+interface UserDefinedTypeCheck {
   /** Empty when the constraint is unnamed. */
   constraintName: string;
   definition: string;
@@ -164,14 +164,14 @@ export interface TablesSummary {
   allTables: TableSummary[];
 }
 
-export interface ParentKey {
+interface ParentKey {
   constraintDescription: string;
   parentTableName: string;
   parentTableUrl: string;
   parentColumnName: string;
 }
 
-export interface ChildKey {
+interface ChildKey {
   constraintDescription: string;
   childTableName: string;
   childTableUrl: string;
@@ -216,7 +216,7 @@ export interface KeyConstraint {
   deferrabilityDescription: string;
 }
 
-export interface ForeignKeyConstraint {
+interface ForeignKeyConstraint {
   constraintName: string;
   parentConstraintName: string;
   childColumnNames: string;
@@ -233,7 +233,7 @@ export interface ForeignKeyConstraint {
   matchTypeDescription: string;
 }
 
-export interface CheckConstraint {
+interface CheckConstraint {
   constraintName: string;
   definition: string;
   /** Whether the database has verified the existing rows against the constraint. */
@@ -242,7 +242,7 @@ export interface CheckConstraint {
   deferrabilityDescription: string;
 }
 
-export interface TableIndex {
+interface TableIndex {
   name: string;
   isUnique: boolean;
   columnsText: string;
@@ -256,7 +256,7 @@ export interface TableIndex {
   isVisible: boolean;
 }
 
-export interface TableTrigger {
+interface TableTrigger {
   triggerName: string;
   definition: string;
   queryTiming: string;
@@ -387,10 +387,10 @@ export interface RoutinesSummary {
 }
 
 /** The kind of routine a database object represents. */
-export type RoutineType = "Unknown" | "Procedure" | "Function" | "Package" | "Aggregate";
+type RoutineType = "Unknown" | "Procedure" | "Function" | "Package" | "Aggregate";
 
 /** How a value flows through a routine parameter. */
-export type RoutineParameterDirection = "Input" | "Output" | "InputOutput";
+type RoutineParameterDirection = "Input" | "Output" | "InputOutput";
 
 /** One parameter of a routine's signature. */
 export interface RoutineParameter {
@@ -406,7 +406,7 @@ export interface RoutineParameter {
 }
 
 /** One signature of a routine whose name carries more than one. */
-export interface RoutineOverload {
+interface RoutineOverload {
   definition: string;
   parameters: RoutineParameter[];
   /** Omitted from the JSON when the signature returns nothing. */
@@ -510,7 +510,7 @@ export interface TriggersSummary {
   allTriggers: TriggerRow[];
 }
 
-export type ColumnParentType = "Table" | "View";
+type ColumnParentType = "Table" | "View";
 
 /** A row in `data/columns.json` (a column of a table or view). */
 export interface ColumnRow {
@@ -697,7 +697,7 @@ export interface LinkedTable {
 }
 
 /** How a table's rows are distributed across partitions. */
-export interface TablePartitioning {
+interface TablePartitioning {
   /** How rows are assigned to a partition, e.g. `RANGE`. */
   strategy: string;
   /** The columns the partitioning key is built from. Empty when the database does not report them. */
@@ -707,7 +707,7 @@ export interface TablePartitioning {
 }
 
 /** Where a table's superseded rows are retained. */
-export interface TableSystemVersioning {
+interface TableSystemVersioning {
   historyTable: LinkedTable;
   periodStartColumn: string;
   periodEndColumn: string;
