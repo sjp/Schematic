@@ -16,8 +16,6 @@ internal static class GetTableForeignKeyColumns
         public required string ChildKeyName { get; init; }
 
         public required string ColumnName { get; init; }
-
-        public required int ConstraintColumnId { get; init; }
     }
 
     // table_schema and table_name are the columns MariaDB can look key_column_usage up by, so this only
@@ -26,8 +24,7 @@ internal static class GetTableForeignKeyColumns
 
 select
     kc.constraint_name as `{nameof(Result.ChildKeyName)}`,
-    kc.column_name as `{nameof(Result.ColumnName)}`,
-    kc.ordinal_position as `{nameof(Result.ConstraintColumnId)}`
+    kc.column_name as `{nameof(Result.ColumnName)}`
 from information_schema.key_column_usage kc
 where kc.table_schema = @{nameof(Query.SchemaName)} and kc.table_name = @{nameof(Query.TableName)}
     and kc.referenced_table_name is not null

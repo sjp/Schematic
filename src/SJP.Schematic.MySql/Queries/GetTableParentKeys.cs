@@ -23,8 +23,6 @@ internal static class GetTableParentKeys
 
         public required string ColumnName { get; init; }
 
-        public required int ConstraintColumnId { get; init; }
-
         public required string ParentKeyType { get; init; }
 
         public required string DeleteAction { get; init; }
@@ -44,7 +42,6 @@ select
     rc.constraint_name as `{nameof(Result.ChildKeyName)}`,
     rc.unique_constraint_name as `{nameof(Result.ParentKeyName)}`,
     kc.column_name as `{nameof(Result.ColumnName)}`,
-    kc.ordinal_position as `{nameof(Result.ConstraintColumnId)}`,
     case when rc.unique_constraint_name = 'PRIMARY' then 'PRIMARY KEY' else 'UNIQUE' end as `{nameof(Result.ParentKeyType)}`,
     rc.delete_rule as `{nameof(Result.DeleteAction)}`,
     rc.update_rule as `{nameof(Result.UpdateAction)}`
