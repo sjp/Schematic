@@ -454,7 +454,7 @@ internal static class ConnectionExtensionsTests
     {
         var connectionFactory = CreateFailingConnectionFactory();
 
-        Assert.That(async () => await connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption(), Throws.InvalidOperationException);
+        Assert.That(() => connectionFactory.QuerySingleOrNone<string>("select 'test' as dummy", CancellationToken.None).ToOption(), Throws.InvalidOperationException);
     }
 
     [Test]
@@ -462,7 +462,7 @@ internal static class ConnectionExtensionsTests
     {
         var connectionFactory = CreateInMemoryConnectionFactory();
 
-        Assert.That(async () => await connectionFactory.QuerySingleOrNone<string>("not valid sql", CancellationToken.None).ToOption(), Throws.InstanceOf<DbException>());
+        Assert.That(() => connectionFactory.QuerySingleOrNone<string>("not valid sql", CancellationToken.None).ToOption(), Throws.InstanceOf<DbException>());
     }
 
     [Test]
@@ -504,7 +504,7 @@ internal static class ConnectionExtensionsTests
         var connectionFactory = CreateFailingConnectionFactory();
         var param = new TestQuery { Test = "test" };
 
-        Assert.That(async () => await connectionFactory.QuerySingleOrNone("select @Test as dummy", param, CancellationToken.None).ToOption(), Throws.InvalidOperationException);
+        Assert.That(() => connectionFactory.QuerySingleOrNone("select @Test as dummy", param, CancellationToken.None).ToOption(), Throws.InvalidOperationException);
     }
 
     private static IDbConnectionFactory CreateInMemoryConnectionFactory() => new SqliteConnectionFactory("Data Source=:memory:");

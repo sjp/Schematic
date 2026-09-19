@@ -96,6 +96,6 @@ internal static class MySqlConnectionFactoryTests
         var factory = new MySqlConnectionFactory("Server=127.0.0.1;");
         await factory.DisposeAsync();
 
-        Assert.That(async () => await factory.OpenConnectionAsync(), Throws.InstanceOf<ObjectDisposedException>());
+        Assert.That(() => factory.OpenConnectionAsync(), Throws.InstanceOf<ObjectDisposedException>());
     }
 }

@@ -121,7 +121,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.DataVersionAsync(), Throws.Nothing);
+        Assert.That(() => dbPragma.DataVersionAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -234,7 +234,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.FreeListCountAsync(), Throws.Nothing);
+        Assert.That(() => dbPragma.FreeListCountAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -243,7 +243,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.IncrementalVacuumAsync(1000), Throws.Nothing);
+        Assert.That(() => dbPragma.IncrementalVacuumAsync(1000), Throws.Nothing);
     }
 
     [Test]
@@ -252,7 +252,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.IncrementalVacuumAsync(0), Throws.Nothing);
+        Assert.That(() => dbPragma.IncrementalVacuumAsync(0), Throws.Nothing);
     }
 
     [Test]
@@ -497,7 +497,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.OptimizeAsync(), Throws.Nothing);
+        Assert.That(() => dbPragma.OptimizeAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -519,7 +519,7 @@ internal sealed class DatabasePragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var dbPragma = CreateDatabasePragma(connection, MainSchema);
 
-        Assert.That(async () => await dbPragma.PageCountAsync(), Throws.Nothing);
+        Assert.That(() => dbPragma.PageCountAsync(), Throws.Nothing);
     }
 
     [Test]

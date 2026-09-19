@@ -101,7 +101,7 @@ internal static class CachingConnectionFactoryTests
             .Select(_ => Task.Run(() => cachingFactory.OpenConnectionAsync()))
             .ToArray();
 
-        Assert.That(async () => await Task.WhenAll(openTasks), Throws.Nothing);
+        Assert.That(() => Task.WhenAll(openTasks), Throws.Nothing);
         using (Assert.EnterMultipleScope())
         {
             Assert.That(connection.OverlappingOpenDetected, Is.False);
@@ -205,7 +205,7 @@ internal static class CachingConnectionFactoryTests
         var cachingFactory = new CachingConnectionFactory(factory.Object);
         cachingFactory.Dispose();
 
-        Assert.That(async () => await cachingFactory.OpenConnectionAsync(), Throws.TypeOf<ObjectDisposedException>());
+        Assert.That(() => cachingFactory.OpenConnectionAsync(), Throws.TypeOf<ObjectDisposedException>());
     }
 
     [Test]

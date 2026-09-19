@@ -34,7 +34,7 @@ internal static class ValueTaskCollectionExtensionsTests
     {
         var faulted = new ValueTask<int>(Task.FromException<int>(new InvalidOperationException()));
 
-        Assert.That(async () => await (
+        Assert.That(() => (
             faulted,
             ValueTask.FromResult("2")
         ).WhenAll(), Throws.InvalidOperationException);

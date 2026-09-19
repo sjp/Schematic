@@ -865,7 +865,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var json = CreateTableDatabaseJson(ValidTableNameJson, columnsJson, ValidChecksJson);
 
         Assert.That(
-            async () => await DeserializeJsonAsync(json),
+            () => DeserializeJsonAsync(json),
             Throws.TypeOf<JsonException>().With.Message.Contains("'Type'")
         );
     }
@@ -879,7 +879,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var json = CreateTableDatabaseJson(ValidTableNameJson, ValidColumnsJson, checksJson);
 
         Assert.That(
-            async () => await DeserializeJsonAsync(json),
+            () => DeserializeJsonAsync(json),
             Throws.TypeOf<JsonException>().With.Message.Contains("'Definition'")
         );
     }
@@ -890,7 +890,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var json = CreateTableDatabaseJson("null", ValidColumnsJson, ValidChecksJson);
 
         Assert.That(
-            async () => await DeserializeJsonAsync(json),
+            () => DeserializeJsonAsync(json),
             Throws.TypeOf<JsonException>()
                 .With.Message.Contains("'TableName'")
                 .And.Message.Contains("$.Tables[0].TableName")
@@ -903,7 +903,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var json = CreateTableDatabaseJson("{ }", ValidColumnsJson, ValidChecksJson);
 
         Assert.That(
-            async () => await DeserializeJsonAsync(json),
+            () => DeserializeJsonAsync(json),
             Throws.TypeOf<JsonException>().With.Message.Contains("'LocalName'")
         );
     }

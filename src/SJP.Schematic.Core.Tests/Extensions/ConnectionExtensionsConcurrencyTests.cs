@@ -109,7 +109,7 @@ internal static class ConnectionExtensionsConcurrencyTests
         var connectionFactory = new ConnectionTrackingConnectionFactory(new FaultInjectingConnectionFactory(CreateSqliteConnectionFactory(), injector), 1);
         var cancellationToken = TestContext.CurrentContext.CancellationToken;
 
-        Assert.That(async () => await connectionFactory.QueryAsync<string>(ThreeRowQuery, cancellationToken), Throws.InstanceOf<TimeoutException>());
+        Assert.That(() => connectionFactory.QueryAsync<string>(ThreeRowQuery, cancellationToken), Throws.InstanceOf<TimeoutException>());
 
         var results = await connectionFactory.QueryAsync<string>(ThreeRowQuery, cancellationToken).WaitAsync(SlotReleaseDeadline, cancellationToken);
 
@@ -123,7 +123,7 @@ internal static class ConnectionExtensionsConcurrencyTests
         var connectionFactory = new ConnectionTrackingConnectionFactory(new FaultInjectingConnectionFactory(CreateSqliteConnectionFactory(), injector), 1);
         var cancellationToken = TestContext.CurrentContext.CancellationToken;
 
-        Assert.That(async () => await connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, cancellationToken).ToListAsync(cancellationToken), Throws.InstanceOf<TimeoutException>());
+        Assert.That(() => connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, cancellationToken).ToListAsync(cancellationToken), Throws.InstanceOf<TimeoutException>());
 
         var results = await connectionFactory.QueryAsync<string>(ThreeRowQuery, cancellationToken).WaitAsync(SlotReleaseDeadline, cancellationToken);
 
@@ -137,7 +137,7 @@ internal static class ConnectionExtensionsConcurrencyTests
         var connectionFactory = new ConnectionTrackingConnectionFactory(new FaultInjectingConnectionFactory(CreateSqliteConnectionFactory(), injector), 1);
         var cancellationToken = TestContext.CurrentContext.CancellationToken;
 
-        Assert.That(async () => await connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, cancellationToken).ToListAsync(cancellationToken), Throws.InstanceOf<TimeoutException>());
+        Assert.That(() => connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, cancellationToken).ToListAsync(cancellationToken), Throws.InstanceOf<TimeoutException>());
 
         var results = await connectionFactory.QueryAsync<string>(ThreeRowQuery, cancellationToken).WaitAsync(SlotReleaseDeadline, cancellationToken);
 

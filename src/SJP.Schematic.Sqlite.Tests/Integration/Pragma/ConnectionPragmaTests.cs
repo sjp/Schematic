@@ -275,7 +275,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        Assert.That(async () => await connPragma.FunctionListAsync(), Throws.Nothing);
+        Assert.That(() => connPragma.FunctionListAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -290,7 +290,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         await connection.ExecuteAsync("insert into test (col) values ('test')", TestContext.CurrentContext.CancellationToken);
 
         await connPragma.IgnoreCheckConstraintsAsync(false);
-        Assert.That(async () => await connection.ExecuteAsync("insert into test (col) values ('test')", TestContext.CurrentContext.CancellationToken), Throws.TypeOf<SqliteException>());
+        Assert.That(() => connection.ExecuteAsync("insert into test (col) values ('test')", TestContext.CurrentContext.CancellationToken), Throws.TypeOf<SqliteException>());
     }
 
     [Test]
@@ -313,7 +313,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        Assert.That(async () => await connPragma.ModuleListAsync(), Throws.Nothing);
+        Assert.That(() => connPragma.ModuleListAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -322,7 +322,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        Assert.That(async () => await connPragma.OptimizeAsync(), Throws.Nothing);
+        Assert.That(() => connPragma.OptimizeAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -344,7 +344,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        Assert.That(async () => await connPragma.PragmaListAsync(), Throws.Nothing);
+        Assert.That(() => connPragma.PragmaListAsync(), Throws.Nothing);
     }
 
     [Test]
@@ -409,7 +409,7 @@ internal sealed class ConnectionPragmaTests : SqliteTest
         var connection = CreateConnectionFactory();
         var connPragma = CreateConnectionPragma(connection);
 
-        Assert.That(async () => await connPragma.ShrinkMemoryAsync(), Throws.Nothing);
+        Assert.That(() => connPragma.ShrinkMemoryAsync(), Throws.Nothing);
     }
 
     [Test]

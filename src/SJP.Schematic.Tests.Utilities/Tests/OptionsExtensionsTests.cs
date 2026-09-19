@@ -26,7 +26,7 @@ internal static class OptionsExtensionsTests
     [Test]
     public static void UnwrapSomeAsync_GivenNoneInput_ThrowsArgumentException()
     {
-        Assert.That(async () => await OptionAsync<string>.None.UnwrapSomeAsync(), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input"));
+        Assert.That(() => OptionAsync<string>.None.UnwrapSomeAsync(), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("input"));
     }
 
     [Test]

@@ -94,7 +94,7 @@ internal static class AsyncCacheTests
                 : Task.FromResult("test");
         });
 
-        Assert.That(async () => await cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<InvalidOperationException>());
+        Assert.That(() => cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<InvalidOperationException>());
 
         var result = await cache.GetByKeyAsync("a", "cache_ignore");
 
@@ -116,7 +116,7 @@ internal static class AsyncCacheTests
         var waitingCaller = cache.GetByKeyAsync("a", "cache_ignore");
 
         await cancellationTokenSource.CancelAsync();
-        Assert.That(async () => await cancellingCaller, Throws.InstanceOf<OperationCanceledException>());
+        Assert.That(() => cancellingCaller, Throws.InstanceOf<OperationCanceledException>());
 
         completionSource.SetResult("test");
 
@@ -138,7 +138,7 @@ internal static class AsyncCacheTests
         var cancellingCaller = cache.GetByKeyAsync("a", "cache_ignore", cancellationTokenSource.Token);
 
         await cancellationTokenSource.CancelAsync();
-        Assert.That(async () => await cancellingCaller, Throws.InstanceOf<OperationCanceledException>());
+        Assert.That(() => cancellingCaller, Throws.InstanceOf<OperationCanceledException>());
 
         completionSource.SetResult("test");
 
@@ -207,8 +207,8 @@ internal static class AsyncCacheTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(async () => await firstCaller, Throws.InstanceOf<OperationCanceledException>());
-            Assert.That(async () => await secondCaller, Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(() => firstCaller, Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(() => secondCaller, Throws.InstanceOf<OperationCanceledException>());
             Assert.That(factoryObservedCancellation, Is.True);
         }
     }
@@ -228,8 +228,8 @@ internal static class AsyncCacheTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(async () => await cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<OperationCanceledException>());
-            Assert.That(async () => await cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(() => cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<OperationCanceledException>());
+            Assert.That(() => cache.GetByKeyAsync("a", "cache_ignore"), Throws.InstanceOf<OperationCanceledException>());
             Assert.That(counter, Is.EqualTo(2));
         }
     }

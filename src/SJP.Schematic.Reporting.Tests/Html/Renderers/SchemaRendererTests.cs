@@ -20,7 +20,7 @@ internal static class SchemaRendererTests
         var data = ReportDataFactory.Create(database: Database());
         var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
 
-        Assert.That(async () => await renderer.RenderAsync(data, context), Throws.Nothing);
+        Assert.That(() => renderer.RenderAsync(data, context), Throws.Nothing);
     }
 
     [Test]

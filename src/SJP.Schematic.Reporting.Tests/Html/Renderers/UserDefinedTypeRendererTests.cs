@@ -19,7 +19,7 @@ internal static class UserDefinedTypeRendererTests
         var data = ReportDataFactory.Create();
         var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
 
-        Assert.That(async () => await renderer.RenderAsync(data, context), Throws.Nothing);
+        Assert.That(() => renderer.RenderAsync(data, context), Throws.Nothing);
     }
 
     [Test]

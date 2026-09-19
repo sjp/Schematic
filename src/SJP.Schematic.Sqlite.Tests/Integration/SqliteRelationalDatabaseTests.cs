@@ -12,21 +12,21 @@ internal sealed class SqliteRelationalDatabaseTests : SqliteTest
     public void VacuumAsync_WhenInvoked_RunsWithoutError()
     {
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.VacuumAsync(), Throws.Nothing);
+        Assert.That(() => sqliteDb.VacuumAsync(), Throws.Nothing);
     }
 
     [Test]
     public void VacuumAsync_WhenGivenValidSchemaName_RunsWithoutError()
     {
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.VacuumAsync("main"), Throws.Nothing);
+        Assert.That(() => sqliteDb.VacuumAsync("main"), Throws.Nothing);
     }
 
     [Test]
     public void VacuumAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
     {
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.VacuumAsync("this_database_should_not_exist"), Throws.TypeOf<SqliteException>());
+        Assert.That(() => sqliteDb.VacuumAsync("this_database_should_not_exist"), Throws.TypeOf<SqliteException>());
     }
 
     [Test]
@@ -36,7 +36,7 @@ internal sealed class SqliteRelationalDatabaseTests : SqliteTest
         var testFile = Path.Combine(testDir.DirectoryPath, "test_db.sqlite");
 
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.VacuumIntoAsync(testFile), Throws.Nothing);
+        Assert.That(() => sqliteDb.VacuumIntoAsync(testFile), Throws.Nothing);
     }
 
     [Test]
@@ -46,7 +46,7 @@ internal sealed class SqliteRelationalDatabaseTests : SqliteTest
         var testFile = Path.Combine(testDir.DirectoryPath, "test_db.sqlite");
 
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.VacuumIntoAsync(testFile, "main"), Throws.Nothing);
+        Assert.That(() => sqliteDb.VacuumIntoAsync(testFile, "main"), Throws.Nothing);
     }
 
     [Test]
@@ -56,14 +56,14 @@ internal sealed class SqliteRelationalDatabaseTests : SqliteTest
         var testFile = Path.Combine(testDir.DirectoryPath, "test_db.sqlite");
 
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.VacuumIntoAsync(testFile, "this_database_should_not_exist"), Throws.TypeOf<SqliteException>());
+        Assert.That(() => sqliteDb.VacuumIntoAsync(testFile, "this_database_should_not_exist"), Throws.TypeOf<SqliteException>());
     }
 
     [Test]
     public void AttachDatabaseAsync_WhenGivenValidSchemaAndFileNames_RunsWithoutError()
     {
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.AttachDatabaseAsync("test", ":memory:"), Throws.Nothing);
+        Assert.That(() => sqliteDb.AttachDatabaseAsync("test", ":memory:"), Throws.Nothing);
     }
 
     [Test]
@@ -71,13 +71,13 @@ internal sealed class SqliteRelationalDatabaseTests : SqliteTest
     {
         var sqliteDb = GetSqliteDatabase();
         await sqliteDb.AttachDatabaseAsync("test_detach", ":memory:");
-        Assert.That(async () => await sqliteDb.DetachDatabaseAsync("test_detach"), Throws.Nothing);
+        Assert.That(() => sqliteDb.DetachDatabaseAsync("test_detach"), Throws.Nothing);
     }
 
     [Test]
     public void DetachDatabaseAsync_WhenGivenUnknownSchemaName_ThrowsSqliteException()
     {
         var sqliteDb = GetSqliteDatabase();
-        Assert.That(async () => await sqliteDb.DetachDatabaseAsync("this_database_should_not_exist"), Throws.TypeOf<SqliteException>());
+        Assert.That(() => sqliteDb.DetachDatabaseAsync("this_database_should_not_exist"), Throws.TypeOf<SqliteException>());
     }
 }

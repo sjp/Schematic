@@ -41,7 +41,7 @@ internal static class ConnectionExtensionsRetryTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(async () => await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None), results), Throws.InstanceOf<TimeoutException>());
+            Assert.That(() => CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None), results), Throws.InstanceOf<TimeoutException>());
             Assert.That(results, Is.EqualTo(new[] { "first" }));
             Assert.That(injector.ExecutionCount, Is.EqualTo(1));
         }
@@ -86,7 +86,7 @@ internal static class ConnectionExtensionsRetryTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(async () => await connectionFactory.QuerySingleOrNone<string>(ThreeRowQuery, CancellationToken.None).ToOption(), Throws.InstanceOf<TimeoutException>());
+            Assert.That(() => connectionFactory.QuerySingleOrNone<string>(ThreeRowQuery, CancellationToken.None).ToOption(), Throws.InstanceOf<TimeoutException>());
             Assert.That(injector.ExecutionCount, Is.EqualTo(1));
         }
     }
@@ -97,7 +97,7 @@ internal static class ConnectionExtensionsRetryTests
         var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: int.MaxValue);
         var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
 
-        Assert.That(async () => await CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None)), Throws.InstanceOf<TimeoutException>());
+        Assert.That(() => CollectAsync(connectionFactory.QueryEnumerableAsync<string>(ThreeRowQuery, CancellationToken.None)), Throws.InstanceOf<TimeoutException>());
     }
 
     [Test]
@@ -223,7 +223,7 @@ internal static class ConnectionExtensionsRetryTests
         var injector = new FaultInjector(rowsBeforeFailure: 0, failureCount: 0, openFailureCount: int.MaxValue);
         var connectionFactory = CreateFaultInjectingConnectionFactory(injector);
 
-        Assert.That(async () => await connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None), Throws.InstanceOf<TimeoutException>());
+        Assert.That(() => connectionFactory.QueryAsync<string>(ThreeRowQuery, CancellationToken.None), Throws.InstanceOf<TimeoutException>());
     }
 
     [Test]

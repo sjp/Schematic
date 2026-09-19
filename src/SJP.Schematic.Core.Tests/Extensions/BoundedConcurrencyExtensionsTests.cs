@@ -102,7 +102,7 @@ internal static class BoundedConcurrencyExtensionsTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(
-                async () => await source.SelectBoundedAsync<int, int>(
+                () => source.SelectBoundedAsync<int, int>(
                     (_, _) =>
                     {
                         Interlocked.Increment(ref startedCount);
@@ -251,7 +251,7 @@ internal static class BoundedConcurrencyExtensionsTests
             4,
             TestContext.CurrentContext.CancellationToken);
 
-        Assert.That(async () => await results.ToListAsync(TestContext.CurrentContext.CancellationToken), Throws.InvalidOperationException);
+        Assert.That(() => results.ToListAsync(TestContext.CurrentContext.CancellationToken), Throws.InvalidOperationException);
     }
 
     private sealed class InFlightTracker

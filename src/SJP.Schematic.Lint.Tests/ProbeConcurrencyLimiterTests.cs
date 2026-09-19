@@ -128,7 +128,7 @@ internal static class ProbeConcurrencyLimiterTests
         cts.Cancel();
 
         Assert.That(
-            async () => await limiter.RunAsync(static _ => Task.FromResult(true), cts.Token),
+            () => limiter.RunAsync(static _ => Task.FromResult(true), cts.Token),
             Throws.InstanceOf<OperationCanceledException>()
         );
     }
