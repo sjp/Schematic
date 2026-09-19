@@ -59,4 +59,44 @@ describe("SearchCommand", () => {
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(window.location.hash).toBe("#/tables/actor-1");
   });
+
+  it("renders an empty palette before the search data has loaded", () => {
+    renderWithClient(<SearchCommand open onOpenChange={() => {}} />);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("No results found.")).toBeInTheDocument();
+  });
+
+  it("sorts a type it has no place for after the ones it does", () => {
+    renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
+      seed: seedSearch([
+        { name: "thing", objectType: "Widget", url: "#/widgets/thing-1" },
+        { name: "actor", objectType: "Table", url: "#/tables/actor-1" },
+      ]),
+    });
+
+    const headings = screen.getAllByText(/^(Table|Widget)$/u).map((el) => el.textContent);
+    expect(headings).toEqual(["Table", "Widget"]);
+  });
+
+  it("names the owning object of a column entry", () => {
+    renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
+      seed: seedSearch([
+        { name: "email", objectType: "Column", parent: "actor", url: "#/tables/actor-1" },
+      ]),
+    });
+
+    expect(within(screen.getByRole("dialog")).getByText("actor")).toBeInTheDocument();
+  });
+
+  it("navigates to a url the report recorded without its leading hash", async () => {
+    const user = userEvent.setup();
+    renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
+      seed: seedSearch([{ name: "actor", objectType: "Table", url: "/tables/actor-1" }]),
+    });
+
+    await user.click(within(screen.getByRole("dialog")).getByText("actor"));
+
+    expect(window.location.hash).toBe("#/tables/actor-1");
+  });
 });

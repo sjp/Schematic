@@ -248,6 +248,51 @@ describe("LintPage", () => {
       "data/lint.sarif",
     );
   });
+
+  it("goes back to the rule list from a selected rule", async () => {
+    searchState.current = { rule: "SCHEMATIC0001" };
+    loaded(summary([message()]));
+
+    render(<LintPage />);
+    await userEvent.click(screen.getByRole("button", { name: "All rules" }));
+
+    expect(lastRequestedSearch()).toMatchObject({ rule: undefined });
+  });
+
+  it("switches between the rule and message views", async () => {
+    loaded(summary([message()]));
+
+    render(<LintPage />);
+
+    await userEvent.click(screen.getByRole("button", { name: "All messages" }));
+    expect(lastRequestedSearch()).toMatchObject({ view: "messages" });
+
+    searchState.current = { view: "messages" };
+    await userEvent.click(screen.getByRole("button", { name: "By rule" }));
+    expect(lastRequestedSearch()).toMatchObject({ view: "rules" });
+  });
+
+  it("offers a button to clear the severity filter, but only while one is set", async () => {
+    loaded(summary([message()]));
+
+    const { unmount } = render(<LintPage />);
+    expect(screen.queryByRole("button", { name: "Clear severity filter" })).not.toBeInTheDocument();
+    unmount();
+
+    searchState.current = { level: "Error" };
+    render(<LintPage />);
+    await userEvent.click(screen.getByRole("button", { name: "Clear severity filter" }));
+
+    expect(lastRequestedSearch()).toMatchObject({ level: undefined });
+  });
+
+  it("offers no view tabs while a single rule is selected", () => {
+    searchState.current = { rule: "SCHEMATIC0001" };
+    loaded(summary([message()]));
+
+    render(<LintPage />);
+    expect(screen.queryByRole("button", { name: "All messages" })).not.toBeInTheDocument();
+  });
 });
 
 describe("parseLintSearch", () => {

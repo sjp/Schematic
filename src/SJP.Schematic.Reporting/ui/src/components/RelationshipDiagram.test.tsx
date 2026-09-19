@@ -1,11 +1,14 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ElkNode } from "elkjs/lib/elk-api.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LARGE_DIAGRAM_TABLE_COUNT, RelationshipDiagram } from "@/components/RelationshipDiagram";
 import { layoutElkGraph } from "@/lib/elkLayout";
-import type { GraphTable, RelationshipGraph } from "@/types/report";
+import type { GraphColumn, GraphTable, RelationshipGraph } from "@/types/report";
+
+/** The node data the diagram hands React Flow, as much of it as the mock below touches. */
+type MockNode = { id: string; data: { table: GraphTable; columns: GraphColumn[] } };
 
 vi.mock("@/lib/elkLayout", () => ({ layoutElkGraph: vi.fn<typeof layoutElkGraph>() }));
 
@@ -14,17 +17,37 @@ vi.mock("@tanstack/react-router", () => ({
 }));
 
 // React Flow needs real layout measurements; the diagram's own logic only decides what it is given.
+// The custom table node is still rendered, through the `nodeTypes` the diagram registers, so what a
+// node draws is covered — but outside the list the layout assertions read, so they stay unaffected.
 vi.mock("@xyflow/react", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@xyflow/react")>()),
-  ReactFlow: ({ nodes }: { nodes: { id: string; data: { columns: unknown[] } }[] }) => (
-    <ul data-testid="flow">
-      {nodes.map((n) => (
-        <li key={n.id}>
-          {n.id}:{n.data.columns.length}
-        </li>
-      ))}
-    </ul>
-  ),
+  // A `Handle` reaches into a live React Flow store, which the mocked canvas does not set up.
+  Handle: () => null,
+  ReactFlow: ({
+    nodes,
+    nodeTypes,
+  }: {
+    nodes: MockNode[];
+    nodeTypes: { table: (props: { data: MockNode["data"] }) => React.ReactNode };
+  }) => {
+    const TableNode = nodeTypes.table;
+    return (
+      <>
+        <ul data-testid="flow">
+          {nodes.map((n) => (
+            <li key={n.id}>
+              {n.id}:{n.data.columns.length}
+            </li>
+          ))}
+        </ul>
+        <div data-testid="table-nodes">
+          {nodes.map((n) => (
+            <TableNode key={n.id} data={n.data} />
+          ))}
+        </div>
+      </>
+    );
+  },
   Background: () => null,
   Controls: () => null,
 }));
@@ -63,6 +86,43 @@ function makeGraph(tableCount: number): RelationshipGraph {
     childKeysCount: 0,
   }));
   return { nodes, nodesCount: tableCount, edges: [], edgesCount: 0 };
+}
+
+/** A key column, which the compact view keeps and the node draws a badge for. */
+const column = (name: string, type: string, flags: Partial<GraphColumn> = {}): GraphColumn => ({
+  name,
+  type,
+  isNullable: false,
+  isPrimaryKey: false,
+  isUniqueKey: false,
+  isForeignKey: false,
+  isKey: true,
+  ...flags,
+});
+
+/** One table carrying a column of every kind the node draws a badge for. */
+function oneTableGraph(): RelationshipGraph {
+  return {
+    nodes: [
+      {
+        id: "film_actor",
+        name: "film_actor",
+        tableUrl: "#/tables/film_actor",
+        columns: [
+          column("actor_id", "int", { isPrimaryKey: true }),
+          column("film_id", "int", { isUniqueKey: true }),
+          column("language_id", "int", { isForeignKey: true }),
+          column("last_update", "timestamp"),
+        ],
+        columnsCount: 4,
+        parentKeysCount: 2,
+        childKeysCount: 3,
+      },
+    ],
+    nodesCount: 1,
+    edges: [],
+    edgesCount: 0,
+  };
 }
 
 /** Resolves every layout with the graph as given, positioned at the origin. */
@@ -196,5 +256,50 @@ describe("RelationshipDiagram", () => {
 
     expect(screen.getByText("No related tables to diagram.")).toBeInTheDocument();
     expect(mockLayout).not.toHaveBeenCalled();
+  });
+
+  it("draws a table node with its name, key badges, column types and key counts", async () => {
+    layOutImmediately();
+
+    render(<RelationshipDiagram graph={oneTableGraph()} />);
+    await screen.findByTestId("flow");
+
+    const node = screen.getByTestId("table-nodes");
+    expect(within(node).getByText("film_actor")).toBeInTheDocument();
+    expect(within(node).getByLabelText("Primary key")).toBeInTheDocument();
+    expect(within(node).getByLabelText("Unique key")).toBeInTheDocument();
+    expect(within(node).getByLabelText("Foreign key")).toBeInTheDocument();
+    expect(within(node).getByText("last_update")).toBeInTheDocument();
+    expect(within(node).getByText("timestamp")).toBeInTheDocument();
+    expect(within(node).getByText("2 ▴ 3 ▾")).toBeInTheDocument();
+  });
+
+  it("highlights the focal table of a per-table diagram", async () => {
+    layOutImmediately();
+    const graph = oneTableGraph();
+
+    const { rerender } = render(<RelationshipDiagram graph={graph} />);
+    await screen.findByTestId("flow");
+    expect(screen.getByTitle("film_actor")).not.toHaveClass("bg-primary");
+
+    const highlighted = oneTableGraph();
+    highlighted.nodes[0]!.isHighlighted = true;
+    rerender(<RelationshipDiagram graph={highlighted} />);
+    await screen.findByTestId("flow");
+
+    expect(screen.getByTitle("film_actor")).toHaveClass("bg-primary");
+  });
+
+  it("says so for a table the compact view leaves no columns of", async () => {
+    layOutImmediately();
+    const graph = oneTableGraph();
+    for (const c of graph.nodes[0]!.columns) {
+      c.isKey = false;
+    }
+
+    render(<RelationshipDiagram graph={graph} compact />);
+    await screen.findByTestId("flow");
+
+    expect(screen.getByText("no key columns")).toBeInTheDocument();
   });
 });

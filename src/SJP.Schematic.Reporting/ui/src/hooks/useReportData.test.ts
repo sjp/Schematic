@@ -1,4 +1,7 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { QueryFunctionContext, QueryKey } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
+import { createElement, type ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -6,6 +9,8 @@ import {
   ensureDetail,
   ensureSummary,
   summaryQueryOptions,
+  useDetail,
+  useSummary,
 } from "@/hooks/useReportData";
 import { loadDetail, loadSummary } from "@/lib/dataSource";
 import { queryClient } from "@/lib/queryClient";
@@ -82,5 +87,50 @@ describe("ensureSummary / ensureDetail", () => {
     expect(queryClient.getQueryData(["detail", "table", "actor_abc"])).toEqual({
       name: "actor",
     });
+  });
+});
+
+/** A fresh client per render, so one test's cache never answers another's query. */
+function wrapper({ children }: { children: ReactNode }) {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false, gcTime: Infinity, staleTime: Infinity } },
+  });
+  return createElement(QueryClientProvider, { client }, children);
+}
+
+describe("useSummary / useDetail", () => {
+  it("useSummary reads the payload for its key", async () => {
+    vi.mocked(loadSummary).mockResolvedValue({ tablesCount: 3 });
+
+    const { result } = renderHook(() => useSummary<{ tablesCount: number }>("tables"), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual({ tablesCount: 3 });
+    });
+    expect(loadSummary).toHaveBeenCalledWith("tables");
+  });
+
+  it("useDetail reads the payload for its type and key", async () => {
+    vi.mocked(loadDetail).mockResolvedValue({ name: "actor" });
+
+    const { result } = renderHook(() => useDetail<{ name: string }>("table", "actor_abc"), {
+      wrapper,
+    });
+
+    await waitFor(() => {
+      expect(result.current.data).toEqual({ name: "actor" });
+    });
+    expect(loadDetail).toHaveBeenCalledWith("table", "actor_abc");
+  });
+
+  it("surfaces a payload that fails to load", async () => {
+    vi.mocked(loadDetail).mockRejectedValue(new Error("404"));
+
+    const { result } = renderHook(() => useDetail("table", "missing"), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
+    });
+    expect(result.current.error).toEqual(new Error("404"));
   });
 });
