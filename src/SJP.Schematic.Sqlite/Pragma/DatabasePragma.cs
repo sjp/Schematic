@@ -1079,7 +1079,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     public Task<pragma_wal_checkpoint> WalCheckpointAsync(WalCheckpointMode checkpointMode = WalCheckpointMode.Passive, CancellationToken cancellationToken = default)
     {
         if (!checkpointMode.IsValid())
-            throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(checkpointMode));
+            throw new ArgumentException($"The {nameof(WalCheckpointMode)} provided must be a valid enum.", nameof(checkpointMode));
 
         return WalCheckpointAsyncCore(checkpointMode, cancellationToken);
     }
@@ -1099,7 +1099,7 @@ public class DatabasePragma : ISqliteDatabasePragma
     protected string WalCheckpointQuery(WalCheckpointMode checkpointMode)
     {
         if (!checkpointMode.IsValid())
-            throw new ArgumentException($"The {nameof(TemporaryStoreLocation)} provided must be a valid enum.", nameof(checkpointMode));
+            throw new ArgumentException($"The {nameof(WalCheckpointMode)} provided must be a valid enum.", nameof(checkpointMode));
 
         var checkpointModeStr = checkpointMode.ToString().ToUpperInvariant();
         return PragmaPrefix + "wal_checkpoint(" + checkpointModeStr + ")";
