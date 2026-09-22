@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -626,13 +627,25 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="ParentKeyName">The name of the referenced key.</param>
     /// <param name="ParentKeyType">Whether the referenced key is a primary key or a unique key.</param>
     /// <param name="DeleteAction">The action taken on the child rows when a referenced row is deleted.</param>
+    /// <exception cref="ArgumentException"><paramref name="ParentKeyType"/> or <paramref name="DeleteAction"/> is not a valid enum.</exception>
     protected sealed record ForeignKeyReference(
         IDatabaseKey ChildKey,
         Identifier ParentTableName,
         Identifier ParentKeyName,
         DatabaseKeyType ParentKeyType,
         ReferentialAction DeleteAction
-    );
+    )
+    {
+        /// <summary>Whether the referenced key is a primary key or a unique key.</summary>
+        public DatabaseKeyType ParentKeyType { get; init; } = ParentKeyType.IsValid()
+            ? ParentKeyType
+            : throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(ParentKeyType));
+
+        /// <summary>The action taken on the child rows when a referenced row is deleted.</summary>
+        public ReferentialAction DeleteAction { get; init; } = DeleteAction.IsValid()
+            ? DeleteAction
+            : throw new ArgumentException($"The {nameof(ReferentialAction)} provided must be a valid enum.", nameof(DeleteAction));
+    }
 
     /// <summary>
     /// Retrieves indexes that relate to the given table.

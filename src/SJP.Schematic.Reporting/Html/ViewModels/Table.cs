@@ -32,6 +32,8 @@ public sealed class Table
     )
     {
         ArgumentNullException.ThrowIfNull(tableName);
+        if (!kind.IsValid())
+            throw new ArgumentException($"The {nameof(TableKind)} provided must be a valid enum.", nameof(kind));
 
         Name = tableName.ToVisibleName();
         TableUrl = UrlRouter.GetTableUrl(tableName);
@@ -208,6 +210,9 @@ public sealed class Table
             bool isHidden
         )
         {
+            if (!computedStorage.IsValid())
+                throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
+
             ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
             Ordinal = ordinal;
             IsNullable = isNullable;
@@ -445,6 +450,12 @@ public sealed class Table
             bool isVisible
         )
         {
+            ArgumentNullException.ThrowIfNull(columnSorts);
+            if (columnSorts.Any(static sort => !sort.IsValid()))
+                throw new ArgumentException($"The {nameof(IndexColumnOrder)} values provided must all be valid enums.", nameof(columnSorts));
+            if (!indexType.IsValid())
+                throw new ArgumentException($"The {nameof(IndexType)} provided must be a valid enum.", nameof(indexType));
+
             Name = indexName ?? string.Empty;
             IsUnique = isUnique;
 
@@ -505,6 +516,10 @@ public sealed class Table
             ArgumentNullException.ThrowIfNull(triggerName);
             ArgumentException.ThrowIfNullOrWhiteSpace(definition);
             ArgumentNullException.ThrowIfNull(updateColumns);
+            if (!triggerEvent.IsValid())
+                throw new ArgumentException($"The {nameof(TriggerEvent)} provided must be a valid enum.", nameof(triggerEvent));
+            if (triggerEvent == TriggerEvent.None)
+                throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(triggerEvent));
 
             TriggerName = triggerName.LocalName;
             Definition = definition;

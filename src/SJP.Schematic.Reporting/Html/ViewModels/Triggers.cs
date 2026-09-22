@@ -50,6 +50,10 @@ public sealed class Triggers
             ArgumentNullException.ThrowIfNull(objectName);
             ArgumentNullException.ThrowIfNull(triggerName);
             ArgumentNullException.ThrowIfNull(updateColumns);
+            if (!triggerEvent.IsValid())
+                throw new ArgumentException($"The {nameof(TriggerEvent)} provided must be a valid enum.", nameof(triggerEvent));
+            if (triggerEvent == TriggerEvent.None)
+                throw new ArgumentException("Invalid trigger event flags given. Must include at least one event, e.g. INSERT, DELETE, UPDATE.", nameof(triggerEvent));
 
             Name = triggerName.ToVisibleName();
             ObjectName = objectName.ToVisibleName();

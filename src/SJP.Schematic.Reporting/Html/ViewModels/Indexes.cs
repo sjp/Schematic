@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -46,7 +47,11 @@ public sealed class Indexes
             ArgumentNullException.ThrowIfNull(columnSorts);
             if (columnSorts.Empty())
                 throw new ArgumentException("An index must have at least one column sort.", nameof(columnSorts));
+            if (columnSorts.Any(static sort => !sort.IsValid()))
+                throw new ArgumentException($"The {nameof(IndexColumnOrder)} values provided must all be valid enums.", nameof(columnSorts));
             ArgumentNullException.ThrowIfNull(includedColumnNames);
+            if (!indexType.IsValid())
+                throw new ArgumentException($"The {nameof(IndexType)} provided must be a valid enum.", nameof(indexType));
 
             Name = indexName ?? string.Empty;
             TableName = tableName.ToVisibleName();

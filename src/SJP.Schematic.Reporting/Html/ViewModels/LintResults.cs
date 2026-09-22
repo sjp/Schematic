@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EnumsNET;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 
@@ -79,6 +80,8 @@ public sealed class LintResults
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(ruleId);
             ArgumentException.ThrowIfNullOrWhiteSpace(ruleTitle);
+            if (!level.IsValid())
+                throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
             RuleId = ruleId;
             RuleTitle = ruleTitle;
@@ -106,6 +109,8 @@ public sealed class LintResults
             ArgumentException.ThrowIfNullOrWhiteSpace(ruleId);
             ArgumentException.ThrowIfNullOrWhiteSpace(ruleTitle);
             ArgumentException.ThrowIfNullOrWhiteSpace(message);
+            if (!level.IsValid())
+                throw new ArgumentException($"The {nameof(RuleLevel)} provided must be a valid enum.", nameof(level));
 
             RuleId = ruleId;
             RuleTitle = ruleTitle;

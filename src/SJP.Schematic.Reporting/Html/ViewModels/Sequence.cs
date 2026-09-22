@@ -1,4 +1,5 @@
 ﻿using System;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -25,6 +26,8 @@ public sealed class Sequence
     )
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
+        if (!cacheMode.IsValid())
+            throw new ArgumentException($"The {nameof(SequenceCacheMode)} provided must be a valid enum.", nameof(cacheMode));
 
         Name = sequenceName.ToVisibleName();
         SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);

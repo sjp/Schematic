@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -155,6 +156,8 @@ public sealed class Main
         )
         {
             ArgumentNullException.ThrowIfNull(tableName);
+            if (!kind.IsValid())
+                throw new ArgumentException($"The {nameof(TableKind)} provided must be a valid enum.", nameof(kind));
 
             Name = tableName.ToVisibleName();
             TableUrl = UrlRouter.GetTableUrl(tableName);
@@ -229,6 +232,8 @@ public sealed class Main
         )
         {
             ArgumentNullException.ThrowIfNull(sequenceName);
+            if (!cacheMode.IsValid())
+                throw new ArgumentException($"The {nameof(SequenceCacheMode)} provided must be a valid enum.", nameof(cacheMode));
 
             Name = sequenceName.ToVisibleName();
             SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
@@ -307,6 +312,8 @@ public sealed class Main
         public Routine(Identifier routineName, RoutineType routineType)
         {
             ArgumentNullException.ThrowIfNull(routineName);
+            if (!routineType.IsValid())
+                throw new ArgumentException($"The {nameof(RoutineType)} provided must be a valid enum.", nameof(routineType));
 
             Name = routineName.ToVisibleName();
             RoutineUrl = UrlRouter.GetRoutineUrl(routineName);
@@ -337,6 +344,8 @@ public sealed class Main
         )
         {
             ArgumentNullException.ThrowIfNull(typeName);
+            if (!kind.IsValid())
+                throw new ArgumentException($"The {nameof(UserDefinedTypeKind)} provided must be a valid enum.", nameof(kind));
 
             Name = typeName.ToVisibleName();
             TypeUrl = UrlRouter.GetUserDefinedTypeUrl(typeName);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -25,6 +26,8 @@ public sealed class UserDefinedType
     )
     {
         ArgumentNullException.ThrowIfNull(typeName);
+        if (!kind.IsValid())
+            throw new ArgumentException($"The {nameof(UserDefinedTypeKind)} provided must be a valid enum.", nameof(kind));
 
         Name = typeName.ToVisibleName();
         TypeUrl = UrlRouter.GetUserDefinedTypeUrl(typeName);

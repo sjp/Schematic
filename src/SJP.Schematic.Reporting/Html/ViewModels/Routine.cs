@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -25,6 +26,8 @@ public sealed class Routine
     {
         ArgumentNullException.ThrowIfNull(routine);
         ArgumentNullException.ThrowIfNull(referencedObjects);
+        if (!routineType.IsValid())
+            throw new ArgumentException($"The {nameof(RoutineType)} provided must be a valid enum.", nameof(routineType));
 
         Name = routine.ToVisibleName();
         RoutineUrl = UrlRouter.GetRoutineUrl(routine);
@@ -82,6 +85,9 @@ public sealed class Routine
     {
         public Parameter(Option<Identifier> parameterName, string typeDefinition, Option<Uri> typeUrl, RoutineParameterDirection direction, Option<string> defaultValue, int ordinal)
         {
+            if (!direction.IsValid())
+                throw new ArgumentException($"The {nameof(RoutineParameterDirection)} provided must be a valid enum.", nameof(direction));
+
             ParameterName = parameterName.MatchUnsafe(static name => name.LocalName, static () => (string?)null);
             Type = typeDefinition ?? throw new ArgumentNullException(nameof(typeDefinition));
             TypeUrl = typeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -52,6 +53,10 @@ public sealed class Columns
         {
             ArgumentNullException.ThrowIfNull(parentName);
             ArgumentException.ThrowIfNullOrWhiteSpace(columnName);
+            if (!parentType.IsValid())
+                throw new ArgumentException($"The {nameof(ParentObjectType)} provided must be a valid enum.", nameof(parentType));
+            if (parentType == ParentObjectType.None)
+                throw new ArgumentException($"A column must belong to a table or a view, so {nameof(ParentObjectType)}.{nameof(ParentObjectType.None)} is not a valid parent.", nameof(parentType));
 
             Name = parentName.ToVisibleName();
             ParentType = parentType;
