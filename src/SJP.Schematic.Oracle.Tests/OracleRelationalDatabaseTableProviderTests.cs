@@ -168,17 +168,12 @@ internal static class OracleRelationalDatabaseTableProviderTests
         );
     }
 
-    private static readonly string[] TableAndCacheLoaders =
-    [
-        "LoadTable",
-        "LoadConstraintsAsync",
-        "LoadIndexesAsync",
-        "LoadChildKeysAsync",
-        "LoadChecksAsync",
-        "LoadParentKeysAsync",
-        "LoadColumnsAsync",
-    ];
+    // The loaders and cache methods are protected, so their names can only be taken from inside the accessor.
+    private static readonly string[] TableAndCacheLoaders = ProviderAccessor.TableAndCacheLoaders;
 
+    private static readonly string[] QueryCacheTableNameMethods = ProviderAccessor.QueryCacheTableNameMethods;
+
+    // Constructor parameter names are not nameable, so these have to be spelled out.
     private static readonly string[] QueryCacheLoaderParameters =
     [
         "tableNameLoader",
@@ -189,24 +184,35 @@ internal static class OracleRelationalDatabaseTableProviderTests
         "columnLookupLoader",
     ];
 
-    private static readonly string[] QueryCacheTableNameMethods =
-    [
-        "GetTableNameAsync",
-        "TryAddTableName",
-        "GetColumnsAsync",
-        "GetConstraintsAsync",
-        "GetPrimaryKeyAsync",
-        "GetUniqueKeysAsync",
-        "GetIndexesAsync",
-        "GetForeignKeysAsync",
-        "GetColumnLookupAsync",
-    ];
-
     // The provider's loaders, its query cache and ForeignKeyReference are all protected, so they are
     // only reachable through a derived provider — which is exactly the surface the guards exist for.
     // The query cache type is protected too, so it crosses back out of here as object.
     private sealed class ProviderAccessor : OracleRelationalDatabaseTableProvider
     {
+        public static readonly string[] TableAndCacheLoaders =
+        [
+            nameof(LoadTable),
+            nameof(LoadConstraintsAsync),
+            nameof(LoadIndexesAsync),
+            nameof(LoadChildKeysAsync),
+            nameof(LoadChecksAsync),
+            nameof(LoadParentKeysAsync),
+            nameof(LoadColumnsAsync),
+        ];
+
+        public static readonly string[] QueryCacheTableNameMethods =
+        [
+            nameof(OracleTableQueryCache.GetTableNameAsync),
+            nameof(OracleTableQueryCache.TryAddTableName),
+            nameof(OracleTableQueryCache.GetColumnsAsync),
+            nameof(OracleTableQueryCache.GetConstraintsAsync),
+            nameof(OracleTableQueryCache.GetPrimaryKeyAsync),
+            nameof(OracleTableQueryCache.GetUniqueKeysAsync),
+            nameof(OracleTableQueryCache.GetIndexesAsync),
+            nameof(OracleTableQueryCache.GetForeignKeysAsync),
+            nameof(OracleTableQueryCache.GetColumnLookupAsync),
+        ];
+
         private readonly OracleTableQueryCache _cache;
 
         private ProviderAccessor()
@@ -264,13 +270,13 @@ internal static class OracleRelationalDatabaseTableProviderTests
 
             return loaderName switch
             {
-                "LoadTable" => LoadTable(tableName, cache, CancellationToken.None),
-                "LoadConstraintsAsync" => LoadConstraintsAsync(tableName, cache, CancellationToken.None),
-                "LoadIndexesAsync" => LoadIndexesAsync(tableName, cache, CancellationToken.None),
-                "LoadChildKeysAsync" => LoadChildKeysAsync(tableName, cache, CancellationToken.None),
-                "LoadChecksAsync" => LoadChecksAsync(tableName, cache, CancellationToken.None),
-                "LoadParentKeysAsync" => LoadParentKeysAsync(tableName, cache, CancellationToken.None),
-                "LoadColumnsAsync" => LoadColumnsAsync(tableName, cache, CancellationToken.None),
+                nameof(LoadTable) => LoadTable(tableName, cache, CancellationToken.None),
+                nameof(LoadConstraintsAsync) => LoadConstraintsAsync(tableName, cache, CancellationToken.None),
+                nameof(LoadIndexesAsync) => LoadIndexesAsync(tableName, cache, CancellationToken.None),
+                nameof(LoadChildKeysAsync) => LoadChildKeysAsync(tableName, cache, CancellationToken.None),
+                nameof(LoadChecksAsync) => LoadChecksAsync(tableName, cache, CancellationToken.None),
+                nameof(LoadParentKeysAsync) => LoadParentKeysAsync(tableName, cache, CancellationToken.None),
+                nameof(LoadColumnsAsync) => LoadColumnsAsync(tableName, cache, CancellationToken.None),
                 _ => throw new ArgumentException($"Unknown loader '{loaderName}'.", nameof(loaderName)),
             };
         }
@@ -279,15 +285,15 @@ internal static class OracleRelationalDatabaseTableProviderTests
         {
             return methodName switch
             {
-                "GetTableNameAsync" => _cache.GetTableNameAsync(tableName, CancellationToken.None),
-                "TryAddTableName" => _cache.TryAddTableName(tableName, TableName),
-                "GetColumnsAsync" => _cache.GetColumnsAsync(tableName, CancellationToken.None),
-                "GetConstraintsAsync" => _cache.GetConstraintsAsync(tableName, CancellationToken.None),
-                "GetPrimaryKeyAsync" => _cache.GetPrimaryKeyAsync(tableName, CancellationToken.None),
-                "GetUniqueKeysAsync" => _cache.GetUniqueKeysAsync(tableName, CancellationToken.None),
-                "GetIndexesAsync" => _cache.GetIndexesAsync(tableName, CancellationToken.None),
-                "GetForeignKeysAsync" => _cache.GetForeignKeysAsync(tableName, CancellationToken.None),
-                "GetColumnLookupAsync" => _cache.GetColumnLookupAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetTableNameAsync) => _cache.GetTableNameAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.TryAddTableName) => _cache.TryAddTableName(tableName, TableName),
+                nameof(OracleTableQueryCache.GetColumnsAsync) => _cache.GetColumnsAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetConstraintsAsync) => _cache.GetConstraintsAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetPrimaryKeyAsync) => _cache.GetPrimaryKeyAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetUniqueKeysAsync) => _cache.GetUniqueKeysAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetIndexesAsync) => _cache.GetIndexesAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetForeignKeysAsync) => _cache.GetForeignKeysAsync(tableName, CancellationToken.None),
+                nameof(OracleTableQueryCache.GetColumnLookupAsync) => _cache.GetColumnLookupAsync(tableName, CancellationToken.None),
                 _ => throw new ArgumentException($"Unknown cache method '{methodName}'.", nameof(methodName)),
             };
         }
