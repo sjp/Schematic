@@ -9,43 +9,12 @@ afterEach(() => {
   cleanup();
 });
 
-// jsdom does not implement matchMedia; useColorScheme and RootLayout both depend on it.
-if (typeof window.matchMedia !== "function") {
-  window.matchMedia = (query: string): MediaQueryList => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    // `MediaQueryList` still declares the superseded listener pair, so a conforming stub has to
-    // carry it even though nothing here calls it.
-    /* oxlint-disable typescript/no-deprecated */
-    addListener: () => {},
-    removeListener: () => {},
-    /* oxlint-enable typescript/no-deprecated */
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  });
-}
-
-// jsdom has no ResizeObserver; Radix UI primitives (Tooltip, Dialog) measure elements with it.
-if (typeof window.ResizeObserver !== "function") {
-  window.ResizeObserver = class ResizeObserver {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
-}
-
-// jsdom does not implement pointer capture, which Radix UI primitives call unconditionally.
-if (typeof Element.prototype.hasPointerCapture !== "function") {
-  Element.prototype.hasPointerCapture = () => false;
-}
-if (typeof Element.prototype.setPointerCapture !== "function") {
-  Element.prototype.setPointerCapture = () => {};
-}
-if (typeof Element.prototype.releasePointerCapture !== "function") {
-  Element.prototype.releasePointerCapture = () => {};
-}
-if (typeof Element.prototype.scrollIntoView !== "function") {
-  Element.prototype.scrollIntoView = () => {};
-}
+// happy-dom has no UA stylesheet for the text-level elements, so `getComputedStyle(el).display`
+// comes back as "" rather than the initial "inline". `dom-accessibility-api` — which backs Testing
+// Library's `{ name }` queries — reads that property to decide whether a child contributes a space
+// to the accumulated name, so without this `<h2>Indexes<span>(1)</span></h2>` is named
+// "Indexes (1)" rather than the "Indexes(1)" a real browser computes.
+const inlineDefaults = document.createElement("style");
+inlineDefaults.textContent =
+  "a,abbr,b,bdi,bdo,cite,code,data,dfn,em,i,kbd,label,mark,output,q,s,samp,small,span,strong,sub,sup,time,u,var{display:inline}";
+document.head.append(inlineDefaults);

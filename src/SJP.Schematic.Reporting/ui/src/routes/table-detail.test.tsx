@@ -42,7 +42,7 @@ vi.mock("@/components/LintFindings", () => ({
   LintFindings: () => null,
 }));
 
-// ELK layout does not run under jsdom; list the tables the diagram was given instead.
+// ELK layout does not run under a headless DOM; list the tables the diagram was given instead.
 vi.mock("@/components/RelationshipDiagram", () => ({
   RelationshipDiagram: ({ graph }: { graph: RelationshipGraph }) => (
     <ul aria-label="diagram">

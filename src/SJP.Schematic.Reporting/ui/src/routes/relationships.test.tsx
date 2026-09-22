@@ -11,7 +11,7 @@ vi.mock("@/hooks/useReportData", () => ({
   useSummary: vi.fn<typeof useSummary>(),
 }));
 
-// ELK layout does not run under jsdom; report the props the diagram was handed instead.
+// ELK layout does not run under a headless DOM; report the props the diagram was handed instead.
 vi.mock("@/components/RelationshipDiagram", () => ({
   RelationshipDiagram: ({ graph, compact }: { graph: RelationshipGraph; compact: boolean }) => (
     <div data-testid="diagram" data-compact={String(compact)}>

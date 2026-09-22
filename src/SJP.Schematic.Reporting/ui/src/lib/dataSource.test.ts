@@ -61,8 +61,9 @@ describe("dataSource — served over http", () => {
 type ScriptResponse = (src: string) => "error" | (() => void);
 
 /**
- * jsdom does not load scripts, so this stands in for the browser: each script the loader adds is
- * answered by `respond`, which either fails it or returns what running it would do.
+ * Neither test DOM fetches a script's `src` — jsdom never does, and happy-dom's file loading is
+ * turned off in the Vitest config — so this stands in for the browser: each script the loader adds
+ * is answered by `respond`, which either fails it or returns what running it would do.
  */
 function answerScripts(respond: ScriptResponse) {
   const added: HTMLScriptElement[] = [];
@@ -164,12 +165,30 @@ describe("dataSource — opened from disk", () => {
 
   it("removes each script element once it has run", async () => {
     vi.restoreAllMocks();
+
+    // This is the one case that appends for real, so that `isConnected` means something. The `src`
+    // has to come off first: happy-dom honours it by trying to fetch the file and failing the load
+    // synchronously, inside `append`, before the test can answer it. Stripping it leaves an inert
+    // element in both engines — jsdom never fetches either way.
+    const appended: Array<{ script: HTMLScriptElement; src: string | null }> = [];
+    const appendToHead = HTMLHeadElement.prototype.append.bind(document.head);
+    vi.spyOn(document.head, "append").mockImplementation((...nodes) => {
+      for (const node of nodes) {
+        if (node instanceof HTMLScriptElement) {
+          appended.push({ script: node, src: node.getAttribute("src") });
+          node.removeAttribute("src");
+        }
+      }
+      appendToHead(...nodes);
+    });
+
     const { loadSummary } = await import("@/lib/dataSource");
 
     const loading = loadSummary("tables");
-    const script = document.head.querySelector<HTMLScriptElement>(
-      'script[src="data/bundle/tables.js"]',
-    )!;
+    const { script, src } = appended[0]!;
+    expect(src).toBe("data/bundle/tables.js");
+    expect(script.isConnected).toBe(true);
+
     window.__schematic = { tables: [] };
     script.dispatchEvent(new Event("load"));
 
