@@ -41,7 +41,9 @@ vi.mock("@xyflow/react", async (importOriginal) => ({
           ))}
         </ul>
         <div data-testid="table-nodes">
-          {nodes.map((n) => (
+          {/* Only the first few: drawing every node of a large diagram costs ~0.15 s a test, and
+              the node assertions only need one. */}
+          {nodes.slice(0, 3).map((n) => (
             <TableNode key={n.id} data={n.data} />
           ))}
         </div>
