@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
-import { render, screen, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, onTestFinished, vi } from "vitest";
 
 import { DataTable } from "@/components/DataTable";
 import type { AppTableFeatures } from "@/lib/tableFeatures";
@@ -60,13 +60,27 @@ describe("DataTable", () => {
     expect(bodyRowTexts()).toEqual(["echo", "delta", "charlie", "bravo", "alpha"]);
   });
 
-  it("filters rows after the debounce elapses", async () => {
-    const user = userEvent.setup();
+  it("filters rows after the debounce elapses", () => {
+    // Fake timers step over the debounce instead of waiting it out. The change is fired directly
+    // rather than typed with user-event: Testing Library's async wrapper around user-event waits
+    // on a real-time `setTimeout(0)` that only Jest's fake timers (not Vitest's) know to advance.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    onTestFinished(() => {
+      vi.useRealTimers();
+    });
     render(<DataTable columns={columns} data={rows} />);
 
-    await user.type(screen.getByPlaceholderText("Filter…"), "delt");
+    fireEvent.change(screen.getByPlaceholderText("Filter…"), { target: { value: "delt" } });
+    act(() => {
+      vi.advanceTimersByTime(199);
+    });
+    expect(bodyRowTexts()).toEqual(["alpha", "bravo", "charlie", "delta", "echo"]);
 
-    await screen.findByText("1 of 5");
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+
+    expect(screen.getByText("1 of 5")).toBeInTheDocument();
     expect(bodyRowTexts()).toEqual(["delta"]);
   });
 
