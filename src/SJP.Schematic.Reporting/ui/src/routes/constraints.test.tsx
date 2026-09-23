@@ -1,9 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useSummary } from "@/hooks/useReportData";
 import { ConstraintsPage } from "@/routes/constraints";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
+import { failToLoad, renderWithClient } from "@/test/utils";
 import type {
   CheckConstraintRow,
   ConstraintsSummary,
@@ -11,12 +10,6 @@ import type {
   PrimaryKeyConstraintRow,
   UniqueKeyRow,
 } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn<typeof useSummary>(),
-}));
-
-const mockUseSummary = vi.mocked(useSummary<ConstraintsSummary>);
 
 const PRIMARY_KEY: PrimaryKeyConstraintRow = {
   tableName: "actor",
@@ -72,36 +65,36 @@ const EMPTY: ConstraintsSummary = {
   checkConstraintsCount: 0,
 };
 
+function renderConstraintsPage(summary?: ConstraintsSummary) {
+  return renderWithClient(<ConstraintsPage />, {
+    data: { summaries: summary === undefined ? {} : { constraints: summary } },
+  });
+}
+
 describe("ConstraintsPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage();
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
+  it("shows the error message on failure", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<ConstraintsPage />);
-    expect(screen.getByText("Failed to load constraints: boom")).toBeInTheDocument();
+    renderConstraintsPage();
+    expect(await screen.findByText("Failed to load constraints: boom")).toBeInTheDocument();
   });
 
   it("gives each constraint kind its own counted section", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        primaryKeys: [PRIMARY_KEY],
-        primaryKeysCount: 1,
-        uniqueKeys: [UNIQUE_KEY],
-        uniqueKeysCount: 1,
-        foreignKeys: [FOREIGN_KEY],
-        foreignKeysCount: 1,
-        checkConstraints: [CHECK],
-        checkConstraintsCount: 1,
-      }),
-    );
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage({
+      primaryKeys: [PRIMARY_KEY],
+      primaryKeysCount: 1,
+      uniqueKeys: [UNIQUE_KEY],
+      uniqueKeysCount: 1,
+      foreignKeys: [FOREIGN_KEY],
+      foreignKeysCount: 1,
+      checkConstraints: [CHECK],
+      checkConstraintsCount: 1,
+    });
     for (const title of ["Primary Keys", "Unique Keys", "Foreign Keys", "Check Constraints"]) {
       // The count sits in a sibling span with no whitespace between it and the title.
       expect(screen.getByRole("heading", { name: `${title}(1)` })).toBeInTheDocument();
@@ -109,9 +102,7 @@ describe("ConstraintsPage", () => {
   });
 
   it("says so in each section when the database declares no constraints at all", () => {
-    mockUseSummary.mockReturnValue(loadedQuery(EMPTY));
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage(EMPTY);
     expect(screen.getByText("No primary keys.")).toBeInTheDocument();
     expect(screen.getByText("No unique keys.")).toBeInTheDocument();
     expect(screen.getByText("No foreign keys.")).toBeInTheDocument();
@@ -119,11 +110,7 @@ describe("ConstraintsPage", () => {
   });
 
   it("links a primary key's table to its own page", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({ ...EMPTY, primaryKeys: [PRIMARY_KEY], primaryKeysCount: 1 }),
-    );
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage({ ...EMPTY, primaryKeys: [PRIMARY_KEY], primaryKeysCount: 1 });
     expect(screen.getByRole("link", { name: "actor" })).toHaveAttribute(
       "href",
       "#/tables/actor-d4592e62",
@@ -133,11 +120,7 @@ describe("ConstraintsPage", () => {
   });
 
   it("links both ends of a foreign key and shows its referential actions", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({ ...EMPTY, foreignKeys: [FOREIGN_KEY], foreignKeysCount: 1 }),
-    );
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage({ ...EMPTY, foreignKeys: [FOREIGN_KEY], foreignKeysCount: 1 });
     expect(screen.getByRole("link", { name: "film_actor" })).toHaveAttribute(
       "href",
       "#/tables/film_actor-3c4d",
@@ -152,27 +135,19 @@ describe("ConstraintsPage", () => {
   });
 
   it("carries each row's validation state through to its status cell", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        ...EMPTY,
-        primaryKeys: [PRIMARY_KEY],
-        primaryKeysCount: 1,
-        foreignKeys: [FOREIGN_KEY],
-        foreignKeysCount: 1,
-      }),
-    );
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage({
+      ...EMPTY,
+      primaryKeys: [PRIMARY_KEY],
+      primaryKeysCount: 1,
+      foreignKeys: [FOREIGN_KEY],
+      foreignKeysCount: 1,
+    });
     expect(screen.getByText("Enforced")).toBeInTheDocument();
     expect(screen.getByText("Not validated")).toBeInTheDocument();
   });
 
   it("shows a check constraint's definition", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({ ...EMPTY, checkConstraints: [CHECK], checkConstraintsCount: 1 }),
-    );
-
-    render(<ConstraintsPage />);
+    renderConstraintsPage({ ...EMPTY, checkConstraints: [CHECK], checkConstraintsCount: 1 });
     expect(screen.getByText("release_year > 1900")).toBeInTheDocument();
   });
 });

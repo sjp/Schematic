@@ -1,16 +1,9 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen, within } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useSummary } from "@/hooks/useReportData";
 import { DashboardPage } from "@/routes/dashboard";
-import { loadedQuery, pendingQuery } from "@/test/queryResult";
+import { renderWithClient } from "@/test/utils";
 import type { LintSummary, MainSummary } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn<typeof useSummary>(),
-}));
-
-const mockUseSummary = vi.mocked(useSummary);
 
 const MAIN: MainSummary = {
   databaseName: "sakila",
@@ -54,21 +47,16 @@ const LINT: LintSummary = {
   objectsAffectedCount: 4,
 };
 
-/** Answers each summary key the dashboard asks for; `lint` may be withheld to mimic loading. */
-function stubSummaries({ lint }: { lint?: LintSummary }) {
-  mockUseSummary.mockImplementation((key: string) => {
-    if (key === "lint") {
-      return lint === undefined ? pendingQuery() : loadedQuery(lint);
-    }
-    return loadedQuery(MAIN);
+/** Renders the dashboard over the main summary; `lint` may be withheld to leave it loading. */
+function renderDashboard({ lint }: { lint?: LintSummary }) {
+  return renderWithClient(<DashboardPage />, {
+    data: { summaries: lint === undefined ? { main: MAIN } : { main: MAIN, lint } },
   });
 }
 
 describe("DashboardPage", () => {
   it("shows a lint tile linking to the lint page", () => {
-    stubSummaries({ lint: LINT });
-
-    render(<DashboardPage />);
+    renderDashboard({ lint: LINT });
 
     const tile = screen.getByText("Lint issues").closest("a");
     expect(tile).toHaveAttribute("href", "#/lint");
@@ -76,9 +64,7 @@ describe("DashboardPage", () => {
   });
 
   it("omits the lint tile until the lint summary has loaded", () => {
-    stubSummaries({});
-
-    render(<DashboardPage />);
+    renderDashboard({});
 
     // The rest of the dashboard is still worth showing without it.
     expect(screen.queryByText("Lint issues")).not.toBeInTheDocument();
@@ -86,17 +72,13 @@ describe("DashboardPage", () => {
   });
 
   it("labels a single issue in the singular", () => {
-    stubSummaries({ lint: { ...LINT, messageCount: 1 } });
-
-    render(<DashboardPage />);
+    renderDashboard({ lint: { ...LINT, messageCount: 1 } });
 
     expect(screen.getByText("Lint issue")).toBeInTheDocument();
   });
 
   it("lists each schema with its object count", () => {
-    stubSummaries({ lint: LINT });
-
-    render(<DashboardPage />);
+    renderDashboard({ lint: LINT });
 
     const schema = screen.getByText("main").closest("li");
     expect(within(schema!).getByText("default")).toBeInTheDocument();

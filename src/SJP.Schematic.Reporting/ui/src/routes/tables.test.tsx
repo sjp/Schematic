@@ -1,81 +1,50 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useSummary } from "@/hooks/useReportData";
 import { TablesPage } from "@/routes/tables";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
+import { failToLoad, renderRoute } from "@/test/utils";
 import type { TablesSummary } from "@/types/report";
 
-vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn<typeof useSummary>(),
-}));
-
-// `tables.tsx` only imports `Link` from this package; stub it as a plain anchor
-// so the route can render without a real TanStack Router context.
-vi.mock("@tanstack/react-router", () => ({
-  Link: ({
-    to,
-    params,
-    children,
-    className,
-  }: {
-    to: string;
-    params: Record<string, string>;
-    children: React.ReactNode;
-    className?: string;
-  }) => {
-    const href = Object.entries(params).reduce(
-      (path, [key, value]) => path.replace(`$${key}`, value),
-      to,
-    );
-    return (
-      <a href={href} className={className}>
-        {children}
-      </a>
-    );
-  },
-}));
-
-const mockUseSummary = vi.mocked(useSummary<TablesSummary>);
+function renderTables(tables?: TablesSummary) {
+  return renderRoute({
+    path: "/tables",
+    component: TablesPage,
+    data: { summaries: tables === undefined ? {} : { tables } },
+  });
+}
 
 describe("TablesPage", () => {
-  it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<TablesPage />);
+  it("shows a loading indicator while pending", async () => {
+    await renderTables();
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
+  it("shows the error message on failure", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<TablesPage />);
-    expect(screen.getByText("Failed to load tables: boom")).toBeInTheDocument();
+    await renderTables();
+    expect(await screen.findByText("Failed to load tables: boom")).toBeInTheDocument();
   });
 
-  it("links each row's name to its table detail route, derived from the hash url", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        tablesCount: 1,
-        allTables: [
-          {
-            name: "actor",
-            tableUrl: "#/tables/actor-d4592e62",
-            parentsCount: 0,
-            childrenCount: 2,
-            columnCount: 4,
-            kind: "",
-          },
-        ],
-      }),
-    );
-
-    render(<TablesPage />);
+  it("links each row's name to its table detail route, derived from the hash url", async () => {
+    await renderTables({
+      tablesCount: 1,
+      allTables: [
+        {
+          name: "actor",
+          tableUrl: "#/tables/actor-d4592e62",
+          parentsCount: 0,
+          childrenCount: 2,
+          columnCount: 4,
+          kind: "",
+        },
+      ],
+    });
     const link = screen.getByRole("link", { name: "actor" });
     expect(link).toHaveAttribute("href", "/tables/actor-d4592e62");
   });
 
-  it("shows a row count column only when the report carries statistics", () => {
+  it("shows a row count column only when the report carries statistics", async () => {
     const table = {
       name: "actor",
       tableUrl: "#/tables/actor-d4592e62",
@@ -85,25 +54,17 @@ describe("TablesPage", () => {
       kind: "",
     };
 
-    mockUseSummary.mockReturnValue(loadedQuery({ tablesCount: 1, allTables: [table] }));
-
-    const withoutCounts = render(<TablesPage />);
+    const withoutCounts = await renderTables({ tablesCount: 1, allTables: [table] });
     expect(screen.queryByText("Rows (approx.)")).not.toBeInTheDocument();
     withoutCounts.unmount();
 
-    mockUseSummary.mockReturnValue(
-      loadedQuery({ tablesCount: 1, allTables: [{ ...table, rowCount: 1234 }] }),
-    );
-
-    render(<TablesPage />);
+    await renderTables({ tablesCount: 1, allTables: [{ ...table, rowCount: 1234 }] });
     expect(screen.getByText("Rows (approx.)")).toBeInTheDocument();
     expect(screen.getByText((1234).toLocaleString())).toBeInTheDocument();
   });
 
-  it("shows the tables count in the heading", () => {
-    mockUseSummary.mockReturnValue(loadedQuery({ tablesCount: 3, allTables: [] }));
-
-    render(<TablesPage />);
+  it("shows the tables count in the heading", async () => {
+    await renderTables({ tablesCount: 3, allTables: [] });
     expect(screen.getByText("(3)")).toBeInTheDocument();
   });
 });

@@ -1,10 +1,9 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { useDetail, useSummary } from "@/hooks/useReportData";
 import { TableDetailPage } from "@/routes/table-detail";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
+import { failToLoad, renderRoute } from "@/test/utils";
 import type {
   GraphTable,
   KeyConstraint,
@@ -13,34 +12,6 @@ import type {
   TableColumn,
   TableDetail,
 } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useDetail: vi.fn<typeof useDetail>(),
-  useSummary: vi.fn<typeof useSummary>(),
-}));
-
-// The route reads its param through `getRouteApi` and links with `Link`; stub both so the page can
-// render without a real TanStack Router context.
-vi.mock("@tanstack/react-router", () => ({
-  getRouteApi: () => ({ useParams: () => ({ tableKey: "film_actor" }) }),
-  Link: ({
-    to,
-    children,
-    className,
-  }: {
-    to?: string;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <a href={to ?? "#"} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
-vi.mock("@/components/LintFindings", () => ({
-  LintFindings: () => null,
-}));
 
 // ELK layout does not run under a headless DOM; list the tables the diagram was given instead.
 vi.mock("@/components/RelationshipDiagram", () => ({
@@ -55,9 +26,6 @@ vi.mock("@/components/RelationshipDiagram", () => ({
     </ul>
   ),
 }));
-
-const mockUseDetail = vi.mocked(useDetail);
-const mockUseSummary = vi.mocked(useSummary);
 
 const TABLE: TableDetail = {
   name: "film_actor",
@@ -147,17 +115,26 @@ const RELATIONSHIPS: RelationshipsSummary = {
   },
 };
 
-function stubData({
+/**
+ * Renders the page for `table`, or with it still loading when `table` is `null`. The relationships
+ * data stays loading unless given.
+ */
+function renderTable({
   table = TABLE,
   relationships,
 }: {
-  table?: TableDetail;
+  table?: TableDetail | null;
   relationships?: RelationshipsSummary;
-}) {
-  mockUseDetail.mockReturnValue(loadedQuery(table));
-  mockUseSummary.mockImplementation(() =>
-    relationships === undefined ? pendingQuery() : loadedQuery(relationships),
-  );
+} = {}) {
+  return renderRoute({
+    path: "/tables/$tableKey",
+    url: "/tables/film_actor",
+    component: TableDetailPage,
+    data: {
+      details: table === null ? {} : { table: { film_actor: table } },
+      summaries: relationships === undefined ? {} : { relationships },
+    },
+  });
 }
 
 function diagramTables() {
@@ -166,89 +143,70 @@ function diagramTables() {
 }
 
 describe("TableDetailPage", () => {
-  it("reads the relationship diagrams from the schema-wide relationships data", () => {
-    stubData({ relationships: RELATIONSHIPS });
-
-    render(<TableDetailPage />);
-
-    expect(mockUseSummary).toHaveBeenCalledWith("relationships");
+  it("reads the relationship diagrams from the schema-wide relationships data", async () => {
+    await renderTable({ relationships: RELATIONSHIPS });
     expect(diagramTables()).toEqual(["film_actor (focal)", "actor", "film"]);
   });
 
-  it("widens the diagram to tables two relationships away", () => {
-    stubData({ relationships: RELATIONSHIPS });
-
-    render(<TableDetailPage />);
+  it("widens the diagram to tables two relationships away", async () => {
+    await renderTable({ relationships: RELATIONSHIPS });
     fireEvent.click(screen.getByRole("button", { name: "Two Degrees" }));
 
     expect(diagramTables()).toEqual(["film_actor (focal)", "actor", "film", "language"]);
   });
 
-  it("shows the table while the relationships data is still loading", () => {
-    stubData({});
-
-    render(<TableDetailPage />);
+  it("shows the table while the relationships data is still loading", async () => {
+    await renderTable();
 
     expect(screen.getByRole("heading", { name: "film_actor" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Relationships" })).toBeInTheDocument();
     expect(screen.queryByRole("list", { name: "diagram" })).not.toBeInTheDocument();
   });
 
-  it("shows a loading indicator while the table itself is pending", () => {
-    mockUseDetail.mockReturnValue(pendingQuery());
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<TableDetailPage />);
+  it("shows a loading indicator while the table itself is pending", async () => {
+    await renderTable({ table: null });
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message when the table fails to load", () => {
-    mockUseDetail.mockReturnValue(failedQuery(new Error("boom")));
-    mockUseSummary.mockReturnValue(pendingQuery());
+  it("shows the error message when the table fails to load", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<TableDetailPage />);
-    expect(screen.getByText("Failed to load table: boom")).toBeInTheDocument();
+    await renderTable({ table: null });
+    expect(await screen.findByText("Failed to load table: boom")).toBeInTheDocument();
   });
 
-  it("keeps the rest of the page when only the relationships data fails", () => {
-    mockUseDetail.mockReturnValue(loadedQuery(TABLE));
-    mockUseSummary.mockReturnValue(failedQuery(new Error("no graph")));
+  it("keeps the rest of the page when only the relationships data fails", async () => {
+    failToLoad(new Error("no graph"));
 
-    render(<TableDetailPage />);
+    await renderTable();
     expect(screen.getByRole("heading", { name: "film_actor" })).toBeInTheDocument();
-    expect(screen.getByText("Failed to load relationships: no graph")).toBeInTheDocument();
+    expect(await screen.findByText("Failed to load relationships: no graph")).toBeInTheDocument();
   });
 
-  it("heads the page with the table's name and column count, under a link back to the list", () => {
-    stubData({ table: { ...TABLE, columnsCount: 3 } });
-
-    render(<TableDetailPage />);
+  it("heads the page with the table's name and column count, under a link back to the list", async () => {
+    await renderTable({ table: { ...TABLE, columnsCount: 3 } });
     expect(screen.getByRole("heading", { name: "film_actor" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Tables" })).toHaveAttribute("href", "/tables");
     expect(screen.getByText("3 columns")).toBeInTheDocument();
   });
 
-  it("badges the storage attributes that set a table apart from an ordinary one", () => {
-    stubData({
+  it("badges the storage attributes that set a table apart from an ordinary one", async () => {
+    await renderTable({
       table: { ...TABLE, kind: "History", isLogged: false, collation: "en_US.utf8" },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByText("History")).toBeInTheDocument();
     expect(screen.getByText("Unlogged")).toBeInTheDocument();
     expect(screen.getByText("Collation · en_US.utf8")).toBeInTheDocument();
   });
 
-  it("leaves the storage badges off an ordinary logged table", () => {
-    stubData({});
-
-    render(<TableDetailPage />);
+  it("leaves the storage badges off an ordinary logged table", async () => {
+    await renderTable();
     expect(screen.queryByText("Unlogged")).not.toBeInTheDocument();
     expect(screen.queryByText(/^Collation/u)).not.toBeInTheDocument();
   });
 
-  it("lists the columns, linking a user-defined type to its own page", () => {
-    stubData({
+  it("lists the columns, linking a user-defined type to its own page", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         columns: [
@@ -265,8 +223,6 @@ describe("TableDetailPage", () => {
         columnsCount: 2,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByText("actor_id")).toBeInTheDocument();
     expect(screen.getByText("integer")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "postcode" })).toHaveAttribute(
@@ -278,8 +234,8 @@ describe("TableDetailPage", () => {
     expect(screen.getByText("'0000'")).toBeInTheDocument();
   });
 
-  it("marks up everything notable about a column with its own icon", () => {
-    stubData({
+  it("marks up everything notable about a column with its own icon", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         columns: [
@@ -305,8 +261,6 @@ describe("TableDetailPage", () => {
         columnsCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     for (const label of [
       "Primary key",
       "Unique key",
@@ -319,17 +273,15 @@ describe("TableDetailPage", () => {
     }
   });
 
-  it("leaves an ordinary column unmarked", () => {
-    stubData({ table: { ...TABLE, columns: [column({})], columnsCount: 1 } });
-
-    render(<TableDetailPage />);
+  it("leaves an ordinary column unmarked", async () => {
+    await renderTable({ table: { ...TABLE, columns: [column({})], columnsCount: 1 } });
     expect(screen.queryByLabelText("Primary key")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Hidden column")).not.toBeInTheDocument();
   });
 
   it("names the constraint behind a key icon in its tooltip", async () => {
     const user = userEvent.setup();
-    stubData({
+    await renderTable({
       table: {
         ...TABLE,
         columns: [column({ columnName: "actor_id", isUniqueKey: true })],
@@ -342,8 +294,6 @@ describe("TableDetailPage", () => {
         uniqueKeysCount: 2,
       },
     });
-
-    render(<TableDetailPage />);
     // Radix opens the tooltip on hover and closes it again on click.
     await user.hover(screen.getByLabelText("Unique key"));
 
@@ -352,8 +302,8 @@ describe("TableDetailPage", () => {
     expect(tooltip).not.toHaveTextContent("film_actor_film_id_key");
   });
 
-  it("shows a table's system versioning", () => {
-    stubData({
+  it("shows a table's system versioning", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         tableSystemVersioning: {
@@ -366,8 +316,6 @@ describe("TableDetailPage", () => {
         },
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "System Versioning" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "film_actor_history" })).toHaveAttribute(
       "href",
@@ -377,8 +325,8 @@ describe("TableDetailPage", () => {
     expect(screen.getByText("valid_to")).toBeInTheDocument();
   });
 
-  it("names a history table the report has no page for without linking it", () => {
-    stubData({
+  it("names a history table the report has no page for without linking it", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         tableSystemVersioning: {
@@ -388,14 +336,12 @@ describe("TableDetailPage", () => {
         },
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByText("film_actor_history")).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "film_actor_history" })).not.toBeInTheDocument();
   });
 
-  it("shows a table's partitioning, linking each partition", () => {
-    stubData({
+  it("shows a table's partitioning, linking each partition", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         tablePartitioning: {
@@ -409,8 +355,6 @@ describe("TableDetailPage", () => {
         },
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Partitioning(2)" })).toBeInTheDocument();
     expect(screen.getByText("RANGE")).toBeInTheDocument();
     expect(screen.getByText("last_update")).toBeInTheDocument();
@@ -420,8 +364,8 @@ describe("TableDetailPage", () => {
     );
   });
 
-  it("shows an em dash for unreported partition key columns and an unlisted partition set", () => {
-    stubData({
+  it("shows an em dash for unreported partition key columns and an unlisted partition set", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         tablePartitioning: {
@@ -432,29 +376,25 @@ describe("TableDetailPage", () => {
         },
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getAllByText("—")).toHaveLength(2);
   });
 
-  it("shows the primary key with its status", () => {
-    stubData({
+  it("shows the primary key with its status", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         primaryKeyExists: true,
         primaryKey: { ...KEY, constraintName: "film_actor_pkey", columnNames: "actor_id, film_id" },
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Primary Key" })).toBeInTheDocument();
     expect(screen.getByText("film_actor_pkey")).toBeInTheDocument();
     expect(screen.getByText("actor_id, film_id")).toBeInTheDocument();
     expect(screen.getByText("Enforced")).toBeInTheDocument();
   });
 
-  it("shows an em dash for an unnamed key constraint", () => {
-    stubData({
+  it("shows an em dash for an unnamed key constraint", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         primaryKeyExists: true,
@@ -463,28 +403,24 @@ describe("TableDetailPage", () => {
         uniqueKeysCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getAllByText("—")).toHaveLength(2);
   });
 
-  it("lists the unique keys with their status", () => {
-    stubData({
+  it("lists the unique keys with their status", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         uniqueKeys: [{ ...KEY, constraintName: "film_actor_film_id_key", isValidated: false }],
         uniqueKeysCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Unique Keys(1)" })).toBeInTheDocument();
     expect(screen.getByText("film_actor_film_id_key")).toBeInTheDocument();
     expect(screen.getByText("Not validated")).toBeInTheDocument();
   });
 
-  it("lists the foreign keys, linking each parent table", () => {
-    stubData({
+  it("lists the foreign keys, linking each parent table", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         foreignKeys: [
@@ -505,8 +441,6 @@ describe("TableDetailPage", () => {
         foreignKeysCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Foreign Keys(1)" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "actor" })).toHaveAttribute(
       "href",
@@ -518,8 +452,8 @@ describe("TableDetailPage", () => {
     expect(screen.getByText("Enforced")).toBeInTheDocument();
   });
 
-  it("shows an em dash for an unnamed foreign key and the default match type", () => {
-    stubData({
+  it("shows an em dash for an unnamed foreign key and the default match type", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         foreignKeys: [
@@ -540,13 +474,11 @@ describe("TableDetailPage", () => {
         foreignKeysCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getAllByText("—")).toHaveLength(2);
   });
 
-  it("lists the check constraints with their definitions", () => {
-    stubData({
+  it("lists the check constraints with their definitions", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         checkConstraints: [
@@ -560,15 +492,13 @@ describe("TableDetailPage", () => {
         checkConstraintsCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Check Constraints(1)" })).toBeInTheDocument();
     expect(screen.getByText("film_actor_check")).toBeInTheDocument();
     expect(screen.getByText("actor_id > 0")).toBeInTheDocument();
   });
 
-  it("lists the indexes with their usability", () => {
-    stubData({
+  it("lists the indexes with their usability", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         indexes: [
@@ -587,8 +517,6 @@ describe("TableDetailPage", () => {
         indexesCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Indexes(1)" })).toBeInTheDocument();
     expect(screen.getByText("idx_fk_film_id")).toBeInTheDocument();
     expect(screen.getByLabelText("Non-unique index")).toBeInTheDocument();
@@ -597,8 +525,8 @@ describe("TableDetailPage", () => {
     expect(screen.getAllByText("—")).toHaveLength(3);
   });
 
-  it("shows an unnamed unique index as an em dash", () => {
-    stubData({
+  it("shows an unnamed unique index as an em dash", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         indexes: [
@@ -617,15 +545,13 @@ describe("TableDetailPage", () => {
         indexesCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByLabelText("Unique index")).toBeInTheDocument();
     expect(screen.getByText("Usable")).toBeInTheDocument();
     expect(screen.getAllByText("—")).toHaveLength(1);
   });
 
-  it("shows each trigger's timing, columns, condition and body", () => {
-    stubData({
+  it("shows each trigger's timing, columns, condition and body", async () => {
+    await renderTable({
       table: {
         ...TABLE,
         triggers: [
@@ -642,8 +568,6 @@ describe("TableDetailPage", () => {
         triggersCount: 1,
       },
     });
-
-    render(<TableDetailPage />);
     expect(screen.getByRole("heading", { name: "Triggers(1)" })).toBeInTheDocument();
     expect(screen.getByText("ins_film_actor")).toBeInTheDocument();
     expect(screen.getByText("AFTER UPDATE OF actor_id FOR EACH ROW")).toBeInTheDocument();
@@ -651,10 +575,8 @@ describe("TableDetailPage", () => {
     expect(screen.getByText("BEGIN INSERT INTO audit ... END")).toBeInTheDocument();
   });
 
-  it("leaves out every section the table has nothing to fill it with", () => {
-    stubData({ relationships: RELATIONSHIPS });
-
-    render(<TableDetailPage />);
+  it("leaves out every section the table has nothing to fill it with", async () => {
+    await renderTable({ relationships: RELATIONSHIPS });
     for (const title of [
       /System Versioning/u,
       /Partitioning/u,

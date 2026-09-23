@@ -1,41 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useDetail } from "@/hooks/useReportData";
 import { SequenceDetailPage } from "@/routes/sequence-detail";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
-import type { SequenceDetail } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useDetail: vi.fn<typeof useDetail>(),
-}));
-
-// The route reads its param through `getRouteApi` and links with `Link`; stub both so the page can
-// render without a real TanStack Router context.
-vi.mock("@tanstack/react-router", () => ({
-  getRouteApi: () => ({ useParams: () => ({ sequenceKey: "actor_id_seq-1a2b" }) }),
-  Link: ({
-    to,
-    children,
-    className,
-  }: {
-    to?: string;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <a href={to ?? "#"} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
-vi.mock("@/components/LintFindings", () => ({
-  LintFindings: ({ objectUrl }: { objectUrl: string }) => (
-    <div data-testid="lint" data-object-url={objectUrl} />
-  ),
-}));
-
-const mockUseDetail = vi.mocked(useDetail<SequenceDetail>);
+import { lintMessage, lintSummary } from "@/test/lint";
+import { failToLoad, renderRoute } from "@/test/utils";
+import type { LintSummary, SequenceDetail } from "@/types/report";
 
 const SEQUENCE: SequenceDetail = {
   name: "actor_actor_id_seq",
@@ -50,43 +19,54 @@ const SEQUENCE: SequenceDetail = {
   isOrdered: false,
 };
 
-describe("SequenceDetailPage", () => {
-  it("shows a loading indicator while pending", () => {
-    mockUseDetail.mockReturnValue(pendingQuery());
+function renderSequence(sequence?: SequenceDetail, lint?: LintSummary) {
+  return renderRoute({
+    path: "/sequences/$sequenceKey",
+    url: "/sequences/actor_id_seq-1a2b",
+    component: SequenceDetailPage,
+    data: {
+      details: sequence === undefined ? {} : { sequence: { "actor_id_seq-1a2b": sequence } },
+      summaries: lint === undefined ? {} : { lint },
+    },
+  });
+}
 
-    render(<SequenceDetailPage />);
+describe("SequenceDetailPage", () => {
+  it("shows a loading indicator while pending", async () => {
+    await renderSequence();
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message on failure", () => {
-    mockUseDetail.mockReturnValue(failedQuery(new Error("boom")));
+  it("shows the error message on failure", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<SequenceDetailPage />);
-    expect(screen.getByText("Failed to load sequence: boom")).toBeInTheDocument();
+    await renderSequence();
+    expect(await screen.findByText("Failed to load sequence: boom")).toBeInTheDocument();
   });
 
-  it("heads the page with the sequence's name, under a link back to the list", () => {
-    mockUseDetail.mockReturnValue(loadedQuery(SEQUENCE));
-
-    render(<SequenceDetailPage />);
+  it("heads the page with the sequence's name, under a link back to the list", async () => {
+    await renderSequence(SEQUENCE);
     expect(screen.getByRole("heading", { name: "actor_actor_id_seq" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Sequences" })).toHaveAttribute("href", "/sequences");
   });
 
-  it("asks for the lint findings raised against this sequence", () => {
-    mockUseDetail.mockReturnValue(loadedQuery(SEQUENCE));
-
-    render(<SequenceDetailPage />);
-    expect(screen.getByTestId("lint")).toHaveAttribute(
-      "data-object-url",
-      "#/sequences/actor_id_seq-1a2b",
+  it("shows the lint findings raised against this sequence", async () => {
+    await renderSequence(
+      SEQUENCE,
+      lintSummary([
+        lintMessage({
+          message: "This sequence's cache is small.",
+          objectUrl: "#/sequences/actor_id_seq-1a2b",
+        }),
+        lintMessage({ message: "Something else is wrong.", objectUrl: "#/tables/actor-1a2b" }),
+      ]),
     );
+    expect(screen.getByText("This sequence's cache is small.")).toBeInTheDocument();
+    expect(screen.queryByText("Something else is wrong.")).not.toBeInTheDocument();
   });
 
-  it("lists every generation property the sequence declares", () => {
-    mockUseDetail.mockReturnValue(loadedQuery(SEQUENCE));
-
-    render(<SequenceDetailPage />);
+  it("lists every generation property the sequence declares", async () => {
+    await renderSequence(SEQUENCE);
     expect(screen.getByText("bigint")).toBeInTheDocument();
     expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("1000")).toBeInTheDocument();
@@ -96,12 +76,8 @@ describe("SequenceDetailPage", () => {
     expect(screen.getByText("No")).toBeInTheDocument();
   });
 
-  it("shows an em dash for an absent bound and an unreported cache", () => {
-    mockUseDetail.mockReturnValue(
-      loadedQuery({ ...SEQUENCE, minValue: undefined, maxValue: undefined, cache: "" }),
-    );
-
-    render(<SequenceDetailPage />);
+  it("shows an em dash for an absent bound and an unreported cache", async () => {
+    await renderSequence({ ...SEQUENCE, minValue: undefined, maxValue: undefined, cache: "" });
     expect(screen.getAllByText("—")).toHaveLength(3);
   });
 });

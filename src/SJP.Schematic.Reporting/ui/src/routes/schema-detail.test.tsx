@@ -1,35 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useDetail } from "@/hooks/useReportData";
 import { SchemaDetailPage } from "@/routes/schema-detail";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
+import { failToLoad, renderRoute } from "@/test/utils";
 import type { SchemaDetail } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useDetail: vi.fn<typeof useDetail>(),
-}));
-
-// The route reads its param through `getRouteApi` and links with `Link`; stub both so the page can
-// render without a real TanStack Router context.
-vi.mock("@tanstack/react-router", () => ({
-  getRouteApi: () => ({ useParams: () => ({ schemaKey: "public-1a2b" }) }),
-  Link: ({
-    to,
-    children,
-    className,
-  }: {
-    to?: string;
-    children: React.ReactNode;
-    className?: string;
-  }) => (
-    <a href={to ?? "#"} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
-const mockUseDetail = vi.mocked(useDetail<SchemaDetail>);
 
 /** A one-object list, for filling a group whose contents the test does not care about. */
 const object = (name: string) => [{ name, url: `#/${name}` }];
@@ -55,25 +29,32 @@ const EMPTY_SCHEMA: SchemaDetail = {
   objectCount: 0,
 };
 
-describe("SchemaDetailPage", () => {
-  it("shows a loading indicator while pending", () => {
-    mockUseDetail.mockReturnValue(pendingQuery());
+function renderSchema(schema?: SchemaDetail) {
+  return renderRoute({
+    path: "/schemas/$schemaKey",
+    url: "/schemas/public-1a2b",
+    component: SchemaDetailPage,
+    data: {
+      details: schema === undefined ? {} : { schema: { "public-1a2b": schema } },
+    },
+  });
+}
 
-    render(<SchemaDetailPage />);
+describe("SchemaDetailPage", () => {
+  it("shows a loading indicator while pending", async () => {
+    await renderSchema();
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message on failure", () => {
-    mockUseDetail.mockReturnValue(failedQuery(new Error("boom")));
+  it("shows the error message on failure", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<SchemaDetailPage />);
-    expect(screen.getByText("Failed to load schema: boom")).toBeInTheDocument();
+    await renderSchema();
+    expect(await screen.findByText("Failed to load schema: boom")).toBeInTheDocument();
   });
 
-  it("heads the page with the schema's name, owner and default marker", () => {
-    mockUseDetail.mockReturnValue(loadedQuery(EMPTY_SCHEMA));
-
-    render(<SchemaDetailPage />);
+  it("heads the page with the schema's name, owner and default marker", async () => {
+    await renderSchema(EMPTY_SCHEMA);
     expect(screen.getByRole("heading", { name: "public" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Schemas" })).toHaveAttribute("href", "/schemas");
     expect(screen.getByText("owned by postgres")).toBeInTheDocument();
@@ -81,12 +62,8 @@ describe("SchemaDetailPage", () => {
     expect(screen.queryByText("system")).not.toBeInTheDocument();
   });
 
-  it("marks a system schema and omits the owner the database does not record", () => {
-    mockUseDetail.mockReturnValue(
-      loadedQuery({ ...EMPTY_SCHEMA, owner: "", isDefault: false, isSystem: true }),
-    );
-
-    render(<SchemaDetailPage />);
+  it("marks a system schema and omits the owner the database does not record", async () => {
+    await renderSchema({ ...EMPTY_SCHEMA, owner: "", isDefault: false, isSystem: true });
     expect(screen.getByText("system")).toBeInTheDocument();
     expect(screen.queryByText(/owned by/u)).not.toBeInTheDocument();
     expect(screen.queryByText("default")).not.toBeInTheDocument();
@@ -96,37 +73,29 @@ describe("SchemaDetailPage", () => {
     [0, "0 objects"],
     [1, "1 object"],
     [2, "2 objects"],
-  ])("pluralises the object count for %i", (objectCount, expected) => {
-    mockUseDetail.mockReturnValue(loadedQuery({ ...EMPTY_SCHEMA, objectCount }));
-
-    render(<SchemaDetailPage />);
+  ])("pluralises the object count for %i", async (objectCount, expected) => {
+    await renderSchema({ ...EMPTY_SCHEMA, objectCount });
     expect(screen.getByText(expected)).toBeInTheDocument();
   });
 
-  it("says so rather than rendering empty sections when the schema holds nothing", () => {
-    mockUseDetail.mockReturnValue(loadedQuery(EMPTY_SCHEMA));
-
-    render(<SchemaDetailPage />);
+  it("says so rather than rendering empty sections when the schema holds nothing", async () => {
+    await renderSchema(EMPTY_SCHEMA);
     expect(screen.getByText("This schema holds no objects the report covers.")).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Tables/u })).not.toBeInTheDocument();
   });
 
-  it("shows a counted, linked section for each kind of object the schema does hold", () => {
-    mockUseDetail.mockReturnValue(
-      loadedQuery({
-        ...EMPTY_SCHEMA,
-        tables: [
-          { name: "actor", url: "#/tables/actor-d4592e62" },
-          { name: "film", url: "#/tables/film-5e6f" },
-        ],
-        tablesCount: 2,
-        views: [{ name: "staff_list", url: "#/views/staff_list-3c4d" }],
-        viewsCount: 1,
-        objectCount: 3,
-      }),
-    );
-
-    render(<SchemaDetailPage />);
+  it("shows a counted, linked section for each kind of object the schema does hold", async () => {
+    await renderSchema({
+      ...EMPTY_SCHEMA,
+      tables: [
+        { name: "actor", url: "#/tables/actor-d4592e62" },
+        { name: "film", url: "#/tables/film-5e6f" },
+      ],
+      tablesCount: 2,
+      views: [{ name: "staff_list", url: "#/views/staff_list-3c4d" }],
+      viewsCount: 1,
+      objectCount: 3,
+    });
     // The count sits in a sibling span with no whitespace between it and the label.
     expect(screen.getByRole("heading", { name: "Tables(2)" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Views(1)" })).toBeInTheDocument();
@@ -143,21 +112,17 @@ describe("SchemaDetailPage", () => {
     expect(screen.queryByRole("heading", { name: /Routines/u })).not.toBeInTheDocument();
   });
 
-  it("covers every kind of object a schema can hold", () => {
-    mockUseDetail.mockReturnValue(
-      loadedQuery({
-        ...EMPTY_SCHEMA,
-        tables: object("t"),
-        views: object("v"),
-        sequences: object("s"),
-        synonyms: object("sy"),
-        routines: object("r"),
-        userDefinedTypes: object("u"),
-        objectCount: 6,
-      }),
-    );
-
-    render(<SchemaDetailPage />);
+  it("covers every kind of object a schema can hold", async () => {
+    await renderSchema({
+      ...EMPTY_SCHEMA,
+      tables: object("t"),
+      views: object("v"),
+      sequences: object("s"),
+      synonyms: object("sy"),
+      routines: object("r"),
+      userDefinedTypes: object("u"),
+      objectCount: 6,
+    });
     for (const label of [
       "Tables",
       "Views",

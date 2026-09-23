@@ -1,16 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useSummary } from "@/hooks/useReportData";
 import { TriggersPage } from "@/routes/triggers";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
+import { failToLoad, renderWithClient } from "@/test/utils";
 import type { TriggerRow, TriggersSummary } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn<typeof useSummary>(),
-}));
-
-const mockUseSummary = vi.mocked(useSummary<TriggersSummary>);
 
 const TRIGGER: TriggerRow = {
   name: "ins_film",
@@ -24,25 +17,27 @@ const TRIGGER: TriggerRow = {
   updateColumns: "",
 };
 
+function renderTriggersPage(summary?: TriggersSummary) {
+  return renderWithClient(<TriggersPage />, {
+    data: { summaries: summary === undefined ? {} : { triggers: summary } },
+  });
+}
+
 describe("TriggersPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<TriggersPage />);
+    renderTriggersPage();
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
+  it("shows the error message on failure", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<TriggersPage />);
-    expect(screen.getByText("Failed to load triggers: boom")).toBeInTheDocument();
+    renderTriggersPage();
+    expect(await screen.findByText("Failed to load triggers: boom")).toBeInTheDocument();
   });
 
   it("links the owning object and shows the trigger's timing, events and condition", () => {
-    mockUseSummary.mockReturnValue(loadedQuery({ triggersCount: 1, allTriggers: [TRIGGER] }));
-
-    render(<TriggersPage />);
+    renderTriggersPage({ triggersCount: 1, allTriggers: [TRIGGER] });
     expect(screen.getByRole("link", { name: "film" })).toHaveAttribute(
       "href",
       "#/tables/film-d4592e62",
@@ -55,21 +50,15 @@ describe("TriggersPage", () => {
   });
 
   it("shows an em dash for an unreported granularity and an unconditional trigger", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        triggersCount: 1,
-        allTriggers: [{ ...TRIGGER, granularity: "", condition: "" }],
-      }),
-    );
-
-    render(<TriggersPage />);
+    renderTriggersPage({
+      triggersCount: 1,
+      allTriggers: [{ ...TRIGGER, granularity: "", condition: "" }],
+    });
     expect(screen.getAllByText("—")).toHaveLength(2);
   });
 
   it("shows the triggers count in the heading", () => {
-    mockUseSummary.mockReturnValue(loadedQuery({ triggersCount: 6, allTriggers: [] }));
-
-    render(<TriggersPage />);
+    renderTriggersPage({ triggersCount: 6, allTriggers: [] });
     expect(screen.getByText("(6)")).toBeInTheDocument();
     expect(screen.getByText("No triggers.")).toBeInTheDocument();
   });

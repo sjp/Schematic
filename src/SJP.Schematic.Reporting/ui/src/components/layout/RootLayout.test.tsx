@@ -1,48 +1,30 @@
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { RootLayout } from "@/components/layout/RootLayout";
-import { useSummary } from "@/hooks/useReportData";
-import { loadedQuery, pendingQuery } from "@/test/queryResult";
+import { lintMessage, lintSummary } from "@/test/lint";
+import { renderRoute } from "@/test/utils";
 import type { LintSummary } from "@/types/report";
 
-vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn<typeof useSummary>(),
-}));
+/** Opens `url` under the layout, with a page that matches any path standing in for the route. */
+function renderLayout(url = "/", lint?: LintSummary) {
+  return renderRoute({
+    layout: RootLayout,
+    path: "$",
+    url,
+    component: () => <div data-testid="outlet" />,
+    data: { summaries: lint === undefined ? {} : { lint } },
+  });
+}
 
-const mockPathname = vi.fn<() => string>();
-
-// The layout only needs the active pathname, a head slot and a child slot from the router; stub all
-// three so it can render without a real TanStack Router context.
-vi.mock("@tanstack/react-router", () => ({
-  useRouterState: ({ select }: { select: (s: { location: { pathname: string } }) => string }) =>
-    select({ location: { pathname: mockPathname() } }),
-  HeadContent: () => null,
-  Outlet: () => <div data-testid="outlet" />,
-}));
-
-// The real command palette pulls in cmdk and a Radix dialog; report whether it was opened instead.
-vi.mock("@/components/SearchCommand", () => ({
-  SearchCommand: ({ open }: { open: boolean }) => (
-    <div data-testid="search-command" data-open={String(open)} />
-  ),
-}));
-
-const mockUseSummary = vi.mocked(useSummary<LintSummary>);
-
-function lintSummary(overrides: Partial<LintSummary> = {}): LintSummary {
-  return {
-    lintRulesCount: 0,
-    lintRules: [],
-    messageCount: 0,
-    messages: [],
-    errorCount: 0,
-    warningCount: 0,
-    informationCount: 0,
-    objectsAffectedCount: 0,
-    ...overrides,
-  };
+/** `count` lint findings, `errors` of them errors and the rest warnings. */
+function findings(count: number, errors = 0): LintSummary {
+  return lintSummary(
+    Array.from({ length: count }, (_, i) =>
+      lintMessage({ level: i < errors ? "Error" : "Warning" }),
+    ),
+  );
 }
 
 /** The sidebar link for a nav entry, which is an anchor rather than a router `Link`. */
@@ -51,21 +33,13 @@ function navLink(label: string) {
 }
 
 describe("RootLayout", () => {
-  beforeEach(() => {
-    mockPathname.mockReturnValue("/");
-  });
-
-  it("renders the active route through the outlet", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<RootLayout />);
+  it("renders the active route through the outlet", async () => {
+    await renderLayout();
     expect(screen.getByTestId("outlet")).toBeInTheDocument();
   });
 
-  it("links every section of the report from the sidebar", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<RootLayout />);
+  it("links every section of the report from the sidebar", async () => {
+    await renderLayout();
     expect(navLink("Dashboard")).toHaveAttribute("href", "#/");
     expect(navLink("Tables")).toHaveAttribute("href", "#/tables");
     expect(navLink("Types")).toHaveAttribute("href", "#/user-defined-types");
@@ -74,103 +48,80 @@ describe("RootLayout", () => {
     expect(screen.getAllByRole("link")).toHaveLength(15);
   });
 
-  it("marks the section the current route belongs to as active", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-    mockPathname.mockReturnValue("/tables/actor-d4592e62");
-
-    render(<RootLayout />);
+  it("marks the section the current route belongs to as active", async () => {
+    await renderLayout("/tables/actor-d4592e62");
     expect(navLink("Tables")).toHaveClass("bg-sidebar-accent");
     expect(navLink("Views")).not.toHaveClass("bg-sidebar-accent");
   });
 
-  it("treats the dashboard as active only on an exact match, not as a prefix of every route", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    mockPathname.mockReturnValue("/");
-    const { unmount } = render(<RootLayout />);
+  it("treats the dashboard as active only on an exact match, not as a prefix of every route", async () => {
+    const { unmount } = await renderLayout("/");
     expect(navLink("Dashboard")).toHaveClass("bg-sidebar-accent");
     unmount();
 
-    mockPathname.mockReturnValue("/lint");
-    render(<RootLayout />);
+    await renderLayout("/lint");
     expect(navLink("Dashboard")).not.toHaveClass("bg-sidebar-accent");
     expect(navLink("Lint")).toHaveClass("bg-sidebar-accent");
   });
 
-  it("badges the lint entry with the finding count", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery(lintSummary({ messageCount: 12, warningCount: 12 })),
-    );
-
-    render(<RootLayout />);
+  it("badges the lint entry with the finding count", async () => {
+    await renderLayout("/", findings(12));
     expect(screen.getByText("12")).toBeInTheDocument();
   });
 
-  it("colours the badge as destructive only when a finding is an error", () => {
-    mockUseSummary.mockReturnValue(loadedQuery(lintSummary({ messageCount: 3, errorCount: 1 })));
-
-    const { unmount } = render(<RootLayout />);
+  it("colours the badge as destructive only when a finding is an error", async () => {
+    const { unmount } = await renderLayout("/", findings(3, 1));
     expect(screen.getByText("3")).toHaveClass("text-destructive");
     unmount();
 
-    mockUseSummary.mockReturnValue(loadedQuery(lintSummary({ messageCount: 3, warningCount: 3 })));
-
-    render(<RootLayout />);
+    await renderLayout("/", findings(3));
     expect(screen.getByText("3")).not.toHaveClass("text-destructive");
   });
 
-  it("leaves the badge off a clean database, and off a lint summary that has not loaded", () => {
-    mockUseSummary.mockReturnValue(loadedQuery(lintSummary()));
-
-    const { unmount } = render(<RootLayout />);
+  it("leaves the badge off a clean database, and off a lint summary that has not loaded", async () => {
+    const { unmount } = await renderLayout("/", lintSummary());
     expect(navLink("Lint")).toHaveTextContent(/^Lint$/u);
     unmount();
 
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<RootLayout />);
+    await renderLayout("/");
     expect(navLink("Lint")).toHaveTextContent(/^Lint$/u);
   });
 
   it("opens the search palette from the header button", async () => {
     const user = userEvent.setup();
-    mockUseSummary.mockReturnValue(pendingQuery());
 
-    render(<RootLayout />);
-    expect(screen.getByTestId("search-command")).toHaveAttribute("data-open", "false");
+    await renderLayout();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "Search schema" }));
-    expect(screen.getByTestId("search-command")).toHaveAttribute("data-open", "true");
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("toggles the search palette with the ⌘K / Ctrl-K shortcut", async () => {
     const user = userEvent.setup();
-    mockUseSummary.mockReturnValue(pendingQuery());
 
-    render(<RootLayout />);
+    await renderLayout();
 
     await user.keyboard("{Control>}k{/Control}");
-    expect(screen.getByTestId("search-command")).toHaveAttribute("data-open", "true");
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
 
     await user.keyboard("{Meta>}k{/Meta}");
-    expect(screen.getByTestId("search-command")).toHaveAttribute("data-open", "false");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("leaves an unmodified k to the page", async () => {
     const user = userEvent.setup();
-    mockUseSummary.mockReturnValue(pendingQuery());
 
-    render(<RootLayout />);
+    await renderLayout();
 
     await user.keyboard("k");
-    expect(screen.getByTestId("search-command")).toHaveAttribute("data-open", "false");
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("stops listening for the shortcut once unmounted", async () => {
     const user = userEvent.setup();
-    mockUseSummary.mockReturnValue(pendingQuery());
 
-    const { unmount } = render(<RootLayout />);
+    const { unmount } = await renderLayout();
     const removeListener = vi.spyOn(document, "removeEventListener");
     unmount();
     expect(removeListener).toHaveBeenCalledWith("keydown", expect.any(Function));
@@ -178,6 +129,6 @@ describe("RootLayout", () => {
 
     // Nothing is left mounted to reopen.
     await user.keyboard("{Control>}k{/Control}");
-    expect(screen.queryByTestId("search-command")).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });

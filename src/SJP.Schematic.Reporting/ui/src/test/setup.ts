@@ -1,5 +1,5 @@
 import { cleanup } from "@testing-library/react";
-import { afterEach } from "vitest";
+import { afterEach, beforeEach, vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
 // With `test.globals: false`, `@testing-library/react`'s own auto-cleanup (which
@@ -7,6 +7,13 @@ import "@testing-library/jest-dom/vitest";
 // of the last. Register it explicitly instead.
 afterEach(() => {
   cleanup();
+});
+
+// Report payloads a test has not seeded are fetched for real (see `test/utils.tsx`). Never answer,
+// so such a payload stays pending rather than reaching for a server; `unstubGlobals` undoes this,
+// and any stub a test makes over it, after each test.
+beforeEach(() => {
+  vi.stubGlobal("fetch", () => new Promise<never>(() => {}));
 });
 
 // happy-dom has no UA stylesheet for the text-level elements, so `getComputedStyle(el).display`

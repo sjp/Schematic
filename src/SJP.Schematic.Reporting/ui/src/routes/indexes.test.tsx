@@ -1,16 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
 
-import { useSummary } from "@/hooks/useReportData";
 import { IndexesPage } from "@/routes/indexes";
-import { failedQuery, loadedQuery, pendingQuery } from "@/test/queryResult";
+import { failToLoad, renderWithClient } from "@/test/utils";
 import type { IndexRow, IndexesSummary } from "@/types/report";
-
-vi.mock("@/hooks/useReportData", () => ({
-  useSummary: vi.fn<typeof useSummary>(),
-}));
-
-const mockUseSummary = vi.mocked(useSummary<IndexesSummary>);
 
 const INDEX: IndexRow = {
   name: "idx_actor_last_name",
@@ -26,25 +19,27 @@ const INDEX: IndexRow = {
   isVisible: true,
 };
 
+function renderIndexesPage(summary?: IndexesSummary) {
+  return renderWithClient(<IndexesPage />, {
+    data: { summaries: summary === undefined ? {} : { indexes: summary } },
+  });
+}
+
 describe("IndexesPage", () => {
   it("shows a loading indicator while pending", () => {
-    mockUseSummary.mockReturnValue(pendingQuery());
-
-    render(<IndexesPage />);
+    renderIndexesPage();
     expect(screen.getByText("Loading…")).toBeInTheDocument();
   });
 
-  it("shows the error message on failure", () => {
-    mockUseSummary.mockReturnValue(failedQuery(new Error("boom")));
+  it("shows the error message on failure", async () => {
+    failToLoad(new Error("boom"));
 
-    render(<IndexesPage />);
-    expect(screen.getByText("Failed to load indexes: boom")).toBeInTheDocument();
+    renderIndexesPage();
+    expect(await screen.findByText("Failed to load indexes: boom")).toBeInTheDocument();
   });
 
   it("links the owning table and shows the index's columns, type and filter", () => {
-    mockUseSummary.mockReturnValue(loadedQuery({ indexesCount: 1, tableIndexes: [INDEX] }));
-
-    render(<IndexesPage />);
+    renderIndexesPage({ indexesCount: 1, tableIndexes: [INDEX] });
     expect(screen.getByRole("link", { name: "actor" })).toHaveAttribute(
       "href",
       "#/tables/actor-d4592e62",
@@ -57,47 +52,33 @@ describe("IndexesPage", () => {
   });
 
   it("distinguishes unique indexes from non-unique ones", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        indexesCount: 2,
-        tableIndexes: [INDEX, { ...INDEX, name: "actor_pkey", isUnique: true }],
-      }),
-    );
-
-    render(<IndexesPage />);
+    renderIndexesPage({
+      indexesCount: 2,
+      tableIndexes: [INDEX, { ...INDEX, name: "actor_pkey", isUnique: true }],
+    });
     expect(screen.getByLabelText("Unique")).toBeInTheDocument();
     expect(screen.getByLabelText("Not unique")).toBeInTheDocument();
   });
 
   it("shows an em dash for an unreported index type and an unfiltered index", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        indexesCount: 1,
-        tableIndexes: [{ ...INDEX, indexType: "", filterText: "" }],
-      }),
-    );
-
-    render(<IndexesPage />);
+    renderIndexesPage({
+      indexesCount: 1,
+      tableIndexes: [{ ...INDEX, indexType: "", filterText: "" }],
+    });
     expect(screen.getAllByText("—")).toHaveLength(2);
   });
 
   it("carries an index's usability through to its status cell", () => {
-    mockUseSummary.mockReturnValue(
-      loadedQuery({
-        indexesCount: 2,
-        tableIndexes: [INDEX, { ...INDEX, name: "idx_stale", isValid: false }],
-      }),
-    );
-
-    render(<IndexesPage />);
+    renderIndexesPage({
+      indexesCount: 2,
+      tableIndexes: [INDEX, { ...INDEX, name: "idx_stale", isValid: false }],
+    });
     expect(screen.getByText("Usable")).toBeInTheDocument();
     expect(screen.getByText("Invalid")).toBeInTheDocument();
   });
 
   it("shows the indexes count in the heading", () => {
-    mockUseSummary.mockReturnValue(loadedQuery({ indexesCount: 9, tableIndexes: [] }));
-
-    render(<IndexesPage />);
+    renderIndexesPage({ indexesCount: 9, tableIndexes: [] });
     expect(screen.getByText("(9)")).toBeInTheDocument();
     expect(screen.getByText("No indexes.")).toBeInTheDocument();
   });

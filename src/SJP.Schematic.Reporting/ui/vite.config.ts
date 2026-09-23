@@ -57,11 +57,13 @@ export default defineConfig({
   },
   test: {
     environment: "happy-dom",
+    pool: "vmThreads",
     environmentOptions: {
       happyDOM: { settings: { disableJavaScriptFileLoading: true } },
     },
     globals: false,
     setupFiles: ["./src/test/setup.ts"],
+    unstubGlobals: true,
     css: false,
     coverage: {
       provider: "v8",

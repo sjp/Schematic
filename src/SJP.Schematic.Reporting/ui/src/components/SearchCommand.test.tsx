@@ -3,16 +3,13 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SearchCommand } from "@/components/SearchCommand";
-import { renderWithClient } from "@/test/utils";
+import { type ReportData, renderWithClient } from "@/test/utils";
 import type { SearchSummary } from "@/types/report";
 
-function seedSearch(entries: SearchSummary["entries"]) {
-  return [
-    {
-      queryKey: ["summary", "search"],
-      data: { entriesCount: entries.length, entries } satisfies SearchSummary,
-    },
-  ];
+function searchData(entries: SearchSummary["entries"]): ReportData {
+  return {
+    summaries: { search: { entriesCount: entries.length, entries } satisfies SearchSummary },
+  };
 }
 
 describe("SearchCommand", () => {
@@ -22,14 +19,14 @@ describe("SearchCommand", () => {
 
   it("renders nothing when closed", () => {
     renderWithClient(<SearchCommand open={false} onOpenChange={() => {}} />, {
-      seed: seedSearch([]),
+      data: searchData([]),
     });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("groups results by object type in the stable display order", () => {
     renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
-      seed: seedSearch([
+      data: searchData([
         { name: "email", objectType: "Column", url: "#/tables/actor-1" },
         { name: "actor", objectType: "Table", url: "#/tables/actor-1" },
         { name: "actor_view", objectType: "View", url: "#/views/actor-1" },
@@ -42,7 +39,7 @@ describe("SearchCommand", () => {
 
   it("shows an empty state when there are no entries", () => {
     renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
-      seed: seedSearch([]),
+      data: searchData([]),
     });
     expect(screen.getByText("No results found.")).toBeInTheDocument();
   });
@@ -51,7 +48,7 @@ describe("SearchCommand", () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn<(open: boolean) => void>();
     renderWithClient(<SearchCommand open onOpenChange={onOpenChange} />, {
-      seed: seedSearch([{ name: "actor", objectType: "Table", url: "#/tables/actor-1" }]),
+      data: searchData([{ name: "actor", objectType: "Table", url: "#/tables/actor-1" }]),
     });
 
     await user.click(within(screen.getByRole("dialog")).getByText("actor"));
@@ -69,7 +66,7 @@ describe("SearchCommand", () => {
 
   it("sorts a type it has no place for after the ones it does", () => {
     renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
-      seed: seedSearch([
+      data: searchData([
         { name: "thing", objectType: "Widget", url: "#/widgets/thing-1" },
         { name: "actor", objectType: "Table", url: "#/tables/actor-1" },
       ]),
@@ -81,7 +78,7 @@ describe("SearchCommand", () => {
 
   it("names the owning object of a column entry", () => {
     renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
-      seed: seedSearch([
+      data: searchData([
         { name: "email", objectType: "Column", parent: "actor", url: "#/tables/actor-1" },
       ]),
     });
@@ -92,7 +89,7 @@ describe("SearchCommand", () => {
   it("navigates to a url the report recorded without its leading hash", async () => {
     const user = userEvent.setup();
     renderWithClient(<SearchCommand open onOpenChange={() => {}} />, {
-      seed: seedSearch([{ name: "actor", objectType: "Table", url: "/tables/actor-1" }]),
+      data: searchData([{ name: "actor", objectType: "Table", url: "/tables/actor-1" }]),
     });
 
     await user.click(within(screen.getByRole("dialog")).getByText("actor"));
