@@ -23,7 +23,7 @@ internal sealed class CompletionCommand : Command<CompletionCommand.Settings>
         public ShellType Shell { get; init; }
     }
 
-    protected override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    public override int Execute(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         var script = GetCompletionScript(settings.Shell);
 

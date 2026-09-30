@@ -40,7 +40,7 @@ internal sealed class InitCommand : AsyncCommand<InitCommand.Settings>
         _fileSystem = fileSystem;
     }
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
+    public override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         if (_fileSystem.File.Exists(settings.OutputPath) && !settings.Force)
         {

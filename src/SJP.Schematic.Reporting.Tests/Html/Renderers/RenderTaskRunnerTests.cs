@@ -125,11 +125,11 @@ internal static class RenderTaskRunnerTests
     }
 
     [Test]
-    public static void RunAllAsync_GivenSingleFailingItem_ThrowsAggregateExceptionWithSingularMessage()
+    public static async Task RunAllAsync_GivenSingleFailingItem_ThrowsAggregateExceptionWithSingularMessage()
     {
         var items = new[] { "a" };
 
-        var ex = Assert.ThrowsAsync<AggregateException>(() => RenderTaskRunner.RunAllAsync(
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => RenderTaskRunner.RunAllAsync(
             items,
             static s => s,
             static (_, _) => throw new InvalidOperationException("boom"),
@@ -146,11 +146,11 @@ internal static class RenderTaskRunnerTests
     }
 
     [Test]
-    public static void RunAllAsync_GivenMultipleFailingItems_ThrowsAggregateExceptionWithPluralMessageOrderedByLabel()
+    public static async Task RunAllAsync_GivenMultipleFailingItems_ThrowsAggregateExceptionWithPluralMessageOrderedByLabel()
     {
         var items = new[] { "charlie", "alpha", "bravo" };
 
-        var ex = Assert.ThrowsAsync<AggregateException>(() => RenderTaskRunner.RunAllAsync(
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => RenderTaskRunner.RunAllAsync(
             items,
             static s => s,
             static (item, _) => throw new InvalidOperationException($"failure for {item}"),
@@ -166,11 +166,11 @@ internal static class RenderTaskRunnerTests
     }
 
     [Test]
-    public static void RunAllAsync_GivenSuccessAndFailureItems_OnlyFailingItemsAreReported()
+    public static async Task RunAllAsync_GivenSuccessAndFailureItems_OnlyFailingItemsAreReported()
     {
         var items = new[] { "good", "bad" };
 
-        var ex = Assert.ThrowsAsync<AggregateException>(() => RenderTaskRunner.RunAllAsync(
+        var ex = await Assert.ThrowsAsync<AggregateException>(() => RenderTaskRunner.RunAllAsync(
             items,
             static s => s,
             static (item, _) => item == "bad"
@@ -183,13 +183,13 @@ internal static class RenderTaskRunnerTests
     }
 
     [Test]
-    public static void RunAllAsync_GivenCancelledToken_PropagatesOperationCanceledExceptionInsteadOfFailure()
+    public static async Task RunAllAsync_GivenCancelledToken_PropagatesOperationCanceledExceptionInsteadOfFailure()
     {
         using var cts = new CancellationTokenSource();
         cts.Cancel();
         var items = new[] { "a" };
 
-        Assert.ThrowsAsync(Is.InstanceOf<OperationCanceledException>(), () => RenderTaskRunner.RunAllAsync(
+        await Assert.ThrowsAsync(Is.InstanceOf<OperationCanceledException>(), () => RenderTaskRunner.RunAllAsync(
             items,
             static s => s,
             (_, ct) =>
