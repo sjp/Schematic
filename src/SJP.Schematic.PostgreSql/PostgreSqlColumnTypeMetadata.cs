@@ -49,10 +49,6 @@ internal static class PostgreSqlColumnTypeMetadata
     {
         ArgumentNullException.ThrowIfNull(typeProvider);
 
-        var isArray = string.Equals(source.DataType, ArrayDataType, StringComparison.OrdinalIgnoreCase);
-        var isUserDefined = string.Equals(source.DataType, UserDefinedDataType, StringComparison.OrdinalIgnoreCase);
-        var enumValues = source.EnumLabels ?? [];
-
         var metadata = new ColumnTypeMetadata
         {
             Collation = collation,
@@ -61,43 +57,56 @@ internal static class PostgreSqlColumnTypeMetadata
             FractionalSecondsPrecision = fractionalSecondsPrecision,
         };
 
-        if (isArray)
+        if (source.DomainName.IsNullOrWhiteSpace())
+        {
+            DescribeReportedType(typeProvider, source, metadata);
+            return metadata;
+        }
+
+        // a domain is reported by the type it is defined over, so the domain names the column's type
+        // while the type reported for it, which may itself be an array or a user-defined type,
+        // becomes the base type
+        var baseMetadata = new ColumnTypeMetadata
+        {
+            MaxLength = maxLength,
+            NumericPrecision = numericPrecision,
+            FractionalSecondsPrecision = fractionalSecondsPrecision,
+        };
+        DescribeReportedType(typeProvider, source, baseMetadata);
+        var baseType = typeProvider.CreateColumnType(baseMetadata);
+
+        // the column stores values of the underlying type, so the class of data is the same
+        metadata.TypeName = Identifier.CreateQualifiedIdentifier(source.DomainSchema, source.DomainName);
+        metadata.BaseType = Option<IDbType>.Some(baseType);
+        metadata.DataType = baseType.DataType;
+        metadata.ClrType = baseType.ClrType;
+        metadata.ElementType = baseType.ElementType;
+        metadata.EnumValues = baseType.EnumValues;
+        return metadata;
+    }
+
+    private static void DescribeReportedType(IDbTypeProvider typeProvider, CatalogTypeInfo source, ColumnTypeMetadata metadata)
+    {
+        var enumValues = source.EnumLabels ?? [];
+
+        if (string.Equals(source.DataType, ArrayDataType, StringComparison.OrdinalIgnoreCase))
         {
             metadata.TypeName = GetUserTypeName(source);
             metadata.DataType = DataType.Array;
             metadata.ElementType = CreateElementType(typeProvider, source, enumValues);
-            return metadata;
+            return;
         }
 
-        if (isUserDefined)
+        if (string.Equals(source.DataType, UserDefinedDataType, StringComparison.OrdinalIgnoreCase))
         {
             metadata.TypeName = GetUserTypeName(source);
             metadata.DataType = GetUserDefinedDataType(source.TypeKind);
             if (metadata.DataType == DataType.Enum)
                 metadata.EnumValues = enumValues;
-            return metadata;
-        }
-
-        // a domain is reported by the type it is defined over, so the domain names the column's type
-        // while the type reported for it becomes the base type
-        if (!source.DomainName.IsNullOrWhiteSpace())
-        {
-            metadata.TypeName = Identifier.CreateQualifiedIdentifier(source.DomainSchema, source.DomainName);
-            metadata.BaseType = Option<IDbType>.Some(typeProvider.CreateColumnType(new ColumnTypeMetadata
-            {
-                TypeName = Identifier.CreateQualifiedIdentifier(PgCatalog, source.DataType),
-                MaxLength = maxLength,
-                NumericPrecision = numericPrecision,
-                FractionalSecondsPrecision = fractionalSecondsPrecision,
-            }));
-            // the column stores values of the underlying type, so the class of data is the same
-            metadata.DataType = metadata.BaseType.MatchUnsafe(static t => t.DataType, static () => DataType.Unknown);
-            metadata.ClrType = metadata.BaseType.MatchUnsafe(static t => t.ClrType, static () => null);
-            return metadata;
+            return;
         }
 
         metadata.TypeName = Identifier.CreateQualifiedIdentifier(PgCatalog, source.DataType);
-        return metadata;
     }
 
     /// <summary>

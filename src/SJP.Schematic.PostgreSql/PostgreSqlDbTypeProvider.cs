@@ -156,12 +156,17 @@ public class PostgreSqlDbTypeProvider : IDbTypeProvider
 
         var builder = StringBuilderCache.Acquire(typeMetadata.TypeName.LocalName.Length * 2);
         var typeName = typeMetadata.TypeName;
-        if (string.Equals(typeName.Schema, "pg_catalog", StringComparison.OrdinalIgnoreCase))
+        var isBuiltIn = string.Equals(typeName.Schema, "pg_catalog", StringComparison.OrdinalIgnoreCase);
+        if (isBuiltIn)
             builder.Append(QuoteIdentifier(typeName.LocalName));
         else
             builder.Append(QuoteName(typeName));
 
         if (TypeNamesWithNoLengthAnnotation.Contains(typeName))
+            return builder.GetStringAndRelease();
+
+        // a domain carries the length of the type it is defined over, but cannot be given one itself
+        if (!isBuiltIn && typeMetadata.BaseType.IsSome)
             return builder.GetStringAndRelease();
 
         // a time or timestamp is annotated with the precision of its seconds and with nothing else

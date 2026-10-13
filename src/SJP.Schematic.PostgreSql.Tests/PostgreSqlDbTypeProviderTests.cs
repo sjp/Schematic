@@ -230,6 +230,64 @@ internal static class PostgreSqlDbTypeProviderTests
     }
 
     [Test]
+    public static void CreateTypeMetadata_GivenDomainOverEnumColumn_DescribesDomainOverEnum()
+    {
+        var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+            "USER-DEFINED", "app", "size", "app", "settled_size", "e", null, null, null, ["small", "large"]);
+
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+        var baseType = columnType.BaseType.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName, Is.EqualTo(new Identifier("app", "settled_size")));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Enum));
+            Assert.That(columnType.EnumValues, Is.EqualTo(new[] { "small", "large" }));
+            Assert.That(baseType.TypeName, Is.EqualTo(new Identifier("app", "size")));
+            Assert.That(baseType.EnumValues, Is.EqualTo(new[] { "small", "large" }));
+        }
+    }
+
+    [Test]
+    public static void CreateTypeMetadata_GivenDomainOverArrayColumn_DescribesDomainOverArray()
+    {
+        var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+            "ARRAY", "pg_catalog", "_int4", "app", "int_list", "b", "pg_catalog", "int4", "b", null);
+
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 0, Option<INumericPrecision>.None, Option<int>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+        var baseType = columnType.BaseType.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName, Is.EqualTo(new Identifier("app", "int_list")));
+            Assert.That(columnType.DataType, Is.EqualTo(DataType.Array));
+            Assert.That(columnType.ElementType.UnwrapSome().DataType, Is.EqualTo(DataType.Integer));
+            Assert.That(baseType.TypeName, Is.EqualTo(new Identifier("pg_catalog", "_int4")));
+            Assert.That(baseType.DataType, Is.EqualTo(DataType.Array));
+        }
+    }
+
+    // a domain cannot be given a type modifier, so only its base type carries the length
+    [Test]
+    public static void CreateTypeMetadata_GivenDomainOverNumericColumn_ReturnsDefinitionWithoutLength()
+    {
+        var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(
+            "numeric", "pg_catalog", "numeric", "app", "amount", "b", null, null, null, null);
+        var precision = Option<INumericPrecision>.Some(new NumericPrecision(10, 2));
+
+        var metadata = PostgreSqlColumnTypeMetadata.Create(Provider, typeInfo, Option<Identifier>.None, 10, precision, Option<int>.None);
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.Definition, Is.EqualTo("\"app\".\"amount\""));
+            Assert.That(columnType.BaseType.UnwrapSome().Definition, Is.EqualTo("\"numeric\"(10, 2)"));
+        }
+    }
+
+    [Test]
     public static void CreateTypeMetadata_GivenBuiltInColumn_QualifiesTypeNameWithCatalogSchema()
     {
         var typeInfo = new PostgreSqlColumnTypeMetadata.CatalogTypeInfo(

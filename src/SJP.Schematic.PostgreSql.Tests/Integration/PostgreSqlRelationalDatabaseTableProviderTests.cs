@@ -272,6 +272,19 @@ create table table_test_table_47 (
     constraint pk_test_table_47 primary key (id) include (label),
     constraint uk_test_table_47 unique (code) include (id, label) deferrable initially deferred
 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create domain table_test_domain_int as int check (value > 0)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create type table_test_enum as enum ('small', 'large')", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create domain table_test_domain_enum as table_test_enum", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create domain table_test_domain_array as table_test_enum[]", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create type table_test_composite as (first_attr int, second_attr text)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create domain table_test_domain_composite as table_test_composite", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_48 (
+    domain_int_column table_test_domain_int,
+    domain_enum_column table_test_domain_enum,
+    domain_array_column table_test_domain_array,
+    domain_composite_column table_test_domain_composite
+)", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"
 create table table_test_partitioned_1 (
@@ -471,6 +484,13 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table table_test_table_45",
         "drop table table_test_table_46",
         "drop table table_test_table_47",
+        "drop table table_test_table_48",
+        "drop domain table_test_domain_int",
+        "drop domain table_test_domain_enum",
+        "drop domain table_test_domain_array",
+        "drop domain table_test_domain_composite",
+        "drop type table_test_enum",
+        "drop type table_test_composite",
         "drop table table_test_partitioned_1",
         "drop table table_test_unlogged_1",
         "drop table constraint_state_child",

@@ -330,6 +330,49 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
     }
 
+    // a domain names the column's type even when it is defined over an array or a user-defined
+    // type, and is never given a length of its own
+    [TestCase("domain_int_column", "table_test_domain_int", "\"public\".\"table_test_domain_int\"", DataType.Integer, "integer")]
+    [TestCase("domain_enum_column", "table_test_domain_enum", "\"public\".\"table_test_domain_enum\"", DataType.Enum, "table_test_enum")]
+    [TestCase("domain_array_column", "table_test_domain_array", "\"public\".\"table_test_domain_array\"", DataType.Array, "_table_test_enum")]
+    [TestCase("domain_composite_column", "table_test_domain_composite", "\"public\".\"table_test_domain_composite\"", DataType.Composite, "table_test_composite")]
+    public async Task Columns_WhenGivenTableWithDomainColumn_ReturnsDomainOverBaseType(
+        string columnName,
+        string expectedTypeName,
+        string expectedDefinition,
+        DataType expectedDataType,
+        string expectedBaseTypeName)
+    {
+        const string tableName = "table_test_table_48";
+        var table = await GetTableAsync(tableName);
+        var columnType = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal)).Type;
+        var baseType = columnType.BaseType.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.TypeName.LocalName, Is.EqualTo(expectedTypeName));
+            Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(columnType.DataType, Is.EqualTo(expectedDataType));
+            Assert.That(baseType.TypeName.LocalName, Is.EqualTo(expectedBaseTypeName));
+            Assert.That(baseType.DataType, Is.EqualTo(expectedDataType));
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithDomainOverEnumArray_ReturnsEnumElementType()
+    {
+        const string tableName = "table_test_table_48";
+        var table = await GetTableAsync(tableName);
+        var columnType = table.Columns.Single(c => string.Equals(c.Name.LocalName, "domain_array_column", StringComparison.Ordinal)).Type;
+        var elementType = columnType.ElementType.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(elementType.TypeName.LocalName, Is.EqualTo("table_test_enum"));
+            Assert.That(elementType.EnumValues, Is.EqualTo(new[] { "small", "large" }));
+        }
+    }
+
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {
