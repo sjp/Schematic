@@ -123,4 +123,18 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         Assert.That(pk.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
     }
+
+    [Test]
+    public async Task PrimaryKey_WhenGivenPrimaryKeyWithIncludedColumns_ReturnsKeyColumnsOnly()
+    {
+        var table = await GetTableAsync("table_test_table_47");
+        var pk = table.PrimaryKey.UnwrapSome();
+        var backingIndex = pk.BackingIndex.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(pk.Columns.Select(static c => c.Name.LocalName), Is.EqualTo(new[] { "id" }));
+            Assert.That(backingIndex.IncludedColumns.Select(static c => c.Name.LocalName), Is.EqualTo(new[] { "label" }));
+        }
+    }
 }

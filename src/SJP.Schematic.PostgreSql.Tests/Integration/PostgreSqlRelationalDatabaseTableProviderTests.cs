@@ -264,6 +264,14 @@ create table table_test_table_46 (
     float8_column float8,
     float4_column float4
 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_47 (
+    id int not null,
+    code int not null,
+    label text,
+    constraint pk_test_table_47 primary key (id) include (label),
+    constraint uk_test_table_47 unique (code) include (id, label) deferrable initially deferred
+)", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"
 create table table_test_partitioned_1 (
@@ -462,6 +470,7 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table table_test_table_44",
         "drop table table_test_table_45",
         "drop table table_test_table_46",
+        "drop table table_test_table_47",
         "drop table table_test_partitioned_1",
         "drop table table_test_unlogged_1",
         "drop table constraint_state_child",

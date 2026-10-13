@@ -47,6 +47,21 @@ internal static class GetTableIndexes
         /// Whether the index was built completely and can therefore be used by the query planner.
         /// </summary>
         public required bool IsValid { get; init; }
+
+        /// <summary>
+        /// The name of the primary key or unique constraint the index enforces, or <c>null</c> when it enforces neither.
+        /// </summary>
+        public string? ConstraintName { get; init; }
+
+        /// <summary>
+        /// Whether the constraint the index enforces was declared <c>DEFERRABLE</c>.
+        /// </summary>
+        public bool IsDeferrable { get; init; }
+
+        /// <summary>
+        /// Whether the deferrable constraint the index enforces was declared <c>INITIALLY DEFERRED</c>.
+        /// </summary>
+        public bool IsInitiallyDeferred { get; init; }
     }
 
     // Index column name: the raw column name, unlike pg_get_indexdef which quotes it where required;
@@ -55,6 +70,10 @@ internal static class GetTableIndexes
     // Descending: the property is null for included columns and for access methods without an ordering.
     //
     // Collation: the default collation is not worth reporting, it is simply the one the column already has.
+    //
+    // Constraint: every primary key and unique constraint is enforced by an index whose key columns are the
+    // constraint's columns in order, so the keys are read from the same rows as the indexes. The contype filter
+    // matters: a foreign key on the same table that references this index also points at it through conindid.
     internal const string Sql = $"""
 select
     i.relname as "{nameof(Result.IndexName)}",
@@ -62,45 +81,35 @@ select
     idx.indisprimary as "{nameof(Result.IsPrimary)}",
     pg_catalog.pg_get_expr(idx.indpred, idx.indrelid) as "{nameof(Result.FilterDefinition)}",
     idx.indnkeyatts as "{nameof(Result.KeyColumnCount)}",
-    pg_catalog.generate_subscripts(idx.indkey, 1) as "{nameof(Result.IndexColumnId)}",
-    pg_catalog.unnest(array(
-        select pg_catalog.pg_get_indexdef(idx.indexrelid, k + 1, true)
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as "{nameof(Result.IndexColumnExpression)}",
-    pg_catalog.unnest(array(
-        select a.attname::text
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        left join pg_catalog.pg_attribute a on a.attrelid = idx.indrelid and a.attnum = idx.indkey[k]
-        order by k
-    )) as "{nameof(Result.IndexColumnName)}",
-    pg_catalog.unnest(array(
-        select coalesce(pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'desc'), false)
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as "{nameof(Result.IsDescending)}",
-    pg_catalog.unnest(array(
-        select coalesce(pg_catalog.pg_index_column_has_property(idx.indexrelid, k + 1, 'nulls_first'), false)
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        order by k
-    )) as "{nameof(Result.IsNullsFirst)}",
-    pg_catalog.unnest(array(
-        select nullif(coll.collname, 'default')
-        from pg_catalog.generate_subscripts(idx.indkey, 1) k
-        left join pg_catalog.pg_collation coll on coll.oid = idx.indcollation[k]
-        order by k
-    )) as "{nameof(Result.IndexColumnCollation)}",
+    k.k as "{nameof(Result.IndexColumnId)}",
+    pg_catalog.pg_get_indexdef(idx.indexrelid, k.k + 1, true) as "{nameof(Result.IndexColumnExpression)}",
+    a.attname::text as "{nameof(Result.IndexColumnName)}",
+    coalesce(pg_catalog.pg_index_column_has_property(idx.indexrelid, k.k + 1, 'desc'), false) as "{nameof(Result.IsDescending)}",
+    coalesce(pg_catalog.pg_index_column_has_property(idx.indexrelid, k.k + 1, 'nulls_first'), false) as "{nameof(Result.IsNullsFirst)}",
+    nullif(coll.collname, 'default') as "{nameof(Result.IndexColumnCollation)}",
     am.amname as "{nameof(Result.IndexMethod)}",
-    idx.indisvalid as "{nameof(Result.IsValid)}"
+    idx.indisvalid as "{nameof(Result.IsValid)}",
+    kc.conname as "{nameof(Result.ConstraintName)}",
+    coalesce(kc.condeferrable, false) as "{nameof(Result.IsDeferrable)}",
+    coalesce(kc.condeferred, false) as "{nameof(Result.IsInitiallyDeferred)}"
 from pg_catalog.pg_index idx
-    inner join pg_catalog.pg_class t on idx.indrelid = t.oid
-    inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
     inner join pg_catalog.pg_class i on i.oid = idx.indexrelid
     inner join pg_catalog.pg_am am on am.oid = i.relam
-where
-    t.relkind in ('r', 'p')
-    and t.relname = @{nameof(Query.TableName)}
-    and ns.nspname = @{nameof(Query.SchemaName)}
+    cross join lateral pg_catalog.generate_subscripts(idx.indkey, 1) as k(k)
+    left join pg_catalog.pg_attribute a on a.attrelid = idx.indrelid and a.attnum = idx.indkey[k.k]
+    left join pg_catalog.pg_collation coll on coll.oid = idx.indcollation[k.k]
+    left join pg_catalog.pg_constraint kc
+        on kc.conrelid = idx.indrelid
+        and kc.conindid = idx.indexrelid
+        and kc.contype in ('p', 'u')
+where idx.indrelid = (
+    select t.oid
+    from pg_catalog.pg_class t
+    inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+    where t.relkind in ('r', 'p')
+        and t.relname = @{nameof(Query.TableName)}
+        and ns.nspname = @{nameof(Query.SchemaName)}
+)
 order by i.relname, "{nameof(Result.IndexColumnId)}"
 """;
 }

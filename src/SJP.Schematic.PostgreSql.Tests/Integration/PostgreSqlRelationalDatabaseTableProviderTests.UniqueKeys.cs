@@ -99,4 +99,19 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(backingIndex.IsUnique, Is.True);
         }
     }
+
+    [Test]
+    public async Task UniqueKeys_WhenGivenDeferrableUniqueKeyWithIncludedColumns_ReturnsKeyColumnsAndDeferrability()
+    {
+        var table = await GetTableAsync("table_test_table_47");
+        var uniqueKey = table.UniqueKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(uniqueKey.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_47"));
+            Assert.That(uniqueKey.Columns.Select(static c => c.Name.LocalName), Is.EqualTo(new[] { "code" }));
+            Assert.That(uniqueKey.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
+            Assert.That(table.Indexes, Is.Empty);
+        }
+    }
 }

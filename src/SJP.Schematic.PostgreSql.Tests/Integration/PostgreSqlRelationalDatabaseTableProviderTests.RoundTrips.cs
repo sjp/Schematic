@@ -27,13 +27,13 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         using (Assert.EnterMultipleScope())
         {
             Assert.That(table.ChildKeys, Has.Exactly(1).Items);
-            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(11));
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(10));
         }
     }
 
     // A self-referencing table is its own parent and child table. Resolving the table's name for those
     // foreign keys must reuse the name already resolved for the requested table, so the load costs the
-    // same 9 queries as a table without foreign keys: the child key's columns come from the cache too.
+    // same 8 queries as a table without foreign keys: the child key's columns come from the cache too.
     [Test]
     public async Task GetTable_ForSelfReferencingTable_ResolvesTableNameOnce()
     {
@@ -47,7 +47,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         {
             Assert.That(table.ParentKeys, Has.Exactly(1).Items);
             Assert.That(table.ChildKeys, Has.Exactly(1).Items);
-            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(9));
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(8));
         }
     }
 }
