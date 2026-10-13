@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,12 +13,12 @@ namespace SJP.Schematic.Core;
 /// </summary>
 public class RelationalDatabase : IRelationalDatabase
 {
-    private readonly FrozenDictionary<Identifier, IRelationalDatabaseTable> _tablesByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseView> _viewsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseSequence> _sequencesByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseSynonym> _synonymsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseRoutine> _routinesByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseUserDefinedType> _userDefinedTypesByName;
+    private readonly Dictionary<Identifier, IRelationalDatabaseTable> _tablesByName;
+    private readonly Dictionary<Identifier, IDatabaseView> _viewsByName;
+    private readonly Dictionary<Identifier, IDatabaseSequence> _sequencesByName;
+    private readonly Dictionary<Identifier, IDatabaseSynonym> _synonymsByName;
+    private readonly Dictionary<Identifier, IDatabaseRoutine> _routinesByName;
+    private readonly Dictionary<Identifier, IDatabaseUserDefinedType> _userDefinedTypesByName;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RelationalDatabase"/> class.
@@ -194,7 +193,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <typeparam name="T">The type of database object to index.</typeparam>
     /// <param name="objects">Database objects.</param>
     /// <returns>A lookup of database objects, keyed by qualified name.</returns>
-    private FrozenDictionary<Identifier, T> BuildLookup<T>(IReadOnlyCollection<T> objects) where T : IDatabaseEntity
+    private Dictionary<Identifier, T> BuildLookup<T>(IReadOnlyCollection<T> objects) where T : IDatabaseEntity
     {
         var result = new Dictionary<Identifier, T>(objects.Count);
 
@@ -202,7 +201,7 @@ public class RelationalDatabase : IRelationalDatabase
         foreach (var obj in objects)
             result.TryAdd(QualifyObjectName(obj.Name), obj);
 
-        return result.ToFrozenDictionary();
+        return result;
     }
 
     /// <summary>

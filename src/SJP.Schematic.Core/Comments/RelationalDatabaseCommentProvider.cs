@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -15,13 +14,13 @@ namespace SJP.Schematic.Core.Comments;
 /// <seealso cref="IRelationalDatabaseCommentProvider" />
 public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvider
 {
-    private readonly FrozenDictionary<Identifier, IDatabaseSchemaComments> _schemaCommentsByName;
-    private readonly FrozenDictionary<Identifier, IRelationalDatabaseTableComments> _tableCommentsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseViewComments> _viewCommentsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseSequenceComments> _sequenceCommentsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseSynonymComments> _synonymCommentsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseRoutineComments> _routineCommentsByName;
-    private readonly FrozenDictionary<Identifier, IDatabaseUserDefinedTypeComments> _userDefinedTypeCommentsByName;
+    private readonly Dictionary<Identifier, IDatabaseSchemaComments> _schemaCommentsByName;
+    private readonly Dictionary<Identifier, IRelationalDatabaseTableComments> _tableCommentsByName;
+    private readonly Dictionary<Identifier, IDatabaseViewComments> _viewCommentsByName;
+    private readonly Dictionary<Identifier, IDatabaseSequenceComments> _sequenceCommentsByName;
+    private readonly Dictionary<Identifier, IDatabaseSynonymComments> _synonymCommentsByName;
+    private readonly Dictionary<Identifier, IDatabaseRoutineComments> _routineCommentsByName;
+    private readonly Dictionary<Identifier, IDatabaseUserDefinedTypeComments> _userDefinedTypeCommentsByName;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RelationalDatabaseCommentProvider"/> class.
@@ -372,7 +371,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// </summary>
     /// <param name="comments">A collection of database schema comments.</param>
     /// <returns>A lookup of schema comments, keyed by schema name.</returns>
-    private static FrozenDictionary<Identifier, IDatabaseSchemaComments> BuildSchemaLookup(IReadOnlyCollection<IDatabaseSchemaComments> comments)
+    private static Dictionary<Identifier, IDatabaseSchemaComments> BuildSchemaLookup(IReadOnlyCollection<IDatabaseSchemaComments> comments)
     {
         var result = new Dictionary<Identifier, IDatabaseSchemaComments>(comments.Count);
 
@@ -380,7 +379,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         foreach (var comment in comments)
             result.TryAdd(LocalIdentifier.From(comment.SchemaName), comment);
 
-        return result.ToFrozenDictionary();
+        return result;
     }
 
     /// <summary>
@@ -410,7 +409,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="comments">A collection of database object comments.</param>
     /// <param name="nameSelector">Retrieves the name of the object that a set of comments describes.</param>
     /// <returns>A lookup of database object comments, keyed by qualified name.</returns>
-    private FrozenDictionary<Identifier, T> BuildLookup<T>(IReadOnlyCollection<T> comments, Func<T, Identifier> nameSelector)
+    private Dictionary<Identifier, T> BuildLookup<T>(IReadOnlyCollection<T> comments, Func<T, Identifier> nameSelector)
     {
         var result = new Dictionary<Identifier, T>(comments.Count);
 
@@ -418,7 +417,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
         foreach (var comment in comments)
             result.TryAdd(QualifyObjectName(nameSelector(comment)), comment);
 
-        return result.ToFrozenDictionary();
+        return result;
     }
 
     /// <summary>
@@ -428,7 +427,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="commentsByName">Database object comments, keyed by their qualified names.</param>
     /// <param name="objectName">The name of the database object whose comments should be retrieved.</param>
     /// <returns>An option type with database object comments, if available, otherwise an option type in the none state.</returns>
-    private OptionAsync<T> GetResolvedComments<T>(FrozenDictionary<Identifier, T> commentsByName, Identifier objectName)
+    private OptionAsync<T> GetResolvedComments<T>(Dictionary<Identifier, T> commentsByName, Identifier objectName)
     {
         foreach (var name in IdentifierResolver.GetResolutionOrder(objectName))
         {
