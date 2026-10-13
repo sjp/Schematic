@@ -15,6 +15,11 @@ namespace SJP.Schematic.MySql;
 /// A MySQL database routine provider.
 /// </summary>
 /// <seealso cref="IDatabaseRoutineProvider" />
+/// <remarks>
+/// MySQL lists a routine to any user with a privilege on it, such as <c>EXECUTE</c>, but only shows its body to the
+/// routine's definer and to users allowed to read routine bodies. Such a routine is still returned, with a SQL comment
+/// in place of its definition.
+/// </remarks>
 public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 {
     /// <summary>
@@ -173,9 +178,13 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Select(BuildParameter)
             .ToList();
 
+        // the routine was dropped after its name was read
+        if (routineDetail == null)
+            return new DatabaseRoutine(routineName, UnavailableDefinition, RoutineType.Unknown, Option<string>.None, parameters, returnType);
+
         return new DatabaseRoutine(
             routineName,
-            routineDetail!.Definition,
+            !routineDetail.Definition.IsNullOrWhiteSpace() ? routineDetail.Definition : UnavailableDefinition,
             GetRoutineType(routineDetail.RoutineType),
             !routineDetail.Language.IsNullOrWhiteSpace() ? Option<string>.Some(routineDetail.Language) : Option<string>.None,
             parameters,
@@ -258,6 +267,10 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         var schema = routineName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, routineName.LocalName);
     }
+
+    // information_schema.routines.routine_definition is null unless the user defined the routine or
+    // may read routine bodies (SHOW_ROUTINE on MySQL, SHOW CREATE ROUTINE on MariaDB 11.3+)
+    private const string UnavailableDefinition = "-- definition unavailable (requires the privilege to read routine bodies)";
 
     private static class Constants
     {

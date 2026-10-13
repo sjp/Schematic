@@ -46,7 +46,7 @@ internal static class Config
             disposable.Dispose();
     }
 
-    private static string ConnectionString => ConnectionStringLoader.Value;
+    public static string ConnectionString => ConnectionStringLoader.Value;
 
     private static readonly Lazy<string> ConnectionStringLoader = new(static () => Configuration.GetConnectionString("MySql_TestDb"));
 

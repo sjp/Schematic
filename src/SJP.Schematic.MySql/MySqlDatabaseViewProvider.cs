@@ -15,6 +15,10 @@ namespace SJP.Schematic.MySql;
 /// A view provider for MySQL.
 /// </summary>
 /// <seealso cref="IDatabaseViewProvider" />
+/// <remarks>
+/// MySQL lists a view to any user with a privilege on it, but only shows its definition to users that also hold
+/// <c>SHOW VIEW</c>. Such a view is still returned, with a SQL comment in place of its definition.
+/// </remarks>
 public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 {
     /// <summary>
@@ -160,7 +164,9 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         // MySQL supports neither triggers on a view nor indexing one.
         return new DatabaseView(
             viewName,
-            definitionAndOptions.Definition!,
+            !definitionAndOptions.Definition.IsNullOrWhiteSpace()
+                ? definitionAndOptions.Definition
+                : UnavailableDefinition,
             columns,
             [],
             [],
@@ -259,6 +265,10 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
     }
+
+    // information_schema.views.view_definition is empty when the user lacks SHOW VIEW, and the row
+    // is missing when the view was dropped after its name was read
+    private const string UnavailableDefinition = "-- definition unavailable (requires the SHOW VIEW privilege)";
 
     private static class Constants
     {

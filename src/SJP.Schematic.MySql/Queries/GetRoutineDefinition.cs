@@ -13,7 +13,10 @@ internal static class GetRoutineDefinition
 
     internal sealed record Result
     {
-        public required string Definition { get; init; }
+        /// <summary>
+        /// The routine body. <see langword="null" /> unless the user defined the routine or may read routine bodies.
+        /// </summary>
+        public required string? Definition { get; init; }
 
         /// <summary>
         /// <c>PROCEDURE</c> or <c>FUNCTION</c>.
