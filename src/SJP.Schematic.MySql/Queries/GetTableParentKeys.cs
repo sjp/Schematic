@@ -11,7 +11,7 @@ internal static class GetTableParentKeys
         public required string TableName { get; init; }
     }
 
-    internal sealed record Result : IForeignKeyColumnRow
+    internal sealed record Result
     {
         public required string ParentTableSchema { get; init; }
 
@@ -23,7 +23,7 @@ internal static class GetTableParentKeys
 
         public required string ColumnName { get; init; }
 
-        public required string ParentKeyType { get; init; }
+        public required string ParentColumnName { get; init; }
 
         public required string DeleteAction { get; init; }
 
@@ -31,9 +31,9 @@ internal static class GetTableParentKeys
     }
 
     // MariaDB fills information_schema tables by opening each table unless the schema and table name are
-    // constants, so key_column_usage is filtered on the table itself instead of through the join. A primary
-    // key is always named PRIMARY and no other index may use that name, so the parent key type comes from the
-    // referenced constraint's name. Joining table_constraints on the parent table would open every table.
+    // constants, so key_column_usage is filtered on the table itself instead of through the join. The parent
+    // key is matched on its name and the referenced columns in C#, since joining table_constraints on the
+    // parent table would open every table.
     internal const string Sql = $"""
 
 select
@@ -42,7 +42,7 @@ select
     rc.constraint_name as `{nameof(Result.ChildKeyName)}`,
     rc.unique_constraint_name as `{nameof(Result.ParentKeyName)}`,
     kc.column_name as `{nameof(Result.ColumnName)}`,
-    case when rc.unique_constraint_name = 'PRIMARY' then 'PRIMARY KEY' else 'UNIQUE' end as `{nameof(Result.ParentKeyType)}`,
+    kc.referenced_column_name as `{nameof(Result.ParentColumnName)}`,
     rc.delete_rule as `{nameof(Result.DeleteAction)}`,
     rc.update_rule as `{nameof(Result.UpdateAction)}`
 from information_schema.referential_constraints rc

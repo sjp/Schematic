@@ -9,12 +9,14 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
 {
     // Pins the round-trip count for a single GetTable() call on a table with one child table, where
     // that child table also references a third table. Building the child key must only read the child
-    // table's name, columns and foreign key columns. It must not load the child's other foreign keys, and
+    // table's name, columns and foreign key rows. It must not load the child's other foreign keys, and
     // so must not touch the third table (its name, primary key, indexes or columns) at all.
     //
     // The parent table itself costs 10 queries: name resolution, then columns, catalog features, checks,
     // triggers, indexes, primary and unique keys (read together), parent keys, child keys and table options.
-    // The child key adds the child table's name, columns and foreign key columns, for 13 in total.
+    // The child key adds the child table's name, columns and foreign key rows, for 13 in total. The foreign
+    // key rows are the same cached rows the child table's own parent keys are built from, so when every
+    // table is loaded together a child key costs no query of its own.
     [Test]
     public async Task GetTable_ForTableWithChildTableReferencingAnotherTable_DoesNotLoadTheOtherTable()
     {

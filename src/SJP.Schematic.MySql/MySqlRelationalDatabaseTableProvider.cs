@@ -16,6 +16,12 @@ namespace SJP.Schematic.MySql;
 /// <summary>
 /// A database table provider for MySQL.
 /// </summary>
+/// <remarks>
+/// InnoDB lets a foreign key reference any indexed columns, but a foreign key is only reported when the columns
+/// it references are exactly the columns of the referenced table's primary key or one of its unique keys.
+/// A foreign key that references part of a wider unique index, or a non-unique index, is not reported from
+/// either table.
+/// </remarks>
 /// <seealso cref="IRelationalDatabaseTableProvider" />
 public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
 {
@@ -70,7 +76,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, MySqlTableQueryCache>(LoadIndexesAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache>(LoadParentKeysAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, MySqlTableQueryCache>(
-            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)), cancellationToken)
+            async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)), cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<GetTableParentKeys.Result>, MySqlTableQueryCache>((tableName, _, token) => LoadParentKeyRowsAsync(tableName, token), cancellationToken)
     );
 
     /// <summary>
@@ -575,38 +582,30 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken)
         ).WhenAll();
-        var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
 
-        // Resolve the key each foreign key references on this table first, so that a child table whose
-        // foreign keys reference nothing that can be resolved is never queried at all.
-        var childTables = new Dictionary<(string Schema, string Name), List<ChildForeignKey>>();
+        // A foreign key can only be reported against a primary or unique key, so when this table has neither,
+        // the child tables are never queried at all.
+        if (primaryKey.IsNone && uniqueKeys.Count == 0)
+            return [];
+
+        var parentKeys = new ParentTableKeys(primaryKey, uniqueKeys);
+
+        var childTables = new Dictionary<(string Schema, string Name), List<GetTableChildKeys.Result>>();
         foreach (var childKey in queryResult)
         {
-            IDatabaseKey? parentKey = null;
-            if (string.Equals(childKey.ParentKeyType, Constants.PrimaryKey, StringComparison.Ordinal))
-                primaryKey.IfSome(k => parentKey = k);
-            else if (uniqueKeyLookup.TryGetValue(childKey.ParentKeyName, out var uniqueKey))
-                parentKey = uniqueKey;
-
-            if (parentKey == null)
-                continue;
-
             var childTableKey = (childKey.ChildTableSchema, childKey.ChildTableName);
             if (!childTables.TryGetValue(childTableKey, out var childForeignKeys))
             {
                 childForeignKeys = [];
                 childTables[childTableKey] = childForeignKeys;
             }
-            childForeignKeys.Add(new ChildForeignKey(childKey, parentKey));
+            childForeignKeys.Add(childKey);
         }
 
-        if (childTables.Count == 0)
-            return [];
-
-        // Each child table only needs its name, columns and foreign key columns to build its side of the
+        // Each child table only needs its name, columns and foreign key rows to build its side of the
         // foreign key, so the child tables are independent of one another and are loaded concurrently.
         var childTableKeys = await childTables.ToList().SelectBoundedAsync(
-            (childTable, ct) => LoadChildTableKeysAsync(tableName, childTable.Key.Schema, childTable.Key.Name, childTable.Value, queryCache, ct),
+            (childTable, ct) => LoadChildTableKeysAsync(tableName, parentKeys, childTable.Key.Schema, childTable.Key.Name, childTable.Value, queryCache, ct),
             Math.Max(1, DbConnection.MaxConcurrentQueries),
             cancellationToken);
 
@@ -615,9 +614,10 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyList<IDatabaseRelationalKey>> LoadChildTableKeysAsync(
         Identifier tableName,
+        ParentTableKeys parentKeys,
         string childTableSchema,
         string childTableLocalName,
-        IReadOnlyCollection<ChildForeignKey> foreignKeys,
+        IReadOnlyCollection<GetTableChildKeys.Result> foreignKeys,
         MySqlTableQueryCache queryCache,
         CancellationToken cancellationToken)
     {
@@ -627,42 +627,97 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (childTableName == null)
             return [];
 
-        // The child table's columns are read by key, which only opens that one table. Joining them onto the
-        // child-key query instead would make MariaDB scan the key columns of every table on the server on
-        // every call, including for tables that have no child keys at all.
+        // The child table's foreign key columns come from the same cached rows its own parent keys are built
+        // from, which are read by key and only open that one table. Joining them onto the child-key query
+        // instead would make MariaDB scan the key columns of every table on the server on every call,
+        // including for tables that have no child keys at all.
         var (childColumnLookup, foreignKeyColumns) = await (
             queryCache.GetColumnLookupAsync(childTableName, cancellationToken),
-            DbConnection.QueryAsync(
-                GetTableForeignKeyColumns.Sql,
-                new GetTableForeignKeyColumns.Query { SchemaName = childTableName.Schema!, TableName = childTableName.LocalName },
-                cancellationToken
-            )
+            queryCache.GetParentKeyRowsAsync(childTableName, cancellationToken)
         ).WhenAll();
         var foreignKeyColumnLookup = foreignKeyColumns.GroupAsDictionary(static row => row.ChildKeyName, StringComparer.Ordinal);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
-        foreach (var foreignKey in foreignKeys)
+        foreach (var row in foreignKeys)
         {
-            var row = foreignKey.Row;
             if (!foreignKeyColumnLookup.TryGetValue(row.ChildKeyName, out var columnRows))
+                continue;
+
+            var parentKey = FindParentKey(row.ParentKeyName, columnRows, parentKeys);
+            if (parentKey == null)
                 continue;
 
             var childKey = CreateForeignKey(row.ChildKeyName, columnRows, childColumnLookup);
             var deleteAction = ReferentialActionMapping[row.DeleteAction];
             var updateAction = ReferentialActionMapping[row.UpdateAction];
 
-            result.Add(new MySqlRelationalKey(childTableName, childKey, tableName, foreignKey.ParentKey, deleteAction, updateAction));
+            result.Add(new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction));
         }
 
         return result;
     }
 
-    private sealed record ChildForeignKey(GetTableChildKeys.Result Row, IDatabaseKey ParentKey);
+    private sealed record ParentTableKeys(Option<IDatabaseKey> PrimaryKey, IReadOnlyCollection<IDatabaseKey> UniqueKeys);
+
+    // The catalog names the index InnoDB chose for a foreign key, which need not be a key with the foreign
+    // key's columns: it can be a wider unique index whose leading columns are the referenced ones, or an index
+    // that is not unique at all. The named key is used when its columns are the referenced columns, otherwise
+    // whichever primary or unique key has exactly those columns. Parent-key and child-key loading both choose
+    // the key here, so a foreign key resolves the same way whichever end of it is loaded.
+    private static IDatabaseKey? FindParentKey(string parentKeyName, IReadOnlyList<GetTableParentKeys.Result> columnRows, ParentTableKeys parentKeys)
+    {
+        var (primaryKey, uniqueKeys) = parentKeys;
+        var namedKey = string.Equals(parentKeyName, PrimaryKeyIndexName, StringComparison.OrdinalIgnoreCase)
+            ? primaryKey.MatchUnsafe(static k => k, static () => (IDatabaseKey?)null)
+            : uniqueKeys.FirstOrDefault(k => k.Name.Match(n => string.Equals(n.LocalName, parentKeyName, StringComparison.OrdinalIgnoreCase), static () => false));
+        if (namedKey != null && KeyHasReferencedColumns(namedKey, columnRows))
+            return namedKey;
+
+        var matchingPrimaryKey = primaryKey.MatchUnsafe(static k => k, static () => (IDatabaseKey?)null);
+        if (matchingPrimaryKey != null && KeyHasReferencedColumns(matchingPrimaryKey, columnRows))
+            return matchingPrimaryKey;
+
+        foreach (var uniqueKey in uniqueKeys)
+        {
+            if (KeyHasReferencedColumns(uniqueKey, columnRows))
+                return uniqueKey;
+        }
+
+        return null;
+    }
+
+    // Column names are case-insensitive in MySQL. The columns are compared as a set because a key enforces
+    // uniqueness over its columns in any order.
+    private static bool KeyHasReferencedColumns(IDatabaseKey key, IReadOnlyList<GetTableParentKeys.Result> columnRows)
+    {
+        if (key.Columns.Count != columnRows.Count)
+            return false;
+
+        foreach (var row in columnRows)
+        {
+            var found = false;
+            foreach (var column in key.Columns)
+            {
+                if (string.Equals(column.Name.LocalName, row.ParentColumnName, StringComparison.OrdinalIgnoreCase))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+                return false;
+        }
+
+        return true;
+    }
+
+    private const string PrimaryKeyIndexName = "PRIMARY";
 
     // Builds a foreign key as declared on the table holding it. Parent-key and child-key loading both build
-    // it here, so a foreign key reads the same whichever end of the relationship it is loaded from. Both
-    // queries return a key's column rows in key order, so they are not sorted again here.
-    private static MySqlDatabaseKey CreateForeignKey(string constraintName, IEnumerable<IForeignKeyColumnRow> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    // it here, from the same rows, so a foreign key reads the same whichever end of the relationship it is
+    // loaded from. The rows are in key order, so they are not sorted again here.
+    private static MySqlDatabaseKey CreateForeignKey(string constraintName, IEnumerable<GetTableParentKeys.Result> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
     {
         var keyName = Identifier.CreateQualifiedIdentifier(constraintName);
         var keyColumns = columnRows
@@ -731,13 +786,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableParentKeys.Sql,
-            new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
-
-        if (queryResult.Empty())
+        var queryResult = await queryCache.GetParentKeyRowsAsync(tableName, cancellationToken);
+        if (queryResult.Count == 0)
             return [];
 
         var foreignKeys = queryResult.GroupAsDictionary(static row => new
@@ -746,7 +796,6 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             row.ParentTableSchema,
             row.ParentTableName,
             row.ParentKeyName,
-            KeyType = row.ParentKeyType,
             row.DeleteAction,
             row.UpdateAction,
         }).ToList();
@@ -755,54 +804,51 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
         var columnLookup = await queryCache.GetColumnLookupAsync(tableName, cancellationToken);
 
-        // Several foreign keys can reference the same parent table, so its unique-key lookup is
-        // memoised here rather than rebuilt for every foreign key.
-        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+        // Several foreign keys can reference the same parent table, so its keys are only fetched once here.
+        var parentTableKeys = new Dictionary<Identifier, ParentTableKeys>();
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
         foreach (var fkey in foreignKeys)
         {
             var candidateParentTableName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName);
             var resolvedName = await queryCache.GetTableNameAsync(candidateParentTableName, cancellationToken);
+            var parentTableName = resolvedName.MatchUnsafe(static name => name, static () => (Identifier?)null);
+            if (parentTableName == null)
+                continue;
 
-            Identifier? parentTableName = null;
+            if (!parentTableKeys.TryGetValue(parentTableName, out var parentKeys))
+            {
+                var (primaryKey, uniqueKeys) = await (
+                    queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken),
+                    queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken)
+                ).WhenAll();
+                parentKeys = new ParentTableKeys(primaryKey, uniqueKeys);
+                parentTableKeys[parentTableName] = parentKeys;
+            }
 
-            await resolvedName
-                .BindAsync(async name =>
-                {
-                    parentTableName = name;
-                    if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKey, StringComparison.Ordinal))
-                    {
-                        var primaryKey = await queryCache.GetPrimaryKeyAsync(name, cancellationToken);
-                        return primaryKey.ToAsync();
-                    }
+            var parentKey = FindParentKey(fkey.Key.ParentKeyName, fkey.Value, parentKeys);
+            if (parentKey == null)
+                continue;
 
-                    var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
+            var childKey = CreateForeignKey(fkey.Key.ChildKeyName, fkey.Value, columnLookup);
+            var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
+            var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
 
-                    if (!parentUniqueKeyLookups.TryGetValue(name, out var parentUniqueKeyLookup))
-                    {
-                        var parentUniqueKeys = await queryCache.GetUniqueKeysAsync(name, cancellationToken);
-                        parentUniqueKeyLookup = GetDatabaseKeyLookup(parentUniqueKeys);
-                        parentUniqueKeyLookups[name] = parentUniqueKeyLookup;
-                    }
-
-                    return parentUniqueKeyLookup.TryGetValue(parentKeyName.LocalName, out var uniqueKey)
-                        ? OptionAsync<IDatabaseKey>.Some(uniqueKey)
-                        : OptionAsync<IDatabaseKey>.None;
-                })
-                .IfSome(key =>
-                {
-                    var childKey = CreateForeignKey(fkey.Key.ChildKeyName, fkey.Value, columnLookup);
-
-                    var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
-                    var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
-
-                    var relationalKey = new DatabaseRelationalKey(tableName, childKey, parentTableName!, key, deleteAction, updateAction);
-                    result.Add(relationalKey);
-                });
+            result.Add(new DatabaseRelationalKey(tableName, childKey, parentTableName, parentKey, deleteAction, updateAction));
         }
 
         return result;
+    }
+
+    private async Task<IReadOnlyList<GetTableParentKeys.Result>> LoadParentKeyRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var rows = await DbConnection.QueryAsync(
+            GetTableParentKeys.Sql,
+            new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        return rows.ToList();
     }
 
     /// <summary>
@@ -970,23 +1016,6 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return result;
     }
 
-    private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
-    {
-        ArgumentNullException.ThrowIfNull(keys);
-
-        var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
-
-        // Key constructors keep only the local name, so names are used as keys without rebuilding them.
-        foreach (var key in keys)
-        {
-            var name = key.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
-            if (name != null)
-                result[name] = key;
-        }
-
-        return result;
-    }
-
     // The catalog varies between MySQL and MariaDB releases, so the queries that depend on those
     // differences are chosen from a single description of what the connected server provides.
     private Task<GetCatalogFeatures.Result> LoadCatalogFeatures() =>
@@ -1038,6 +1067,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, MySqlTableQueryCache> _indexes;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache> _foreignKeys;
         private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, MySqlTableQueryCache> _columnLookups;
+        private readonly AsyncCache<Identifier, IReadOnlyList<GetTableParentKeys.Result>, MySqlTableQueryCache> _parentKeyRows;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MySqlTableQueryCache"/> class.
@@ -1048,14 +1078,16 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="columnLookupLoader">A column lookup cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="keyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
-        public MySqlTableQueryCache(
+        /// <param name="parentKeyRowLoader">A cache of the catalog rows that describe a table's foreign keys.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="keyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="columnLookupLoader"/> or <paramref name="parentKeyRowLoader"/> are <see langword="null" />.</exception>
+        internal MySqlTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, MySqlTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, MySqlTableQueryCache> columnLoader,
             AsyncCache<Identifier, TableKeys, MySqlTableQueryCache> keyLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, MySqlTableQueryCache> indexLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, MySqlTableQueryCache> foreignKeyLoader,
-            AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, MySqlTableQueryCache> columnLookupLoader
+            AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, MySqlTableQueryCache> columnLookupLoader,
+            AsyncCache<Identifier, IReadOnlyList<GetTableParentKeys.Result>, MySqlTableQueryCache> parentKeyRowLoader
         )
         {
             _tableNames = tableNameLoader ?? throw new ArgumentNullException(nameof(tableNameLoader));
@@ -1064,6 +1096,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
+            _parentKeyRows = parentKeyRowLoader ?? throw new ArgumentNullException(nameof(parentKeyRowLoader));
         }
 
         /// <summary>
@@ -1189,6 +1222,20 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _columnLookups.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves the catalog rows that describe a table's foreign keys from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>One row per foreign key column, ordered by foreign key name and then by column position.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        internal Task<IReadOnlyList<GetTableParentKeys.Result>> GetParentKeyRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _parentKeyRows.GetByKeyAsync(tableName, this, cancellationToken);
         }
     }
 }

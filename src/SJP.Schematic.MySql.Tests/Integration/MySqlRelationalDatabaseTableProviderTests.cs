@@ -177,6 +177,47 @@ create table if not exists child_key_round_trip_child (
     constraint fk_child_key_round_trip_parent foreign key (parent_id) references child_key_round_trip_parent (id),
     constraint fk_child_key_round_trip_other foreign key (other_id) references child_key_round_trip_other (id)
 )", TestContext.CurrentContext.CancellationToken);
+        // InnoDB lets a foreign key reference any indexed columns. MySQL 8.4 and later reject that unless
+        // restrict_fk_on_non_standard_key is turned off, which MariaDB and older MySQL releases do not have.
+        var allowNonKeyForeignKeys = IsMariaDb ? string.Empty : "set session restrict_fk_on_non_standard_key = 0;\n";
+        await DbConnection.ExecuteAsync(@"
+create table if not exists non_key_fk_parent_1 (
+    id int not null primary key,
+    d int,
+    a int,
+    unique key ux_non_key_fk_parent_1 (d, a)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(allowNonKeyForeignKeys + @"
+create table if not exists non_key_fk_child_1 (
+    a int,
+    constraint fk_non_key_fk_child_1 foreign key (a) references non_key_fk_parent_1 (d)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table if not exists non_key_fk_parent_2 (
+    id int not null primary key,
+    d int,
+    key ix_non_key_fk_parent_2 (d)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(allowNonKeyForeignKeys + @"
+create table if not exists non_key_fk_child_2 (
+    a int,
+    constraint fk_non_key_fk_child_2 foreign key (a) references non_key_fk_parent_2 (d)
+)", TestContext.CurrentContext.CancellationToken);
+        // The foreign key is created while only the wider unique key exists, so the catalog keeps naming that
+        // key as the one it references even after a unique key over exactly the referenced column is added.
+        await DbConnection.ExecuteAsync(@"
+create table if not exists non_key_fk_parent_3 (
+    id int not null primary key,
+    d int,
+    e int,
+    unique key ux_non_key_fk_parent_3_de (d, e)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(allowNonKeyForeignKeys + @"
+create table if not exists non_key_fk_child_3 (
+    a int,
+    constraint fk_non_key_fk_child_3 foreign key (a) references non_key_fk_parent_3 (d)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create unique index ux_non_key_fk_parent_3_d on non_key_fk_parent_3 (d)", TestContext.CurrentContext.CancellationToken);
         // MariaDB has no functional key parts (MySQL 8.0.13+): an index directly over an
         // expression, with no backing generated column.
         var functionalIndexClause = DatabaseProvider.SupportsFunctionalIndexes()
@@ -293,6 +334,12 @@ end
         "drop table if exists child_key_round_trip_child",
         "drop table if exists child_key_round_trip_other",
         "drop table if exists child_key_round_trip_parent",
+        "drop table if exists non_key_fk_child_1",
+        "drop table if exists non_key_fk_child_2",
+        "drop table if exists non_key_fk_child_3",
+        "drop table if exists non_key_fk_parent_1",
+        "drop table if exists non_key_fk_parent_2",
+        "drop table if exists non_key_fk_parent_3",
         "drop table if exists table_test_table_33",
         "drop table if exists table_test_table_34",
         "drop table if exists table_test_table_35",
