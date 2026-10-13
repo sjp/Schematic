@@ -156,45 +156,19 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definitionAndOptions) = await (
-            LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAndOptionsAsync(viewName, cancellationToken)
-        ).WhenAll();
+        var details = await LoadViewDetailsAsync(viewName, cancellationToken);
 
         // MySQL supports neither triggers on a view nor indexing one.
         return new DatabaseView(
             viewName,
-            !definitionAndOptions.Definition.IsNullOrWhiteSpace()
-                ? definitionAndOptions.Definition
+            !details.Definition.IsNullOrWhiteSpace()
+                ? details.Definition
                 : UnavailableDefinition,
-            columns,
+            details.Columns,
             [],
             [],
-            definitionAndOptions.CheckOption,
-            definitionAndOptions.IsUpdatable
-        );
-    }
-
-    // The definition and the options are columns of the same information_schema.views row, so
-    // they are read together.
-    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
-    {
-        var result = await DbConnection.QueryFirstOrNone(
-            GetViewDefinition.Sql,
-            new GetViewDefinition.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
-            cancellationToken
-        ).ToOption();
-
-        return result.Match(
-            static row =>
-            (
-                row.Definition,
-                row.CheckOption != null && CheckOptionMapping.TryGetValue(row.CheckOption, out var checkOption)
-                    ? checkOption
-                    : ViewCheckOption.None,
-                string.Equals(row.IsUpdatable, Constants.Yes, StringComparison.OrdinalIgnoreCase)
-            ),
-            static () => ((string?)null, ViewCheckOption.None, false)
+            details.CheckOption,
+            details.IsUpdatable
         );
     }
 
@@ -214,42 +188,71 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var query = DbConnection.QueryEnumerableAsync(
-            GetViewColumns.Sql,
-            new GetViewColumns.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
+        var details = await LoadViewDetailsAsync(viewName, cancellationToken);
+        return details.Columns;
+    }
+
+    // A view's definition, options and columns are read with one query. Its definition row is missing
+    // when the view was dropped after its name was read.
+    private async Task<ViewDetails> LoadViewDetailsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var rows = await DbConnection.QueryAsync(
+            GetViewDetails.Sql,
+            new GetViewDetails.Query { SchemaName = viewName.Schema!, ViewName = viewName.LocalName },
             cancellationToken
         );
 
-        var result = new List<IDatabaseColumn>();
-
-        await foreach (var row in query.WithCancellation(cancellationToken))
+        GetViewDetails.Result? definitionRow = null;
+        var columnRows = new List<GetViewDetails.Result>();
+        foreach (var row in rows)
         {
-            var typeMetadata = MySqlColumnTypeMetadata.Create(
-                row.DataTypeName,
-                row.ColumnType,
-                !row.Collation.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
-                    : Option<Identifier>.None,
-                row.CharacterMaxLength,
-                new NumericPrecision(row.Precision, row.Scale),
-                row.DateTimePrecision.HasValue
-                    ? Option<int>.Some(row.DateTimePrecision.Value)
-                    : Option<int>.None);
-            var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
-
-            var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
-            var autoIncrement = isAutoIncrement
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
-                : Option<IAutoIncrement>.None;
-            var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-            var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation);
-
-            var column = new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
-            result.Add(column);
+            if (row.Ordinal == null)
+                definitionRow = row;
+            else
+                columnRows.Add(row);
         }
 
-        return result;
+        // the union gives no order, so the columns are put back in the order the view declares them
+        columnRows.Sort(static (a, b) => a.Ordinal!.Value.CompareTo(b.Ordinal!.Value));
+        var columns = columnRows.ConvertAll(CreateColumn);
+
+        if (definitionRow == null)
+            return new ViewDetails(null, ViewCheckOption.None, false, columns);
+
+        var checkOption = definitionRow.CheckOption != null && CheckOptionMapping.TryGetValue(definitionRow.CheckOption, out var mappedCheckOption)
+            ? mappedCheckOption
+            : ViewCheckOption.None;
+        var isUpdatable = string.Equals(definitionRow.IsUpdatable, Constants.Yes, StringComparison.OrdinalIgnoreCase);
+
+        return new ViewDetails(definitionRow.Definition, checkOption, isUpdatable, columns);
+    }
+
+    private sealed record ViewDetails(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable, IReadOnlyList<IDatabaseColumn> Columns);
+
+    private IDatabaseColumn CreateColumn(GetViewDetails.Result row)
+    {
+        var typeMetadata = MySqlColumnTypeMetadata.Create(
+            row.DataTypeName!,
+            row.ColumnType,
+            !row.Collation.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                : Option<Identifier>.None,
+            row.CharacterMaxLength ?? 0,
+            new NumericPrecision(row.Precision ?? 0, row.Scale ?? 0),
+            row.DateTimePrecision.HasValue
+                ? Option<int>.Some(row.DateTimePrecision.Value)
+                : Option<int>.None);
+        var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
+
+        var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName!);
+        var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
+        var autoIncrement = isAutoIncrement
+            ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
+            : Option<IAutoIncrement>.None;
+        var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
+        var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation);
+
+        return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
     }
 
     /// <summary>

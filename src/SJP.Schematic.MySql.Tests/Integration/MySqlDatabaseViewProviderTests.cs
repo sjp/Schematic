@@ -254,8 +254,8 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         Assert.That(view.IsUpdatable, Is.False);
     }
 
-    // A view load issues 3 queries: one to resolve the view's name, then its columns, and its
-    // definition read together with its check option and updatability.
+    // A view load issues 2 queries: one to resolve the view's name, then its definition, check option,
+    // updatability and columns read together.
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {
@@ -265,6 +265,6 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
 
         _ = await viewProvider.GetView("view_test_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(3));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(2));
     }
 }
