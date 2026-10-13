@@ -255,6 +255,15 @@ create table table_test_table_41 (
         await DbConnection.ExecuteAsync("create sequence table_test_table_45_older_seq", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_test_table_45 ( test_column int generated always as identity (start with 7) )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("alter sequence table_test_table_45_older_seq owned by table_test_table_45.test_column", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table table_test_table_46 (
+    timestamp_column timestamp,
+    timestamptz_column timestamptz,
+    time_column time,
+    timetz_column timetz,
+    float8_column float8,
+    float4_column float4
+)", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"
 create table table_test_partitioned_1 (
@@ -452,6 +461,7 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table table_test_table_43",
         "drop table table_test_table_44",
         "drop table table_test_table_45",
+        "drop table table_test_table_46",
         "drop table table_test_partitioned_1",
         "drop table table_test_unlogged_1",
         "drop table constraint_state_child",

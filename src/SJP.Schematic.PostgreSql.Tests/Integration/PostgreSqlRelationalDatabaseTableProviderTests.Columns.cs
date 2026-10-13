@@ -302,6 +302,34 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.UniqueIdentifier));
     }
 
+    [TestCase("timestamp_column", DataType.DateTime, typeof(DateTime))]
+    [TestCase("timestamptz_column", DataType.DateTimeOffset, typeof(DateTimeOffset))]
+    [TestCase("time_column", DataType.Time, typeof(TimeSpan))]
+    [TestCase("timetz_column", DataType.TimeOffset, typeof(DateTimeOffset))]
+    public async Task Columns_WhenGivenTableWithDateTimeColumn_ReturnsColumnWithMatchingDataTypeAndClrType(string columnName, DataType expectedDataType, Type expectedClrType)
+    {
+        const string tableName = "table_test_table_46";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
+            Assert.That(column.Type.ClrType, Is.EqualTo(expectedClrType));
+        }
+    }
+
+    [TestCase("float8_column", "\"double precision\"")]
+    [TestCase("float4_column", "\"real\"")]
+    public async Task Columns_WhenGivenTableWithFloatColumn_ReturnsDefinitionWithoutLength(string columnName, string expectedDefinition)
+    {
+        const string tableName = "table_test_table_46";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+    }
+
     [Test]
     public async Task Columns_WhenGivenTableWithGeneratedColumns_ReturnsExpectedComputedColumnDefinition()
     {

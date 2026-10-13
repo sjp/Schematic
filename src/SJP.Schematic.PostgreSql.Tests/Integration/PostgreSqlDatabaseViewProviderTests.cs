@@ -23,6 +23,10 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
         await DbConnection.ExecuteAsync("create table view_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view view_test_matview_1 as select table_id as test from view_test_table_1", TestContext.CurrentContext.CancellationToken);
+
+        await DbConnection.ExecuteAsync("create table view_test_table_2 (timestamp_column timestamp, timestamptz_column timestamptz, time_column time, timetz_column timetz)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_3 as select * from view_test_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view view_test_matview_2 as select * from view_test_table_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -31,7 +35,10 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
         "drop view view_test_view_1",
         "drop view view_test_view_2",
         "drop materialized view view_test_matview_1",
-        "drop table view_test_table_1");
+        "drop view view_test_view_3",
+        "drop materialized view view_test_matview_2",
+        "drop table view_test_table_1",
+        "drop table view_test_table_2");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
@@ -309,6 +316,26 @@ internal sealed class PostgreSqlDatabaseViewProviderTests : PostgreSqlTest
         var containsColumn = view.Columns.Any(c => c.Name == "test");
 
         Assert.That(containsColumn, Is.True);
+    }
+
+    [TestCase("view_test_view_3", "timestamp_column", DataType.DateTime, typeof(DateTime))]
+    [TestCase("view_test_view_3", "timestamptz_column", DataType.DateTimeOffset, typeof(DateTimeOffset))]
+    [TestCase("view_test_view_3", "time_column", DataType.Time, typeof(TimeSpan))]
+    [TestCase("view_test_view_3", "timetz_column", DataType.TimeOffset, typeof(DateTimeOffset))]
+    [TestCase("view_test_matview_2", "timestamp_column", DataType.DateTime, typeof(DateTime))]
+    [TestCase("view_test_matview_2", "timestamptz_column", DataType.DateTimeOffset, typeof(DateTimeOffset))]
+    [TestCase("view_test_matview_2", "time_column", DataType.Time, typeof(TimeSpan))]
+    [TestCase("view_test_matview_2", "timetz_column", DataType.TimeOffset, typeof(DateTimeOffset))]
+    public async Task Columns_WhenViewContainsDateTimeColumn_ReturnsColumnWithMatchingDataTypeAndClrType(string viewName, string columnName, DataType expectedDataType, Type expectedClrType)
+    {
+        var view = await GetViewAsync(new Identifier(IdentifierDefaults.Schema, viewName));
+        var column = view.Columns.Single(c => c.Name == columnName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
+            Assert.That(column.Type.ClrType, Is.EqualTo(expectedClrType));
+        }
     }
 
     // A plain view resolves through the query view provider, so the materialized view provider must not
