@@ -39,6 +39,7 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_4(val integer DEFAULT 42)
 RETURNS integer AS $$ SELECT val $$
 LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("CREATE AGGREGATE db_test_routine_5(integer) (SFUNC = int4pl, STYPE = integer, INITCOND = '0')", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -47,7 +48,8 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         "drop procedure db_test_routine_2",
         "drop function db_test_routine_3(integer)",
         "drop function db_test_routine_3(text)",
-        "drop function db_test_routine_4");
+        "drop function db_test_routine_4",
+        "drop aggregate db_test_routine_5(integer)");
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {
@@ -179,6 +181,15 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]
+    public async Task EnumerateAllRoutines_WhenEnumerated_ContainsTestAggregate()
+    {
+        var containsTestAggregate = await RoutineProvider.EnumerateAllRoutines()
+            .AnyAsync(r => string.Equals(r.Name.LocalName, "db_test_routine_5", StringComparison.Ordinal));
+
+        Assert.That(containsTestAggregate, Is.True);
+    }
+
+    [Test]
     public async Task GetAllRoutines_WhenRetrieved_ContainsRoutines()
     {
         var routines = await RoutineProvider.GetAllRoutines();
@@ -196,6 +207,15 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]
+    public async Task GetAllRoutines_WhenRetrieved_ContainsTestAggregate()
+    {
+        var routines = await RoutineProvider.GetAllRoutines();
+        var containsTestAggregate = routines.Any(r => string.Equals(r.Name.LocalName, "db_test_routine_5", StringComparison.Ordinal));
+
+        Assert.That(containsTestAggregate, Is.True);
+    }
+
+    [Test]
     public async Task Definition_ForFunction_ReturnsCorrectDefinition()
     {
         var routine = await GetRoutineAsync("db_test_routine_1");
@@ -207,8 +227,18 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         }
     }
 
+    [Test]
+    public async Task Definition_ForAggregate_ReturnsRebuiltDefinition()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_5");
+
+        const string expectedDefinition = "CREATE AGGREGATE public.db_test_routine_5(integer) (\n    SFUNC = int4pl(integer,integer),\n    STYPE = integer,\n    INITCOND = '0'\n);";
+        Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
+    }
+
     [TestCase("db_test_routine_1", RoutineType.Function)]
     [TestCase("db_test_routine_2", RoutineType.Procedure)]
+    [TestCase("db_test_routine_5", RoutineType.Aggregate)]
     public async Task RoutineType_GivenRoutine_ReturnsCorrectType(string routineName, RoutineType expectedType)
     {
         var routine = await GetRoutineAsync(routineName);
