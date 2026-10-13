@@ -469,6 +469,17 @@ public static class ConnectionExtensions
     private static readonly ConditionalWeakTable<IDbConnectionFactory, SemaphoreSlim> QuerySemaphores = [];
 
     /// <summary>
+    /// Gets the semaphore that limits how many queries may run concurrently against a given factory, if a query has
+    /// ever been run against it.
+    /// </summary>
+    /// <remarks>
+    /// A query holds one of its slots for as long as it uses a connection from the factory, so acquiring every slot
+    /// waits for running queries to finish.
+    /// </remarks>
+    internal static SemaphoreSlim? TryGetQuerySemaphore(IDbConnectionFactory connectionFactory)
+        => QuerySemaphores.TryGetValue(connectionFactory, out var querySemaphore) ? querySemaphore : null;
+
+    /// <summary>
     /// Opens a connection and runs a query against it, retrying both as a single unit.
     /// </summary>
     /// <remarks>
@@ -647,14 +658,14 @@ public static class ConnectionExtensions
             if (_disposed)
                 return;
 
+            _disposed = true;
+
             if (_shouldDispose)
             {
                 if (_connection is IAsyncDisposable asyncDisposable)
                     await asyncDisposable.DisposeAsync();
                 else
                     _connection.Dispose();
-
-                _disposed = true;
             }
         }
 

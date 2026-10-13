@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Tests.Fakes;
+using SJP.Schematic.Sqlite;
 
 namespace SJP.Schematic.Core.Tests;
 
@@ -247,5 +251,87 @@ internal static class CachingConnectionFactoryTests
             Assert.That(cachingFactory.CreateConnection(), Is.SameAs(replacementConnection));
             Assert.That(brokenConnection.DisposeCount, Is.EqualTo(1));
         }
+    }
+
+    private const string TwoRowQuery = "select 1 union all select 2";
+
+    [Test]
+    public static async Task DisposeAsync_WhenStreamedQueryRunning_WaitsForQueryToFinish()
+    {
+        var cachingFactory = new CachingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"));
+
+        var enumerator = cachingFactory.QueryEnumerableAsync<int>(TwoRowQuery, CancellationToken.None).GetAsyncEnumerator();
+        Assert.That(await enumerator.MoveNextAsync(), Is.True);
+
+        var disposeTask = cachingFactory.DisposeAsync().AsTask();
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
+        Assert.That(disposeTask.IsCompleted, Is.False);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await enumerator.MoveNextAsync(), Is.True);
+            Assert.That(enumerator.Current, Is.EqualTo(2));
+            Assert.That(await enumerator.MoveNextAsync(), Is.False);
+        }
+        await enumerator.DisposeAsync();
+
+        Assert.That(() => disposeTask.WaitAsync(TimeSpan.FromSeconds(10)), Throws.Nothing);
+    }
+
+    [Test]
+    public static async Task Dispose_WhenStreamedQueryRunning_WaitsForQueryToFinish()
+    {
+        var cachingFactory = new CachingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"));
+
+        var enumerator = cachingFactory.QueryEnumerableAsync<int>(TwoRowQuery, CancellationToken.None).GetAsyncEnumerator();
+        Assert.That(await enumerator.MoveNextAsync(), Is.True);
+
+        var disposeTask = Task.Run(cachingFactory.Dispose);
+        await Task.Delay(TimeSpan.FromMilliseconds(100));
+        Assert.That(disposeTask.IsCompleted, Is.False);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(await enumerator.MoveNextAsync(), Is.True);
+            Assert.That(await enumerator.MoveNextAsync(), Is.False);
+        }
+        await enumerator.DisposeAsync();
+
+        Assert.That(() => disposeTask.WaitAsync(TimeSpan.FromSeconds(10)), Throws.Nothing);
+    }
+
+    [Test]
+    public static async Task DisposeAsync_WhenStreamedQueryNeverFinishes_ReleasesConnectionAfterTimeout()
+    {
+        var cachingFactory = new CachingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"), TimeSpan.FromMilliseconds(100));
+
+        var enumerator = cachingFactory.QueryEnumerableAsync<int>(TwoRowQuery, CancellationToken.None).GetAsyncEnumerator();
+        Assert.That(await enumerator.MoveNextAsync(), Is.True);
+        var connection = await cachingFactory.OpenConnectionAsync();
+
+        Assert.That(() => cachingFactory.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(10)), Throws.Nothing);
+        Assert.That(connection.State, Is.EqualTo(ConnectionState.Closed));
+
+        await enumerator.DisposeAsync();
+    }
+
+    [Test]
+    public static async Task QueryAsync_WhenFactoryDisposedWhileStreamedQueryRunning_ThrowsObjectDisposedException()
+    {
+        var cachingFactory = new CachingConnectionFactory(new SqliteConnectionFactory("Data Source=:memory:"));
+
+        var enumerator = cachingFactory.QueryEnumerableAsync<int>(TwoRowQuery, CancellationToken.None).GetAsyncEnumerator();
+        Assert.That(await enumerator.MoveNextAsync(), Is.True);
+
+        var disposeTask = cachingFactory.DisposeAsync().AsTask();
+        var queryTask = cachingFactory.QueryAsync<int>(TwoRowQuery, CancellationToken.None);
+
+        while (await enumerator.MoveNextAsync())
+        {
+        }
+        await enumerator.DisposeAsync();
+        await disposeTask.WaitAsync(TimeSpan.FromSeconds(10));
+
+        Assert.That(() => queryTask.WaitAsync(TimeSpan.FromSeconds(10)), Throws.TypeOf<ObjectDisposedException>());
     }
 }
