@@ -100,4 +100,21 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
             Assert.That(backingIndex.IsUnique, Is.True);
         }
     }
+
+    [Test]
+    public async Task UniqueKeys_WhenGivenTableWithFunctionalUniqueIndex_ReturnsIndexAndNotUniqueKey()
+    {
+        if (!DatabaseProvider.SupportsFunctionalIndexes())
+            Assert.Ignore("Functional key parts require MySQL 8.0.13 or later; MariaDB has no equivalent syntax.");
+
+        var table = await GetTableAsync("table_test_table_42");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "ux_test_table_42_2");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.UniqueKeys.Select(uk => uk.Name.UnwrapSome().LocalName), Is.EqualTo(new[] { "uk_test_table_42_1" }));
+            Assert.That(index.IsUnique, Is.True);
+            Assert.That(index.Columns.Single().DependentColumns, Is.Empty);
+        }
+    }
 }

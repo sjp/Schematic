@@ -202,24 +202,20 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     {
         var (
             columns,
-            checks,
-            triggers,
             indexes,
             primaryKey,
             uniqueKeys,
             parentKeys,
             childKeys,
-            options
+            (checks, triggers, options)
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
-            LoadChecksAsync(tableName, cancellationToken),
-            LoadTriggersAsync(tableName, cancellationToken),
             queryCache.GetIndexesAsync(tableName, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken),
-            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
+            LoadTableDetailsWithOptionsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -240,24 +236,28 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         );
     }
 
-    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    private async Task<(IReadOnlyCollection<IDatabaseCheckConstraint> Checks, IReadOnlyCollection<IDatabaseTrigger> Triggers, TableOptions Options)> LoadTableDetailsWithOptionsAsync(
+        Identifier tableName,
+        MySqlTableQueryCache queryCache,
+        CancellationToken cancellationToken)
     {
-        var optionsResult = await DbConnection.QueryAsync(
-            GetTableOptions.Sql,
-            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var details = await LoadTableDetailsAsync(tableName, cancellationToken);
+        var options = await LoadTableOptionsAsync(tableName, details.Options, queryCache, cancellationToken);
 
-        var options = optionsResult.FirstOrDefault();
-        if (options == null)
+        return (details.Checks, details.Triggers, options);
+    }
+
+    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, GetTableDetails.Result? optionsRow, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        if (optionsRow == null)
             return TableOptions.Default;
 
-        var partitioning = Option<ITablePartitioning>.None;
-        if (!options.PartitionMethod.IsNullOrWhiteSpace())
-            partitioning = Option<ITablePartitioning>.Some(await LoadPartitioningAsync(tableName, options, queryCache, cancellationToken));
+        var partitioning = IsPartitioned(optionsRow.Definition)
+            ? await LoadPartitioningAsync(tableName, queryCache, cancellationToken)
+            : Option<ITablePartitioning>.None;
 
-        var collation = !options.Collation.IsNullOrWhiteSpace()
-            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(options.Collation))
+        var collation = !optionsRow.Name.IsNullOrWhiteSpace()
+            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(optionsRow.Name))
             : Option<Identifier>.None;
 
         // MySQL does not report temporary tables in information_schema, and InnoDB always writes to
@@ -271,9 +271,24 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         );
     }
 
-    private async Task<ITablePartitioning> LoadPartitioningAsync(Identifier tableName, GetTableOptions.Result options, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    // create_options is a space-separated list of the table's options, e.g. 'stats_persistent=1 partitioned'.
+    private static bool IsPartitioned(string? createOptions)
     {
-        var (partitionNames, columnLookup) = await (
+        if (createOptions.IsNullOrWhiteSpace())
+            return false;
+
+        foreach (var option in createOptions.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            if (string.Equals(option, Constants.Partitioned, StringComparison.OrdinalIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
+    private async Task<Option<ITablePartitioning>> LoadPartitioningAsync(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
+        var (partitionRows, columnLookup) = await (
             DbConnection.QueryAsync(
                 GetTablePartitions.Sql,
                 new GetTablePartitions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
@@ -282,11 +297,15 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             queryCache.GetColumnLookupAsync(tableName, cancellationToken)
         ).WhenAll();
 
-        var partitions = partitionNames
-            .Select(static partitionName => Identifier.CreateQualifiedIdentifier(partitionName))
-            .ToList();
+        var rows = partitionRows.ToList();
+        if (rows.Count == 0)
+            return Option<ITablePartitioning>.None;
 
-        return new TablePartitioning(options.PartitionMethod!, GetPartitionColumns(options.PartitionExpression, columnLookup), partitions);
+        var partitions = rows.ConvertAll(static row => Identifier.CreateQualifiedIdentifier(row.PartitionName));
+        var firstRow = rows[0];
+
+        return Option<ITablePartitioning>.Some(
+            new TablePartitioning(firstRow.PartitionMethod, GetPartitionColumns(firstRow.PartitionExpression, columnLookup), partitions));
     }
 
     // MySQL records a partitioning expression rather than a column list. The KEY and COLUMNS methods
@@ -353,16 +372,6 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return indexes.Where(index => !backingIndexNames.Contains(index.Name)).ToList();
     }
 
-    // MySQL names the index enforcing a primary or unique key constraint after the constraint itself,
-    // i.e. PRIMARY for a primary key, so the two are matched by name.
-    private static Option<IDatabaseIndex> GetBackingIndex(IReadOnlyCollection<IDatabaseIndex> indexes, Identifier constraintName)
-    {
-        var backingIndex = indexes.FirstOrDefault(index => index.Name == constraintName);
-        return backingIndex != null
-            ? Option<IDatabaseIndex>.Some(backingIndex)
-            : Option<IDatabaseIndex>.None;
-    }
-
     /// <summary>
     /// Retrieves the primary key and unique keys for the given table.
     /// </summary>
@@ -379,81 +388,51 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return LoadKeysAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    // Primary and unique keys differ only in their constraint type, so both are read with one query. The
-    // rows arrive in key column order.
-    private async Task<TableKeys> LoadKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
+    // MySQL enforces every primary and unique key with a unique index of the same name, the primary key's
+    // being named PRIMARY, and reports every unique index as a unique key, including one made with
+    // CREATE UNIQUE INDEX. The keys are therefore built from the table's cached indexes, each index being its
+    // own key's backing index. A key is made of columns, so a unique index with a key part that is an
+    // expression rather than a column (MySQL 8.0.13 and later) is left as an index only.
+    private static async Task<TableKeys> LoadKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var keyRows = await DbConnection.QueryAsync(
-            GetTableKeys.Sql,
-            new GetTableKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
 
-        var rows = keyRows.ToList();
-        if (rows.Count == 0)
+        var primaryKey = Option<IDatabaseKey>.None;
+        List<IDatabaseKey>? uniqueKeys = null;
+        foreach (var index in indexes)
+        {
+            if (!index.IsUnique)
+                continue;
+
+            var columns = GetKeyColumns(index);
+            if (columns == null)
+                continue;
+
+            if (string.Equals(index.Name.LocalName, PrimaryKeyIndexName, StringComparison.Ordinal))
+                primaryKey = Option<IDatabaseKey>.Some(new MySqlDatabasePrimaryKey(columns, Option<IDatabaseIndex>.Some(index)));
+            else
+                (uniqueKeys ??= []).Add(new MySqlDatabaseKey(index.Name, DatabaseKeyType.Unique, columns, Option<IDatabaseIndex>.Some(index)));
+        }
+
+        if (primaryKey.IsNone && uniqueKeys == null)
             return NoKeys;
 
-        var (columnLookup, indexes) = await (
-            queryCache.GetColumnLookupAsync(tableName, cancellationToken),
-            queryCache.GetIndexesAsync(tableName, cancellationToken)
-        ).WhenAll();
-
-        var primaryKey = CreatePrimaryKey(
-            rows.Where(static row => string.Equals(row.KeyType, Constants.PrimaryKey, StringComparison.Ordinal)),
-            columnLookup,
-            indexes
-        );
-        var uniqueKeys = CreateUniqueKeys(
-            rows.Where(static row => string.Equals(row.KeyType, Constants.Unique, StringComparison.Ordinal)),
-            columnLookup,
-            indexes
-        );
-
-        return new TableKeys(primaryKey, uniqueKeys);
+        return new TableKeys(primaryKey, uniqueKeys ?? []);
     }
 
-    private static Option<IDatabaseKey> CreatePrimaryKey(
-        IEnumerable<GetTableKeys.Result> rows,
-        IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
-        IReadOnlyCollection<IDatabaseIndex> indexes)
+    // A prefix key part still makes the whole column part of the key.
+    private static List<IDatabaseColumn>? GetKeyColumns(IDatabaseIndex index)
     {
-        var groupedByName = rows.GroupAsDictionary(static row => new { row.ConstraintName });
-        if (groupedByName.Count == 0)
-            return Option<IDatabaseKey>.None;
-
-        var firstRow = groupedByName.First();
-        var constraintName = firstRow.Key.ConstraintName;
-
-        var keyColumns = groupedByName
-            .Where(row => string.Equals(row.Key.ConstraintName, constraintName, StringComparison.Ordinal))
-            .SelectMany(g => g.Value.ConvertAll(row => columnLookup[row.ColumnName!]))
-            .ToList();
-
-        var backingIndex = GetBackingIndex(indexes, constraintName);
-
-        var primaryKey = new MySqlDatabasePrimaryKey(keyColumns, backingIndex);
-        return Option<IDatabaseKey>.Some(primaryKey);
-    }
-
-    private static IReadOnlyCollection<IDatabaseKey> CreateUniqueKeys(
-        IEnumerable<GetTableKeys.Result> rows,
-        IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
-        IReadOnlyCollection<IDatabaseIndex> indexes)
-    {
-        var groupedByName = rows.GroupAsDictionary(static row => new { row.ConstraintName });
-        if (groupedByName.Count == 0)
-            return [];
-
-        var result = new List<IDatabaseKey>(groupedByName.Count);
-        foreach (var uk in groupedByName)
+        var columns = new List<IDatabaseColumn>(index.Columns.Count);
+        foreach (var indexColumn in index.Columns)
         {
-            var columns = uk.Value.ConvertAll(row => columnLookup[row.ColumnName!]);
-            var backingIndex = GetBackingIndex(indexes, uk.Key.ConstraintName);
+            if (indexColumn.DependentColumns.Count != 1)
+                return null;
 
-            var uniqueKey = new MySqlDatabaseKey(uk.Key.ConstraintName, DatabaseKeyType.Unique, columns, backingIndex);
-            result.Add(uniqueKey);
+            columns.Add(indexColumn.DependentColumns[0]);
         }
-        return result;
+
+        return columns;
     }
 
     private static readonly TableKeys NoKeys = new(Option<IDatabaseKey>.None, []);
@@ -743,29 +722,62 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var features = await _catalogFeatures;
-        if (!features.HasCheckConstraints)
-            return [];
+        var details = await LoadTableDetailsAsync(tableName, cancellationToken);
+        return details.Checks;
+    }
 
-        var sql = (features.HasConstraintEnforcedColumn, features.HasCheckConstraintTableNameColumn) switch
+    // A table's options, check constraints and triggers are each one or a few rows, so they are read
+    // together in one query rather than paying for a round trip each.
+    private async Task<TableDetails> LoadTableDetailsAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var features = await _catalogFeatures;
+        var sql = (features.HasCheckConstraints, features.HasConstraintEnforcedColumn, features.HasCheckConstraintTableNameColumn) switch
         {
-            (true, _) => GetTableCheckConstraints.Sql,
-            (false, true) => GetTableCheckConstraints.SqlByTableName,
-            (false, false) => GetTableCheckConstraints.SqlWithoutEnforced,
+            (false, _, _) => GetTableDetails.SqlWithoutChecks,
+            (true, true, _) => GetTableDetails.Sql,
+            (true, false, true) => GetTableDetails.SqlByTableName,
+            (true, false, false) => GetTableDetails.SqlWithoutEnforced,
         };
 
-        return await DbConnection.QueryEnumerableAsync(
-                sql,
-                new GetTableCheckConstraints.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-                cancellationToken
-            )
-            .Select(row =>
+        var rows = await DbConnection.QueryAsync(
+            sql,
+            new GetTableDetails.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        GetTableDetails.Result? optionsRow = null;
+        List<IDatabaseCheckConstraint>? checks = null;
+        List<IDatabaseTrigger>? triggers = null;
+        foreach (var row in rows)
+        {
+            switch (row.Kind)
             {
-                var checkName = Identifier.CreateQualifiedIdentifier(row.ConstraintName);
-                var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
-                return new MySqlCheckConstraint(checkName, row.Definition, isEnabled);
-            })
-            .ToListAsync(cancellationToken);
+                case GetTableDetails.OptionsKind:
+                    optionsRow = row;
+                    break;
+                case GetTableDetails.CheckKind:
+                    (checks ??= []).Add(CreateCheckConstraint(row));
+                    break;
+                case GetTableDetails.TriggerKind:
+                    (triggers ??= []).Add(CreateTrigger(row));
+                    break;
+            }
+        }
+
+        return new TableDetails(checks ?? [], triggers ?? [], optionsRow);
+    }
+
+    private sealed record TableDetails(
+        IReadOnlyCollection<IDatabaseCheckConstraint> Checks,
+        IReadOnlyCollection<IDatabaseTrigger> Triggers,
+        GetTableDetails.Result? Options
+    );
+
+    private static MySqlCheckConstraint CreateCheckConstraint(GetTableDetails.Result row)
+    {
+        var checkName = Identifier.CreateQualifiedIdentifier(row.Name!);
+        var isEnabled = string.Equals("YES", row.Enforced, StringComparison.OrdinalIgnoreCase);
+        return new MySqlCheckConstraint(checkName, row.Definition!, isEnabled);
     }
 
     /// <summary>
@@ -941,37 +953,25 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableTriggers.Sql,
-            new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var details = await LoadTableDetailsAsync(tableName, cancellationToken);
+        return details.Triggers;
+    }
 
-        var triggerRows = queryResult.ToList();
-        if (triggerRows.Empty())
-            return [];
+    // MySQL and MariaDB triggers fire on exactly one event, so information_schema.triggers holds one row per trigger.
+    private static MySqlDatabaseTrigger CreateTrigger(GetTableDetails.Result row)
+    {
+        var triggerName = Identifier.CreateQualifiedIdentifier(row.Name!);
+        var queryTiming = Enum.TryParse(row.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
 
-        // MySQL and MariaDB triggers fire on exactly one event, so information_schema.triggers holds one row per trigger.
-        var result = new List<IDatabaseTrigger>(triggerRows.Count);
-        foreach (var trig in triggerRows)
+        var events = row.TriggerEvent switch
         {
-            var triggerName = Identifier.CreateQualifiedIdentifier(trig.TriggerName);
-            var queryTiming = Enum.TryParse(trig.Timing, true, out TriggerQueryTiming timing) ? timing : TriggerQueryTiming.Before;
-            var definition = trig.Definition;
+            Constants.Insert => TriggerEvent.Insert,
+            Constants.Update => TriggerEvent.Update,
+            Constants.Delete => TriggerEvent.Delete,
+            _ => TriggerEvent.Other,
+        };
 
-            var events = trig.TriggerEvent switch
-            {
-                Constants.Insert => TriggerEvent.Insert,
-                Constants.Update => TriggerEvent.Update,
-                Constants.Delete => TriggerEvent.Delete,
-                _ => TriggerEvent.Other,
-            };
-
-            var trigger = new MySqlDatabaseTrigger(triggerName, definition, queryTiming, events);
-            result.Add(trigger);
-        }
-
-        return result;
+        return new MySqlDatabaseTrigger(triggerName, row.Definition!, queryTiming, events);
     }
 
     /// <summary>
@@ -1047,11 +1047,9 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
         public const string No = "NO";
 
-        public const string PrimaryKey = "PRIMARY KEY";
+        public const string Partitioned = "partitioned";
 
         public const string StoredGenerated = "STORED GENERATED";
-
-        public const string Unique = "UNIQUE";
 
         public const string Update = "UPDATE";
     }

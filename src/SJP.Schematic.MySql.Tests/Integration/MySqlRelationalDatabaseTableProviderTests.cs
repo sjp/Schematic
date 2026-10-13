@@ -230,6 +230,16 @@ create table if not exists table_test_table_41 (
     index ix_test_table_41_1 (first_name desc){functionalIndexClause},
     index ix_test_table_41_3 (last_name(10))
 )", TestContext.CurrentContext.CancellationToken);
+        // A unique index over an expression is not a key, because a key is made of columns.
+        var functionalUniqueIndexClause = DatabaseProvider.SupportsFunctionalIndexes()
+            ? ",\n    unique index ux_test_table_42_2 ((lower(last_name)))"
+            : string.Empty;
+        await DbConnection.ExecuteAsync($@"
+create table if not exists table_test_table_42 (
+    first_name varchar(50) not null,
+    last_name varchar(50) not null,
+    constraint uk_test_table_42_1 unique (first_name){functionalUniqueIndexClause}
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_33 ( test_column int not null default 1 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_34 (
     test_column_1 int,
@@ -330,6 +340,7 @@ end
         "drop table if exists table_test_table_28",
         "drop table if exists table_test_table_37",
         "drop table if exists table_test_table_41",
+        "drop table if exists table_test_table_42",
         "drop table if exists table_test_table_15",
         "drop table if exists child_key_round_trip_child",
         "drop table if exists child_key_round_trip_other",
