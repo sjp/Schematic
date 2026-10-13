@@ -175,6 +175,8 @@ internal static partial class PostgreSqlDefaultValueParser
     [GeneratedRegex(@"^nextval\(\s*'(.*)'(::regclass)?\s*\)$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline, matchTimeoutMilliseconds: 100)]
     private static partial Regex NextValueRegex();
 
-    [GeneratedRegex(@"^(.*)::\s*[A-Za-z_][A-Za-z0-9_ ]*(\(\s*\d+\s*(,\s*\d+\s*)?\))?(\[\])*$", RegexOptions.Compiled | RegexOptions.Singleline, matchTimeoutMilliseconds: 100)]
+    // the type name is schema-qualified when it is not on the search path, e.g. an enum in another
+    // schema, and each part is double-quoted where it needs to be, e.g. 'a'::app."Mood"
+    [GeneratedRegex(@"^(.*)::\s*(?:(?:""(?:[^""]|"""")+""|[A-Za-z_][A-Za-z0-9_$]*)\.)?(?:""(?:[^""]|"""")+""|[A-Za-z_][A-Za-z0-9_ $]*)(\(\s*\d+\s*(,\s*\d+\s*)?\))?(\[\])*$", RegexOptions.Compiled | RegexOptions.Singleline, matchTimeoutMilliseconds: 100)]
     private static partial Regex TrailingCastRegex();
 }
