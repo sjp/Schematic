@@ -170,10 +170,9 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definitionAndOptions, triggers) = await (
+        var (columns, (definitionAndOptions, triggers)) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAndOptionsAsync(viewName, cancellationToken),
-            LoadTriggersAsync(viewName, cancellationToken)
+            LoadDefinitionOptionsAndTriggersAsync(viewName, cancellationToken)
         ).WhenAll();
 
         // PostgreSQL cannot index a plain view, only a materialized one.
@@ -213,8 +212,20 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
         return PostgreSqlCatalogMapper.MapTriggers(queryResult);
     }
 
-    // The definition and the options all come from the view's pg_class row, so they are read together.
-    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    // Most views have no triggers, so the trigger query only runs when the view's pg_class row says it may find some.
+    private async Task<((string? Definition, ViewCheckOption CheckOption, bool IsUpdatable) DefinitionAndOptions, IReadOnlyCollection<IDatabaseTrigger> Triggers)> LoadDefinitionOptionsAndTriggersAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, checkOption, isUpdatable, hasTriggers) = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+
+        var triggers = hasTriggers
+            ? await LoadTriggersAsync(viewName, cancellationToken)
+            : [];
+
+        return ((definition, checkOption, isUpdatable), triggers);
+    }
+
+    // The definition, the options and the trigger flag all come from the view's pg_class row, so they are read together.
+    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable, bool HasTriggers)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await DbConnection.QueryFirstOrNone(
             GetViewDefinition.Sql,
@@ -227,9 +238,10 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
             (
                 row.Definition,
                 CheckOptionMapping.TryGetValue(row.CheckOption, out var checkOption) ? checkOption : ViewCheckOption.None,
-                row.IsUpdatable
+                row.IsUpdatable,
+                row.HasTriggers
             ),
-            static () => ((string?)null, ViewCheckOption.None, false)
+            static () => ((string?)null, ViewCheckOption.None, false, false)
         );
     }
 

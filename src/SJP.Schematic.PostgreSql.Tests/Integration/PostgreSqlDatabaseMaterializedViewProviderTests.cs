@@ -346,8 +346,9 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         Assert.That(materializedView.IsPopulated, Is.False);
     }
 
-    // A materialized view load issues 4 queries: one to resolve the view's name, then its columns, its
-    // indexes, and its definition read together with whether it is populated.
+    // A materialized view load issues 3 queries: one to resolve the view's name, then its columns, and its
+    // definition read together with whether it is populated and whether it has indexes. A materialized
+    // view without indexes needs no index query.
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {
@@ -356,6 +357,19 @@ internal sealed class PostgreSqlDatabaseMaterializedViewProviderTests : PostgreS
         var viewProvider = new PostgreSqlDatabaseMaterializedViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
 
         _ = await viewProvider.GetView("matview_view_test_matview_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(3));
+    }
+
+    // A materialized view with indexes also issues the query for its indexes.
+    [Test]
+    public async Task GetView_WhenViewHasIndexes_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new PostgreSqlDatabaseMaterializedViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        _ = await viewProvider.GetView("matview_view_test_matview_3", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
         Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(4));
     }

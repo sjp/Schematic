@@ -170,10 +170,9 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definitionAndIsPopulated, indexRows) = await (
+        var (columns, (definitionAndIsPopulated, indexRows)) = await (
             LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken),
-            LoadIndexRowsAsync(viewName, cancellationToken)
+            LoadDefinitionIsPopulatedAndIndexRowsAsync(viewName, cancellationToken)
         ).WhenAll();
 
         var columnLookup = GetColumnLookup(columns);
@@ -203,8 +202,20 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
         );
     }
 
-    // The definition and the populated state are columns of the same pg_matviews row, so they are read together.
-    private async Task<(string? Definition, bool IsPopulated)> LoadDefinitionAndIsPopulatedAsync(Identifier viewName, CancellationToken cancellationToken)
+    // Many materialized views have no indexes, so the index query only runs when the pg_matviews row says it may find some.
+    private async Task<((string? Definition, bool IsPopulated) DefinitionAndIsPopulated, IEnumerable<GetTableIndexes.Result> IndexRows)> LoadDefinitionIsPopulatedAndIndexRowsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var (definition, isPopulated, hasIndexes) = await LoadDefinitionAndIsPopulatedAsync(viewName, cancellationToken);
+
+        var indexRows = hasIndexes
+            ? await LoadIndexRowsAsync(viewName, cancellationToken)
+            : [];
+
+        return ((definition, isPopulated), indexRows);
+    }
+
+    // The definition, the populated state and the index flag are columns of the same pg_matviews row, so they are read together.
+    private async Task<(string? Definition, bool IsPopulated, bool HasIndexes)> LoadDefinitionAndIsPopulatedAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await DbConnection.QueryFirstOrNone(
             GetMaterializedViewDefinition.Sql,
@@ -213,8 +224,8 @@ public class PostgreSqlDatabaseMaterializedViewProvider : IDatabaseViewProvider
         ).ToOption();
 
         return result.Match(
-            static row => (row.Definition, row.IsPopulated),
-            static () => ((string?)null, false)
+            static row => (row.Definition, row.IsPopulated, row.HasIndexes),
+            static () => ((string?)null, false, false)
         );
     }
 

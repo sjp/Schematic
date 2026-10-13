@@ -27,6 +27,12 @@ internal static class GetViewDefinition
         /// Whether rows can be both updated and deleted through the view.
         /// </summary>
         public required bool IsUpdatable { get; init; }
+
+        /// <summary>
+        /// Whether the view has, or recently had, any triggers. It is never <see langword="false" /> while
+        /// a trigger exists, but can stay <see langword="true" /> after the last one has been dropped.
+        /// </summary>
+        public required bool HasTriggers { get; init; }
     }
 
     // These are the expressions information_schema.views uses for view_definition, check_option and
@@ -42,7 +48,8 @@ select
         when 'check_option=local' = any(c.reloptions) then 'LOCAL'
         else 'NONE'
     end as "{nameof(Result.CheckOption)}",
-    (pg_catalog.pg_relation_is_updatable(c.oid::regclass, false) & 20) = 20 as "{nameof(Result.IsUpdatable)}"
+    (pg_catalog.pg_relation_is_updatable(c.oid::regclass, false) & 20) = 20 as "{nameof(Result.IsUpdatable)}",
+    c.relhastriggers as "{nameof(Result.HasTriggers)}"
 from pg_catalog.pg_class c
 inner join pg_catalog.pg_namespace ns on ns.oid = c.relnamespace
 where c.relkind = 'v' and ns.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}

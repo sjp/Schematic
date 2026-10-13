@@ -385,8 +385,9 @@ execute procedure query_view_test_trigger_fn()", TestContext.CurrentContext.Canc
         }
     }
 
-    // A view load issues 4 queries: one to resolve the view's name, then its columns, its INSTEAD OF
-    // triggers, and its definition read together with its check option and updatability.
+    // A view load issues 3 queries: one to resolve the view's name, then its columns, and its definition
+    // read together with its check option, updatability and whether it has triggers. A view without
+    // triggers needs no trigger query.
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {
@@ -395,6 +396,19 @@ execute procedure query_view_test_trigger_fn()", TestContext.CurrentContext.Canc
         var viewProvider = new PostgreSqlDatabaseQueryViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
 
         _ = await viewProvider.GetView("query_view_test_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(3));
+    }
+
+    // A view with triggers also issues the query for its INSTEAD OF triggers.
+    [Test]
+    public async Task GetView_WhenViewHasTriggers_IssuesExpectedNumberOfRoundTrips()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
+        var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
+        var viewProvider = new PostgreSqlDatabaseQueryViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
+
+        _ = await viewProvider.GetView("query_view_test_view_6", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
         Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(4));
     }

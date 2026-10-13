@@ -23,12 +23,20 @@ internal static class GetMaterializedViewDefinition
         /// cannot be queried until it has been refreshed.
         /// </summary>
         public required bool IsPopulated { get; init; }
+
+        /// <summary>
+        /// Whether the materialized view has, or recently had, any indexes. It is never
+        /// <see langword="false" /> while an index exists, but can stay <see langword="true" /> after the
+        /// last one has been dropped.
+        /// </summary>
+        public required bool HasIndexes { get; init; }
     }
 
     internal const string Sql = $"""
 select
     definition as "{nameof(Result.Definition)}",
-    ispopulated as "{nameof(Result.IsPopulated)}"
+    ispopulated as "{nameof(Result.IsPopulated)}",
+    hasindexes as "{nameof(Result.HasIndexes)}"
 from pg_catalog.pg_matviews
 where schemaname = @{nameof(Query.SchemaName)} and matviewname = @{nameof(Query.ViewName)}
 limit 1
