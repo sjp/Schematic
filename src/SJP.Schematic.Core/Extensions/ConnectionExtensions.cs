@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -94,7 +95,7 @@ public static class ConnectionExtensions
 
     private static IAsyncEnumerable<T> QueryEnumerableAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
     {
-        return QueryEnumerableWithRetryAsync(connectionFactory, connection => connection.QueryUnbufferedAsync<T>(sql), cancellationToken);
+        return QueryEnumerableWithRetryAsync(connectionFactory, connection => StreamAsync<T>(connection, sql, null, cancellationToken), cancellationToken);
     }
 
     /// <summary>
@@ -122,7 +123,7 @@ public static class ConnectionExtensions
     private static IAsyncEnumerable<T> QueryEnumerableAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<T> parameters, CancellationToken cancellationToken)
         where T : notnull
     {
-        return QueryEnumerableWithRetryAsync(connectionFactory, connection => connection.QueryUnbufferedAsync<T>(sql, parameters), cancellationToken);
+        return QueryEnumerableWithRetryAsync(connectionFactory, connection => StreamAsync<T>(connection, sql, parameters, cancellationToken), cancellationToken);
     }
 
     /// <summary>
@@ -376,7 +377,7 @@ public static class ConnectionExtensions
     private static Task<Option<T>> QuerySingleOrNoneAsyncCore<T>(IDbConnectionFactory connectionFactory, string sql, CancellationToken cancellationToken)
         where T : notnull
     {
-        var source = QueryEnumerableWithRetryAsync(connectionFactory, connection => connection.QueryUnbufferedAsync<T>(sql, commandType: CommandType.Text), cancellationToken);
+        var source = QueryEnumerableWithRetryAsync(connectionFactory, connection => StreamAsync<T>(connection, sql, null, cancellationToken), cancellationToken);
 
         return SingleOrNoneAsync(source, cancellationToken);
     }
@@ -405,7 +406,7 @@ public static class ConnectionExtensions
     private static Task<Option<TResult>> QuerySingleOrNoneAsyncCore<TResult>(IDbConnectionFactory connectionFactory, string sql, ISqlQuery<TResult> parameters, CancellationToken cancellationToken)
         where TResult : notnull
     {
-        var source = QueryEnumerableWithRetryAsync(connectionFactory, connection => connection.QueryUnbufferedAsync<TResult>(sql, parameters, commandType: CommandType.Text), cancellationToken);
+        var source = QueryEnumerableWithRetryAsync(connectionFactory, connection => StreamAsync<TResult>(connection, sql, parameters, cancellationToken), cancellationToken);
 
         return SingleOrNoneAsync(source, cancellationToken);
     }
@@ -554,6 +555,76 @@ public static class ConnectionExtensions
                 querySemaphore.Release();
 
             throw;
+        }
+    }
+
+    /// <summary>
+    /// Runs a query against an open connection and streams its rows, mapping each one as Dapper does.
+    /// </summary>
+    /// <remarks>
+    /// Dapper's unbuffered query cancels its command whenever the reader is still open once enumeration ends, which
+    /// it always is, even after every row has been read. Some drivers act on that cancel although nothing is running:
+    /// Npgsql opens a new connection to send a cancel request, and MySqlConnector opens one to send <c>KILL QUERY</c>.
+    /// The rows are therefore read here instead, and the command is cancelled only when enumeration stops early.
+    /// </remarks>
+    private static async IAsyncEnumerable<T> StreamAsync<T>(DbConnection connection, string sql, object? parameters, [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        var command = new CommandDefinition(sql, parameters, commandType: CommandType.Text, cancellationToken: cancellationToken);
+        var reader = await connection.ExecuteReaderAsync(command, CommandBehavior.SequentialAccess | CommandBehavior.SingleResult);
+
+        var readAllRows = false;
+        try
+        {
+            var parse = reader.GetRowParser<object?>(typeof(T));
+            while (await reader.ReadAsync(cancellationToken))
+                yield return ConvertValue<T>(parse(reader));
+
+            readAllRows = true;
+        }
+        finally
+        {
+            // otherwise disposing the reader would read all of the remaining rows
+            if (!readAllRows)
+                TryCancel(reader);
+
+            await reader.DisposeAsync();
+        }
+    }
+
+    private static void TryCancel(DbDataReader reader)
+    {
+        if (reader is not IWrappedDataReader { Command: { } command })
+            return;
+
+        try
+        {
+            command.Cancel();
+        }
+        catch (Exception ex) when (ex is DbException or InvalidOperationException or NotSupportedException)
+        {
+            // a failed cancel must not replace the exception, if any, that ended enumeration
+        }
+    }
+
+    /// <summary>
+    /// Converts a mapped value to the requested type, in the same way as Dapper's unbuffered query.
+    /// </summary>
+    /// <remarks>A row parser for a simple type returns the provider's value as is, e.g. a <see cref="long"/> for an <see cref="int"/> result.</remarks>
+    private static T ConvertValue<T>(object? value)
+    {
+        if (value is T result)
+            return result;
+        if (value is null && default(T) is null)
+            return default!;
+
+        try
+        {
+            var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            return (T)Convert.ChangeType(value, targetType, CultureInfo.InvariantCulture)!;
+        }
+        catch (Exception ex) when (ex is InvalidCastException or FormatException or OverflowException)
+        {
+            throw new DataException($"Unable to convert a value of type '{value?.GetType().FullName ?? "null"}' to '{typeof(T).FullName}'.", ex);
         }
     }
 

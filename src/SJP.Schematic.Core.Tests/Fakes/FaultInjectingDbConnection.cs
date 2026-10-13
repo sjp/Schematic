@@ -37,6 +37,16 @@ internal sealed class FaultInjector
     public int OpenCount { get; private set; }
 
     /// <summary>
+    /// The number of times a command has been asked to cancel.
+    /// </summary>
+    public int CancelCount { get; private set; }
+
+    /// <summary>
+    /// Records a command cancellation.
+    /// </summary>
+    public void RecordCancel() => CancelCount++;
+
+    /// <summary>
     /// Records a query execution, and determines whether this particular execution should fail.
     /// </summary>
     public bool BeginExecution()
@@ -205,7 +215,11 @@ internal sealed class FaultInjectingDbCommand : DbCommand
         set => _command.Transaction = value;
     }
 
-    public override void Cancel() => _command.Cancel();
+    public override void Cancel()
+    {
+        _injector.RecordCancel();
+        _command.Cancel();
+    }
 
     public override void Prepare() => _command.Prepare();
 
