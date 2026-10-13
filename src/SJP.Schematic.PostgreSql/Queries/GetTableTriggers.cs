@@ -37,7 +37,6 @@ internal static class GetTableTriggers
     // the planner from inlining it back into a separate call for each reference.
     // Triggers with none of the INSERT (4), DELETE (8), UPDATE (16) or TRUNCATE (32) bits set are left out.
     internal const string Sql = $"""
-
 select
     tr.tgname as "{nameof(Result.TriggerName)}",
     tr.tgenabled as "{nameof(Result.EnabledFlag)}",

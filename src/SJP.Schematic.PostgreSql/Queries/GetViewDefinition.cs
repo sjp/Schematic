@@ -35,7 +35,6 @@ internal static class GetViewDefinition
     // a privilege on, and returns a null definition for views the role does not own; pg_class does
     // neither, so such views report their options the same way they report their definition and columns.
     internal const string Sql = $"""
-
 select
     pg_catalog.pg_get_viewdef(c.oid) as "{nameof(Result.Definition)}",
     case

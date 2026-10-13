@@ -10,7 +10,6 @@ internal static class GetAllRoutineNames
     }
 
     internal const string Sql = $"""
-
 select distinct
     n.nspname as "{nameof(Result.SchemaName)}",
     p.proname as "{nameof(Result.RoutineName)}"

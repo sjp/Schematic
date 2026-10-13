@@ -17,7 +17,6 @@ internal static class GetViewTriggers
     // relkind 'm' is admitted purely so that the same query serves both view providers. Apart from the
     // relkind filter the query matches GetTableTriggers.Sql, which describes how its columns are built.
     internal const string Sql = $"""
-
 select
     tr.tgname as "{nameof(GetTableTriggers.Result.TriggerName)}",
     tr.tgenabled as "{nameof(GetTableTriggers.Result.EnabledFlag)}",

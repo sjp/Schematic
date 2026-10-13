@@ -26,7 +26,6 @@ internal static class GetTableOptions
     }
 
     internal const string Sql = $"""
-
 select
     t.relpersistence as "{nameof(Result.Persistence)}",
     t.relkind as "{nameof(Result.RelKind)}",

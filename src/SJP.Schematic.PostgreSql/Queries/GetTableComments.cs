@@ -20,8 +20,9 @@ internal static class GetTableComments
         public required string? Comment { get; init; }
     }
 
+    // One union all branch per kind of object that can carry a comment: the table, its columns, its
+    // check / foreign key / unique / primary key constraints, its indexes and its triggers.
     internal const string Sql = $"""
-
 with rel as materialized (
     select t.oid as reloid, t.relname
     from pg_catalog.pg_class t
@@ -31,7 +32,6 @@ with rel as materialized (
         and t.relname = @{nameof(Query.TableName)}
         and ns.nspname not in ('pg_catalog', 'information_schema')
 )
--- table
 select
     'TABLE' as "{nameof(Result.ObjectType)}",
     r.relname as "{nameof(Result.ObjectName)}",
@@ -44,7 +44,6 @@ left join pg_catalog.pg_description d
 
 union all
 
--- columns
 select
     'COLUMN' as "{nameof(Result.ObjectType)}",
     a.attname as "{nameof(Result.ObjectName)}",
@@ -59,7 +58,6 @@ left join pg_catalog.pg_description d
 
 union all
 
--- check / foreign key / unique / primary key constraints
 select
     case c.contype
         when 'c' then 'CHECK'
@@ -79,7 +77,6 @@ left join pg_catalog.pg_description d
 
 union all
 
--- indexes
 select
     'INDEX' as "{nameof(Result.ObjectType)}",
     ci.relname as "{nameof(Result.ObjectName)}",
@@ -94,7 +91,6 @@ left join pg_catalog.pg_description d
 
 union all
 
--- triggers
 select
     'TRIGGER' as "{nameof(Result.ObjectType)}",
     tr.tgname as "{nameof(Result.ObjectName)}",
@@ -105,6 +101,5 @@ left join pg_catalog.pg_description d
     on d.objoid = tr.oid
     and d.classoid = 'pg_catalog.pg_trigger'::regclass
     and d.objsubid = 0
-
 """;
 }

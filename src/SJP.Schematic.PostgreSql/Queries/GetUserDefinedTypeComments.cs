@@ -17,7 +17,6 @@ internal static class GetUserDefinedTypeComments
     }
 
     internal const string Sql = $"""
-
 select
     d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_type t

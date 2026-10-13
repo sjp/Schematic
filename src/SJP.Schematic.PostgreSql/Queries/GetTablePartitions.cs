@@ -20,7 +20,6 @@ internal static class GetTablePartitions
 
     // A partitioned table's children in pg_inherits are exactly its partitions.
     internal const string Sql = $"""
-
 select
     cns.nspname as "{nameof(Result.SchemaName)}",
     c.relname as "{nameof(Result.TableName)}"

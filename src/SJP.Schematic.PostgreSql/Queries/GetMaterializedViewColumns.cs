@@ -124,14 +124,21 @@ internal static class GetMaterializedViewColumns
         public string[]? EnumLabels { get; init; }
     }
 
+    // The relation lookup is fenced with "offset 0" so that it is planned on its own; see ColumnCatalogSql.
     internal const string Sql = $"""
-
 select
 {ColumnCatalogSql.SelectList}
-{ColumnCatalogSql.From}
+from (
+    select c.oid, c.relowner
+    from pg_catalog.pg_class c
+        inner join pg_catalog.pg_namespace nc on nc.oid = c.relnamespace
+    where c.relkind = 'm'
+        and nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
+        and not pg_catalog.pg_is_other_temp_schema(nc.oid)
+    offset 0
+) c
+{ColumnCatalogSql.Joins}
 where {ColumnCatalogSql.VisibleColumnsPredicate}
-    and c.relkind = 'm'
-    and nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.ViewName)}
 order by a.attnum
 """;
 }

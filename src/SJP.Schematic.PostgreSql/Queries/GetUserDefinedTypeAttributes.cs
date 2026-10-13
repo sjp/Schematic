@@ -54,8 +54,10 @@ internal static class GetUserDefinedTypeAttributes
         public required string? AttributeDefault { get; init; }
     }
 
+    // information_schema names an attribute's type as ARRAY or USER-DEFINED whenever it is not built
+    // in, so the type itself is resolved to learn what kind of type it is, what an array holds, and
+    // which labels an enum permits
     internal const string Sql = $"""
-
 select
     a.attribute_name as "{nameof(Result.AttributeName)}",
     a.data_type as "{nameof(Result.DataType)}",
@@ -75,9 +77,6 @@ select
     a.is_nullable as "{nameof(Result.IsNullable)}",
     a.attribute_default as "{nameof(Result.AttributeDefault)}"
 from information_schema.attributes a
--- information_schema names an attribute's type as ARRAY or USER-DEFINED whenever it is not built
--- in, so the type itself is resolved to learn what kind of type it is, what an array holds, and
--- which labels an enum permits
 left join pg_catalog.pg_namespace udt_ns on udt_ns.nspname = a.attribute_udt_schema
 left join pg_catalog.pg_type udt on udt.typnamespace = udt_ns.oid and udt.typname = a.attribute_udt_name
 left join pg_catalog.pg_type elem on elem.oid = udt.typelem

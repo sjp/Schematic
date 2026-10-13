@@ -20,7 +20,6 @@ internal static class GetAllUserDefinedTypeChecks
     }
 
     internal const string Sql = $"""
-
 select
     n.nspname as "{nameof(Result.SchemaName)}",
     t.typname as "{nameof(Result.TypeName)}",

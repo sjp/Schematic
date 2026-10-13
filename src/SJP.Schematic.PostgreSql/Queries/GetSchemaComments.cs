@@ -17,7 +17,6 @@ internal static class GetSchemaComments
     }
 
     internal const string Sql = $"""
-
 select
     n.nspname as "{nameof(Result.SchemaName)}",
     d.description as "{nameof(Result.Comment)}"

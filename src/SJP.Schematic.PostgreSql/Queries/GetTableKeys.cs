@@ -36,7 +36,6 @@ internal static class GetTableKeys
     }
 
     internal const string Sql = $"""
-
 select
     c.conname as "{nameof(Result.ConstraintName)}",
     c.contype::text as "{nameof(Result.KeyType)}",

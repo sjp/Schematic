@@ -19,7 +19,6 @@ internal static class GetTableName
     }
 
     internal const string Sql = $"""
-
 select
     ns.nspname as "{nameof(Result.SchemaName)}",
     t.relname as "{nameof(Result.TableName)}"

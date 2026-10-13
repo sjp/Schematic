@@ -12,7 +12,6 @@ internal static class GetAllSequenceComments
     }
 
     internal const string Sql = $"""
-
 select
     nc.nspname as "{nameof(Result.SchemaName)}",
     c.relname as "{nameof(Result.SequenceName)}",

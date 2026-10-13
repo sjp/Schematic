@@ -17,7 +17,6 @@ internal static class GetSequenceComments
     }
 
     internal const string Sql = $"""
-
 select
     d.description as "{nameof(Result.Comment)}"
 from pg_catalog.pg_namespace nc
@@ -30,6 +29,5 @@ where nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.Se
     and nc.nspname not in ('pg_catalog', 'information_schema')
     and c.relkind = 'S'
 limit 1
-
 """;
 }

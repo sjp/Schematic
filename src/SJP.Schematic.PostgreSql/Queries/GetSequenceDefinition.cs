@@ -35,7 +35,6 @@ internal static class GetSequenceDefinition
     // Reads the catalogs rather than pg_sequences: that view computes last_value for every row,
     // which locks and reads each sequence and can exhaust the lock table on large databases.
     internal const string Sql = $"""
-
 select
     n.nspname as "{nameof(Result.SchemaName)}",
     c.relname as "{nameof(Result.SequenceName)}",

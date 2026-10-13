@@ -19,7 +19,6 @@ internal static class GetAllTableStatistics
     // when the table has never been analysed, which is reported as an absent count rather than as
     // an empty table. A partitioned table stores nothing itself, so its sizes are zero.
     internal const string Sql = $"""
-
 select
     ns.nspname as "{nameof(Result.SchemaName)}",
     t.relname as "{nameof(Result.TableName)}",

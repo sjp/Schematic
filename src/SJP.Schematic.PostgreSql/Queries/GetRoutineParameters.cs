@@ -44,7 +44,6 @@ internal static class GetRoutineParameters
     // the array position when every argument is an input one - so the default is left unread
     // rather than misattributed when the routine mixes argument modes.
     internal const string Sql = $"""
-
 select
     p.oid as "{nameof(Result.RoutineOid)}",
     args.arg_position::int as "{nameof(Result.Ordinal)}",

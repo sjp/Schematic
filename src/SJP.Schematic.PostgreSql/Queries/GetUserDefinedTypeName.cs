@@ -19,7 +19,6 @@ internal static class GetUserDefinedTypeName
     }
 
     internal const string Sql = $"""
-
 select
     n.nspname as "{nameof(Result.SchemaName)}",
     t.typname as "{nameof(Result.TypeName)}"

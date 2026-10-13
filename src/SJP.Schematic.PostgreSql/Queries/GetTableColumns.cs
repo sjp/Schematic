@@ -174,8 +174,14 @@ internal static class GetTableColumns
         public string[]? EnumLabels { get; init; }
     }
 
+    // The relation lookup is fenced with "offset 0" so that it is planned on its own; see ColumnCatalogSql.
+    //
+    // The sequence behind a column is the one that depends on the column itself: automatically for a
+    // sequence owned by a serial column, internally for the one created for an identity column. This
+    // is the lookup pg_get_serial_sequence() performs, done by OID rather than by a name it would
+    // have to parse. Should a column own more than one sequence, the identity sequence and then the
+    // oldest sequence are preferred.
     internal const string Sql = $"""
-
 select
 {ColumnCatalogSql.SelectList},
     seq.schema_name as "{nameof(Result.SequenceSchemaName)}",
@@ -188,30 +194,32 @@ select
     a.attidentity::text as "{nameof(Result.IdentityKind)}",
     case when a.attgenerated <> '' then pg_catalog.pg_get_expr(ad.adbin, ad.adrelid) end as "{nameof(Result.GenerationExpression)}",
     a.attgenerated::text as "{nameof(Result.GenerationKind)}"
-{ColumnCatalogSql.From}
-    -- The sequence behind a column is the one that depends on the column itself: automatically for a
-    -- sequence owned by a serial column, internally for the one created for an identity column. This
-    -- is the lookup pg_get_serial_sequence() performs, done by OID rather than by a name it would
-    -- have to parse. Should a column own more than one sequence, the identity sequence and then the
-    -- oldest sequence are preferred.
-    left join lateral (
-        select seq_ns.nspname as schema_name, seq_cls.relname as sequence_name,
-            ps.seqstart, ps.seqincrement, ps.seqmin, ps.seqmax, ps.seqcycle
-        from pg_catalog.pg_depend dep
-            inner join pg_catalog.pg_class seq_cls on seq_cls.oid = dep.objid and seq_cls.relkind = 'S'
-            inner join pg_catalog.pg_namespace seq_ns on seq_ns.oid = seq_cls.relnamespace
-            inner join pg_catalog.pg_sequence ps on ps.seqrelid = seq_cls.oid
-        where dep.refclassid = 'pg_catalog.pg_class'::regclass
-            and dep.refobjid = a.attrelid
-            and dep.refobjsubid = a.attnum
-            and dep.classid = 'pg_catalog.pg_class'::regclass
-            and dep.deptype in ('a', 'i')
-        order by dep.deptype = 'i' desc, dep.objid
-        limit 1
-    ) seq on true
+from (
+    select c.oid, c.relowner
+    from pg_catalog.pg_class c
+        inner join pg_catalog.pg_namespace nc on nc.oid = c.relnamespace
+    where c.relkind in ('r', 'p')
+        and nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.TableName)}
+        and not pg_catalog.pg_is_other_temp_schema(nc.oid)
+    offset 0
+) c
+{ColumnCatalogSql.Joins}
+left join lateral (
+    select seq_ns.nspname as schema_name, seq_cls.relname as sequence_name,
+        ps.seqstart, ps.seqincrement, ps.seqmin, ps.seqmax, ps.seqcycle
+    from pg_catalog.pg_depend dep
+        inner join pg_catalog.pg_class seq_cls on seq_cls.oid = dep.objid and seq_cls.relkind = 'S'
+        inner join pg_catalog.pg_namespace seq_ns on seq_ns.oid = seq_cls.relnamespace
+        inner join pg_catalog.pg_sequence ps on ps.seqrelid = seq_cls.oid
+    where dep.refclassid = 'pg_catalog.pg_class'::regclass
+        and dep.refobjid = a.attrelid
+        and dep.refobjsubid = a.attnum
+        and dep.classid = 'pg_catalog.pg_class'::regclass
+        and dep.deptype in ('a', 'i')
+    order by dep.deptype = 'i' desc, dep.objid
+    limit 1
+) seq on true
 where {ColumnCatalogSql.VisibleColumnsPredicate}
-    and c.relkind in ('r', 'p')
-    and nc.nspname = @{nameof(Query.SchemaName)} and c.relname = @{nameof(Query.TableName)}
 order by a.attnum
 """;
 }

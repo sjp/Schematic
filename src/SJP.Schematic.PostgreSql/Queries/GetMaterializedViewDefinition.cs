@@ -26,7 +26,6 @@ internal static class GetMaterializedViewDefinition
     }
 
     internal const string Sql = $"""
-
 select
     definition as "{nameof(Result.Definition)}",
     ispopulated as "{nameof(Result.IsPopulated)}"

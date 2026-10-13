@@ -22,7 +22,6 @@ internal static class GetTableStatistics
 
     // See GetAllTableStatistics for what the catalog columns mean.
     internal const string Sql = $"""
-
 select
     cast(t.reltuples as bigint) as "{nameof(Result.RowCount)}",
     pg_catalog.pg_table_size(t.oid) as "{nameof(Result.DataSizeBytes)}",

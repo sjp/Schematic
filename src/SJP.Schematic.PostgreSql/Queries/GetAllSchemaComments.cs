@@ -10,7 +10,6 @@ internal static class GetAllSchemaComments
     }
 
     internal const string Sql = $"""
-
 select
     n.nspname as "{nameof(Result.SchemaName)}",
     d.description as "{nameof(Result.Comment)}"

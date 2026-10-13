@@ -25,7 +25,6 @@ internal static class GetUserDefinedTypeChecks
     }
 
     internal const string Sql = $"""
-
 select
     c.conname as "{nameof(Result.ConstraintName)}",
     pg_catalog.pg_get_constraintdef(c.oid) as "{nameof(Result.Definition)}",

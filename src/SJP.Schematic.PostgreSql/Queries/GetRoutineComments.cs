@@ -17,7 +17,6 @@ internal static class GetRoutineComments
     }
 
     internal const string Sql = $"""
-
 select
     (pg_catalog.array_agg(d.description order by (d.description is null), p.oid))[1] as "{nameof(Result.Comment)}"
 from pg_catalog.pg_proc p
@@ -29,6 +28,5 @@ left join pg_catalog.pg_description d
 where n.nspname = @{nameof(Query.SchemaName)} and p.proname = @{nameof(Query.RoutineName)}
     and n.nspname not in ('pg_catalog', 'information_schema')
 limit 1
-
 """;
 }

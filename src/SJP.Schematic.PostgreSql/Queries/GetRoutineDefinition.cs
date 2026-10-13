@@ -44,7 +44,6 @@ internal static class GetRoutineDefinition
     // the planner may evaluate a lateral subquery's select list before its WHERE clause, but a
     // CASE only evaluates the branch that applies.
     internal const string Sql = $"""
-
 select
     p.oid as "{nameof(Result.RoutineOid)}",
     case

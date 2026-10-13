@@ -14,7 +14,6 @@ internal static class GetAllSchemas
     // information_schema and everything prefixed with pg_ (pg_catalog, pg_toast, the per-session
     // pg_temp_* and pg_toast_temp_* namespaces) belong to the server rather than to a user.
     internal const string Sql = $"""
-
 select
     n.nspname as "{nameof(Result.SchemaName)}",
     pg_catalog.pg_get_userbyid(n.nspowner) as "{nameof(Result.OwnerName)}",

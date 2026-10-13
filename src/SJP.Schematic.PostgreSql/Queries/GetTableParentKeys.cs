@@ -59,50 +59,76 @@ internal static class GetTableParentKeys
         public required bool IsSetNullColumn { get; init; }
     }
 
+    // Each "offset 0" keeps the planner from flattening its lateral subquery into the enclosing join
+    // search, so that each per-constraint lookup is planned on its own. As one flat join the query
+    // takes many times longer to plan than to run. Removing a fence does not change the result.
+    //
+    // confdelsetcols (the column subset of ON DELETE SET NULL) only exists from PG 15. Reading it out of
+    // the row as jsonb keeps this query parseable on earlier versions, where the key is simply absent and
+    // every column reports false. to_jsonb() is cheap here because conbin, the only bulky pg_constraint
+    // column, is null for foreign keys.
+    //
+    // A foreign key's conindid is the OID of the unique index on the *referenced* table; that index may be
+    // backed by a pkey/unique constraint, or it may be a bare unique index with no backing constraint.
+    //
+    // conparentid = 0 excludes rows pg_constraint adds when the *referenced* table (confrelid) is
+    // partitioned: since PG 12, referencing a partitioned table clones one extra constraint row per
+    // partition of that table (addFkRecurseReferenced), all sharing this foreign key's name. Those
+    // clones' confrelid points at a partition, which is never resolvable as a table on its own.
     internal const string Sql = $"""
-
 select
     c.conname as "{nameof(Result.ChildKeyName)}",
-    tc.attname as "{nameof(Result.ColumnName)}",
-    child_cols.con_index as "{nameof(Result.ConstraintColumnId)}",
-    pns.nspname as "{nameof(Result.ParentSchemaName)}",
-    pt.relname as "{nameof(Result.ParentTableName)}",
-    coalesce(pkc.contype, 'u') as "{nameof(Result.ParentKeyType)}",
-    coalesce(pkc.conname, pki.relname) as "{nameof(Result.ParentKeyName)}",
+    cols.attname as "{nameof(Result.ColumnName)}",
+    cols.con_index as "{nameof(Result.ConstraintColumnId)}",
+    parent.nspname as "{nameof(Result.ParentSchemaName)}",
+    parent.relname as "{nameof(Result.ParentTableName)}",
+    parent_key.key_type as "{nameof(Result.ParentKeyType)}",
+    parent_key.key_name as "{nameof(Result.ParentKeyName)}",
     c.confupdtype as "{nameof(Result.UpdateAction)}",
     c.confdeltype as "{nameof(Result.DeleteAction)}",
     c.convalidated as "{nameof(Result.IsValidated)}",
     c.condeferrable as "{nameof(Result.IsDeferrable)}",
     c.condeferred as "{nameof(Result.IsInitiallyDeferred)}",
     c.confmatchtype as "{nameof(Result.MatchType)}",
-    case
-        when pg_catalog.jsonb_typeof(fk_extras.set_null_cols) = 'array'
-            then fk_extras.set_null_cols @> pg_catalog.to_jsonb(child_cols.attnum)
-        else false
-    end as "{nameof(Result.IsSetNullColumn)}"
-from pg_catalog.pg_namespace ns
-inner join pg_catalog.pg_class t on ns.oid = t.relnamespace
--- conparentid = 0 excludes rows pg_constraint adds when the *referenced* table (confrelid) is
--- partitioned: since PG 12, referencing a partitioned table clones one extra constraint row per
--- partition of that table (addFkRecurseReferenced), all sharing this foreign key's name. Those
--- clones' confrelid points at a partition, which is never resolvable as a table on its own.
-inner join pg_catalog.pg_constraint c on c.conrelid = t.oid and c.contype = 'f' and c.conparentid = 0
--- confdelsetcols (the column subset of ON DELETE SET NULL) only exists from PG 15. Reading it out of
--- the row as jsonb keeps this query parseable on earlier versions, where the key is simply absent and
--- every column reports false. to_jsonb() is cheap here because conbin, the only bulky pg_constraint
--- column, is null for foreign keys.
-cross join lateral (select pg_catalog.to_jsonb(c) -> 'confdelsetcols' as set_null_cols) fk_extras
-cross join pg_catalog.unnest(c.conkey) with ordinality as child_cols(attnum, con_index)
-inner join pg_catalog.pg_attribute tc on tc.attrelid = t.oid and tc.attnum = child_cols.attnum
-inner join pg_catalog.pg_class pt on pt.oid = c.confrelid
-inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
--- a foreign key's conindid is the OID of the unique index on the *referenced* table; that index may be
--- backed by a pkey/unique constraint, or it may be a bare unique index with no backing constraint
-inner join pg_catalog.pg_class pki on pki.oid = c.conindid
-left join pg_catalog.pg_constraint pkc
-    on pkc.conindid = c.conindid
-    and pkc.conrelid = c.confrelid
-    and pkc.contype in ('p', 'u')
-where t.relname = @{nameof(Query.TableName)} and ns.nspname = @{nameof(Query.SchemaName)}
+    cols.is_set_null as "{nameof(Result.IsSetNullColumn)}"
+from pg_catalog.pg_constraint c
+cross join lateral (
+    select
+        tc.attname,
+        child_cols.con_index,
+        case
+            when pg_catalog.jsonb_typeof(fk_extras.set_null_cols) = 'array'
+                then fk_extras.set_null_cols @> pg_catalog.to_jsonb(child_cols.attnum)
+            else false
+        end as is_set_null
+    from (select pg_catalog.to_jsonb(c) -> 'confdelsetcols' as set_null_cols) fk_extras
+        cross join pg_catalog.unnest(c.conkey) with ordinality as child_cols(attnum, con_index)
+        inner join pg_catalog.pg_attribute tc on tc.attrelid = c.conrelid and tc.attnum = child_cols.attnum
+    offset 0
+) cols
+cross join lateral (
+    select pns.nspname, pt.relname
+    from pg_catalog.pg_class pt
+        inner join pg_catalog.pg_namespace pns on pns.oid = pt.relnamespace
+    where pt.oid = c.confrelid
+    offset 0
+) parent
+cross join lateral (
+    select coalesce(pkc.contype, 'u') as key_type, coalesce(pkc.conname, pki.relname) as key_name
+    from pg_catalog.pg_class pki
+        left join pg_catalog.pg_constraint pkc
+            on pkc.conindid = pki.oid
+            and pkc.conrelid = c.confrelid
+            and pkc.contype in ('p', 'u')
+    where pki.oid = c.conindid
+    offset 0
+) parent_key
+where c.conrelid = (
+    select t.oid
+    from pg_catalog.pg_class t
+        inner join pg_catalog.pg_namespace ns on ns.oid = t.relnamespace
+    where t.relname = @{nameof(Query.TableName)} and ns.nspname = @{nameof(Query.SchemaName)}
+)
+    and c.contype = 'f' and c.conparentid = 0
 """;
 }

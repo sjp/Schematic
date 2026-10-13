@@ -20,8 +20,8 @@ internal static class GetMaterializedViewComments
         public required string? Comment { get; init; }
     }
 
+    // One union all branch per kind of object that can carry a comment: the view and its columns.
     internal const string Sql = $"""
-
 with rel as materialized (
     select c.oid as reloid, c.relname
     from pg_catalog.pg_class c
@@ -31,7 +31,6 @@ with rel as materialized (
         and c.relname = @{nameof(Query.ViewName)}
         and n.nspname not in ('pg_catalog', 'information_schema')
 )
--- view
 select
     'VIEW' as "{nameof(Result.ObjectType)}",
     r.relname as "{nameof(Result.ObjectName)}",
@@ -44,7 +43,6 @@ left join pg_catalog.pg_description d
 
 union all
 
--- columns
 select
     'COLUMN' as "{nameof(Result.ObjectType)}",
     a.attname as "{nameof(Result.ObjectName)}",
@@ -56,6 +54,5 @@ left join pg_catalog.pg_description d
     on d.objoid = r.reloid
     and d.classoid = 'pg_catalog.pg_class'::regclass
     and d.objsubid = a.attnum
-
 """;
 }
