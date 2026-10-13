@@ -40,6 +40,18 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
 RETURNS integer AS $$ SELECT val $$
 LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("CREATE AGGREGATE db_test_routine_5(integer) (SFUNC = int4pl, STYPE = integer, INITCOND = '0')", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"CREATE PROCEDURE db_test_routine_6(INOUT a integer, OUT b integer, c integer DEFAULT 5)
+AS $$ SELECT a, c $$
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_7(OUT x integer, a integer DEFAULT 1, OUT y text, b text DEFAULT 'q')
+AS $$ SELECT a, b $$
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_8(a integer, VARIADIC v integer[] DEFAULT ARRAY[1, 2])
+RETURNS integer AS $$ SELECT a $$
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"CREATE FUNCTION db_test_routine_9()
+RETURNS integer AS $$ SELECT 1 $$
+LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -49,7 +61,11 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         "drop function db_test_routine_3(integer)",
         "drop function db_test_routine_3(text)",
         "drop function db_test_routine_4",
-        "drop aggregate db_test_routine_5(integer)");
+        "drop aggregate db_test_routine_5(integer)",
+        "drop procedure db_test_routine_6",
+        "drop function db_test_routine_7",
+        "drop function db_test_routine_8",
+        "drop function db_test_routine_9");
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {
@@ -308,6 +324,65 @@ LANGUAGE SQL", TestContext.CurrentContext.CancellationToken);
         var routine = await GetRoutineAsync("db_test_routine_4");
 
         Assert.That(routine.Parameters.Single().DefaultValue.UnwrapSome(), Is.EqualTo("42"));
+    }
+
+    [Test]
+    public async Task Parameters_GivenProcedureWithOutputParametersBeforeDefaultedParameter_ReturnsDefaultValue()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_6");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameters, Has.Count.EqualTo(3));
+            Assert.That(parameters[0].Direction, Is.EqualTo(RoutineParameterDirection.InputOutput));
+            Assert.That(parameters[0].DefaultValue, OptionIs.None);
+            Assert.That(parameters[1].Direction, Is.EqualTo(RoutineParameterDirection.Output));
+            Assert.That(parameters[1].DefaultValue, OptionIs.None);
+            Assert.That(parameters[2].Name.UnwrapSome().LocalName, Is.EqualTo("c"));
+            Assert.That(parameters[2].Direction, Is.EqualTo(RoutineParameterDirection.Input));
+            Assert.That(parameters[2].DefaultValue.UnwrapSome(), Is.EqualTo("5"));
+        }
+    }
+
+    [Test]
+    public async Task Parameters_GivenFunctionWithOutputParametersAroundDefaultedParameters_ReturnsEachDefaultValue()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_7");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameters.Select(static p => p.Name.UnwrapSome().LocalName), Is.EqualTo(new[] { "x", "a", "y", "b" }));
+            Assert.That(parameters.Select(static p => p.Ordinal), Is.EqualTo(new[] { 1, 2, 3, 4 }));
+            Assert.That(parameters[0].DefaultValue, OptionIs.None);
+            Assert.That(parameters[1].DefaultValue.UnwrapSome(), Is.EqualTo("1"));
+            Assert.That(parameters[2].DefaultValue, OptionIs.None);
+            Assert.That(parameters[3].DefaultValue.UnwrapSome(), Is.EqualTo("'q'::text"));
+        }
+    }
+
+    [Test]
+    public async Task Parameters_GivenFunctionWithDefaultedVariadicParameter_ReturnsDefaultValue()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_8");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameters, Has.Count.EqualTo(2));
+            Assert.That(parameters[0].DefaultValue, OptionIs.None);
+            Assert.That(parameters[1].Type.TypeName.LocalName, Is.EqualTo("_int4"));
+            Assert.That(parameters[1].DefaultValue.UnwrapSome(), Is.EqualTo("ARRAY[1, 2]"));
+        }
+    }
+
+    [Test]
+    public async Task Parameters_GivenRoutineWithNoParameters_ReturnsEmpty()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_9");
+
+        Assert.That(routine.Parameters, Is.Empty);
     }
 
     [Test]

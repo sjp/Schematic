@@ -163,29 +163,12 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var (overloadRows, parameterRows) = await (
-            LoadOverloadRowsAsync(routineName, cancellationToken),
-            Connection.QueryAsync(
-                GetRoutineParameters.Sql,
-                new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-                cancellationToken
-            )
-        ).WhenAll();
-
-        // the query returns each overload's parameters in signature order, which grouping preserves
-        var parametersByRoutine = parameterRows
-            .GroupBy(static row => row.RoutineOid)
-            .ToDictionary(
-                static rows => rows.Key,
-                rows => rows.Select(BuildParameter).ToList()
-            );
+        var overloadRows = await LoadOverloadRowsAsync(routineName, cancellationToken);
 
         var overloads = overloadRows
             .Select(row => new DatabaseRoutineOverload(
                 row.Definition!,
-                parametersByRoutine.TryGetValue(row.RoutineOid, out var parameters)
-                    ? parameters
-                    : [],
+                BuildParameters(row),
                 GetReturnType(row)
             ))
             .ToList();
@@ -213,19 +196,29 @@ public class PostgreSqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         );
     }
 
-    private IDatabaseRoutineParameter BuildParameter(GetRoutineParameters.Result row)
+    private IReadOnlyList<IDatabaseRoutineParameter> BuildParameters(GetRoutineDefinition.Result row)
     {
-        var parameterName = !row.ParameterName.IsNullOrWhiteSpace()
-            ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ParameterName))
-            : Option<Identifier>.None;
+        // the parameter arrays are parallel, and all null when the overload takes no parameters
+        var ordinals = row.ParameterOrdinals;
+        if (ordinals == null || ordinals.Length == 0)
+            return [];
 
-        return new DatabaseRoutineParameter(
-            parameterName,
-            CreateArgumentType(row.TypeSchema, row.TypeName),
-            GetParameterDirection(row.ParameterMode),
-            !row.DefaultValue.IsNullOrWhiteSpace() ? Option<string>.Some(row.DefaultValue) : Option<string>.None,
-            row.Ordinal
-        );
+        var parameters = new IDatabaseRoutineParameter[ordinals.Length];
+        for (var i = 0; i < ordinals.Length; i++)
+        {
+            var parameterName = row.ParameterNames![i];
+            var defaultValue = row.ParameterDefaults![i];
+
+            parameters[i] = new DatabaseRoutineParameter(
+                !parameterName.IsNullOrWhiteSpace() ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(parameterName)) : Option<Identifier>.None,
+                CreateArgumentType(row.ParameterTypeSchemas![i], row.ParameterTypeNames![i]),
+                GetParameterDirection(row.ParameterModes![i]),
+                !defaultValue.IsNullOrWhiteSpace() ? Option<string>.Some(defaultValue) : Option<string>.None,
+                ordinals[i]
+            );
+        }
+
+        return parameters;
     }
 
     private Option<IDbType> GetReturnType(GetRoutineDefinition.Result row)
