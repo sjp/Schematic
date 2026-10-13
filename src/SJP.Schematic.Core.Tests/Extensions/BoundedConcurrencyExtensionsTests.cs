@@ -200,19 +200,26 @@ internal static class BoundedConcurrencyExtensionsTests
         const int window = 4;
         var tokens = new List<CancellationToken>();
         var completedCount = 0;
+        var allStarted = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
 
         var source = Enumerable.Range(0, 100);
         var results = source.SelectOrderedPrefetchAsync(
             async (i, ct) =>
             {
                 lock (tokens)
+                {
                     tokens.Add(ct);
+                    if (tokens.Count == window)
+                        allStarted.SetResult();
+                }
 
                 try
                 {
-                    // only the first item finishes promptly; the rest wait until they are cancelled
+                    // only the first item finishes, once the whole window has started; the rest wait until they are cancelled
                     if (i > 0)
                         await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                    else
+                        await allStarted.Task.WaitAsync(ct);
                     return i;
                 }
                 finally
@@ -232,6 +239,28 @@ internal static class BoundedConcurrencyExtensionsTests
             Assert.That(tokens.Select(static t => t.IsCancellationRequested), Is.All.True);
             Assert.That(completedCount, Is.EqualTo(window));
         }
+    }
+
+    [Test]
+    public static async Task SelectOrderedPrefetchAsync_GivenSynchronouslyCompletingSelector_RunsUpToWindowConcurrently()
+    {
+        const int window = 3;
+        using var allStarted = new CountdownEvent(window);
+
+        // each selector blocks without awaiting until the whole window has started, so it only succeeds when the
+        // selectors are not run one after another on the consumer's thread
+        var results = await Enumerable.Range(0, window)
+            .SelectOrderedPrefetchAsync(
+                (_, _) =>
+                {
+                    allStarted.Signal();
+                    return Task.FromResult(allStarted.Wait(TimeSpan.FromSeconds(5)));
+                },
+                window,
+                TestContext.CurrentContext.CancellationToken)
+            .ToListAsync(TestContext.CurrentContext.CancellationToken);
+
+        Assert.That(results, Is.All.True);
     }
 
     [Test]

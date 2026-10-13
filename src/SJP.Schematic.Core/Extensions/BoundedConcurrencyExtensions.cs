@@ -65,6 +65,7 @@ public static class BoundedConcurrencyExtensions
     /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="selector"/> is <see langword="null" />.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="window"/> is zero or negative.</exception>
     /// <remarks>
+    /// Each selector runs on the thread pool, so selectors that complete synchronously still run concurrently.
     /// Up to <paramref name="window"/> selectors are started ahead of the consumer asking for them, so a consumer
     /// that stops enumerating early wastes up to <paramref name="window"/> operations. If the caller stops early or
     /// an item throws, every task still in the window is cancelled and awaited (its result, or exception, is
@@ -90,12 +91,15 @@ public static class BoundedConcurrencyExtensions
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var token = cts.Token;
         var pending = new Queue<Task<TResult>>(window);
         try
         {
             foreach (var item in source)
             {
-                pending.Enqueue(selector(item, cts.Token));
+                // run on the thread pool so a selector that completes synchronously does not run on the consumer's
+                // thread and serialise the window; passing the token means an item cancelled before it starts never runs
+                pending.Enqueue(Task.Run(() => selector(item, token), token));
                 if (pending.Count >= window)
                     yield return await pending.Dequeue();
             }
