@@ -1196,4 +1196,40 @@ internal static class RelationalDatabaseCommentProviderTests
             typeComments
         );
     }
+
+    [Test]
+    public static void Ctor_GivenTableCommentsWithNullElement_ThrowsArgumentNullException()
+    {
+        Assert.That(
+            () => new RelationalDatabaseCommentProvider(
+                new IdentifierDefaults("test_server", "test_database", "test_schema"),
+                new VerbatimIdentifierResolutionStrategy(),
+                new IRelationalDatabaseTableComments[] { null },
+                [],
+                [],
+                [],
+                []
+            ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableComments")
+        );
+    }
+
+    [Test]
+    public static void Ctor_GivenSchemaCommentsWithNullElement_ThrowsArgumentNullException()
+    {
+        Assert.That(
+            () => new RelationalDatabaseCommentProvider(
+                new IdentifierDefaults("test_server", "test_database", "test_schema"),
+                new VerbatimIdentifierResolutionStrategy(),
+                [],
+                [],
+                [],
+                [],
+                [],
+                [],
+                new IDatabaseSchemaComments[] { null }
+            ),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("schemaComments")
+        );
+    }
 }

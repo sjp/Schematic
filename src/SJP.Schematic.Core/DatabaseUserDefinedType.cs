@@ -58,19 +58,16 @@ public class DatabaseUserDefinedType : IDatabaseUserDefinedType
     {
         if (!kind.IsValid())
             throw new ArgumentException($"The {nameof(UserDefinedTypeKind)} provided must be a valid enum.", nameof(kind));
-        if (enumValues.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(enumValues));
-        if (attributes.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(attributes));
-        if (checks.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(checks));
+        var enumValuesCopy = enumValues.ToDefensiveCopy(nameof(enumValues));
+        var attributesCopy = attributes.ToDefensiveCopy(nameof(attributes));
+        var checksCopy = checks.ToDefensiveCopy(nameof(checks));
 
         Name = typeName ?? throw new ArgumentNullException(nameof(typeName));
         Kind = kind;
         BaseType = baseType;
-        EnumValues = enumValues;
-        Attributes = attributes;
-        Checks = checks;
+        EnumValues = enumValuesCopy;
+        Attributes = attributesCopy;
+        Checks = checksCopy;
         IsNullable = isNullable;
         DefaultValue = defaultValue;
         Definition = definition;

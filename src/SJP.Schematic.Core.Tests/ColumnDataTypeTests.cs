@@ -233,4 +233,16 @@ internal static class ColumnDataTypeTests
             () => CreateDataType(dataType: DataType.DateTime, fractionalSecondsPrecision: -1),
             Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("fractionalSecondsPrecision"));
     }
+
+    [Test]
+    public static void EnumValues_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
+    {
+        var enumValues = new[] { "small", "medium" };
+
+        var dataType = CreateDataType(enumValues: enumValues, dataType: DataType.Enum);
+
+        enumValues[0] = "large";
+
+        Assert.That(dataType.EnumValues, Is.EqualTo(new[] { "small", "medium" }));
+    }
 }

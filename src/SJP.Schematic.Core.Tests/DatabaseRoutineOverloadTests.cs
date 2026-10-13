@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -87,5 +88,17 @@ internal static class DatabaseRoutineOverloadTests
         var overload = new DatabaseRoutineOverload(Definition, [parameter], Option<IDbType>.None);
 
         Assert.That(overload.ToString(), Is.EqualTo("Overload: (integer)"));
+    }
+
+    [Test]
+    public static void Parameters_WhenSourceCollectionMutatedAfterConstruction_RemainsUnchanged()
+    {
+        var parameters = new List<IDatabaseRoutineParameter> { Mock.Of<IDatabaseRoutineParameter>() };
+
+        var overload = new DatabaseRoutineOverload(Definition, parameters, Option<IDbType>.None);
+
+        parameters.Add(Mock.Of<IDatabaseRoutineParameter>());
+
+        Assert.That(overload.Parameters, Has.Count.EqualTo(1));
     }
 }

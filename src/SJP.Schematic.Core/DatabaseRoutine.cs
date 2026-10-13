@@ -78,18 +78,16 @@ public class DatabaseRoutine : IDatabaseRoutine
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
         if (!routineType.IsValid())
             throw new ArgumentException($"The {nameof(RoutineType)} provided must be a valid enum.", nameof(routineType));
-        if (parameters.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(parameters));
-        if (overloads.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(overloads));
+        var parametersCopy = parameters.ToDefensiveCopy(nameof(parameters));
+        var overloadsCopy = overloads.ToDefensiveCopy(nameof(overloads));
 
         Name = routineName ?? throw new ArgumentNullException(nameof(routineName));
         Definition = definition;
         RoutineType = routineType;
         Language = language;
-        Parameters = parameters;
+        Parameters = parametersCopy;
         ReturnType = returnType;
-        Overloads = overloads;
+        Overloads = overloadsCopy;
     }
 
     /// <summary>

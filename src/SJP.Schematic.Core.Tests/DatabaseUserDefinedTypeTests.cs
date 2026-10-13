@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using LanguageExt;
+using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
 
@@ -139,5 +140,26 @@ internal static class DatabaseUserDefinedTypeTests
         var userDefinedType = new DatabaseUserDefinedType(typeName, UserDefinedTypeKind.Alias, Option<IDbType>.None);
 
         Assert.That(userDefinedType.ToString(), Is.EqualTo(expectedOutput));
+    }
+
+    [Test]
+    public static void Collections_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
+    {
+        var enumValues = new List<string> { "small" };
+        var attributes = new List<IDatabaseColumn> { Mock.Of<IDatabaseColumn>() };
+        var checks = new List<IDatabaseCheckConstraint> { Mock.Of<IDatabaseCheckConstraint>() };
+
+        var userDefinedType = new DatabaseUserDefinedType("test_type", UserDefinedTypeKind.Composite, Option<IDbType>.None, enumValues, attributes, checks, true, Option<string>.None, Option<string>.None);
+
+        enumValues.Add("large");
+        attributes.Add(Mock.Of<IDatabaseColumn>());
+        checks.Add(Mock.Of<IDatabaseCheckConstraint>());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(userDefinedType.EnumValues, Is.EqualTo(new[] { "small" }));
+            Assert.That(userDefinedType.Attributes, Has.Count.EqualTo(1));
+            Assert.That(userDefinedType.Checks, Has.Count.EqualTo(1));
+        }
     }
 }

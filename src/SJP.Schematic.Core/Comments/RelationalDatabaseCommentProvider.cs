@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
 
 namespace SJP.Schematic.Core.Comments;
@@ -32,7 +33,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="sequenceComments">A collection of database sequence comment information.</param>
     /// <param name="synonymComments">A collection of database synonym comment information.</param>
     /// <param name="routineComments">A collection of database routine comment information.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/> or <paramref name="routineComments"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/> or <paramref name="routineComments"/> is <see langword="null" />, or one of the collections contains a <see langword="null" /> element.</exception>
     public RelationalDatabaseCommentProvider(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -57,7 +58,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="synonymComments">A collection of database synonym comment information.</param>
     /// <param name="routineComments">A collection of database routine comment information.</param>
     /// <param name="userDefinedTypeComments">A collection of database user-defined type comment information.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/>, <paramref name="routineComments"/> or <paramref name="userDefinedTypeComments"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/>, <paramref name="routineComments"/> or <paramref name="userDefinedTypeComments"/> is <see langword="null" />, or one of the collections contains a <see langword="null" /> element.</exception>
     public RelationalDatabaseCommentProvider(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -84,7 +85,7 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     /// <param name="routineComments">A collection of database routine comment information.</param>
     /// <param name="userDefinedTypeComments">A collection of database user-defined type comment information.</param>
     /// <param name="schemaComments">A collection of database schema comment information.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/>, <paramref name="routineComments"/>, <paramref name="userDefinedTypeComments"/> or <paramref name="schemaComments"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/>, <paramref name="identifierResolver"/>, <paramref name="tableComments"/>, <paramref name="viewComments"/>, <paramref name="sequenceComments"/>, <paramref name="synonymComments"/>, <paramref name="routineComments"/>, <paramref name="userDefinedTypeComments"/> or <paramref name="schemaComments"/> is <see langword="null" />, or one of the collections contains a <see langword="null" /> element.</exception>
     public RelationalDatabaseCommentProvider(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -99,13 +100,13 @@ public class RelationalDatabaseCommentProvider : IRelationalDatabaseCommentProvi
     {
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
         IdentifierResolver = identifierResolver ?? throw new ArgumentNullException(nameof(identifierResolver));
-        TableComments = tableComments?.ToList() ?? throw new ArgumentNullException(nameof(tableComments));
-        ViewComments = viewComments?.ToList() ?? throw new ArgumentNullException(nameof(viewComments));
-        SequenceComments = sequenceComments?.ToList() ?? throw new ArgumentNullException(nameof(sequenceComments));
-        SynonymComments = synonymComments?.ToList() ?? throw new ArgumentNullException(nameof(synonymComments));
-        RoutineComments = routineComments?.ToList() ?? throw new ArgumentNullException(nameof(routineComments));
-        UserDefinedTypeComments = userDefinedTypeComments?.ToList() ?? throw new ArgumentNullException(nameof(userDefinedTypeComments));
-        SchemaComments = schemaComments?.ToList() ?? throw new ArgumentNullException(nameof(schemaComments));
+        TableComments = tableComments.ToDefensiveCopy(nameof(tableComments));
+        ViewComments = viewComments.ToDefensiveCopy(nameof(viewComments));
+        SequenceComments = sequenceComments.ToDefensiveCopy(nameof(sequenceComments));
+        SynonymComments = synonymComments.ToDefensiveCopy(nameof(synonymComments));
+        RoutineComments = routineComments.ToDefensiveCopy(nameof(routineComments));
+        UserDefinedTypeComments = userDefinedTypeComments.ToDefensiveCopy(nameof(userDefinedTypeComments));
+        SchemaComments = schemaComments.ToDefensiveCopy(nameof(schemaComments));
 
         _tableCommentsByName = BuildLookup(TableComments, static c => c.TableName);
         _viewCommentsByName = BuildLookup(ViewComments, static c => c.ViewName);

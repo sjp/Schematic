@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using Moq;
 using NUnit.Framework;
@@ -160,6 +161,24 @@ internal static class DatabaseRoutineTests
             Assert.That(routine.Parameters, Is.EqualTo(new[] { parameter }));
             Assert.That(routine.ReturnType.UnwrapSome(), Is.EqualTo(returnDbType));
             Assert.That(routine.Overloads, Is.EqualTo(new[] { overload }));
+        }
+    }
+
+    [Test]
+    public static void Collections_WhenSourceCollectionsMutatedAfterConstruction_RemainUnchanged()
+    {
+        var parameters = new List<IDatabaseRoutineParameter> { Mock.Of<IDatabaseRoutineParameter>() };
+        var overloads = new List<IDatabaseRoutineOverload> { Mock.Of<IDatabaseRoutineOverload>() };
+
+        var routine = new DatabaseRoutine("test_routine", "create function test_function...", RoutineType.Function, Option<string>.None, parameters, Option<IDbType>.None, overloads);
+
+        parameters.Add(Mock.Of<IDatabaseRoutineParameter>());
+        overloads.Add(Mock.Of<IDatabaseRoutineOverload>());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routine.Parameters, Has.Count.EqualTo(1));
+            Assert.That(routine.Overloads, Has.Count.EqualTo(1));
         }
     }
 }

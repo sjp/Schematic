@@ -26,11 +26,8 @@ public class DatabaseRoutineOverload : IDatabaseRoutineOverload
     public DatabaseRoutineOverload(string definition, IReadOnlyList<IDatabaseRoutineParameter> parameters, Option<IDbType> returnType)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
-        if (parameters.NullOrAnyNull())
-            throw new ArgumentNullException(nameof(parameters));
-
         Definition = definition;
-        Parameters = parameters;
+        Parameters = parameters.ToDefensiveCopy(nameof(parameters));
         ReturnType = returnType;
     }
 

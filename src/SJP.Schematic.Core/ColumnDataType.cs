@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EnumsNET;
 using LanguageExt;
+using SJP.Schematic.Core.Extensions;
 
 namespace SJP.Schematic.Core;
 
@@ -80,9 +80,7 @@ public class ColumnDataType : IDbType
     )
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(definition);
-        ArgumentNullException.ThrowIfNull(enumValues);
-        if (enumValues.Any(static v => v == null))
-            throw new ArgumentNullException(nameof(enumValues), "An enum value was null. A null enum value is not supported.");
+        var enumValuesCopy = enumValues.ToDefensiveCopy(nameof(enumValues));
 
         if (!dataType.IsValid())
             throw new ArgumentException($"The {nameof(DataType)} provided must be a valid enum.", nameof(dataType));
@@ -102,7 +100,7 @@ public class ColumnDataType : IDbType
         Collation = collation;
         FractionalSecondsPrecision = fractionalSecondsPrecision;
         ElementType = elementType;
-        EnumValues = enumValues;
+        EnumValues = enumValuesCopy;
         BaseType = baseType;
         IsUnsigned = isUnsigned;
     }
