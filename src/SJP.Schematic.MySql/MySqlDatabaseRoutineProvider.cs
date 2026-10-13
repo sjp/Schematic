@@ -65,6 +65,8 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             )
+            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
@@ -87,6 +89,8 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             )
+            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
@@ -162,9 +166,10 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Where(static row => row.Ordinal == 0)
             .Select(GetParameterType)
             .HeadOrNone();
-        // the query returns parameters in signature order
+        // the query is unordered, see its comment
         var parameters = parameterRows
             .Where(static row => row.Ordinal > 0)
+            .OrderBy(static row => row.Ordinal)
             .Select(BuildParameter)
             .ToList();
 

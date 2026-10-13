@@ -40,6 +40,8 @@ internal static class GetRoutineParameters
         public required string? Collation { get; init; }
     }
 
+    // No "order by": on MariaDB any ordering over information_schema.parameters disables the
+    // schema/name lookup, so every routine on the server is read and parsed. Callers sort by ordinal.
     internal const string Sql = $"""
 
 select
@@ -53,6 +55,5 @@ select
     collation_name as `{nameof(Result.Collation)}`
 from information_schema.parameters
 where specific_schema = @{nameof(Query.SchemaName)} and specific_name = @{nameof(Query.RoutineName)}
-order by ordinal_position
 """;
 }

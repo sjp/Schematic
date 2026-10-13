@@ -16,6 +16,8 @@ internal static class GetAllRoutineNames
         public required string RoutineName { get; init; }
     }
 
+    // No "order by": on MariaDB any ordering over information_schema.routines disables the
+    // schema lookup, so every routine on the server is read. Callers sort the names.
     internal const string Sql = $"""
 
 select
@@ -23,6 +25,5 @@ select
     routine_name as `{nameof(Result.RoutineName)}`
 from information_schema.routines
 where routine_schema = @{nameof(Query.SchemaName)}
-order by routine_schema, routine_name
 """;
 }

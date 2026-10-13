@@ -54,6 +54,8 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             )
+            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
@@ -76,6 +78,8 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
                 new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
                 cancellationToken
             )
+            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
             .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
             .Select(QualifyRoutineName)
             .ToListAsync(cancellationToken);
