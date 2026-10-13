@@ -201,6 +201,129 @@ internal static class IdentifierTests
         }
     }
 
+    [TestCase("other", "b", "c", "d")]
+    [TestCase("a", "other", "c", "d")]
+    [TestCase("a", "b", "other", "d")]
+    [TestCase("a", "b", "c", "other")]
+    public static void Equals_GivenIdentifiersDifferingInOneComponent_ReturnsFalse(string server, string database, string schema, string localName)
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier(server, database, schema, localName);
+
+        Assert.That(identifier.Equals(otherIdentifier), Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenIdentifiersDifferingOnlyInCase_ReturnsFalse()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "D");
+
+        Assert.That(identifier.Equals(otherIdentifier), Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenIdentifiersQualifiedDifferently_ReturnsFalse()
+    {
+        var identifier = new Identifier("b", "c", "d");
+        var otherIdentifier = new Identifier("c", "d");
+
+        Assert.That(identifier.Equals(otherIdentifier), Is.False);
+    }
+
+    [Test]
+    public static void Equals_GivenEqualIdentifiersWithHashCodeComputedOnOne_ReturnsTrue()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "d");
+        _ = identifier.GetHashCode();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(identifier.Equals(otherIdentifier), Is.True);
+            Assert.That(otherIdentifier.Equals(identifier), Is.True);
+        }
+    }
+
+    [Test]
+    public static void Equals_GivenEqualIdentifiersWithHashCodesComputed_ReturnsTrue()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "d");
+        _ = identifier.GetHashCode();
+        _ = otherIdentifier.GetHashCode();
+
+        Assert.That(identifier.Equals(otherIdentifier), Is.True);
+    }
+
+    [Test]
+    public static void Equals_GivenDifferentIdentifiersWithHashCodesComputed_ReturnsFalse()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "e");
+        _ = identifier.GetHashCode();
+        _ = otherIdentifier.GetHashCode();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(identifier.Equals(otherIdentifier), Is.False);
+            Assert.That(otherIdentifier.Equals(identifier), Is.False);
+        }
+    }
+
+    [Test]
+    public static void Equals_GivenNullIdentifier_ReturnsFalse()
+    {
+        var identifier = new Identifier("a");
+
+        Assert.That(identifier.Equals(null), Is.False);
+    }
+
+    [Test]
+    public static void GetHashCode_GivenEqualIdentifiers_ReturnsEqualValues()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "d");
+
+        Assert.That(identifier.GetHashCode(), Is.EqualTo(otherIdentifier.GetHashCode()));
+    }
+
+    [Test]
+    public static void GetHashCode_WhenInvokedRepeatedly_ReturnsSameValue()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+
+        var first = identifier.GetHashCode();
+        var second = identifier.GetHashCode();
+
+        Assert.That(second, Is.EqualTo(first));
+    }
+
+    [Test]
+    public static void GetHashCode_GivenDifferentIdentifiers_ReturnsDifferentValues()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "e");
+
+        Assert.That(identifier.GetHashCode(), Is.Not.EqualTo(otherIdentifier.GetHashCode()));
+    }
+
+    [Test]
+    public static void HashSet_GivenEqualIdentifiers_ContainsOneEntry()
+    {
+        var identifier = new Identifier("a", "b", "c", "d");
+        var otherIdentifier = new Identifier("a", "b", "c", "d");
+        _ = identifier.GetHashCode();
+
+        var set = new HashSet<Identifier> { identifier, otherIdentifier };
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(set, Has.Count.EqualTo(1));
+            Assert.That(set.Contains(new Identifier("a", "b", "c", "d")), Is.True);
+        }
+    }
+
     [Test]
     public static void Identifier_WhenOnlyLocalNameProvided_OnlyHasLocalNamePropertySet()
     {

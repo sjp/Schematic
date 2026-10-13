@@ -174,6 +174,53 @@ public sealed record Identifier : IComparable<Identifier>, IComparable
     /// </summary>
     public string LocalName { get; }
 
+    // Identifiers are dictionary keys almost everywhere, so the hash is computed once.
+    // 0 means "not computed yet"; a race only computes it twice.
+    // Any instance field added to this record must be considered in Equals() and GetHashCode() below,
+    // which are hand-written so that this cache field is not compared.
+    private int _hashCode;
+
+    /// <summary>
+    /// Determines whether the specified <see cref="Identifier"/> has the same components as this instance.
+    /// </summary>
+    /// <param name="other">An identifier to compare with the current identifier.</param>
+    /// <returns><see langword="true" /> if every component of <paramref name="other"/> is ordinally equal to the matching component of this instance; otherwise <see langword="false" />.</returns>
+    public bool Equals(Identifier? other)
+    {
+        if (ReferenceEquals(this, other))
+            return true;
+        if (other is null)
+            return false;
+
+        var hashCode = _hashCode;
+        var otherHashCode = other._hashCode;
+        if (hashCode != 0 && otherHashCode != 0 && hashCode != otherHashCode)
+            return false;
+
+        return string.Equals(LocalName, other.LocalName, StringComparison.Ordinal)
+            && string.Equals(Schema, other.Schema, StringComparison.Ordinal)
+            && string.Equals(Database, other.Database, StringComparison.Ordinal)
+            && string.Equals(Server, other.Server, StringComparison.Ordinal);
+    }
+
+    /// <summary>
+    /// Returns a hash code for this instance, computed from its components.
+    /// </summary>
+    /// <returns>A hash code for this instance.</returns>
+    public override int GetHashCode()
+    {
+        var hashCode = _hashCode;
+        if (hashCode == 0)
+        {
+            hashCode = HashCode.Combine(Server, Database, Schema, LocalName);
+            if (hashCode == 0)
+                hashCode = 1;
+            _hashCode = hashCode;
+        }
+
+        return hashCode;
+    }
+
     /// <summary>
     /// Provides a string representation of the <see cref="Identifier"/>. Not intended to be used directly.
     /// </summary>
