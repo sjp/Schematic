@@ -51,6 +51,22 @@ BEGIN
    COMMIT;
 END
 ", TestContext.CurrentContext.CancellationToken);
+        // a function and a procedure may share a name, ignoring case
+        await DbConnection.ExecuteAsync(@"
+CREATE PROCEDURE COMMENT_TEST_ROUTINE_SAME_NAME()
+  DETERMINISTIC
+  COMMENT 'This is the procedure comment.'
+BEGIN
+   COMMIT;
+END
+", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+CREATE FUNCTION comment_test_routine_same_name()
+  RETURNS INT
+  DETERMINISTIC
+  COMMENT 'This is the function comment.'
+RETURN 1
+", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -58,7 +74,9 @@ END
         "drop function comment_test_routine_1",
         "drop function comment_test_routine_3",
         "drop procedure comment_test_routine_2",
-        "drop procedure comment_test_routine_4");
+        "drop procedure comment_test_routine_4",
+        "drop function comment_test_routine_same_name",
+        "drop procedure comment_test_routine_same_name");
 
     private Task<IDatabaseRoutineComments> GetRoutineCommentsAsync(Identifier routineName)
     {
@@ -248,5 +266,47 @@ END
         var routineComment = comments.Comment.UnwrapSome();
 
         Assert.That(routineComment, Is.EqualTo(expectedComment));
+    }
+
+    [Test]
+    public async Task GetRoutineComments_GivenFunctionAndProcedureWithSameName_ReturnsFunctionComment()
+    {
+        var comments = await RoutineCommentProvider.GetRoutineComments("COMMENT_TEST_ROUTINE_SAME_NAME").UnwrapSomeAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(comments.RoutineName.LocalName, Is.EqualTo("comment_test_routine_same_name"));
+            Assert.That(comments.Comment.UnwrapSome(), Is.EqualTo("This is the function comment."));
+        }
+    }
+
+    [Test]
+    public async Task GetAllRoutineComments_GivenFunctionAndProcedureWithSameName_ContainsOnlyFunctionComment()
+    {
+        var routineComments = await RoutineCommentProvider.GetAllRoutineComments();
+        var matches = routineComments
+            .Where(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_same_name", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(matches, Has.Count.EqualTo(1));
+            Assert.That(matches[0].RoutineName.LocalName, Is.EqualTo("comment_test_routine_same_name"));
+            Assert.That(matches[0].Comment.UnwrapSome(), Is.EqualTo("This is the function comment."));
+        }
+    }
+
+    [Test]
+    public async Task EnumerateAllRoutineComments_GivenFunctionAndProcedureWithSameName_ContainsOnlyFunctionComment()
+    {
+        var matches = await RoutineCommentProvider.EnumerateAllRoutineComments()
+            .Where(rc => string.Equals(rc.RoutineName.LocalName, "comment_test_routine_same_name", StringComparison.OrdinalIgnoreCase))
+            .ToListAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(matches, Has.Count.EqualTo(1));
+            Assert.That(matches[0].Comment.UnwrapSome(), Is.EqualTo("This is the function comment."));
+        }
     }
 }

@@ -37,13 +37,27 @@ DETERMINISTIC
 BEGIN
    SET second_arg = 'test';
 END", TestContext.CurrentContext.CancellationToken);
+        // a function and a procedure may share a name
+        await DbConnection.ExecuteAsync(@"
+CREATE PROCEDURE db_test_routine_same_name(IN y VARCHAR(10), OUT z INT)
+DETERMINISTIC
+BEGIN
+   SET z = 1;
+END", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+CREATE FUNCTION db_test_routine_same_name(x INT)
+  RETURNS INT
+  DETERMINISTIC
+RETURN x + 1", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
     public Task CleanUp() => ExecuteBatchAsync(
         "drop function db_test_routine_1",
         "drop procedure db_test_routine_2",
-        "drop procedure db_test_routine_3");
+        "drop procedure db_test_routine_3",
+        "drop function db_test_routine_same_name",
+        "drop procedure db_test_routine_same_name");
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {
@@ -287,5 +301,54 @@ END";
         var routine = await GetRoutineAsync("db_test_routine_3");
 
         Assert.That(routine.Overloads, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetRoutine_GivenFunctionAndProcedureWithSameName_ReturnsFunction()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_same_name");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routine.RoutineType, Is.EqualTo(RoutineType.Function));
+            Assert.That(routine.Definition, Is.EqualTo("RETURN x + 1"));
+            Assert.That(routine.ReturnType.UnwrapSome().TypeName.LocalName, Is.EqualTo("int"));
+            Assert.That(parameters, Has.Count.EqualTo(1));
+            Assert.That(parameters[0].Name.UnwrapSome().LocalName, Is.EqualTo("x"));
+            Assert.That(parameters[0].Ordinal, Is.EqualTo(1));
+            Assert.That(parameters[0].Direction, Is.EqualTo(RoutineParameterDirection.Input));
+        }
+    }
+
+    [Test]
+    public async Task GetAllRoutines_GivenFunctionAndProcedureWithSameName_ContainsOnlyFunction()
+    {
+        var routines = await RoutineProvider.GetAllRoutines();
+        var matches = routines
+            .Where(r => string.Equals(r.Name.LocalName, "db_test_routine_same_name", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(matches, Has.Count.EqualTo(1));
+            Assert.That(matches[0].RoutineType, Is.EqualTo(RoutineType.Function));
+            Assert.That(matches[0].Parameters, Has.Count.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task EnumerateAllRoutines_GivenFunctionAndProcedureWithSameName_ContainsOnlyFunction()
+    {
+        var matches = await RoutineProvider.EnumerateAllRoutines()
+            .Where(r => string.Equals(r.Name.LocalName, "db_test_routine_same_name", StringComparison.OrdinalIgnoreCase))
+            .ToListAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(matches, Has.Count.EqualTo(1));
+            Assert.That(matches[0].RoutineType, Is.EqualTo(RoutineType.Function));
+            Assert.That(matches[0].Parameters, Has.Count.EqualTo(1));
+        }
     }
 }

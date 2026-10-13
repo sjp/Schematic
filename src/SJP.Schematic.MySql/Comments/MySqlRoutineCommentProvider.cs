@@ -16,6 +16,7 @@ namespace SJP.Schematic.MySql.Comments;
 /// A routine comment provider for MySQL routines.
 /// </summary>
 /// <seealso cref="IDatabaseRoutineCommentProvider" />
+/// <remarks>A schema may hold a function and a procedure that share a name. Only the function's comment is returned for that name.</remarks>
 public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 {
     /// <summary>
@@ -49,16 +50,7 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async IAsyncEnumerable<IDatabaseRoutineComments> EnumerateAllRoutineComments([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var routineNames = await Connection.QueryEnumerableAsync(
-                GetAllRoutineNames.Sql,
-                new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
-                cancellationToken
-            )
-            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken);
+        var routineNames = await GetAllRoutineNamesAsync(cancellationToken);
 
         var results = routineNames.SelectOrderedPrefetchAsync(LoadRoutineCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
 
@@ -73,18 +65,25 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
     /// <returns>A collection of database routine comments, where available.</returns>
     public async Task<IReadOnlyCollection<IDatabaseRoutineComments>> GetAllRoutineComments(CancellationToken cancellationToken = default)
     {
-        var routineNames = await Connection.QueryEnumerableAsync(
-                GetAllRoutineNames.Sql,
-                new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
-                cancellationToken
-            )
-            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken);
+        var routineNames = await GetAllRoutineNamesAsync(cancellationToken);
 
         return await routineNames.SelectBoundedAsync(LoadRoutineCommentsAsyncCore, Math.Max(1, Connection.MaxConcurrentQueries), cancellationToken);
+    }
+
+    private async Task<List<Identifier>> GetAllRoutineNamesAsync(CancellationToken cancellationToken)
+    {
+        var rows = await Connection.QueryAsync(
+            GetAllRoutineNames.Sql,
+            new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
+            cancellationToken
+        );
+
+        return MySqlRoutineSelection.OnePerName(rows, static row => row.RoutineName, static row => row.RoutineType)
+            .OrderBy(static row => row.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static row => row.RoutineName, StringComparer.OrdinalIgnoreCase)
+            .Select(static row => Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName))
+            .Select(QualifyRoutineName)
+            .ToList();
     }
 
     /// <summary>
@@ -99,11 +98,13 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         routineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = Connection.QueryFirstOrNone(
-            GetRoutineName.Sql,
-            new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
+        var qualifiedRoutineName = Connection.QueryAsync(
+                GetRoutineName.Sql,
+                new GetRoutineName.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+                cancellationToken
+            )
+            .Map(rows => MySqlRoutineSelection.ForName(rows, routineName.LocalName, static row => row.RoutineName, static row => row.RoutineType))
+            .ToAsync();
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(routineName.Server, routineName.Database, name.SchemaName, name.RoutineName));
     }
@@ -141,15 +142,14 @@ public class MySqlRoutineCommentProvider : IDatabaseRoutineCommentProvider
 
     private async Task<IDatabaseRoutineComments> LoadRoutineCommentsAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var comment = await Connection.ExecuteScalarAsync(
+        var rows = await Connection.QueryAsync(
             Queries.GetRoutineComments.Sql,
             new GetRoutineComments.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
             cancellationToken
         );
 
-        var routineComment = !comment.IsNullOrWhiteSpace()
-            ? Option<string>.Some(comment)
-            : Option<string>.None;
+        var routineComment = MySqlRoutineSelection.ForName(rows, routineName.LocalName, static row => row.RoutineName, static row => row.RoutineType)
+            .Bind(static row => !row.Comment.IsNullOrWhiteSpace() ? Option<string>.Some(row.Comment) : Option<string>.None);
 
         return new DatabaseRoutineComments(routineName, routineComment);
     }

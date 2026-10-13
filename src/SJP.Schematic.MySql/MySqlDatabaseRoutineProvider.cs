@@ -19,6 +19,9 @@ namespace SJP.Schematic.MySql;
 /// MySQL lists a routine to any user with a privilege on it, such as <c>EXECUTE</c>, but only shows its body to the
 /// routine's definer and to users allowed to read routine bodies. Such a routine is still returned, with a SQL comment
 /// in place of its definition.
+/// <para>
+/// A schema may hold a function and a procedure that share a name. Only the function is returned for that name.
+/// </para>
 /// </remarks>
 public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 {
@@ -65,16 +68,7 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async IAsyncEnumerable<IDatabaseRoutine> EnumerateAllRoutines([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var routineNames = await DbConnection.QueryEnumerableAsync(
-                GetAllRoutineNames.Sql,
-                new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
-                cancellationToken
-            )
-            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken);
+        var routineNames = await GetAllRoutineNamesAsync(cancellationToken);
 
         var results = routineNames.SelectOrderedPrefetchAsync(LoadRoutineAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
 
@@ -89,18 +83,25 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
     /// <returns>A collection of database routines.</returns>
     public async Task<IReadOnlyCollection<IDatabaseRoutine>> GetAllRoutines(CancellationToken cancellationToken = default)
     {
-        var routineNames = await DbConnection.QueryEnumerableAsync(
-                GetAllRoutineNames.Sql,
-                new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
-                cancellationToken
-            )
-            .OrderBy(static dto => dto.SchemaName, StringComparer.OrdinalIgnoreCase)
-            .ThenBy(static dto => dto.RoutineName, StringComparer.OrdinalIgnoreCase)
-            .Select(static dto => Identifier.CreateQualifiedIdentifier(dto.SchemaName, dto.RoutineName))
-            .Select(QualifyRoutineName)
-            .ToListAsync(cancellationToken);
+        var routineNames = await GetAllRoutineNamesAsync(cancellationToken);
 
         return await routineNames.SelectBoundedAsync(LoadRoutineAsyncCore, Math.Max(1, DbConnection.MaxConcurrentQueries), cancellationToken);
+    }
+
+    private async Task<List<Identifier>> GetAllRoutineNamesAsync(CancellationToken cancellationToken)
+    {
+        var rows = await DbConnection.QueryAsync(
+            GetAllRoutineNames.Sql,
+            new GetAllRoutineNames.Query { SchemaName = IdentifierDefaults.Schema! },
+            cancellationToken
+        );
+
+        return MySqlRoutineSelection.OnePerName(rows, static row => row.RoutineName, static row => row.RoutineType)
+            .OrderBy(static row => row.SchemaName, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(static row => row.RoutineName, StringComparer.OrdinalIgnoreCase)
+            .Select(static row => Identifier.CreateQualifiedIdentifier(row.SchemaName, row.RoutineName))
+            .Select(QualifyRoutineName)
+            .ToList();
     }
 
     /// <summary>
@@ -130,11 +131,13 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
         ArgumentNullException.ThrowIfNull(routineName);
 
         var candidateRoutineName = QualifyRoutineName(routineName);
-        var qualifiedRoutineName = DbConnection.QueryFirstOrNone(
-            GetRoutineName.Sql,
-            new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
-            cancellationToken
-        );
+        var qualifiedRoutineName = DbConnection.QueryAsync(
+                GetRoutineName.Sql,
+                new GetRoutineName.Query { SchemaName = candidateRoutineName.Schema!, RoutineName = candidateRoutineName.LocalName },
+                cancellationToken
+            )
+            .Map(rows => MySqlRoutineSelection.ForName(rows, candidateRoutineName.LocalName, static row => row.RoutineName, static row => row.RoutineType))
+            .ToAsync();
 
         return qualifiedRoutineName.Map(name => Identifier.CreateQualifiedIdentifier(candidateRoutineName.Server, candidateRoutineName.Database, name.SchemaName, name.RoutineName));
     }
@@ -157,14 +160,32 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var (routineDetail, parameterRows) = await (
-            LoadRoutineDetailAsync(routineName, cancellationToken),
-            DbConnection.QueryAsync(
-                GetRoutineParameters.Sql,
-                new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-                cancellationToken
-            )
-        ).WhenAll();
+        var rows = await DbConnection.QueryAsync(
+            GetRoutineDefinition.Sql,
+            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+
+        // definition rows have no ordinal, see the query's comment
+        var routineDetail = MySqlRoutineSelection.ForName(
+            rows.Where(static row => row.Ordinal == null),
+            routineName.LocalName,
+            static row => row.RoutineName,
+            static row => row.RoutineType
+        );
+
+        // the routine was dropped after its name was read
+        if (routineDetail.IsNone)
+            return new DatabaseRoutine(routineName, UnavailableDefinition, RoutineType.Unknown, Option<string>.None, [], Option<IDbType>.None);
+
+        var detail = routineDetail.Single();
+
+        // keep only the parameters of the routine whose definition was picked
+        var parameterRows = rows
+            .Where(row => row.Ordinal != null
+                && string.Equals(row.RoutineName, detail.RoutineName, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(row.RoutineType, detail.RoutineType, StringComparison.OrdinalIgnoreCase))
+            .ToList();
 
         // MySQL stores a function's return value alongside its parameters, at ordinal position zero
         var returnType = parameterRows
@@ -178,21 +199,17 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             .Select(BuildParameter)
             .ToList();
 
-        // the routine was dropped after its name was read
-        if (routineDetail == null)
-            return new DatabaseRoutine(routineName, UnavailableDefinition, RoutineType.Unknown, Option<string>.None, parameters, returnType);
-
         return new DatabaseRoutine(
             routineName,
-            !routineDetail.Definition.IsNullOrWhiteSpace() ? routineDetail.Definition : UnavailableDefinition,
-            GetRoutineType(routineDetail.RoutineType),
-            !routineDetail.Language.IsNullOrWhiteSpace() ? Option<string>.Some(routineDetail.Language) : Option<string>.None,
+            !detail.Definition.IsNullOrWhiteSpace() ? detail.Definition : UnavailableDefinition,
+            GetRoutineType(detail.RoutineType),
+            !detail.Language.IsNullOrWhiteSpace() ? Option<string>.Some(detail.Language) : Option<string>.None,
             parameters,
             returnType
         );
     }
 
-    private IDatabaseRoutineParameter BuildParameter(GetRoutineParameters.Result row)
+    private IDatabaseRoutineParameter BuildParameter(GetRoutineDefinition.Result row)
     {
         var parameterName = !row.ParameterName.IsNullOrWhiteSpace()
             ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ParameterName))
@@ -204,20 +221,20 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             GetParameterDirection(row.ParameterMode),
             // MySQL routine parameters cannot declare a default
             Option<string>.None,
-            row.Ordinal
+            row.Ordinal!.Value
         );
     }
 
-    private IDbType GetParameterType(GetRoutineParameters.Result row)
+    private IDbType GetParameterType(GetRoutineDefinition.Result row)
     {
         var typeMetadata = new ColumnTypeMetadata
         {
-            TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName),
+            TypeName = Identifier.CreateQualifiedIdentifier(row.DataTypeName!),
             Collation = !row.Collation.IsNullOrWhiteSpace()
                 ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                 : Option<Identifier>.None,
-            MaxLength = MySqlColumnTypeMetadata.ClampMaxLength(row.CharacterMaxLength),
-            NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
+            MaxLength = MySqlColumnTypeMetadata.ClampMaxLength(row.CharacterMaxLength ?? 0),
+            NumericPrecision = new NumericPrecision(row.Precision ?? 0, row.Scale ?? 0),
         };
 
         return Dialect.TypeProvider.CreateColumnType(typeMetadata);
@@ -241,17 +258,6 @@ public class MySqlDatabaseRoutineProvider : IDatabaseRoutineProvider
             return RoutineType.Function;
 
         return RoutineType.Unknown;
-    }
-
-    private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
-    {
-        var results = await DbConnection.QueryAsync(
-            GetRoutineDefinition.Sql,
-            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
-
-        return results.FirstOrDefault();
     }
 
     /// <summary>
