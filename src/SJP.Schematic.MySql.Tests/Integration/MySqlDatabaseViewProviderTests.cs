@@ -24,6 +24,8 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         await DbConnection.ExecuteAsync("create view view_test_view_2 as select table_id as test from view_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_3 as select table_id as test from view_test_table_1 where table_id > 0 with local check option", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_4 as select table_id as test from view_test_table_1 where table_id > 0 with cascaded check option", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table view_test_table_2 (literal_column int default 1, uuid_column char(36) default (uuid()))", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_5 as select literal_column, uuid_column from view_test_table_2", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -33,7 +35,9 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         "drop view view_test_view_2",
         "drop view view_test_view_3",
         "drop view view_test_view_4",
-        "drop table view_test_table_1");
+        "drop view view_test_view_5",
+        "drop table view_test_table_1",
+        "drop table view_test_table_2");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
@@ -195,6 +199,16 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         Assert.That(definition, Is.EqualTo(expected));
     }
 
+    [TestCase("literal_column", DefaultValueKind.Literal)]
+    [TestCase("uuid_column", DefaultValueKind.Expression)]
+    public async Task Columns_WhenViewColumnHasDefault_ReturnsCorrectDefaultValueKind(string columnName, DefaultValueKind expectedKind)
+    {
+        var view = await GetViewAsync("view_test_view_5");
+        var column = view.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        Assert.That(column.Default.UnwrapSome().Kind, Is.EqualTo(expectedKind));
+    }
+
     [Test]
     public async Task Columns_WhenViewContainsSingleColumn_ContainsOneValueOnly()
     {
@@ -254,8 +268,9 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         Assert.That(view.IsUpdatable, Is.False);
     }
 
-    // A view load issues 2 queries: one to resolve the view's name, then its definition, check option,
-    // updatability and columns read together.
+    // A view load issues 3 queries on a new provider: one to resolve the view's name, then its definition,
+    // check option, updatability and columns read together, and once per provider the catalog features
+    // that decide how column defaults are read.
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {
@@ -265,6 +280,6 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
 
         _ = await viewProvider.GetView("view_test_view_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(2));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(3));
     }
 }

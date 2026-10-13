@@ -31,6 +31,12 @@ internal static class GetCatalogFeatures
         /// through an inverted <c>ignored</c> column instead of <c>is_visible</c>.
         /// </summary>
         public required bool HasIndexExpressionColumn { get; init; }
+
+        /// <summary>
+        /// Whether the server is MariaDB. MariaDB reports a column default as the SQL that declares it,
+        /// with literals quoted, where MySQL reports the value of a literal default unquoted.
+        /// </summary>
+        public required bool IsMariaDb { get; init; }
     }
 
     internal const string Sql = $"""
@@ -51,6 +57,7 @@ select
     exists (
         select 1 from information_schema.columns
         where table_schema = 'information_schema' and table_name = 'STATISTICS' and column_name = 'EXPRESSION'
-    ) as `{nameof(Result.HasIndexExpressionColumn)}`
+    ) as `{nameof(Result.HasIndexExpressionColumn)}`,
+    version() like '%MariaDB%' as `{nameof(Result.IsMariaDb)}`
 """;
 }

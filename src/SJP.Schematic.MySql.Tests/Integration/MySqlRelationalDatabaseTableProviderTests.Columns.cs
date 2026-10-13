@@ -81,6 +81,29 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         Assert.That(equals, Is.True);
     }
 
+    [TestCase("literal_column", DefaultValueKind.Literal)]
+    [TestCase("empty_string_column", DefaultValueKind.Literal)]
+    [TestCase("uuid_column", DefaultValueKind.Expression)]
+    [TestCase("arithmetic_column", DefaultValueKind.Expression)]
+    public async Task Columns_WhenGivenTableWithColumnDefaults_ReturnsCorrectDefaultValueKind(string columnName, DefaultValueKind expectedKind)
+    {
+        const string tableName = "table_test_table_43";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        Assert.That(column.Default.UnwrapSome().Kind, Is.EqualTo(expectedKind));
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithEmptyStringDefault_ReturnsQuotedEmptyString()
+    {
+        const string tableName = "table_test_table_43";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "empty_string_column", StringComparison.Ordinal));
+
+        Assert.That(column.Default.UnwrapSome().Definition, Is.EqualTo("''"));
+    }
+
     [Test]
     public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
     {

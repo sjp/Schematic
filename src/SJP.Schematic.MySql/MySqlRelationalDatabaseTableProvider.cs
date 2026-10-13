@@ -879,6 +879,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyList<IDatabaseColumn>> LoadColumnsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
     {
+        var features = await _catalogFeatures;
+
         return await DbConnection.QueryEnumerableAsync(
                 GetTableColumns.Sql,
                 new GetTableColumns.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
@@ -910,7 +912,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     : Option<IAutoIncrement>.None;
                 var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
                 var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-                var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation);
+                var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation, features.IsMariaDb);
                 var computedColumnDefinition = isComputed
                     ? Option<string>.Some(row.ComputedColumnDefinition!)
                     : Option<string>.None;

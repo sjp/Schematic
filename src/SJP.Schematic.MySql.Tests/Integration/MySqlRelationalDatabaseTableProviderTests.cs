@@ -241,6 +241,12 @@ create table if not exists table_test_table_42 (
     constraint uk_test_table_42_1 unique (first_name){functionalUniqueIndexClause}
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists table_test_table_33 ( test_column int not null default 1 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_43 (
+    literal_column varchar(10) default 'abc',
+    empty_string_column varchar(10) default '',
+    uuid_column char(36) default (uuid()),
+    arithmetic_column int default (1 + 1)
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_34 (
     test_column_1 int,
     test_column_2 int,
@@ -341,6 +347,7 @@ end
         "drop table if exists table_test_table_37",
         "drop table if exists table_test_table_41",
         "drop table if exists table_test_table_42",
+        "drop table if exists table_test_table_43",
         "drop table if exists table_test_table_15",
         "drop table if exists child_key_round_trip_child",
         "drop table if exists child_key_round_trip_other",

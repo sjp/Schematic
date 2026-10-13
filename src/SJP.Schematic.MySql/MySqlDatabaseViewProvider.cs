@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.MySql.Queries;
@@ -31,6 +32,9 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+
+        // a failed load is not remembered, otherwise one transient error would break every later view load
+        _catalogFeatures = new AsyncLazy<GetCatalogFeatures.Result>(LoadCatalogFeatures, AsyncLazyFlags.RetryOnFailure);
     }
 
     /// <summary>
@@ -214,7 +218,8 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
         // the union gives no order, so the columns are put back in the order the view declares them
         columnRows.Sort(static (a, b) => a.Ordinal!.Value.CompareTo(b.Ordinal!.Value));
-        var columns = columnRows.ConvertAll(CreateColumn);
+        var features = await _catalogFeatures;
+        var columns = columnRows.ConvertAll(row => CreateColumn(row, features.IsMariaDb));
 
         if (definitionRow == null)
             return new ViewDetails(null, ViewCheckOption.None, false, columns);
@@ -229,7 +234,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
 
     private sealed record ViewDetails(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable, IReadOnlyList<IDatabaseColumn> Columns);
 
-    private IDatabaseColumn CreateColumn(GetViewDetails.Result row)
+    private IDatabaseColumn CreateColumn(GetViewDetails.Result row, bool isMariaDb)
     {
         var typeMetadata = MySqlColumnTypeMetadata.Create(
             row.DataTypeName!,
@@ -250,7 +255,7 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
             ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
             : Option<IAutoIncrement>.None;
         var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
-        var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation);
+        var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation, isMariaDb);
 
         return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
     }
@@ -268,6 +273,12 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         var schema = viewName.Schema ?? IdentifierDefaults.Schema;
         return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, IdentifierDefaults.Database, schema, viewName.LocalName);
     }
+
+    // MySQL and MariaDB report column defaults differently, so the server flavour is read once per provider.
+    private Task<GetCatalogFeatures.Result> LoadCatalogFeatures() =>
+        DbConnection.QuerySingleAsync<GetCatalogFeatures.Result>(GetCatalogFeatures.Sql, CancellationToken.None);
+
+    private readonly AsyncLazy<GetCatalogFeatures.Result> _catalogFeatures;
 
     // information_schema.views.view_definition is empty when the user lacks SHOW VIEW, and the row
     // is missing when the view was dropped after its name was read
