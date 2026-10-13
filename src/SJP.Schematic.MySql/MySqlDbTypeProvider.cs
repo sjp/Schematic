@@ -184,6 +184,31 @@ public class MySqlDbTypeProvider : IDbTypeProvider
                 builder.Append(')');
             });
         }
+        // a floating-point type is only declared with a precision when it is also declared with a
+        // scale, but the catalog reports a precision for every column, 12 for a plain FLOAT and 22
+        // for a plain DOUBLE
+        else if (FloatingPointTypeNames.Contains(typeName))
+        {
+            typeMetadata.NumericPrecision.Filter(static np => np.Scale > 0).IfSome(precision =>
+            {
+                builder.Append('(');
+                builder.Append(precision.Precision.ToString(CultureInfo.InvariantCulture));
+                builder.Append(", ");
+                builder.Append(precision.Scale.ToString(CultureInfo.InvariantCulture));
+                builder.Append(')');
+            });
+        }
+        // a vector is declared by its number of dimensions, but the catalog reports its length in
+        // bytes, and each dimension is a four-byte float
+        else if (string.Equals(typeName, VectorTypeName, StringComparison.OrdinalIgnoreCase))
+        {
+            if (typeMetadata.MaxLength > 0)
+            {
+                builder.Append('(');
+                builder.Append((typeMetadata.MaxLength / VectorDimensionLength).ToString(CultureInfo.InvariantCulture));
+                builder.Append(')');
+            }
+        }
         else if (!TypeNamesWithNoLengthAnnotation.Contains(typeName))
         {
             var npWithPrecisionOrScale = typeMetadata.NumericPrecision.Filter(static np => np.Precision > 0 || np.Scale > 0);
@@ -261,15 +286,23 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         "timestamp",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
+    private const string VectorTypeName = "vector";
+
+    private const int VectorDimensionLength = sizeof(float);
+
+    private static readonly FrozenSet<string> FloatingPointTypeNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "float",
+        "double",
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+
     private static readonly FrozenSet<string> TypeNamesWithNoLengthAnnotation = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        "bit",
         "tinyint",
         "smallint",
         "mediumint",
         "int",
         "bigint",
-        "double",
         "tinyblob",
         "blob",
         "mediumblob",
@@ -288,6 +321,9 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         "multilinestring",
         "multipolygon",
         "geometrycollection",
+        "uuid",
+        "inet4",
+        "inet6",
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
     private static readonly FrozenDictionary<string, DataType> StringToDataTypeMap = new Dictionary<string, DataType>(StringComparer.OrdinalIgnoreCase)
@@ -330,6 +366,10 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["multilinestring"] = DataType.Geometry,
         ["multipolygon"] = DataType.Geometry,
         ["geometrycollection"] = DataType.Geometry,
+        ["uuid"] = DataType.UniqueIdentifier,
+        ["inet4"] = DataType.Network,
+        ["inet6"] = DataType.Network,
+        ["vector"] = DataType.Vector,
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     private static readonly FrozenDictionary<string, Type> StringToClrTypeMap = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
@@ -372,6 +412,10 @@ public class MySqlDbTypeProvider : IDbTypeProvider
         ["multilinestring"] = typeof(object),
         ["multipolygon"] = typeof(object),
         ["geometrycollection"] = typeof(object),
+        ["uuid"] = typeof(Guid),
+        ["inet4"] = typeof(string),
+        ["inet6"] = typeof(string),
+        ["vector"] = typeof(object),
     }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
 
     // columns repeat a few types many times over, so identical types are shared rather than each column holding its own copy

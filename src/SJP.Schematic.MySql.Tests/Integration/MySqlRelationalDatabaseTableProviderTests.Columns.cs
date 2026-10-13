@@ -234,6 +234,61 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
         Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
     }
 
+    [TestCase("bit_1_column", "bit(1)")]
+    [TestCase("bit_8_column", "bit(8)")]
+    [TestCase("bit_64_column", "bit(64)")]
+    [TestCase("float_column", "float")]
+    [TestCase("double_column", "double")]
+    [TestCase("scaled_float_column", "float(7, 3)")]
+    [TestCase("scaled_double_column", "double(10, 2)")]
+    public async Task Columns_WhenGivenNumericColumn_ReturnsDeclaredDefinition(string columnName, string expectedDefinition)
+    {
+        const string tableName = "table_test_table_44";
+
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [TestCase("uuid_column", "uuid", DataType.UniqueIdentifier)]
+    [TestCase("inet4_column", "inet4", DataType.Network)]
+    [TestCase("inet6_column", "inet6", DataType.Network)]
+    public async Task Columns_WhenGivenMariaDbOnlyTypeColumn_ReturnsKnownDataType(string columnName, string expectedDefinition, DataType expectedDataType)
+    {
+        if (!IsMariaDb)
+            Assert.Ignore("The uuid, inet4 and inet6 types are only available on MariaDB.");
+
+        const string tableName = "table_test_table_45";
+
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenVectorColumn_ReturnsVectorTypeWithDimensions()
+    {
+        if (!DatabaseProvider.SupportsVectorType())
+            Assert.Ignore("The vector type is not available on this server version.");
+
+        const string tableName = "table_test_table_46";
+
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.Definition, Is.EqualTo("vector(3)"));
+            Assert.That(column.Type.DataType, Is.EqualTo(DataType.Vector));
+        }
+    }
+
     [TestCase("enum_column", "enum('signed', 'unsigned')")]
     [TestCase("set_column", "set('unsigned_only')")]
     public async Task Columns_WhenGivenMemberTypeColumnWithUnsignedInMembers_ReturnsSignedColumnType(string columnName, string expectedDefinition)

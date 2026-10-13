@@ -138,6 +138,10 @@ internal static class MySqlDbTypeProviderTests
     [TestCase("multilinestring", DataType.Geometry)]
     [TestCase("multipolygon", DataType.Geometry)]
     [TestCase("geometrycollection", DataType.Geometry)]
+    [TestCase("uuid", DataType.UniqueIdentifier)]
+    [TestCase("inet4", DataType.Network)]
+    [TestCase("inet6", DataType.Network)]
+    [TestCase("vector", DataType.Vector)]
     public static void CreateColumnType_GivenTypeNameWithUnknownDataType_ResolvesExpectedDataType(string typeName, DataType expectedDataType)
     {
         var metadata = new ColumnTypeMetadata { TypeName = typeName, DataType = DataType.Unknown };
@@ -175,6 +179,10 @@ internal static class MySqlDbTypeProviderTests
     [TestCase("varbinary", typeof(byte[]))]
     [TestCase("geometry", typeof(object))]
     [TestCase("point", typeof(object))]
+    [TestCase("uuid", typeof(Guid))]
+    [TestCase("inet4", typeof(string))]
+    [TestCase("inet6", typeof(string))]
+    [TestCase("vector", typeof(object))]
     public static void CreateColumnType_GivenTypeName_ResolvesExpectedClrType(string typeName, Type expectedClrType)
     {
         var metadata = new ColumnTypeMetadata { TypeName = typeName, DataType = DataType.Unknown };
@@ -361,6 +369,68 @@ internal static class MySqlDbTypeProviderTests
         var columnType = Provider.CreateColumnType(metadata);
 
         Assert.That(columnType.Definition, Is.EqualTo("varchar"));
+    }
+
+    [TestCase(1, "bit(1)")]
+    [TestCase(8, "bit(8)")]
+    [TestCase(64, "bit(64)")]
+    public static void CreateColumnType_GivenBitType_ReturnsDefinitionWithWidth(int width, string expectedDefinition)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = "bit",
+            NumericPrecision = Option<INumericPrecision>.Some(new NumericPrecision(width, 0)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    // the catalog reports a precision of 12 for a plain float and 22 for a plain double, neither
+    // of which was declared
+    [TestCase("float", 12, 0, "float")]
+    [TestCase("double", 22, 0, "double")]
+    [TestCase("float", 7, 3, "float(7, 3)")]
+    [TestCase("double", 10, 2, "double(10, 2)")]
+    public static void CreateColumnType_GivenFloatingPointType_ReturnsDefinitionWithPrecisionOnlyWhenScaled(
+        string typeName,
+        int precision,
+        int scale,
+        string expectedDefinition)
+    {
+        var metadata = new ColumnTypeMetadata
+        {
+            TypeName = typeName,
+            NumericPrecision = Option<INumericPrecision>.Some(new NumericPrecision(precision, scale)),
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    // the catalog reports the length of a vector in bytes, four for each dimension
+    [Test]
+    public static void CreateColumnType_GivenVectorType_ReturnsDefinitionWithDimensions()
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = "vector", MaxLength = 12 };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.Definition, Is.EqualTo("vector(3)"));
+            Assert.That(columnType.MaxLength, Is.EqualTo(12));
+        }
+    }
+
+    [TestCase("uuid")]
+    [TestCase("inet4")]
+    [TestCase("inet6")]
+    public static void CreateColumnType_GivenFixedFormatType_ReturnsDefinitionWithoutLength(string typeName)
+    {
+        var metadata = new ColumnTypeMetadata { TypeName = typeName, MaxLength = 36 };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        Assert.That(columnType.Definition, Is.EqualTo(typeName));
     }
 
     [TestCase("enum('a','b')", new[] { "a", "b" })]

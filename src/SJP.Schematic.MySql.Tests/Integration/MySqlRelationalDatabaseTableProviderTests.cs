@@ -260,6 +260,25 @@ create table if not exists table_test_table_42 (
     set_column set('unsigned_only'),
     unsigned_column int(10) unsigned zerofill
 )", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_44 (
+    bit_1_column bit(1),
+    bit_8_column bit(8),
+    bit_64_column bit(64),
+    float_column float,
+    double_column double,
+    scaled_float_column float(7,3),
+    scaled_double_column double(10,2)
+)", TestContext.CurrentContext.CancellationToken);
+        if (IsMariaDb)
+        {
+            await DbConnection.ExecuteAsync(@"create table if not exists table_test_table_45 (
+    uuid_column uuid,
+    inet4_column inet4,
+    inet6_column inet6
+)", TestContext.CurrentContext.CancellationToken);
+        }
+        if (DatabaseProvider.SupportsVectorType())
+            await DbConnection.ExecuteAsync("create table if not exists table_test_table_46 ( vector_column vector(3) )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists trigger_test_table_1 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table if not exists trigger_test_table_2 (table_id int primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
@@ -348,6 +367,9 @@ end
         "drop table if exists table_test_table_41",
         "drop table if exists table_test_table_42",
         "drop table if exists table_test_table_43",
+        "drop table if exists table_test_table_44",
+        "drop table if exists table_test_table_45",
+        "drop table if exists table_test_table_46",
         "drop table if exists table_test_table_15",
         "drop table if exists child_key_round_trip_child",
         "drop table if exists child_key_round_trip_other",

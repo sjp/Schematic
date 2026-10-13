@@ -83,6 +83,11 @@ internal sealed class MySqlIntegrationSetUp
     /// </summary>
     public static bool IsMariaDb { get; private set; }
 
+    /// <summary>
+    /// The version of the connected server, for features that only some releases support.
+    /// </summary>
+    public static Version ServerVersion { get; private set; } = null!;
+
     [OneTimeSetUp]
     public async Task InitAsync()
     {
@@ -94,6 +99,7 @@ internal sealed class MySqlIntegrationSetUp
 
         var displayVersion = await DatabaseProvider.GetDatabaseDisplayVersionAsync(TestContext.CurrentContext.CancellationToken);
         IsMariaDb = displayVersion.Contains("MariaDB", StringComparison.OrdinalIgnoreCase);
+        ServerVersion = await DatabaseProvider.GetDatabaseVersionAsync(TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
