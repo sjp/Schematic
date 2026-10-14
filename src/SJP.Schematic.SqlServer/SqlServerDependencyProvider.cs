@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.SqlServer.TransactSql.ScriptDom;
 using SJP.Schematic.Core;
-using Identifier = SJP.Schematic.Core.Identifier;
-using ScriptDom = Microsoft.SqlServer.TransactSql.ScriptDom;
 
 namespace SJP.Schematic.SqlServer;
 
@@ -38,81 +34,80 @@ public class SqlServerDependencyProvider : IDependencyProvider
         ArgumentNullException.ThrowIfNull(objectName);
         ArgumentException.ThrowIfNullOrWhiteSpace(expression);
 
-        var tokens = ScriptDomTokenizer.Tokenize(expression, nameof(expression));
-
         var result = new HashSet<Identifier>(Comparer);
+        var scanner = new SqlServerNameScanner(expression, nameof(expression));
 
-        var whitespaceRemovedTokens = tokens
-            .Where(t => !IsWhitespace(t))
-            .ToList();
+        // The parts of the dotted name being read, `identifier (dot identifier)*`. An identifier
+        // that does not follow a dot (e.g. an alias written without AS, as in `Sales.Orders o`)
+        // ends the name and starts one of its own. Comments, like any other token, end it too.
+        Span<SqlServerNameToken> parts = stackalloc SqlServerNameToken[MaxNameParts];
+        var partCount = 0;
+        var afterDot = false;
 
-        var totalTokens = whitespaceRemovedTokens.Count;
-
-        for (var i = 0; i < totalTokens; i++)
+        while (scanner.MoveNext())
         {
-            var token = whitespaceRemovedTokens[i];
-            if (token == null || !IsIdentifier(token))
-                continue;
-
-            // Measure the dotted name starting here as `identifier (dot identifier)*`, stopping at the
-            // first identifier that does not follow a dot. That identifier (e.g. an alias written
-            // without AS, as in `Sales.Orders o`) then starts a name of its own.
-            var nameEnd = i;
-            while (nameEnd + 2 < totalTokens
-                && whitespaceRemovedTokens[nameEnd + 1].TokenType == TSqlTokenType.Dot
-                && IsIdentifier(whitespaceRemovedTokens[nameEnd + 2]))
+            var token = scanner.Current;
+            if (token.IsIdentifier)
             {
-                nameEnd += 2;
+                if (partCount > 0 && !afterDot)
+                {
+                    AddName(result, objectName, scanner, parts[..partCount]);
+                    partCount = 0;
+                }
+
+                // a name of more than four parts is not an object name, so its leading parts are
+                // emitted on their own until the last four remain
+                if (partCount == MaxNameParts)
+                {
+                    AddName(result, objectName, scanner, parts[..1]);
+                    parts[1..].CopyTo(parts);
+                    partCount--;
+                }
+
+                parts[partCount++] = token;
+                afterDot = false;
             }
-
-            var pieceCount = (nameEnd - i) / 2 + 1;
-            var identifier = pieceCount switch
+            else if (token.Kind == SqlServerNameTokenKind.Dot && partCount > 0 && !afterDot)
             {
-                2 => Identifier.CreateQualifiedIdentifier(
-                    GetIdentifierValue(token),
-                    GetIdentifierValue(whitespaceRemovedTokens[i + 2])),
-                3 => Identifier.CreateQualifiedIdentifier(
-                    GetIdentifierValue(token),
-                    GetIdentifierValue(whitespaceRemovedTokens[i + 2]),
-                    GetIdentifierValue(whitespaceRemovedTokens[i + 4])),
-                4 => Identifier.CreateQualifiedIdentifier(
-                    GetIdentifierValue(token),
-                    GetIdentifierValue(whitespaceRemovedTokens[i + 2]),
-                    GetIdentifierValue(whitespaceRemovedTokens[i + 4]),
-                    GetIdentifierValue(whitespaceRemovedTokens[i + 6])),
-                // a single name, or more than four parts: emit this token on its own
-                _ => Identifier.CreateQualifiedIdentifier(GetIdentifierValue(token)),
-            };
-
-            if (!Comparer.Equals(identifier, objectName))
-                result.Add(identifier);
-
-            // skip past the remaining parts of a qualified name
-            if (pieceCount is > 1 and <= 4)
-                i = nameEnd;
+                afterDot = true;
+            }
+            else
+            {
+                if (partCount > 0)
+                    AddName(result, objectName, scanner, parts[..partCount]);
+                partCount = 0;
+                afterDot = false;
+            }
         }
+
+        if (partCount > 0)
+            AddName(result, objectName, scanner, parts[..partCount]);
 
         return result;
     }
 
-    private static bool IsWhitespace(TSqlParserToken token) => token.TokenType == TSqlTokenType.WhiteSpace || token.TokenType == TSqlTokenType.EndOfFile;
+    private const int MaxNameParts = 4;
 
-    private static bool IsIdentifier(TSqlParserToken token) =>
-        token.TokenType == TSqlTokenType.Identifier
-        || token.TokenType == TSqlTokenType.QuotedIdentifier
-        // A double-quoted name lexes to this ambiguous type; under QUOTED_IDENTIFIER ON (how the
-        // parser is configured) it is always a delimited identifier rather than a string literal.
-        || token.TokenType == TSqlTokenType.AsciiStringOrQuotedIdentifier;
-
-    private static string GetIdentifierValue(TSqlParserToken token)
+    private void AddName(HashSet<Identifier> result, Identifier objectName, SqlServerNameScanner scanner, ReadOnlySpan<SqlServerNameToken> parts)
     {
-        if (!IsIdentifier(token))
-            throw new ArgumentException($"Expected an identifier token. Received {token.TokenType}.", nameof(token));
+        var identifier = parts.Length switch
+        {
+            1 => Identifier.CreateQualifiedIdentifier(scanner.GetIdentifierValue(parts[0])),
+            2 => Identifier.CreateQualifiedIdentifier(
+                scanner.GetIdentifierValue(parts[0]),
+                scanner.GetIdentifierValue(parts[1])),
+            3 => Identifier.CreateQualifiedIdentifier(
+                scanner.GetIdentifierValue(parts[0]),
+                scanner.GetIdentifierValue(parts[1]),
+                scanner.GetIdentifierValue(parts[2])),
+            _ => Identifier.CreateQualifiedIdentifier(
+                scanner.GetIdentifierValue(parts[0]),
+                scanner.GetIdentifierValue(parts[1]),
+                scanner.GetIdentifierValue(parts[2]),
+                scanner.GetIdentifierValue(parts[3])),
+        };
 
-        // A plain identifier carries no delimiters; quoted forms ([foo], "foo") are decoded,
-        // auto-detecting the quoting style (and unescaping ]] / "") from the token text.
-        return token.TokenType == TSqlTokenType.Identifier
-            ? token.Text
-            : ScriptDom.Identifier.DecodeIdentifier(token.Text, out _);
+        if (!Comparer.Equals(identifier, objectName))
+            result.Add(identifier);
     }
 }
