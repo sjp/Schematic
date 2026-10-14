@@ -539,6 +539,15 @@ end", TestContext.CurrentContext.CancellationToken);
     }
 
     [Test]
+    public async Task GetTable_GivenSchemaThatIsNotAttached_ReturnsNone()
+    {
+        var tableName = new Identifier("database_that_doesnt_exist", "db_test_table_1");
+        var tableIsNone = await TableProvider.GetTable(tableName).IsNone;
+
+        Assert.That(tableIsNone, Is.True);
+    }
+
+    [Test]
     public async Task GetTable_WhenTablePresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("DB_TEST_table_1");

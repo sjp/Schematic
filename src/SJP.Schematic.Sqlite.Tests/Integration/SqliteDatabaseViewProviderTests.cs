@@ -159,6 +159,15 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
     }
 
     [Test]
+    public async Task GetView_GivenSchemaThatIsNotAttached_ReturnsNone()
+    {
+        var viewName = new Identifier("database_that_doesnt_exist", "db_test_view_1");
+        var viewIsNone = await ViewProvider.GetView(viewName).IsNone;
+
+        Assert.That(viewIsNone, Is.True);
+    }
+
+    [Test]
     public async Task GetView_WhenViewPresentGivenLocalNameNameWithDifferentCase_ReturnsMatchingName()
     {
         var inputName = new Identifier("DB_TEST_view_1");

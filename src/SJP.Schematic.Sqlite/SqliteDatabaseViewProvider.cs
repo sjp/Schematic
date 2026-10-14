@@ -194,7 +194,15 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         if (viewName.Schema != null)
         {
-            var sql = GetViewName.Sql(Dialect, viewName.Schema);
+            var dbList = await databaseList;
+            var viewSchemaName = dbList
+                .OrderBy(static s => s.seq)
+                .Select(static s => s.name)
+                .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
+            if (viewSchemaName == null)
+                return Option<Identifier>.None;
+
+            var sql = GetViewName.Sql(Dialect, viewSchemaName);
             var viewLocalName = await DbConnection.ExecuteScalarAsync(
                 sql,
                 new GetViewName.Query { ViewName = viewName.LocalName },
@@ -202,17 +210,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             );
 
             if (viewLocalName != null)
-            {
-                var dbList = await databaseList;
-                var viewSchemaName = dbList
-                    .OrderBy(static s => s.seq)
-                    .Select(static s => s.name)
-                    .FirstOrDefault(s => string.Equals(s, viewName.Schema, StringComparison.OrdinalIgnoreCase));
-                if (viewSchemaName == null)
-                    throw new InvalidOperationException("Unable to find a database matching the given schema name: " + viewName.Schema);
-
                 return Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(viewSchemaName, viewLocalName));
-            }
         }
 
         var dbNamesResult = await databaseList;

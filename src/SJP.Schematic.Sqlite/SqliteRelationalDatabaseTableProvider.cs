@@ -242,7 +242,15 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         if (tableName.Schema != null)
         {
-            var sql = GetTableName.Sql(Dialect, tableName.Schema);
+            var dbList = await queryCache.GetDatabaseListAsync(cancellationToken);
+            var tableSchemaName = dbList
+                .OrderBy(static s => s.seq)
+                .Select(static s => s.name)
+                .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
+            if (tableSchemaName == null)
+                return Option<Identifier>.None;
+
+            var sql = GetTableName.Sql(Dialect, tableSchemaName);
             var queryResult = await DbConnection.ExecuteScalarAsync(
                 sql,
                 new GetTableName.Query { TableName = tableName.LocalName },
@@ -251,14 +259,6 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
             if (queryResult != null)
             {
-                var dbList = await queryCache.GetDatabaseListAsync(cancellationToken);
-                var tableSchemaName = dbList
-                    .OrderBy(static s => s.seq)
-                    .Select(static s => s.name)
-                    .FirstOrDefault(s => string.Equals(s, tableName.Schema, StringComparison.OrdinalIgnoreCase));
-                if (tableSchemaName == null)
-                    throw new InvalidOperationException("Unable to find a database matching the given schema name: " + tableName.Schema);
-
                 var resolvedName = Identifier.CreateQualifiedIdentifier(tableSchemaName, queryResult);
                 if (!await IsShadowTableAsync(resolvedName, queryCache, cancellationToken))
                     return Option<Identifier>.Some(resolvedName);
