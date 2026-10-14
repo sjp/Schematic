@@ -91,7 +91,7 @@ internal static class OracleCatalogMapper
         return name.Contains('"') ? null : name.ToString();
     }
 
-    public static IReadOnlyCollection<IDatabaseTrigger> MapTriggers(IEnumerable<GetTableTriggers.Result> rows)
+    public static IReadOnlyCollection<IDatabaseTrigger> MapTriggers(IEnumerable<TriggerRow> rows)
     {
         ArgumentNullException.ThrowIfNull(rows);
 

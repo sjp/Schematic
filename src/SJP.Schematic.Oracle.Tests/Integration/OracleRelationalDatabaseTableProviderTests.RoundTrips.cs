@@ -12,9 +12,9 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     // foreign keys, or incoming child keys of its own, so it isolates the query shape without dragging in
     // the child-key fan-out to other tables.
     //
-    // A table load issues 7 queries: one to resolve the table's name, then columns, triggers, indexes,
-    // child keys and storage options, plus a single constraints query that reads the primary key, unique
-    // keys, foreign keys and check constraints together.
+    // A table load issues 6 queries: one to resolve the table's name, then columns, indexes, child keys,
+    // a single details query that reads the storage options and triggers together, and a single
+    // constraints query that reads the primary key, unique keys, foreign keys and check constraints.
     [Test]
     public async Task GetTable_ForSingleTableWithOnlyAPrimaryKey_IssuesExpectedNumberOfRoundTrips()
     {
@@ -24,6 +24,6 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         _ = await tableProvider.GetTable("table_test_table_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(7));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(6));
     }
 }

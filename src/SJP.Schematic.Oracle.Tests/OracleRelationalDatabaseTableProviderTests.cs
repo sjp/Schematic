@@ -90,15 +90,6 @@ internal static class OracleRelationalDatabaseTableProviderTests
         );
     }
 
-    [Test]
-    public static void LoadTriggersAsync_GivenNullTableName_ThrowsArgNullException()
-    {
-        Assert.That(
-            () => ProviderAccessor.Create().LoadTriggers(null!),
-            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tableName")
-        );
-    }
-
     [TestCaseSource(nameof(TableAndCacheLoaders))]
     public static void TableAndCacheLoader_GivenNullTableName_ThrowsArgNullException(string loaderName)
     {
@@ -259,8 +250,6 @@ internal static class OracleRelationalDatabaseTableProviderTests
         public Identifier Qualify(Identifier tableName) => QualifyTableName(tableName);
 
         public object ResolveNameStrict(Identifier tableName) => GetResolvedTableNameStrict(tableName, CancellationToken.None);
-
-        public object LoadTriggers(Identifier tableName) => LoadTriggersAsync(tableName, CancellationToken.None);
 
         public bool TryAddTableName(Identifier tableName, Identifier resolvedTableName) => _cache.TryAddTableName(tableName, resolvedTableName);
 

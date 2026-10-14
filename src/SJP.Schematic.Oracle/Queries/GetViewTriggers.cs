@@ -5,27 +5,27 @@ namespace SJP.Schematic.Oracle.Queries;
 internal static class GetViewTriggers
 {
     // The shape of a trigger is the same whether it is attached to a table or a view, so the rows are
-    // described by GetTableTriggers.Result and mapped by the same code.
-    internal sealed record Query : ISqlQuery<GetTableTriggers.Result>
+    // described by TriggerRow and mapped by the same code.
+    internal sealed record Query : ISqlQuery<TriggerRow>
     {
         public required string SchemaName { get; init; }
 
         public required string ViewName { get; init; }
     }
 
-    // As for GetTableTriggers, the UPDATE OF column list is aggregated in a derived table so that
+    // As for GetTableDetails, the UPDATE OF column list is aggregated in a derived table so that
     // TRIGGER_BODY, a LONG column, stays out of any grouped or nested select list.
     internal const string Sql = $"""
 
 select
-    t.OWNER as "{nameof(GetTableTriggers.Result.TriggerSchema)}",
-    t.TRIGGER_NAME as "{nameof(GetTableTriggers.Result.TriggerName)}",
-    t.TRIGGER_TYPE as "{nameof(GetTableTriggers.Result.TriggerType)}",
-    t.TRIGGERING_EVENT as "{nameof(GetTableTriggers.Result.TriggerEvent)}",
-    t.WHEN_CLAUSE as "{nameof(GetTableTriggers.Result.Condition)}",
-    tc.UPDATE_COLUMNS as "{nameof(GetTableTriggers.Result.UpdateColumns)}",
-    t.TRIGGER_BODY as "{nameof(GetTableTriggers.Result.Definition)}",
-    t.STATUS as "{nameof(GetTableTriggers.Result.EnabledStatus)}"
+    t.OWNER as "{nameof(TriggerRow.TriggerSchema)}",
+    t.TRIGGER_NAME as "{nameof(TriggerRow.TriggerName)}",
+    t.TRIGGER_TYPE as "{nameof(TriggerRow.TriggerType)}",
+    t.TRIGGERING_EVENT as "{nameof(TriggerRow.TriggerEvent)}",
+    t.WHEN_CLAUSE as "{nameof(TriggerRow.Condition)}",
+    tc.UPDATE_COLUMNS as "{nameof(TriggerRow.UpdateColumns)}",
+    t.TRIGGER_BODY as "{nameof(TriggerRow.Definition)}",
+    t.STATUS as "{nameof(TriggerRow.EnabledStatus)}"
 from SYS.ALL_TRIGGERS t
 left join (
     select

@@ -216,23 +216,21 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var (
             columns,
             checks,
-            triggers,
             indexes,
             primaryKey,
             uniqueKeys,
             parentKeys,
             childKeys,
-            options
+            (options, triggers)
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
             LoadChecksAsync(tableName, queryCache, cancellationToken),
-            LoadTriggersAsync(tableName, cancellationToken),
             queryCache.GetIndexesAsync(tableName, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken),
-            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
+            LoadTableDetailsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -253,18 +251,47 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         );
     }
 
-    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    // A table's options and triggers are read by one query, which repeats the options on each trigger row.
+    private async Task<(TableOptions Options, IReadOnlyCollection<IDatabaseTrigger> Triggers)> LoadTableDetailsAsync(
+        Identifier tableName,
+        OracleTableQueryCache queryCache,
+        CancellationToken cancellationToken
+    )
     {
-        var optionsResult = await DbConnection.QueryAsync(
-            GetTableOptions.Sql,
-            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+        var queryResult = await DbConnection.QueryAsync(
+            GetTableDetails.Sql,
+            new GetTableDetails.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
+        var rows = queryResult.ToList();
+        if (rows.Count == 0)
+            return (TableOptions.Default, []);
 
-        var options = optionsResult.FirstOrDefault();
-        if (options == null)
-            return TableOptions.Default;
+        var triggerRows = new List<TriggerRow>();
+        foreach (var row in rows)
+        {
+            if (row.TriggerName == null)
+                continue;
 
+            triggerRows.Add(new TriggerRow
+            {
+                TriggerSchema = row.TriggerSchema,
+                TriggerName = row.TriggerName,
+                TriggerType = row.TriggerType,
+                TriggerEvent = row.TriggerEvent,
+                Condition = row.TriggerCondition,
+                UpdateColumns = row.TriggerUpdateColumns,
+                Definition = row.TriggerDefinition,
+                EnabledStatus = row.TriggerEnabledStatus,
+            });
+        }
+
+        var options = await MapTableOptionsAsync(tableName, rows[0], queryCache, cancellationToken);
+        return (options, OracleCatalogMapper.MapTriggers(triggerRows));
+    }
+
+    private async Task<TableOptions> MapTableOptionsAsync(Identifier tableName, GetTableDetails.Result options, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
         var isPartitioned = string.Equals(options.IsPartitioned, "YES", StringComparison.OrdinalIgnoreCase);
         var partitioning = Option<ITablePartitioning>.None;
         if (isPartitioned)
@@ -297,7 +324,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return new TableOptions(kind, partitioning, Option<ITableSystemVersioning>.None, isLogged, collation);
     }
 
-    private async Task<ITablePartitioning> LoadPartitioningAsync(Identifier tableName, GetTableOptions.Result options, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
+    private async Task<ITablePartitioning> LoadPartitioningAsync(Identifier tableName, GetTableDetails.Result options, OracleTableQueryCache queryCache, CancellationToken cancellationToken)
     {
         var (partitionColumnNames, partitionNames, columnLookup) = await (
             DbConnection.QueryAsync(
@@ -966,31 +993,6 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             && decimal.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result)
             ? Option<decimal>.Some(result)
             : Option<decimal>.None;
-    }
-
-    /// <summary>
-    /// Retrieves all triggers defined on a table.
-    /// </summary>
-    /// <param name="tableName">A table name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        return LoadTriggersAsyncCore(tableName, cancellationToken);
-    }
-
-    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
-    {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableTriggers.Sql,
-            new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
-
-        return OracleCatalogMapper.MapTriggers(queryResult);
     }
 
     /// <summary>
