@@ -24,6 +24,9 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
         await DbConnection.ExecuteAsync("create view view_test_view_2 as select 1, 2.345, 'test', X'DEADBEEF'", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_3 as select 1, 2.345, 'test', X'DEADBEEF', table_id from view_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_4 as select 1, 1, 1, 1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view View_Test_View_5 as select table_id from view_test_table_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create trigger view_test_view_5_trigger_1 instead of insert on view_test_view_5 begin select 1; end", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create trigger view_test_view_5_trigger_2 instead of delete on \"VIEW_TEST_VIEW_5\" begin select 1; end", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -33,6 +36,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
 
         await DbConnection.ExecuteAsync("drop view view_test_view_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop view view_test_view_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop view view_test_view_5", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table view_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop view view_test_view_2", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop view view_test_view_4", TestContext.CurrentContext.CancellationToken);
@@ -61,6 +65,18 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
 
     private readonly AsyncLock _lock = new();
     private readonly Dictionary<Identifier, AsyncLazy<IDatabaseView>> _viewsCache = [];
+
+    [Test]
+    public async Task GetView_WhenTriggersNameViewInDifferentCase_ReturnsAllTriggersAndIsUpdatable()
+    {
+        var view = await GetViewAsync("View_Test_View_5");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(view.Triggers.Select(static t => t.Name.LocalName), Is.EquivalentTo(new[] { "view_test_view_5_trigger_1", "view_test_view_5_trigger_2" }));
+            Assert.That(view.IsUpdatable, Is.True);
+        }
+    }
 
     [Test]
     public async Task GetView_WhenViewPresent_ReturnsView()

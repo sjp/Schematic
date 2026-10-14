@@ -39,6 +39,9 @@ create table pragma_child_table (
     parent_second_key integer,
     constraint fk_pragma_child_table_parent foreign key (parent_second_key, parent_first_key) references pragma_parent_table (second_key, first_key)
 )", cancellationToken);
+        await _connectionFactory.ExecuteAsync("create table schema_rows_table (id integer primary key, name text unique, value integer)", cancellationToken);
+        await _connectionFactory.ExecuteAsync("create index ix_schema_rows_table_value on schema_rows_table (value)", cancellationToken);
+        await _connectionFactory.ExecuteAsync("create trigger schema_rows_table_trigger after insert on schema_rows_table begin select 1; end", cancellationToken);
 
         var connection = (SqliteConnection)await _connectionFactory.OpenConnectionAsync(cancellationToken);
         raw.sqlite3_trace(connection.Handle, (_, statement) => _statements.Enqueue(statement), null);
@@ -78,6 +81,27 @@ create table pragma_child_table (
             Assert.That(tableXInfoStatements, Has.One.Contains("pragma_child_table"));
             Assert.That(tableXInfoStatements, Has.One.Contains("pragma_parent_table"));
             Assert.That(tableInfoStatements, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task GetTable_WhenTableHasIndexesAndTriggers_ReadsTableIndexAndTriggerDefinitionsInOneQuery()
+    {
+        var tableProvider = CreateTableProvider();
+        _statements.Clear();
+
+        var table = await tableProvider.GetTable("schema_rows_table", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var definitionStatements = _statements
+            .Where(static s => s.Contains("sqlite_master", StringComparison.OrdinalIgnoreCase) && s.Contains("tbl_name", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(table.Columns, Has.Count.EqualTo(3));
+            Assert.That(table.UniqueKeys, Has.Count.EqualTo(1));
+            Assert.That(table.Indexes.Select(static i => i.Name.LocalName), Is.EqualTo(new[] { "ix_schema_rows_table_value" }));
+            Assert.That(table.Triggers.Select(static t => t.Name.LocalName), Is.EqualTo(new[] { "schema_rows_table_trigger" }));
+            Assert.That(definitionStatements, Has.Count.EqualTo(1));
         }
     }
 

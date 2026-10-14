@@ -346,6 +346,9 @@ create table case_fk_child_2 (
 
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create table Trigger_Test_Table_3 (table_id integer primary key not null)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create trigger trigger_test_table_3_trigger_1 after insert on trigger_test_table_3 begin select 1; end", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create trigger trigger_test_table_3_trigger_2 after insert on \"TRIGGER_TEST_TABLE_3\" begin select 1; end", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
 before insert
 on trigger_test_table_1
@@ -455,6 +458,7 @@ end", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table case_fk_parent", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table trigger_test_table_3", TestContext.CurrentContext.CancellationToken);
     }
 
     private Task<IRelationalDatabaseTable> GetTableAsync(Identifier tableName)

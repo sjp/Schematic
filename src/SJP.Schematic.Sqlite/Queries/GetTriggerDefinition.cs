@@ -18,6 +18,8 @@ internal static class GetTriggerDefinition
         public required string Sql { get; init; }
     }
 
+    // a trigger's tbl_name keeps the spelling of its ON clause, which SQLite matches ignoring the
+    // case of ASCII letters, as nocase does
     internal static string Sql(IDatabaseDialect dialect, string schemaName)
     {
         ArgumentNullException.ThrowIfNull(dialect);
@@ -29,7 +31,7 @@ select
     name as "{nameof(Result.Name)}",
     sql as "{nameof(Result.Sql)}"
 from {dialect.QuoteIdentifier(schemaName)}.sqlite_master
-where type = 'trigger' and tbl_name = @{nameof(Query.TableName)}
+where type = 'trigger' and tbl_name = @{nameof(Query.TableName)} collate nocase
 """;
     }
 }

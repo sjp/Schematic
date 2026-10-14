@@ -26,6 +26,14 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     }
 
     [Test]
+    public async Task Triggers_GivenTriggersNamingTableInDifferentCase_ReturnsAllTriggers()
+    {
+        var table = await GetTableAsync("Trigger_Test_Table_3");
+
+        Assert.That(table.Triggers.Select(static t => t.Name.LocalName), Is.EquivalentTo(new[] { "trigger_test_table_3_trigger_1", "trigger_test_table_3_trigger_2" }));
+    }
+
+    [Test]
     public async Task Triggers_GivenTableWithTrigger_ReturnsCorrectName()
     {
         Identifier triggerName = "trigger_test_table_1_trigger_1";
