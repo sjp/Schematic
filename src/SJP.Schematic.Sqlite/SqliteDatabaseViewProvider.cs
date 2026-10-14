@@ -11,6 +11,7 @@ using Microsoft.Data.Sqlite;
 using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
+using SJP.Schematic.Core.Utilities;
 using SJP.Schematic.Sqlite.Exceptions;
 using SJP.Schematic.Sqlite.Parsing;
 using SJP.Schematic.Sqlite.Pragma;
@@ -449,8 +450,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             // BLOB affinity, as any column with no declared type does.
             var declaredTypeName = tableInfo.type;
             var columnType = declaredTypeName.IsNullOrWhiteSpace()
-                ? new SqliteColumnType(GetRuntimeTypeAffinity(columnTypeLookup, columnName))
-                : new SqliteColumnType(declaredTypeName, AffinityParser.ParseTypeName(declaredTypeName));
+                ? GetColumnType(null, GetRuntimeTypeAffinity(columnTypeLookup, columnName))
+                : GetColumnType(declaredTypeName, AffinityParser.ParseTypeName(declaredTypeName));
             // a view column cannot carry a default, so there is no definition to classify
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value))
@@ -494,6 +495,24 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
         }
 
         return result;
+    }
+
+    // view columns repeat a handful of declared types, and the types are immutable, so they are shared
+    private SqliteColumnType GetColumnType(string? declaredTypeName, SqliteTypeAffinity affinity)
+    {
+        var key = new ViewColumnTypeKey(declaredTypeName ?? string.Empty, affinity);
+        if (_columnTypes.TryGetValue(key, out var cached))
+            return cached;
+
+        var created = new SqliteColumnType(declaredTypeName, affinity);
+        if (Volatile.Read(ref _columnTypeCount) >= DbTypeCache.DefaultCapacity)
+            return created;
+
+        var shared = _columnTypes.GetOrAdd(key, created);
+        if (ReferenceEquals(shared, created))
+            Interlocked.Increment(ref _columnTypeCount);
+
+        return shared;
     }
 
     private static SqliteTypeAffinity GetRuntimeTypeAffinity(IReadOnlyDictionary<string, string?> columnTypeLookup, string columnName)
@@ -551,12 +570,16 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
     private readonly ConcurrentDictionary<string, ISqliteDatabasePragma> _dbPragmaCache = new(StringComparer.Ordinal);
     private readonly ConcurrentDictionary<Identifier, (string Sql, ParsedTriggerData Parsed)> _triggerParserCache = new(IdentifierComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<ViewColumnTypeKey, SqliteColumnType> _columnTypes = new();
+    private int _columnTypeCount;
     private static readonly SqliteTypeAffinityParser AffinityParser = new();
     private static readonly SqliteTriggerParser TriggerParser = new();
 
     // Exposed so that tests can show the parse cache stays bounded by the number of triggers in the
     // database, rather than growing with every definition ever seen.
     internal int ParsedTriggerCacheCount => _triggerParserCache.Count;
+
+    private readonly record struct ViewColumnTypeKey(string DeclaredTypeName, SqliteTypeAffinity Affinity);
 
     private const int SqliteError = 1;
 }

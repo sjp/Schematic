@@ -133,4 +133,24 @@ internal sealed class SqliteDatabaseViewProviderTypeofTests : SqliteTest
             Assert.That(view.Columns.Select(static c => c.Type.DataType), Is.All.EqualTo(DataType.BigInteger));
         }
     }
+
+    [Test]
+    public async Task GetView_WhenColumnsHaveSameRuntimeType_SharesColumnType()
+    {
+        var view = await GetViewAsync("typeof_wide");
+
+        var firstType = view.Columns[0].Type;
+        Assert.That(view.Columns.Select(static c => c.Type), Is.All.SameAs(firstType));
+    }
+
+    [Test]
+    public async Task GetView_WhenViewsHaveColumnsWithSameDeclaredType_SharesColumnType()
+    {
+        var viewProvider = CreateViewProvider();
+        var cancellationToken = TestContext.CurrentContext.CancellationToken;
+        var firstView = await viewProvider.GetView("typeof_runtime_error", cancellationToken).UnwrapSomeAsync();
+        var secondView = await viewProvider.GetView("typeof_null_first", cancellationToken).UnwrapSomeAsync();
+
+        Assert.That(secondView.Columns[0].Type, Is.SameAs(firstView.Columns[0].Type));
+    }
 }
