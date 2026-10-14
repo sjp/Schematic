@@ -85,4 +85,13 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         Assert.That(uk.Name.UnwrapSome().LocalName, Is.EqualTo("uk_test_table_7"));
     }
+
+    [Test]
+    public async Task UniqueKeys_WhenGivenConstraintNamingColumnInDifferentCase_ReturnsConstraintName()
+    {
+        var table = await GetTableAsync("case_fk_parent");
+        var uk = table.UniqueKeys.Single(k => k.Columns.Single().Name.LocalName == "Other");
+
+        Assert.That(uk.Name.UnwrapSome().LocalName, Is.EqualTo("uq_case_fk_parent_other"));
+    }
 }

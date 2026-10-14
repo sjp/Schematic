@@ -380,4 +380,34 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         Assert.That(table.ParentKeys, Is.Empty);
     }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenForeignKeyNamingColumnsInDifferentCase_ResolvesParentUniqueKey()
+    {
+        var table = await GetTableAsync("case_fk_child_1");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_case_fk_child_1"));
+            Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("case_fk_parent"));
+            Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("uq_case_fk_parent_code"));
+            Assert.That(foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "parent_code" }));
+            Assert.That(foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "code" }));
+        }
+    }
+
+    [Test]
+    public async Task ParentKeys_WhenGivenForeignKeyNamingParentColumnInDifferentCase_ResolvesParentPrimaryKey()
+    {
+        var table = await GetTableAsync("case_fk_child_2");
+        var foreignKey = table.ParentKeys.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_case_fk_child_2"));
+            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "id" }));
+        }
+    }
 }

@@ -823,7 +823,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .OrderBy(static i => i.seqno)
                 .ToList();
             var columnNames = orderedColumns
-                .ConvertAll(static i => i.name);
+                .ConvertAll(static i => i.name!);
             var keyColumns = new List<IDatabaseColumn>(orderedColumns.Count);
             foreach (var orderedColumn in orderedColumns)
             {
@@ -832,7 +832,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             }
 
             var parsedUniqueConstraint = parsedUniqueConstraints
-                .FirstOrDefault(constraint => constraint.Columns.Select(c => c.Name).SequenceEqual(columnNames, StringComparer.Ordinal));
+                .FirstOrDefault(constraint => constraint.Columns.Select(static c => c.Name ?? string.Empty).SequenceEqual(columnNames, AsciiCaseInsensitiveStringComparer.Instance));
             var uniqueConstraint = parsedUniqueConstraint != null
                 ? Option<UniqueKey>.Some(parsedUniqueConstraint)
                 : Option<UniqueKey>.None;
@@ -1642,7 +1642,9 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     {
         ArgumentNullException.ThrowIfNull(columns);
 
-        var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count);
+        // SQLite matches column names ignoring the case of ASCII letters, so constraints and
+        // index expressions may name a column in a different case from its declaration
+        var result = new Dictionary<Identifier, IDatabaseColumn>(columns.Count, ColumnNameComparer.Instance);
 
         foreach (var column in columns)
         {
@@ -1891,6 +1893,31 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     private static readonly Version TableXInfoPragmaVersion = new(3, 31, 0);
 
     private const string UnknownExpression = "<unknown expression>";
+
+    /// <summary>
+    /// Compares column names by their local name, ignoring the case of ASCII letters only, as SQLite does.
+    /// </summary>
+    private sealed class ColumnNameComparer : IEqualityComparer<Identifier>
+    {
+        public static ColumnNameComparer Instance { get; } = new();
+
+        public bool Equals(Identifier? x, Identifier? y)
+        {
+            if (ReferenceEquals(x, y))
+                return true;
+            if (x is null || y is null)
+                return false;
+
+            return AsciiCaseInsensitiveStringComparer.Instance.Equals(x.LocalName, y.LocalName);
+        }
+
+        public int GetHashCode(Identifier obj)
+        {
+            ArgumentNullException.ThrowIfNull(obj);
+
+            return AsciiCaseInsensitiveStringComparer.Instance.GetHashCode(obj.LocalName);
+        }
+    }
 
     private static class Constants
     {

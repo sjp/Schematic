@@ -324,6 +324,26 @@ create table implicit_fk_child_4 (
     constraint fk_implicit_fk_child_4 foreign key (test_column) references implicit_fk_parent_3
 )", TestContext.CurrentContext.CancellationToken);
 
+        await DbConnection.ExecuteAsync(@"
+create table case_fk_parent (
+    id integer primary key,
+    code text,
+    Other text,
+    constraint uq_case_fk_parent_code unique (code),
+    constraint uq_case_fk_parent_other unique (OTHER)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table case_fk_child_1 (
+    parent_code text,
+    constraint fk_case_fk_child_1 foreign key (PARENT_CODE) references CASE_FK_PARENT (CODE)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create table case_fk_child_2 (
+    parent_id integer,
+    constraint fk_case_fk_child_2 foreign key (parent_id) references case_fk_parent (ID)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index ix_case_fk_parent_expr on case_fk_parent (lower(CODE))", TestContext.CurrentContext.CancellationToken);
+
         await DbConnection.ExecuteAsync("create table trigger_test_table_1 (table_id integer primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table trigger_test_table_2 (table_id integer primary key not null)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_1
@@ -430,6 +450,9 @@ end", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table implicit_fk_parent_2", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table implicit_fk_child_4", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table implicit_fk_parent_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table case_fk_child_1", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table case_fk_child_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("drop table case_fk_parent", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("drop table trigger_test_table_2", TestContext.CurrentContext.CancellationToken);
     }

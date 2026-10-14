@@ -346,4 +346,13 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
         }
     }
+
+    [Test]
+    public async Task ChildKeys_WhenGivenChildForeignKeysNamingColumnsInDifferentCase_ContainsAllChildKeys()
+    {
+        var table = await GetTableAsync("case_fk_parent");
+        var childKeyNames = table.ChildKeys.Select(ck => ck.ChildKey.Name.UnwrapSome().LocalName);
+
+        Assert.That(childKeyNames, Is.EquivalentTo(new[] { "fk_case_fk_child_1", "fk_case_fk_child_2" }));
+    }
 }

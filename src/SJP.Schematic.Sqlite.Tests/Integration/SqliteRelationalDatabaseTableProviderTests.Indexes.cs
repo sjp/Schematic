@@ -206,4 +206,14 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
             Assert.That(index2.FilterDefinition.UnwrapSome(), Is.EqualTo("test_column_2 < 100 and test_column_2 > 3"));
         }
     }
+
+    [Test]
+    public async Task Indexes_WhenGivenExpressionNamingColumnInDifferentCase_ReturnsDependentColumn()
+    {
+        var table = await GetTableAsync("case_fk_parent");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "ix_case_fk_parent_expr");
+        var indexColumn = index.Columns.Single();
+
+        Assert.That(indexColumn.DependentColumns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "code" }));
+    }
 }
