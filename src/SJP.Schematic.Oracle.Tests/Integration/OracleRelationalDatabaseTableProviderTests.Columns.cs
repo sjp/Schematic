@@ -124,6 +124,16 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableWithComputedColumn_ReturnsNoDefaultValue()
+    {
+        const string tableName = "TABLE_TEST_TABLE_34";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns[table.Columns.Count - 1];
+
+        Assert.That(column.DefaultValue, OptionIs.None);
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableColumnWithoutIdentity_ReturnsNoneAutoIncrement()
     {
         const string tableName = "TABLE_TEST_TABLE_1";
