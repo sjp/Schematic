@@ -14,7 +14,8 @@ internal static class GetViewDefinition
     internal sealed record Result
     {
         /// <summary>
-        /// The query text of the view, or <see langword="null" /> when the view was created <c>WITH ENCRYPTION</c>.
+        /// The query text of the view, or <see langword="null" /> when the view was created <c>WITH ENCRYPTION</c>
+        /// or the caller lacks <c>VIEW DEFINITION</c> on it.
         /// </summary>
         public required string? Definition { get; init; }
 

@@ -143,6 +143,10 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
             )
         ).WhenAll();
 
+        // the routine was dropped after its name was read
+        if (routineDetail == null)
+            return new DatabaseRoutine(routineName, SqlServerCatalogMapper.UnavailableDefinition, RoutineType.Unknown, SqlServerRoutineLanguage, [], Option<IDbType>.None);
+
         // parameter_id 0 is a scalar function's return value rather than a parameter. A table-valued
         // function has no such row, so its return type is unavailable rather than absent.
         var returnType = parameterRows
@@ -157,7 +161,8 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         return new DatabaseRoutine(
             routineName,
-            routineDetail!.Definition,
+            // null for an encrypted routine
+            !routineDetail.Definition.IsNullOrWhiteSpace() ? routineDetail.Definition : SqlServerCatalogMapper.UnavailableDefinition,
             GetRoutineType(routineDetail.RoutineTypeCode),
             SqlServerRoutineLanguage,
             parameters,

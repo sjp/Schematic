@@ -154,13 +154,16 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
         var columnLookup = GetColumnLookup(columns);
         var indexes = SqlServerCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+        // the definition is null for an encrypted view, and missing when the view was dropped after its
+        // name was read
+        var viewDefinition = !definition.IsNullOrWhiteSpace() ? definition : SqlServerCatalogMapper.UnavailableDefinition;
 
         // SQL Server has no materialized view of its own. An indexed view is the equivalent: creating a
         // unique clustered index on a view is what causes its results to be stored.
         return indexes.Count > 0
             ? new DatabaseMaterializedView(
                 viewName,
-                definition!,
+                viewDefinition,
                 columns,
                 triggers,
                 indexes,
@@ -172,7 +175,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
             )
             // SQL Server does not record whether a view is updatable: INFORMATION_SCHEMA.VIEWS.IS_UPDATABLE
             // always reports 'NO', and no sys catalog view carries the information, so it is left unset.
-            : new DatabaseView(viewName, definition!, columns, triggers, indexes, checkOption, isUpdatable: false);
+            : new DatabaseView(viewName, viewDefinition, columns, triggers, indexes, checkOption, isUpdatable: false);
     }
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyList<IDatabaseColumn> columns)

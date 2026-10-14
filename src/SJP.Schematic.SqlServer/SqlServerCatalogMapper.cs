@@ -15,6 +15,13 @@ namespace SJP.Schematic.SqlServer;
 /// </summary>
 internal static class SqlServerCatalogMapper
 {
+    /// <summary>
+    /// Stands in for the definition of a view, routine or trigger that <c>sys.sql_modules</c> returns as
+    /// <see langword="null" />, so that the object is still reported along with its columns, parameters
+    /// and so on. It is a SQL comment, so anything that parses definitions sees no references in it.
+    /// </summary>
+    public const string UnavailableDefinition = "-- definition unavailable (encrypted, or requires the VIEW DEFINITION permission)";
+
     public static IReadOnlyCollection<IDatabaseIndex> MapIndexes(
         IEnumerable<GetTableIndexes.Result> rows,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
@@ -119,7 +126,7 @@ internal static class SqlServerCatalogMapper
         {
             var triggerName = Identifier.CreateQualifiedIdentifier(trig.TriggerName);
             var queryTiming = trig.IsInsteadOfTrigger ? TriggerQueryTiming.InsteadOf : TriggerQueryTiming.After;
-            var definition = trig.Definition;
+            var definition = !trig.Definition.IsNullOrWhiteSpace() ? trig.Definition : UnavailableDefinition;
             var isEnabled = !trig.IsDisabled;
 
             var events = TriggerEvent.None;

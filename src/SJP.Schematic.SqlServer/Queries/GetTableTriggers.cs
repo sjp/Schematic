@@ -15,7 +15,11 @@ internal static class GetTableTriggers
     {
         public required string TriggerName { get; init; }
 
-        public required string Definition { get; init; }
+        /// <summary>
+        /// The trigger body, or <see langword="null" /> when the trigger was created <c>WITH ENCRYPTION</c>
+        /// or the caller lacks <c>VIEW DEFINITION</c> on it.
+        /// </summary>
+        public required string? Definition { get; init; }
 
         public required bool IsInsteadOfTrigger { get; init; }
 

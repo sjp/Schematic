@@ -13,7 +13,11 @@ internal static class GetRoutineDefinition
 
     internal sealed record Result
     {
-        public required string Definition { get; init; }
+        /// <summary>
+        /// The routine body, or <see langword="null" /> when the routine was created <c>WITH ENCRYPTION</c>
+        /// or the caller lacks <c>VIEW DEFINITION</c> on it.
+        /// </summary>
+        public required string? Definition { get; init; }
 
         /// <summary>
         /// The <c>sys.objects.type</c> code, i.e. one of the four values the query filters on.
