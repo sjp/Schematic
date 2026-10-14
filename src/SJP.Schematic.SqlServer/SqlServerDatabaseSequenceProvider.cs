@@ -144,13 +144,21 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             ? Option<int>.Some(row.CacheSize.Value)
             : Option<int>.None;
 
+        // bounds beyond the client decimal range are left out by the query rather than overflowing
+        var minValue = row.MinValue.HasValue
+            ? Option<decimal>.Some(row.MinValue.Value)
+            : Option<decimal>.None;
+        var maxValue = row.MaxValue.HasValue
+            ? Option<decimal>.Some(row.MaxValue.Value)
+            : Option<decimal>.None;
+
         return new DatabaseSequence(
             sequenceName,
             TypeProvider.CreateColumnType(typeMetadata),
             row.StartValue,
             row.Increment,
-            Option<decimal>.Some(row.MinValue),
-            Option<decimal>.Some(row.MaxValue),
+            minValue,
+            maxValue,
             row.Cycle,
             cacheMode,
             cacheSize,

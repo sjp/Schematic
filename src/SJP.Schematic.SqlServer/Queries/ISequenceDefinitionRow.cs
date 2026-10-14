@@ -24,9 +24,9 @@ internal interface ISequenceDefinitionRow
 
     decimal Increment { get; }
 
-    decimal MinValue { get; }
+    decimal? MinValue { get; }
 
-    decimal MaxValue { get; }
+    decimal? MaxValue { get; }
 
     decimal StartValue { get; }
 }

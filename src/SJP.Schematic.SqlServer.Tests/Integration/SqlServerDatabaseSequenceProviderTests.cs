@@ -25,7 +25,9 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         "create sequence db_test_sequence_8 cycle",
         "create sequence db_test_sequence_9 no cycle",
         "create sequence db_test_sequence_10 cache 10",
-        "create sequence db_test_sequence_11 no cache"
+        "create sequence db_test_sequence_11 no cache",
+        "create sequence db_test_sequence_12 as decimal(38, 0)",
+        "create sequence db_test_sequence_13 as decimal(38, 0) start with 5 minvalue -10 maxvalue 1000"
     );
 
     [OneTimeTearDown]
@@ -40,7 +42,9 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         "drop sequence db_test_sequence_8",
         "drop sequence db_test_sequence_9",
         "drop sequence db_test_sequence_10",
-        "drop sequence db_test_sequence_11"
+        "drop sequence db_test_sequence_11",
+        "drop sequence db_test_sequence_12",
+        "drop sequence db_test_sequence_13"
     );
 
     private Task<IDatabaseSequence> GetSequenceAsync(Identifier sequenceName)
@@ -288,6 +292,48 @@ internal sealed class SqlServerDatabaseSequenceProviderTests : SqlServerTest
         var sequence = await GetSequenceAsync("db_test_sequence_7");
 
         Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(long.MaxValue));
+    }
+
+    // a decimal(38, 0) sequence defaults to bounds of ±(10^38 - 1), beyond the .NET decimal range
+    [Test]
+    public async Task GetAllSequences_WhenDecimalSequenceHasDefaultBounds_ReturnsSequenceWithoutBounds()
+    {
+        var sequences = await SequenceProvider.GetAllSequences();
+        var sequence = sequences.Single(s => string.Equals(s.Name.LocalName, "db_test_sequence_12", StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.MinValue, OptionIs.None);
+            Assert.That(sequence.MaxValue, OptionIs.None);
+            Assert.That(sequence.Start, Is.EqualTo(decimal.MinValue));
+            Assert.That(sequence.Increment, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task GetAllSequences_WhenDecimalSequenceHasExplicitBounds_ReturnsCorrectBounds()
+    {
+        var sequences = await SequenceProvider.GetAllSequences();
+        var sequence = sequences.Single(s => string.Equals(s.Name.LocalName, "db_test_sequence_13", StringComparison.Ordinal));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.MinValue.UnwrapSome(), Is.EqualTo(-10));
+            Assert.That(sequence.MaxValue.UnwrapSome(), Is.EqualTo(1000));
+            Assert.That(sequence.Start, Is.EqualTo(5));
+        }
+    }
+
+    [Test]
+    public async Task GetSequence_WhenDecimalSequenceHasDefaultBounds_ReturnsSequenceWithoutBounds()
+    {
+        var sequence = await GetSequenceAsync("db_test_sequence_12");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.MinValue, OptionIs.None);
+            Assert.That(sequence.MaxValue, OptionIs.None);
+        }
     }
 
     [Test]
