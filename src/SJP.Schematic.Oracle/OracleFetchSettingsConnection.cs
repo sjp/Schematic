@@ -9,9 +9,18 @@ using Oracle.ManagedDataAccess.Client;
 namespace SJP.Schematic.Oracle;
 
 /// <summary>
-/// An Oracle connection whose commands retrieve <c>LONG</c> column data together with the rest of the row.
+/// An Oracle connection whose commands fetch many rows per round trip and retrieve <c>LONG</c> column data
+/// together with the rest of the row.
 /// </summary>
 /// <remarks>
+/// <para>
+/// The number of rows fetched per round trip is <see cref="OracleCommand.FetchSize"/> divided by the declared
+/// width of a row, not its actual width. Source text is read from the catalog one line per row, and a line is
+/// declared as <c>VARCHAR2(4000)</c> even though most lines are far shorter, so the default fetch size of 256 KB
+/// returns only about 64 lines per round trip. A 3,300-line package body then takes about 50 round trips. At
+/// 2 MB it takes 7, and other large catalog reads need fewer round trips too. The fetch size is an upper bound,
+/// not a buffer allocated up front: reading a single row allocates the same at every fetch size.
+/// </para>
 /// <para>
 /// How much <c>LONG</c> and <c>LONG RAW</c> data arrives alongside a row is decided by
 /// <see cref="OracleCommand.InitialLONGFetchSize"/>, which defaults to zero. That default leaves the data
@@ -24,25 +33,23 @@ namespace SJP.Schematic.Oracle;
 /// created here ask for the whole value up front instead.
 /// </para>
 /// <para>
-/// The setting exists only on individual commands, so it has to be applied wherever commands are created.
+/// Dapper already sets <see cref="OracleCommand.InitialLONGFetchSize"/> to the same value on every command it
+/// runs, so that assignment only matters for commands not run through Dapper.
+/// </para>
+/// <para>
+/// Both settings exist only on individual commands, so they have to be applied wherever commands are created.
 /// Wrapping the connection puts that in one place, covering queries whose commands are built by a data access
 /// library rather than by this library directly.
 /// </para>
-/// <para>
-/// Dapper already sets <see cref="OracleCommand.InitialLONGFetchSize"/> to the same value on every command it
-/// runs, so for queries issued through Dapper the assignment here changes nothing. The wrapper is kept because
-/// it is the one place every command is created: it still covers any command not run through Dapper, and it is
-/// where other per-command settings, such as <see cref="OracleCommand.FetchSize"/>, would be applied.
-/// </para>
 /// </remarks>
-internal sealed class OracleLongPrefetchConnection : DbConnection
+internal sealed class OracleFetchSettingsConnection : DbConnection
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="OracleLongPrefetchConnection"/> class.
+    /// Initializes a new instance of the <see cref="OracleFetchSettingsConnection"/> class.
     /// </summary>
     /// <param name="connection">The connection that performs the work.</param>
     /// <exception cref="ArgumentNullException"><paramref name="connection"/> is <see langword="null" />.</exception>
-    public OracleLongPrefetchConnection(OracleConnection connection)
+    public OracleFetchSettingsConnection(OracleConnection connection)
     {
         ArgumentNullException.ThrowIfNull(connection);
 
@@ -88,7 +95,8 @@ internal sealed class OracleLongPrefetchConnection : DbConnection
     protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => _connection.BeginTransaction(isolationLevel);
 
     /// <summary>
-    /// Creates a command that retrieves <c>LONG</c> data with the row it belongs to.
+    /// Creates a command that fetches many rows per round trip and retrieves <c>LONG</c> data with the row it
+    /// belongs to.
     /// </summary>
     /// <returns>A command bound to the underlying connection.</returns>
     /// <remarks>
@@ -98,6 +106,7 @@ internal sealed class OracleLongPrefetchConnection : DbConnection
     protected override DbCommand CreateDbCommand()
     {
         var command = _connection.CreateCommand();
+        command.FetchSize = FetchSizeBytes;
         command.InitialLONGFetchSize = EntireLongValue;
 
         return command;
@@ -137,6 +146,11 @@ internal sealed class OracleLongPrefetchConnection : DbConnection
     /// The <see cref="OracleCommand.InitialLONGFetchSize"/> that retrieves a <c>LONG</c> value in its entirety.
     /// </summary>
     private const int EntireLongValue = -1;
+
+    /// <summary>
+    /// The <see cref="OracleCommand.FetchSize"/>, in bytes, eight times the driver default of 256 KB.
+    /// </summary>
+    private const long FetchSizeBytes = 2 * 1024 * 1024;
 
     private readonly OracleConnection _connection;
 }

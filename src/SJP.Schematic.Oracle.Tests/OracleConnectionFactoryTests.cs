@@ -76,6 +76,18 @@ internal static class OracleConnectionFactoryTests
     }
 
     [Test]
+    public static void CreateConnection_WhenInvoked_CreatesCommandsWithLargerFetchSize()
+    {
+        var factory = new OracleConnectionFactory("Data Source=127.0.0.1/orcl; User Id=SYSTEM; Password=oracle");
+        using var connection = factory.CreateConnection();
+
+        using var command = connection.CreateCommand();
+
+        Assert.That(command, Is.InstanceOf<OracleCommand>()
+            .With.Property(nameof(OracleCommand.FetchSize)).EqualTo(2 * 1024 * 1024));
+    }
+
+    [Test]
     public static void MaxConcurrentQueries_GivenMaxPoolSize_ReturnsMaxPoolSize()
     {
         var factory = new OracleConnectionFactory("Data Source=127.0.0.1/orcl; User Id=SYSTEM; Password=oracle; Max Pool Size=7");

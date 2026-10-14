@@ -60,7 +60,7 @@ public class OracleConnectionFactory : IDbConnectionFactory
         var connection = new OracleConnection(ConnectionString);
         ConnectionConfiguration?.Invoke(connection);
 
-        return new OracleLongPrefetchConnection(connection);
+        return new OracleFetchSettingsConnection(connection);
     }
 
     /// <summary>
