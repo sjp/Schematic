@@ -146,6 +146,33 @@ internal static class OracleCatalogMapper
     }
 
     /// <summary>
+    /// Builds the numeric precision of a column, attribute or argument from the catalog's
+    /// <c>DATA_PRECISION</c> and <c>DATA_SCALE</c> values (or their equivalents).
+    /// </summary>
+    /// <param name="typeName">The catalog's type name for the value, e.g. <c>NUMBER</c> or <c>TIMESTAMP(6)</c>.</param>
+    /// <param name="precision">The catalog's precision, with <see langword="null" /> read as zero.</param>
+    /// <param name="scale">The catalog's scale, with <see langword="null" /> read as zero.</param>
+    /// <returns>A numeric precision, or <see cref="Option{A}.None"/> when the type does not have one.</returns>
+    /// <remarks>
+    /// The catalog reports a scale without a precision for <c>NUMBER(*, s)</c>, which has Oracle's
+    /// maximum precision of 38, and also for a timestamp or a day-to-second interval with a zero
+    /// leading precision, where the scale is the precision of its fractional seconds. That is read
+    /// from the type name instead, so no numeric precision is reported. A negative scale, as in
+    /// <c>NUMBER(5, -2)</c>, rounds to the left of the decimal point and cannot be represented, so
+    /// it is reported as a scale of zero.
+    /// </remarks>
+    public static Option<INumericPrecision> GetNumericPrecision(string? typeName, int precision, int scale)
+    {
+        var nonNegativeScale = Math.Max(scale, 0);
+        if (precision > 0)
+            return Option<INumericPrecision>.Some(new NumericPrecision(precision, nonNegativeScale));
+
+        return nonNegativeScale > 0 && string.Equals(typeName, Number, StringComparison.Ordinal)
+            ? Option<INumericPrecision>.Some(new NumericPrecision(MaxNumberPrecision, nonNegativeScale))
+            : Option<INumericPrecision>.None;
+    }
+
+    /// <summary>
     /// A mapping from the referential actions as described in Oracle, to a <see cref="ReferentialAction"/> instance.
     /// </summary>
     public static IReadOnlyDictionary<string, ReferentialAction> ReferentialActionMapping { get; } = new Dictionary<string, ReferentialAction>(StringComparer.OrdinalIgnoreCase)
@@ -189,6 +216,8 @@ internal static class OracleCatalogMapper
     private const string Enabled = "ENABLED";
     private const string Insert = "INSERT";
     private const string Invisible = "INVISIBLE";
+    private const int MaxNumberPrecision = 38;
+    private const string Number = "NUMBER";
     private const string Unique = "UNIQUE";
     private const string Unusable = "UNUSABLE";
     private const string Update = "UPDATE";

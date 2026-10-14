@@ -43,9 +43,7 @@ internal static class OracleUserDefinedTypeMapper
             {
                 TypeName = Identifier.CreateQualifiedIdentifier(row.ElementTypeSchema, row.ElementTypeName),
                 MaxLength = row.ElementLength,
-                NumericPrecision = row.ElementPrecision > 0 || row.ElementScale > 0
-                    ? Option<INumericPrecision>.Some(new NumericPrecision(row.ElementPrecision, row.ElementScale))
-                    : Option<INumericPrecision>.None,
+                NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ElementTypeName, row.ElementPrecision, row.ElementScale),
                 Collation = !row.ElementCollation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ElementCollation))
                     : Option<Identifier>.None,
@@ -79,9 +77,7 @@ internal static class OracleUserDefinedTypeMapper
             {
                 TypeName = Identifier.CreateQualifiedIdentifier(row.AttributeTypeSchema, row.AttributeTypeName),
                 MaxLength = row.DataLength,
-                NumericPrecision = row.Precision > 0 || row.Scale > 0
-                    ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
-                    : Option<INumericPrecision>.None,
+                NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.AttributeTypeName, row.Precision, row.Scale),
                 Collation = !row.Collation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,

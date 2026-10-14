@@ -221,9 +221,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             // ALL_ARGUMENTS records a character set, not a collation
             Collation = Option<Identifier>.None,
             MaxLength = row.DataLength,
-            NumericPrecision = row.Precision > 0 || row.Scale > 0
-                ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
-                : Option<INumericPrecision>.None,
+            NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ArgumentTypeName, row.Precision, row.Scale),
         };
 
         return TypeProvider.CreateColumnType(typeMetadata);

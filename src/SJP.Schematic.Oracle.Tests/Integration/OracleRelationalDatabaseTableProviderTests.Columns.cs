@@ -194,4 +194,50 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         Assert.That(column.Type.DataType, Is.EqualTo(DataType.Geometry));
     }
+
+    [TestCase("TIMESTAMP_COLUMN", 6)]
+    [TestCase("TIMESTAMP_TZ_COLUMN", 3)]
+    [TestCase("INTERVAL_COLUMN", 6)]
+    public async Task Columns_WhenGivenTableWithFractionalSecondsColumn_ReturnsFractionalSecondsPrecisionAndNoNumericPrecision(string columnName, int expectedFractionalSecondsPrecision)
+    {
+        const string tableName = "TABLE_TEST_TABLE_43";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => c.Name.LocalName == columnName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(expectedFractionalSecondsPrecision));
+            Assert.That(column.Type.NumericPrecision, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithNegativeScaleNumberColumn_ReturnsZeroScale()
+    {
+        const string tableName = "TABLE_TEST_TABLE_43";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => c.Name.LocalName == "NEGATIVE_SCALE_COLUMN");
+        var numericPrecision = column.Type.NumericPrecision.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(numericPrecision.Precision, Is.EqualTo(5));
+            Assert.That(numericPrecision.Scale, Is.Zero);
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenTableWithNumberColumnWithScaleOnly_ReturnsMaximumPrecision()
+    {
+        const string tableName = "TABLE_TEST_TABLE_43";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => c.Name.LocalName == "UNBOUNDED_PRECISION_COLUMN");
+        var numericPrecision = column.Type.NumericPrecision.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(numericPrecision.Precision, Is.EqualTo(38));
+            Assert.That(numericPrecision.Scale, Is.EqualTo(2));
+        }
+    }
 }

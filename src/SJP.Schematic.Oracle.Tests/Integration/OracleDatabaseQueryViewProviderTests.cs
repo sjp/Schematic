@@ -25,6 +25,14 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create table query_view_test_table_2 (not_null_column number not null, nullable_column number)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_3 as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_4 (visible_column, invisible_column invisible) as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table query_view_test_table_3 (
+    timestamp_column timestamp,
+    timestamp_tz_column timestamp(3) with time zone,
+    interval_column interval day(0) to second(6),
+    negative_scale_column number(5, -2),
+    unbounded_precision_column number(*, 2)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_5 as select * from query_view_test_table_3", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -35,7 +43,9 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         "drop table query_view_test_table_1",
         "drop view query_view_test_view_3",
         "drop view query_view_test_view_4",
-        "drop table query_view_test_table_2");
+        "drop table query_view_test_table_2",
+        "drop view query_view_test_view_5",
+        "drop table query_view_test_table_3");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
@@ -298,6 +308,37 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     // A view load issues 4 queries: one to resolve the view's name, then columns (including their
     // nullability), INSTEAD OF triggers, and the definition read together with the check option and
     // updatability.
+    [Test]
+    public async Task GetAllViews_WhenViewHasFractionalSecondsAndUnusualScaleColumns_ContainsView()
+    {
+        var views = await ViewProvider.GetAllViews();
+        var containsView = views.Any(v => v.Name.LocalName == "QUERY_VIEW_TEST_VIEW_5");
+
+        Assert.That(containsView, Is.True);
+    }
+
+    [Test]
+    public async Task Columns_WhenViewHasFractionalSecondsAndUnusualScaleColumns_ReturnsExpectedPrecisions()
+    {
+        var view = await GetViewAsync("QUERY_VIEW_TEST_VIEW_5");
+        var columns = view.Columns.ToDictionary(c => c.Name.LocalName, StringComparer.Ordinal);
+        var negativeScale = columns["NEGATIVE_SCALE_COLUMN"].Type.NumericPrecision.UnwrapSome();
+        var unboundedPrecision = columns["UNBOUNDED_PRECISION_COLUMN"].Type.NumericPrecision.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columns["TIMESTAMP_COLUMN"].Type.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(6));
+            Assert.That(columns["TIMESTAMP_TZ_COLUMN"].Type.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(3));
+            Assert.That(columns["INTERVAL_COLUMN"].Type.FractionalSecondsPrecision.UnwrapSome(), Is.EqualTo(6));
+            Assert.That(columns["TIMESTAMP_COLUMN"].Type.NumericPrecision, OptionIs.None);
+            Assert.That(columns["INTERVAL_COLUMN"].Type.NumericPrecision, OptionIs.None);
+            Assert.That(negativeScale.Precision, Is.EqualTo(5));
+            Assert.That(negativeScale.Scale, Is.Zero);
+            Assert.That(unboundedPrecision.Precision, Is.EqualTo(38));
+            Assert.That(unboundedPrecision.Scale, Is.EqualTo(2));
+        }
+    }
+
     [Test]
     public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
     {

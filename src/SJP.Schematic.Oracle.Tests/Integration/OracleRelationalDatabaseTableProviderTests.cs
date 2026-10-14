@@ -162,6 +162,13 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_41 ( test_column number constraint nn_test_table_41 not null )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table table_test_table_42 ( test_column number constraint nn_test_table_42 not null )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("alter table table_test_table_42 disable constraint nn_test_table_42", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table table_test_table_43 (
+    timestamp_column timestamp,
+    timestamp_tz_column timestamp(3) with time zone,
+    interval_column interval day(0) to second(6),
+    negative_scale_column number(5, -2),
+    unbounded_precision_column number(*, 2)
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create table constraint_state_parent (
     a number not null,
     constraint pk_constraint_state_parent primary key (a) deferrable initially deferred
@@ -299,6 +306,7 @@ end trigger_test_table_1_trig_cmp;
             "table_test_table_40",
             "table_test_table_41",
             "table_test_table_42",
+            "table_test_table_43",
             "constraint_state_child",
             "constraint_state_parent",
             "trigger_test_table_1",

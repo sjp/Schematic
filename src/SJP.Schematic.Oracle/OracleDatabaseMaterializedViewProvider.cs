@@ -299,9 +299,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
                 MaxLength = row.DataLength,
-                NumericPrecision = row.Precision > 0 || row.Scale > 0
-                    ? Option<INumericPrecision>.Some(new NumericPrecision(row.Precision, row.Scale))
-                    : Option<INumericPrecision>.None,
+                NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ColumnTypeName, row.Precision, row.Scale),
             };
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
