@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 using SJP.Schematic.Core;
@@ -55,64 +54,45 @@ public class SqlServerDependencyProvider : IDependencyProvider
             if (token == null || !IsIdentifier(token))
                 continue;
 
-            // Measure the run of identifier/dot tokens starting here in place, rather than re-copying
-            // the tail of the token stream (via Skip) into a new list for every identifier encountered.
-            var runEnd = i;
-            while (runEnd < totalTokens && (IsIdentifier(whitespaceRemovedTokens[runEnd]) || whitespaceRemovedTokens[runEnd].TokenType == TSqlTokenType.Dot))
-                runEnd++;
-            var remainderCount = runEnd - i;
-
-            if (remainderCount > 1 && TryGetQualifiedIdentifier(whitespaceRemovedTokens, i, remainderCount, out var qualifiedIdentifier))
+            // Measure the dotted name starting here as `identifier (dot identifier)*`, stopping at the
+            // first identifier that does not follow a dot. That identifier (e.g. an alias written
+            // without AS, as in `Sales.Orders o`) then starts a name of its own.
+            var nameEnd = i;
+            while (nameEnd + 2 < totalTokens
+                && whitespaceRemovedTokens[nameEnd + 1].TokenType == TSqlTokenType.Dot
+                && IsIdentifier(whitespaceRemovedTokens[nameEnd + 2]))
             {
-                if (!Comparer.Equals(qualifiedIdentifier, objectName))
-                    result.Add(qualifiedIdentifier);
+                nameEnd += 2;
+            }
 
-                // because we have skipped past the current token, we need to advance the index
-                i += remainderCount - 1;
-            }
-            else
+            var pieceCount = (nameEnd - i) / 2 + 1;
+            var identifier = pieceCount switch
             {
-                var identifier = Identifier.CreateQualifiedIdentifier(GetIdentifierValue(token));
-                if (!Comparer.Equals(identifier, objectName))
-                    result.Add(identifier);
-            }
+                2 => Identifier.CreateQualifiedIdentifier(
+                    GetIdentifierValue(token),
+                    GetIdentifierValue(whitespaceRemovedTokens[i + 2])),
+                3 => Identifier.CreateQualifiedIdentifier(
+                    GetIdentifierValue(token),
+                    GetIdentifierValue(whitespaceRemovedTokens[i + 2]),
+                    GetIdentifierValue(whitespaceRemovedTokens[i + 4])),
+                4 => Identifier.CreateQualifiedIdentifier(
+                    GetIdentifierValue(token),
+                    GetIdentifierValue(whitespaceRemovedTokens[i + 2]),
+                    GetIdentifierValue(whitespaceRemovedTokens[i + 4]),
+                    GetIdentifierValue(whitespaceRemovedTokens[i + 6])),
+                // a single name, or more than four parts: emit this token on its own
+                _ => Identifier.CreateQualifiedIdentifier(GetIdentifierValue(token)),
+            };
+
+            if (!Comparer.Equals(identifier, objectName))
+                result.Add(identifier);
+
+            // skip past the remaining parts of a qualified name
+            if (pieceCount is > 1 and <= 4)
+                i = nameEnd;
         }
 
         return result;
-    }
-
-    private static bool TryGetQualifiedIdentifier(IReadOnlyList<TSqlParserToken> tokens, int start, int count, [NotNullWhen(true)] out Identifier? qualifiedIdentifier)
-    {
-        qualifiedIdentifier = null;
-
-        for (var offset = 0; offset < count; offset++)
-        {
-            var isEven = IsEven(offset);
-            var token = tokens[start + offset];
-            var isValidPosition = (isEven && IsIdentifier(token)) || (!isEven && token.TokenType == TSqlTokenType.Dot);
-            if (!isValidPosition)
-                return false;
-        }
-
-        // an alternating identifier/dot run of length `count` holds ceil(count / 2) identifier tokens
-        var pieceCount = (count + 1) / 2;
-        if (pieceCount is < 1 or > 4)
-            return false;
-
-        var pieces = new string[pieceCount];
-        for (var offset = 0; offset < count; offset += 2)
-            pieces[offset / 2] = GetIdentifierValue(tokens[start + offset]);
-
-        qualifiedIdentifier = pieces switch
-        {
-            [var p0] => Identifier.CreateQualifiedIdentifier(p0),
-            [var p0, var p1] => Identifier.CreateQualifiedIdentifier(p0, p1),
-            [var p0, var p1, var p2] => Identifier.CreateQualifiedIdentifier(p0, p1, p2),
-            [var p0, var p1, var p2, var p3] => Identifier.CreateQualifiedIdentifier(p0, p1, p2, p3),
-            _ => null,
-        };
-
-        return qualifiedIdentifier != null;
     }
 
     private static bool IsWhitespace(TSqlParserToken token) => token.TokenType == TSqlTokenType.WhiteSpace || token.TokenType == TSqlTokenType.EndOfFile;
@@ -123,8 +103,6 @@ public class SqlServerDependencyProvider : IDependencyProvider
         // A double-quoted name lexes to this ambiguous type; under QUOTED_IDENTIFIER ON (how the
         // parser is configured) it is always a delimited identifier rather than a string literal.
         || token.TokenType == TSqlTokenType.AsciiStringOrQuotedIdentifier;
-
-    private static bool IsEven(int i) => i % 2 == 0;
 
     private static string GetIdentifierValue(TSqlParserToken token)
     {

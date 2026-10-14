@@ -196,4 +196,79 @@ SELECT FIRST_COL, SECOND_COL from client.FunctionName('test')
 
         Assert.That(dependencies, Is.EqualTo(expectedNames));
     }
+
+    [Test]
+    public static void GetDependencies_GivenQualifiedTableWithAliasWithoutAs_ReturnsQualifiedTableAndAlias()
+    {
+        var provider = new SqlServerDependencyProvider();
+        Identifier objectName = "test_view";
+        const string expression = "select o.OrderId from Sales.Orders o join Marketing.Promotions p on o.PromotionId = p.PromotionId";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var expectedNames = new[]
+        {
+            new Identifier("o", "OrderId"),
+            new Identifier("Sales", "Orders"),
+            new Identifier("o"),
+            new Identifier("Marketing", "Promotions"),
+            new Identifier("p"),
+            new Identifier("o", "PromotionId"),
+            new Identifier("p", "PromotionId"),
+        };
+
+        Assert.That(dependencies, Is.EquivalentTo(expectedNames));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenBracketedQualifiedTableWithAlias_ReturnsQualifiedTableAndAlias()
+    {
+        var provider = new SqlServerDependencyProvider();
+        Identifier objectName = "test_view";
+        const string expression = "select * from [s].[t] y";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var expectedNames = new[]
+        {
+            new Identifier("s", "t"),
+            new Identifier("y"),
+        };
+
+        Assert.That(dependencies, Is.EquivalentTo(expectedNames));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenQualifiedNamesWithSpacesAroundDots_ReturnsQualifiedNames()
+    {
+        var provider = new SqlServerDependencyProvider();
+        Identifier objectName = "test_view";
+        const string expression = "select * from dbo . t1 x join [s] . [t2] y on 1 = 1";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var expectedNames = new[]
+        {
+            new Identifier("dbo", "t1"),
+            new Identifier("x"),
+            new Identifier("s", "t2"),
+            new Identifier("y"),
+        };
+
+        Assert.That(dependencies, Is.EquivalentTo(expectedNames));
+    }
+
+    [Test]
+    public static void GetDependencies_GivenFourPartNameWithAlias_ReturnsFourPartNameAndAlias()
+    {
+        var provider = new SqlServerDependencyProvider();
+        Identifier objectName = "test_view";
+        const string expression = "select * from srv.db.dbo.t1 x";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var expectedNames = new[]
+        {
+            new Identifier("srv", "db", "dbo", "t1"),
+            new Identifier("x"),
+        };
+
+        Assert.That(dependencies, Is.EquivalentTo(expectedNames));
+    }
 }
