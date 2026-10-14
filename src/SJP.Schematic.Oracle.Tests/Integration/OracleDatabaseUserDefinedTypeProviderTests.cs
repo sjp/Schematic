@@ -17,7 +17,8 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
         "create type db_test_udt_varray_1 as varray(10) of number(9)",
         "create type db_test_udt_nested_1 as table of varchar2(30)",
         "create type db_test_udt_object_2 as object (number_attr number, integer_attr integer, nvarchar_attr nvarchar2(100), char_semantics_attr varchar2(10 char), byte_semantics_attr varchar2(100 byte))",
-        "create type db_test_udt_nested_2 as table of varchar2(10 char)"
+        "create type db_test_udt_nested_2 as table of varchar2(10 char)",
+        "begin dbms_ddl.create_wrapped('create type db_test_udt_wrapped_1 as object (attr_one number(10, 2))'); end;"
     );
 
     [OneTimeTearDown]
@@ -26,7 +27,8 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
         "drop type db_test_udt_varray_1",
         "drop type db_test_udt_nested_1",
         "drop type db_test_udt_object_2",
-        "drop type db_test_udt_nested_2"
+        "drop type db_test_udt_nested_2",
+        "drop type db_test_udt_wrapped_1"
     );
 
     [Test]
@@ -198,6 +200,23 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     }
 
     [Test]
+    public async Task GetUserDefinedType_ForWrappedObjectType_ReturnsUnwrappedSpecification()
+    {
+        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_WRAPPED_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(type.Definition.UnwrapSome(), Is.EqualTo(ExpectedWrappedTypeSpecification));
+    }
+
+    [Test]
+    public async Task GetAllUserDefinedTypes_ForWrappedObjectType_ReturnsUnwrappedSpecification()
+    {
+        var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
+        var wrappedType = types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_WRAPPED_1", StringComparison.Ordinal));
+
+        Assert.That(wrappedType.Definition.UnwrapSome(), Is.EqualTo(ExpectedWrappedTypeSpecification));
+    }
+
+    [Test]
     public async Task GetUserDefinedType_ForVarrayType_ReturnsCollectionKindWithElementTypeAsBaseType()
     {
         var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_VARRAY_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
@@ -349,4 +368,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
             Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(1));
         }
     }
+
+    // the source that wrapping recovers is the normalized text Oracle compiled, not the text as typed
+    private const string ExpectedWrappedTypeSpecification = "TYPE db_test_udt_wrapped_1 AS OBJECT (ATTR_ONE NUMBER(10, 2))";
 }

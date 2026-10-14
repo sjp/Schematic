@@ -163,13 +163,14 @@ public class OracleDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTypePro
     }
 
     // ALL_SOURCE stores a type's specification one line at a time, so the lines are rejoined here.
-    private static Option<string> BuildSpecification(IEnumerable<string?> lines)
+    // A specification compiled from wrapped source is unwrapped, as routines and packages are.
+    internal static Option<string> BuildSpecification(IEnumerable<string?> lines)
     {
         var builder = StringBuilderCache.Acquire();
         foreach (var line in lines)
             builder.Append(line);
 
-        var definition = builder.GetStringAndRelease();
+        var definition = OracleUnwrapper.Unwrap(builder.GetStringAndRelease());
         return !definition.IsNullOrWhiteSpace()
             ? Option<string>.Some(definition)
             : Option<string>.None;
