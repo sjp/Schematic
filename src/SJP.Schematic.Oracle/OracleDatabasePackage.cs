@@ -58,8 +58,10 @@ public class OracleDatabasePackage : IOracleDatabasePackage
     {
         get
         {
-            var bodyText = Body.Match(static b => Environment.NewLine + b, static () => string.Empty);
-            return Specification + bodyText;
+            return Body.Match(
+                b => string.Concat(Specification, Environment.NewLine, b),
+                () => Specification
+            );
         }
     }
 
