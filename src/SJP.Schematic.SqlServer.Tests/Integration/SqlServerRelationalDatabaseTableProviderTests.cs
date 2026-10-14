@@ -263,6 +263,8 @@ create table table_test_table_44 (
         // SQL Server renames the other half of each pair to match
         await DbConnection.ExecuteAsync($"exec sp_rename '{IdentifierDefaults.Schema}.pk_test_table_44_original', 'pk_test_table_44', 'OBJECT'", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("exec sp_rename 'table_test_table_44.uk_test_table_44_original', 'uk_test_table_44', 'INDEX'", TestContext.CurrentContext.CancellationToken);
+        // the seed is above the bigint range
+        await DbConnection.ExecuteAsync("create table table_test_table_45 ( test_column decimal(38, 0) identity (10000000000000000000, 1) )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create table untrusted_constraint_parent (
     a int not null,
@@ -431,6 +433,7 @@ end
             "table_test_table_43",
             "table_test_table_42",
             "table_test_table_44",
+            "table_test_table_45",
             "untrusted_constraint_child",
             "untrusted_constraint_parent",
             "trigger_test_table_1",

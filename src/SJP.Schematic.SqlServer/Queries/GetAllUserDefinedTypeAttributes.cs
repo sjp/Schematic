@@ -34,9 +34,9 @@ internal static class GetAllUserDefinedTypeAttributes
 
         public required bool IsIdentity { get; init; }
 
-        public required long? IdentitySeed { get; init; }
+        public required decimal? IdentitySeed { get; init; }
 
-        public required long? IdentityIncrement { get; init; }
+        public required decimal? IdentityIncrement { get; init; }
     }
 
     internal const string Sql = @$"
@@ -56,8 +56,8 @@ select
     cc.definition as [{nameof(Result.ComputedColumnDefinition)}],
     cc.is_persisted as [{nameof(Result.ComputedColumnIsPersisted)}],
     c.is_identity as [{nameof(Result.IsIdentity)}],
-    (convert(bigint, ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
-    (convert(bigint, ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
+    (convert(decimal(38, 0), ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
+    (convert(decimal(38, 0), ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
 from sys.table_types tt
 inner join sys.schemas s on tt.schema_id = s.schema_id
 inner join sys.columns c on tt.type_table_object_id = c.object_id

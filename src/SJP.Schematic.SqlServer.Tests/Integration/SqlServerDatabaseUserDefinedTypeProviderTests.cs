@@ -23,14 +23,17 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
             attr_three as attr_one * 2,
             check (attr_one > 0)
         )
-        """
+        """,
+        // the seed is above the bigint range
+        "create type db_test_udt_table_2 as table ( attr_one decimal(38, 0) not null identity(10000000000000000000, 1) )"
     );
 
     [OneTimeTearDown]
     public Task CleanUp() => ExecuteBatchAsync(
         "drop type db_test_udt_alias_1",
         "drop type db_test_udt_alias_2",
-        "drop type db_test_udt_table_1"
+        "drop type db_test_udt_table_1",
+        "drop type db_test_udt_table_2"
     );
 
     [Test]
@@ -200,6 +203,29 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
             Assert.That(autoIncrement.Increment, Is.EqualTo(3));
             Assert.That(type.Attributes[1].AutoIncrement, OptionIs.None);
         }
+    }
+
+    [Test]
+    public async Task GetUserDefinedType_ForTableTypeWithIdentitySeedBeyondBigint_ReturnsSeedAndIncrement()
+    {
+        var type = await TypeProvider.GetUserDefinedType("db_test_udt_table_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var autoIncrement = type.Attributes[0].AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(10000000000000000000m));
+            Assert.That(autoIncrement.Increment, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
+    public async Task GetAllUserDefinedTypes_WithTableTypeWithIdentitySeedBeyondBigint_ReturnsSeed()
+    {
+        var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
+        var tableType = types.First(static t => string.Equals(t.Name.LocalName, "db_test_udt_table_2", StringComparison.Ordinal));
+        var autoIncrement = tableType.Attributes[0].AutoIncrement.UnwrapSome();
+
+        Assert.That(autoIncrement.InitialValue, Is.EqualTo(10000000000000000000m));
     }
 
     [Test]

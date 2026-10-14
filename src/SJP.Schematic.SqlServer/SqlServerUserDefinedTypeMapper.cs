@@ -90,7 +90,7 @@ internal static class SqlServerUserDefinedTypeMapper
             // null for a column whose identity was defined without them; SQL Server's own
             // defaults are 1 and 1.
             var identitySeed = row.IdentitySeed ?? 1;
-            var identityIncrement = row.IdentityIncrement is long incr && incr != 0 ? incr : 1;
+            var identityIncrement = row.IdentityIncrement is decimal incr && incr != 0 ? incr : 1;
             var autoIncrement = row.IsIdentity
                 ? Option<IAutoIncrement>.Some(new AutoIncrement(identitySeed, identityIncrement))
                 : Option<IAutoIncrement>.None;

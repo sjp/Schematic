@@ -49,9 +49,9 @@ internal static class GetTableColumns
 
         public required bool IsIdentity { get; init; }
 
-        public required long? IdentitySeed { get; init; }
+        public required decimal? IdentitySeed { get; init; }
 
-        public required long? IdentityIncrement { get; init; }
+        public required decimal? IdentityIncrement { get; init; }
     }
 
     internal const string Sql = @$"
@@ -72,8 +72,8 @@ select
     cc.definition as [{nameof(Result.ComputedColumnDefinition)}],
     cc.is_persisted as [{nameof(Result.ComputedColumnIsPersisted)}],
     c.is_identity as [{nameof(Result.IsIdentity)}],
-    (convert(bigint, ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
-    (convert(bigint, ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
+    (convert(decimal(38, 0), ic.seed_value)) as [{nameof(Result.IdentitySeed)}],
+    (convert(decimal(38, 0), ic.increment_value)) as [{nameof(Result.IdentityIncrement)}]
 from sys.tables t
 inner join sys.columns c on t.object_id = c.object_id
 left join sys.default_constraints dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id

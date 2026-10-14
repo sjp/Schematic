@@ -32,7 +32,7 @@ internal interface IUserDefinedTypeAttributeRow
 
     bool IsIdentity { get; }
 
-    long? IdentitySeed { get; }
+    decimal? IdentitySeed { get; }
 
-    long? IdentityIncrement { get; }
+    decimal? IdentityIncrement { get; }
 }

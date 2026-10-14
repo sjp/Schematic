@@ -179,6 +179,20 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableColumnWithIdentitySeedBeyondBigint_ReturnsCorrectInitialValue()
+    {
+        const string tableName = "table_test_table_45";
+        var table = await GetTableAsync(tableName);
+        var autoIncrement = table.Columns[0].AutoIncrement.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(autoIncrement.InitialValue, Is.EqualTo(10000000000000000000m));
+            Assert.That(autoIncrement.Increment, Is.EqualTo(1));
+        }
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableColumnWithIdentity_ReturnsByDefaultGenerationWithoutSequence()
     {
         const string tableName = "table_test_table_35";
