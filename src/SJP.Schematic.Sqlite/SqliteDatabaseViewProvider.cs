@@ -246,11 +246,13 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         var databasePragma = GetDatabasePragma(viewName.Schema!);
 
-        var (columns, definition, triggers) = await (
+        var (columns, schemaObjects) = await (
             LoadColumnsAsync(databasePragma, viewName, cancellationToken),
-            LoadDefinitionAsync(viewName, cancellationToken),
-            LoadTriggersAsync(viewName, cancellationToken)
+            LoadViewSchemaObjectsAsync(viewName, cancellationToken)
         ).WhenAll();
+
+        var definition = GetDefinition(schemaObjects);
+        var triggers = GetTriggers(viewName, schemaObjects);
 
         return new DatabaseView(
             viewName,
@@ -281,23 +283,25 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var triggerQuery = GetTriggerDefinition.Sql(Dialect, viewName.Schema!);
-        var triggerInfos = DbConnection.QueryEnumerableAsync(
-            triggerQuery,
-            new GetTriggerDefinition.Query { TableName = viewName.LocalName },
-            cancellationToken
-        );
+        var schemaObjects = await LoadViewSchemaObjectsAsync(viewName, cancellationToken);
+        return GetTriggers(viewName, schemaObjects);
+    }
 
+    private IReadOnlyCollection<IDatabaseTrigger> GetTriggers(Identifier viewName, IReadOnlyList<GetViewSchemaObjects.Result> schemaObjects)
+    {
         var result = new List<IDatabaseTrigger>();
 
-        await foreach (var triggerInfo in triggerInfos.WithCancellation(cancellationToken))
+        foreach (var schemaObject in schemaObjects)
         {
-            var triggerSql = triggerInfo.Sql;
-            var triggerName = Identifier.CreateQualifiedIdentifier(viewName.Schema, triggerInfo.Name);
+            if (!string.Equals(schemaObject.Type, GetViewSchemaObjects.TriggerType, StringComparison.Ordinal))
+                continue;
+
+            var triggerSql = schemaObject.Sql!;
+            var triggerName = Identifier.CreateQualifiedIdentifier(viewName.Schema, schemaObject.Name);
             var parsedTrigger = ParseTriggerDefinition(viewName, triggerName, triggerSql);
 
             var trigger = new SqliteDatabaseTrigger(
-                triggerInfo.Name,
+                schemaObject.Name,
                 triggerSql,
                 parsedTrigger.Timing,
                 parsedTrigger.Event,
@@ -343,12 +347,37 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     {
         ArgumentNullException.ThrowIfNull(viewName);
 
-        var sql = GetViewDefinition.Sql(Dialect, viewName.Schema!);
-        return DbConnection.ExecuteScalarAsync(
+        return LoadDefinitionAsyncCore(viewName, cancellationToken);
+    }
+
+    private async Task<string?> LoadDefinitionAsyncCore(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var schemaObjects = await LoadViewSchemaObjectsAsync(viewName, cancellationToken);
+        return GetDefinition(schemaObjects);
+    }
+
+    private static string? GetDefinition(IReadOnlyList<GetViewSchemaObjects.Result> schemaObjects)
+    {
+        foreach (var schemaObject in schemaObjects)
+        {
+            if (string.Equals(schemaObject.Type, GetViewSchemaObjects.ViewType, StringComparison.Ordinal))
+                return schemaObject.Sql;
+        }
+
+        return null;
+    }
+
+    // sqlite_master has no index, so the view's definition and its triggers are read in one query,
+    // which scans it once rather than twice
+    private async Task<IReadOnlyList<GetViewSchemaObjects.Result>> LoadViewSchemaObjectsAsync(Identifier viewName, CancellationToken cancellationToken)
+    {
+        var sql = GetViewSchemaObjects.Sql(Dialect, viewName.Schema!);
+        var schemaObjects = await DbConnection.QueryAsync(
             sql,
-            new GetViewDefinition.Query { ViewName = viewName.LocalName },
+            new GetViewSchemaObjects.Query { ViewName = viewName.LocalName },
             cancellationToken
         );
+        return schemaObjects.ToList();
     }
 
     /// <summary>
