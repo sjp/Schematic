@@ -328,4 +328,41 @@ END;";
 
         Assert.That(routine.Overloads, Is.Empty);
     }
+
+    [Test]
+    public async Task GetRoutine_WhenRoutinePresent_IssuesNameQueryAndOneLoadQuery()
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var routineProvider = new OracleDatabaseSimpleRoutineProvider(countingConnectionFactory, IdentifierDefaults, IdentifierResolver);
+
+        var routineIsSome = await routineProvider.GetRoutine("DB_TEST_ROUTINE_3", TestContext.CurrentContext.CancellationToken).IsSome;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routineIsSome, Is.True);
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(2));
+        }
+    }
+
+    [Test]
+    public async Task GetRoutine_WhenRoutineOutsideDefaultSchema_ReturnsSameRoutineInOneLoadQuery()
+    {
+        // a different default schema forces the ALL_* query instead of the USER_* fast path
+        var otherDefaults = new IdentifierDefaults(IdentifierDefaults.Server, IdentifierDefaults.Database, "SCHEMATIC_OTHER_SCHEMA");
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var routineProvider = new OracleDatabaseSimpleRoutineProvider(countingConnectionFactory, otherDefaults, IdentifierResolver);
+        var routineName = new Identifier(IdentifierDefaults.Schema!, "DB_TEST_ROUTINE_3");
+
+        var expected = await GetRoutineAsync("DB_TEST_ROUTINE_3");
+        var routine = await routineProvider.GetRoutine(routineName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(2));
+            Assert.That(routine.RoutineType, Is.EqualTo(RoutineType.Procedure));
+            Assert.That(routine.Definition, Is.EqualTo(expected.Definition));
+            Assert.That(routine.Parameters.Select(static p => p.Name.UnwrapSome().LocalName), Is.EqualTo(new[] { "FIRST_ARG", "SECOND_ARG" }));
+            Assert.That(routine.Parameters.Select(static p => p.Direction), Is.EqualTo(new[] { RoutineParameterDirection.Input, RoutineParameterDirection.Output }));
+        }
+    }
 }

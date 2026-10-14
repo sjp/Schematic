@@ -164,24 +164,22 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
 
     internal async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var (definition, signatureRows) = await (
-            LoadDefinitionAsync(routineName, cancellationToken),
-            Connection.QueryAsync(
-                GetRoutineSignature.Sql,
-                new GetRoutineSignature.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-                cancellationToken
-            )
-        ).WhenAll();
-        var signature = signatureRows.ToList();
+        var rows = (await LoadDefinitionRowsAsync(routineName, cancellationToken)).ToList();
 
-        // a function's return value is argument position zero; a routine with no arguments at all
-        // still produces one row, carrying only the routine's type
-        var returnType = signature
+        // source rows come first, in line order, followed by the arguments in signature order
+        var sourceRows = rows.Where(static row => row.LineNumber != null).ToList();
+        var argumentRows = rows.Where(static row => row.Position != null).ToList();
+
+        var definition = sourceRows.Count > 0
+            ? OracleUnwrapper.Unwrap(string.Concat(sourceRows.Select(static row => row.Text)))
+            : string.Empty;
+
+        // a function's return value is argument position zero
+        var returnType = argumentRows
             .Where(static row => row.Position == 0)
             .Select(GetArgumentType)
             .HeadOrNone();
-        // the query returns arguments in signature order
-        var parameters = signature
+        var parameters = argumentRows
             .Where(static row => row.Position > 0)
             .Select(BuildParameter)
             .ToList();
@@ -189,14 +187,33 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         return new DatabaseRoutine(
             routineName,
             definition,
-            signature.Count > 0 ? GetRoutineType(signature[0].RoutineType) : RoutineType.Unknown,
+            sourceRows.Count > 0 ? GetRoutineType(sourceRows[0].RoutineType) : RoutineType.Unknown,
             OracleRoutineLanguage,
             parameters,
             returnType
         );
     }
 
-    private IDatabaseRoutineParameter BuildParameter(GetRoutineSignature.Result row)
+    private Task<IEnumerable<RoutineDefinitionRow>> LoadDefinitionRowsAsync(Identifier routineName, CancellationToken cancellationToken)
+    {
+        // fast path
+        if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
+        {
+            return Connection.QueryAsync(
+                GetUserRoutineDefinition.Sql,
+                new GetUserRoutineDefinition.Query { RoutineName = routineName.LocalName },
+                cancellationToken
+            );
+        }
+
+        return Connection.QueryAsync(
+            GetRoutineDefinition.Sql,
+            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+    }
+
+    private IDatabaseRoutineParameter BuildParameter(RoutineDefinitionRow row)
     {
         var parameterName = !row.ArgumentName.IsNullOrWhiteSpace()
             ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ArgumentName))
@@ -213,7 +230,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         );
     }
 
-    private IDbType GetArgumentType(GetRoutineSignature.Result row)
+    private IDbType GetArgumentType(RoutineDefinitionRow row)
     {
         var typeMetadata = new ColumnTypeMetadata
         {
@@ -237,7 +254,7 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
         return RoutineParameterDirection.Input;
     }
 
-    private static RoutineType GetRoutineType(string routineType)
+    private static RoutineType GetRoutineType(string? routineType)
     {
         if (string.Equals(routineType, Constants.Procedure, StringComparison.OrdinalIgnoreCase))
             return RoutineType.Procedure;
@@ -245,54 +262,6 @@ public class OracleDatabaseSimpleRoutineProvider : IDatabaseRoutineProvider
             return RoutineType.Function;
 
         return RoutineType.Unknown;
-    }
-
-    /// <summary>
-    /// Retrieves the definition of a routine.
-    /// </summary>
-    /// <param name="routineName">A routine name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A string representing the definition of a routine.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="routineName"/> is <see langword="null" />.</exception>
-    protected Task<string> LoadDefinitionAsync(Identifier routineName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(routineName);
-
-        return LoadDefinitionAsyncCore(routineName, cancellationToken);
-    }
-
-    private async Task<string> LoadDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
-    {
-        // fast path
-        if (string.Equals(routineName.Schema, IdentifierDefaults.Schema, StringComparison.Ordinal))
-            return await LoadUserDefinitionAsyncCore(routineName, cancellationToken);
-
-        var lines = await Connection.QueryAsync(
-            GetRoutineDefinition.Sql,
-            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        );
-
-        if (lines.Empty())
-            return string.Empty;
-
-        var definition = lines.Join(string.Empty);
-        return OracleUnwrapper.Unwrap(definition);
-    }
-
-    private async Task<string> LoadUserDefinitionAsyncCore(Identifier routineName, CancellationToken cancellationToken)
-    {
-        var userLines = await Connection.QueryAsync(
-            GetUserRoutineDefinition.Sql,
-            new GetUserRoutineDefinition.Query { RoutineName = routineName.LocalName },
-            cancellationToken
-        );
-
-        if (userLines.Empty())
-            return string.Empty;
-
-        var userDefinition = userLines.Join(string.Empty);
-        return OracleUnwrapper.Unwrap(userDefinition);
     }
 
     /// <summary>
