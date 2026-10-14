@@ -273,7 +273,8 @@ create table table_test_table_45 (
 create table table_test_table_46 (
     declared_type_column varchar(50),
     collated_column text collate nocase,
-    uncollated_column text
+    uncollated_column text,
+    typeless_column
 )", TestContext.CurrentContext.CancellationToken);
 
         await DbConnection.ExecuteAsync(@"

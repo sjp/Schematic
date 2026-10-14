@@ -16,8 +16,9 @@ public class SqliteTypeAffinityParser
     /// <remarks>https://sqlite.org/datatype3.html#determination_of_column_affinity</remarks>
     public SqliteTypeAffinity ParseTypeName(string? typeName)
     {
+        // a column declared without a type has BLOB affinity
         if (typeName.IsNullOrWhiteSpace())
-            return SqliteTypeAffinity.Numeric;
+            return SqliteTypeAffinity.Blob;
 
         if (typeName.Contains("INT", StringComparison.OrdinalIgnoreCase))
             return SqliteTypeAffinity.Integer;

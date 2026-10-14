@@ -232,4 +232,20 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         Assert.That(column.Type.Collation.IsNone, Is.True);
     }
+
+    // a column declared without a type has BLOB affinity, so SQLite stores whatever is inserted unchanged
+    [Test]
+    public async Task Columns_WhenGivenTableWithTypelessColumn_ReturnsBlobType()
+    {
+        var table = await GetTableAsync("table_test_table_46");
+        var column = table.Columns.Single(c => c.Name.LocalName == "typeless_column");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.TypeName.LocalName, Is.EqualTo("BLOB"));
+            Assert.That(column.Type.Definition, Is.EqualTo("BLOB"));
+            Assert.That(column.Type.DataType, Is.EqualTo(DataType.LargeBinary));
+            Assert.That(column.Type.ClrType, Is.EqualTo(typeof(byte[])));
+        }
+    }
 }
