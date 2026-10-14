@@ -57,6 +57,9 @@ internal static class SqlServerCatalogMapper
             var indexCols = indexInfo.Value
                 .Where(static row => !row.IsIncludedColumn)
                 .OrderBy(static row => row.KeyOrdinal)
+                // every column of a columnstore index has a key ordinal of 0; an ordered one lists its
+                // sort columns first, in sort order, then the rest in the order they were declared
+                .ThenBy(static row => row.ColumnStoreOrderOrdinal > 0 ? row.ColumnStoreOrderOrdinal : int.MaxValue)
                 .ThenBy(static row => row.IndexColumnId)
                 .Select(row =>
                 {

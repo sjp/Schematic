@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -28,6 +29,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     {
         Connection = connection ?? throw new ArgumentNullException(nameof(connection));
         IdentifierDefaults = identifierDefaults ?? throw new ArgumentNullException(nameof(identifierDefaults));
+        _hasColumnStoreOrder = new AsyncLazy<bool>(LoadHasColumnStoreOrder, AsyncLazyFlags.RetryOnFailure);
     }
 
     /// <summary>
@@ -406,9 +408,41 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             new GetTableIndexes.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
+        var indexRows = queryResult.ToList();
 
-        return queryResult.ToList();
+        // Only an ordered columnstore index has a sort order other than the declared column order, and the
+        // catalog only records it from SQL Server 2022, so look for one only when a columnstore index exists.
+        if (!indexRows.Exists(static row => row.IndexType is ClusteredColumnStoreIndexType or NonClusteredColumnStoreIndexType)
+            || !await _hasColumnStoreOrder.Task.WaitAsync(cancellationToken))
+        {
+            return indexRows;
+        }
+
+        var orderRows = await DbConnection.QueryAsync(
+            GetTableColumnStoreOrder.Sql,
+            new GetTableColumnStoreOrder.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+        var orderLookup = orderRows.ToDictionary(
+            static row => (row.IndexName, row.ColumnName),
+            static row => row.ColumnStoreOrderOrdinal
+        );
+        if (orderLookup.Count == 0)
+            return indexRows;
+
+        return indexRows.ConvertAll(row => orderLookup.TryGetValue((row.IndexName, row.ColumnName), out var ordinal)
+            ? row with { ColumnStoreOrderOrdinal = ordinal }
+            : row);
     }
+
+    private Task<bool> LoadHasColumnStoreOrder() =>
+        DbConnection.ExecuteScalarAsync<bool>(GetTableColumnStoreOrder.IsSupportedSql, CancellationToken.None);
+
+    private readonly AsyncLazy<bool> _hasColumnStoreOrder;
+
+    // sys.indexes.type values
+    private const int ClusteredColumnStoreIndexType = 5;
+    private const int NonClusteredColumnStoreIndexType = 6;
 
     /// <summary>
     /// Retrieves unique keys that relate to the given table.
