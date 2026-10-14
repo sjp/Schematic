@@ -21,9 +21,17 @@ internal static class GetTableColumns
 
         public required int DataLength { get; init; }
 
-        public required int Precision { get; init; }
+        public required int CharLength { get; init; }
 
-        public required int Scale { get; init; }
+        /// <summary>
+        /// <c>C</c> when the length was declared in characters, <c>B</c> when declared in bytes,
+        /// else <see langword="null" />.
+        /// </summary>
+        public required string? CharUsed { get; init; }
+
+        public required int? Precision { get; init; }
+
+        public required int? Scale { get; init; }
 
         public required string? Collation { get; init; }
 
@@ -78,6 +86,8 @@ select
     c.DATA_TYPE_OWNER as "{nameof(Result.ColumnTypeSchema)}",
     c.DATA_TYPE as "{nameof(Result.ColumnTypeName)}",
     c.DATA_LENGTH as "{nameof(Result.DataLength)}",
+    c.CHAR_LENGTH as "{nameof(Result.CharLength)}",
+    c.CHAR_USED as "{nameof(Result.CharUsed)}",
     c.DATA_PRECISION as "{nameof(Result.Precision)}",
     c.DATA_SCALE as "{nameof(Result.Scale)}",
     c.DATA_DEFAULT as "{nameof(Result.DefaultValue)}",

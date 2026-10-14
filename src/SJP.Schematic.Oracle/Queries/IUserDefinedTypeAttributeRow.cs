@@ -12,11 +12,19 @@ internal interface IUserDefinedTypeAttributeRow
 
     string? AttributeTypeName { get; }
 
+    /// <summary>
+    /// The attribute's length, which counts characters when <see cref="CharUsed"/> is <c>C</c>.
+    /// </summary>
     int DataLength { get; }
 
-    int Precision { get; }
+    /// <summary>
+    /// <c>C</c> when a character length was declared in characters, <c>B</c> otherwise.
+    /// </summary>
+    string? CharUsed { get; }
 
-    int Scale { get; }
+    int? Precision { get; }
+
+    int? Scale { get; }
 
     string? Collation { get; }
 }

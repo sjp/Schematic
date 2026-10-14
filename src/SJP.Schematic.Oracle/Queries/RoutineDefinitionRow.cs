@@ -34,9 +34,9 @@ internal sealed record RoutineDefinitionRow
 
     public required int DataLength { get; init; }
 
-    public required int Precision { get; init; }
+    public required int? Precision { get; init; }
 
-    public required int Scale { get; init; }
+    public required int? Scale { get; init; }
 
     /// <summary>
     /// <c>Y</c> when the argument has a default. Oracle exposes the default's text as a

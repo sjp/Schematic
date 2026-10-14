@@ -66,33 +66,53 @@ internal static class OracleCatalogMapperTests
         }
     }
 
-    [Test]
-    public static void GetNumericPrecision_GivenNumberWithScaleButNoPrecision_ReturnsMaximumPrecision()
+    // NUMBER(*, s), where INTEGER is NUMBER(*, 0)
+    [TestCase(2, 2)]
+    [TestCase(0, 0)]
+    [TestCase(-2, 0)]
+    public static void GetNumericPrecision_GivenNumberWithScaleButNoPrecision_ReturnsMaximumPrecision(int scale, int expectedScale)
     {
-        var result = OracleCatalogMapper.GetNumericPrecision("NUMBER", 0, 2);
+        var result = OracleCatalogMapper.GetNumericPrecision("NUMBER", null, scale);
 
         Assert.That(result, OptionIs.Some);
         var numericPrecision = result.UnwrapSome();
         using (Assert.EnterMultipleScope())
         {
             Assert.That(numericPrecision.Precision, Is.EqualTo(38));
-            Assert.That(numericPrecision.Scale, Is.EqualTo(2));
+            Assert.That(numericPrecision.Scale, Is.EqualTo(expectedScale));
         }
     }
 
-    [TestCase("TIMESTAMP(6)", 0, 6)]
-    [TestCase("TIMESTAMP(3) WITH TIME ZONE", 0, 3)]
-    [TestCase("TIMESTAMP(9) WITH LOCAL TIME ZONE", 0, 9)]
+    [TestCase("TIMESTAMP(6)", null, 6)]
+    [TestCase("TIMESTAMP(3) WITH TIME ZONE", null, 3)]
+    [TestCase("TIMESTAMP(9) WITH LOCAL TIME ZONE", null, 9)]
     [TestCase("INTERVAL DAY(0) TO SECOND(6)", 0, 6)]
-    [TestCase("NUMBER", 0, 0)]
-    [TestCase("NUMBER", 0, -2)]
-    [TestCase("VARCHAR2", 0, 0)]
-    [TestCase(null, 0, 4)]
-    public static void GetNumericPrecision_GivenNoPrecisionForType_ReturnsNone(string typeName, int precision, int scale)
+    [TestCase("NUMBER", null, null)]
+    [TestCase("VARCHAR2", null, null)]
+    [TestCase(null, null, 4)]
+    public static void GetNumericPrecision_GivenNoPrecisionForType_ReturnsNone(string typeName, int? precision, int? scale)
     {
         var result = OracleCatalogMapper.GetNumericPrecision(typeName, precision, scale);
 
         Assert.That(result, OptionIs.None);
+    }
+
+    [TestCase(200, 100, "C", 100)]
+    [TestCase(40, 10, "C", 10)]
+    [TestCase(100, 100, "B", 100)]
+    [TestCase(22, 0, null, 22)]
+    public static void GetMaxLength_GivenCatalogLengths_ReturnsDeclaredLength(int dataLength, int charLength, string charUsed, int expectedLength)
+    {
+        Assert.That(OracleCatalogMapper.GetMaxLength(dataLength, charLength, charUsed), Is.EqualTo(expectedLength));
+    }
+
+    [TestCase("C", true)]
+    [TestCase("B", false)]
+    [TestCase("0", false)]
+    [TestCase(null, false)]
+    public static void HasCharacterLengthSemantics_GivenCharUsed_ReturnsExpectedResult(string charUsed, bool expected)
+    {
+        Assert.That(OracleCatalogMapper.HasCharacterLengthSemantics(charUsed), Is.EqualTo(expected));
     }
 
     [TestCase("ASC", IndexColumnOrder.Ascending)]

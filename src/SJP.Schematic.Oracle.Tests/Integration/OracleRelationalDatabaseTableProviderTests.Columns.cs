@@ -240,4 +240,27 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
             Assert.That(numericPrecision.Scale, Is.EqualTo(2));
         }
     }
+
+    // the catalog reports a NUMBER's storage size and the byte length of a length declared in
+    // characters, neither of which is part of the column's declaration
+    [TestCase("NUMBER_COLUMN", "\"NUMBER\"", 22, DataType.Numeric)]
+    [TestCase("INTEGER_COLUMN", "\"NUMBER\"(38)", 22, DataType.BigInteger)]
+    [TestCase("NVARCHAR_COLUMN", "\"NVARCHAR2\"(100)", 100, DataType.Unicode)]
+    [TestCase("NCHAR_COLUMN", "\"NCHAR\"(3)", 3, DataType.Unicode)]
+    [TestCase("CHAR_SEMANTICS_VARCHAR_COLUMN", "\"VARCHAR2\"(10 CHAR)", 10, DataType.String)]
+    [TestCase("CHAR_SEMANTICS_CHAR_COLUMN", "\"CHAR\"(5 CHAR)", 5, DataType.String)]
+    [TestCase("BYTE_SEMANTICS_VARCHAR_COLUMN", "\"VARCHAR2\"(100)", 100, DataType.String)]
+    public async Task Columns_WhenGivenTableWithLengthOrPrecisionColumn_ReturnsDeclaredType(string columnName, string expectedDefinition, int expectedMaxLength, DataType expectedDataType)
+    {
+        const string tableName = "TABLE_TEST_TABLE_45";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => c.Name.LocalName == columnName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(column.Type.MaxLength, Is.EqualTo(expectedMaxLength));
+            Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
+        }
+    }
 }

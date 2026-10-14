@@ -175,26 +175,55 @@ internal static class OracleCatalogMapper
     /// <c>DATA_PRECISION</c> and <c>DATA_SCALE</c> values (or their equivalents).
     /// </summary>
     /// <param name="typeName">The catalog's type name for the value, e.g. <c>NUMBER</c> or <c>TIMESTAMP(6)</c>.</param>
-    /// <param name="precision">The catalog's precision, with <see langword="null" /> read as zero.</param>
-    /// <param name="scale">The catalog's scale, with <see langword="null" /> read as zero.</param>
+    /// <param name="precision">The catalog's precision, or <see langword="null" /> when it reports none.</param>
+    /// <param name="scale">The catalog's scale, or <see langword="null" /> when it reports none.</param>
     /// <returns>A numeric precision, or <see cref="Option{A}.None"/> when the type does not have one.</returns>
     /// <remarks>
     /// The catalog reports a scale without a precision for <c>NUMBER(*, s)</c>, which has Oracle's
-    /// maximum precision of 38, and also for a timestamp or a day-to-second interval with a zero
-    /// leading precision, where the scale is the precision of its fractional seconds. That is read
-    /// from the type name instead, so no numeric precision is reported. A negative scale, as in
+    /// maximum precision of 38. <c>INTEGER</c> is stored as <c>NUMBER(*, 0)</c>, so it has a
+    /// precision of 38 and a scale of zero, while an unconstrained <c>NUMBER</c> reports neither and
+    /// has no numeric precision. A timestamp or a day-to-second interval with a zero leading precision
+    /// also reports a scale alone, being the precision of its fractional seconds. That is read from
+    /// the type name instead, so no numeric precision is reported. A negative scale, as in
     /// <c>NUMBER(5, -2)</c>, rounds to the left of the decimal point and cannot be represented, so
     /// it is reported as a scale of zero.
     /// </remarks>
-    public static Option<INumericPrecision> GetNumericPrecision(string? typeName, int precision, int scale)
+    public static Option<INumericPrecision> GetNumericPrecision(string? typeName, int? precision, int? scale)
     {
-        var nonNegativeScale = Math.Max(scale, 0);
+        var nonNegativeScale = Math.Max(scale ?? 0, 0);
         if (precision > 0)
-            return Option<INumericPrecision>.Some(new NumericPrecision(precision, nonNegativeScale));
+            return Option<INumericPrecision>.Some(new NumericPrecision(precision.Value, nonNegativeScale));
 
-        return nonNegativeScale > 0 && string.Equals(typeName, Number, StringComparison.Ordinal)
+        return scale != null && string.Equals(typeName, Number, StringComparison.Ordinal)
             ? Option<INumericPrecision>.Some(new NumericPrecision(MaxNumberPrecision, nonNegativeScale))
             : Option<INumericPrecision>.None;
+    }
+
+    /// <summary>
+    /// Gets the maximum length of a column from the catalog's <c>DATA_LENGTH</c>, <c>CHAR_LENGTH</c>
+    /// and <c>CHAR_USED</c> values.
+    /// </summary>
+    /// <param name="dataLength">The catalog's length in bytes.</param>
+    /// <param name="charLength">The catalog's length in characters.</param>
+    /// <param name="charUsed"><c>C</c> when the length was declared in characters, <c>B</c> when declared in bytes.</param>
+    /// <returns>The length the column was declared with.</returns>
+    /// <remarks>
+    /// A length declared in characters, as by <c>VARCHAR2(10 CHAR)</c> or any <c>NVARCHAR2</c> or
+    /// <c>NCHAR</c>, is stored in up to four bytes per character, so <c>DATA_LENGTH</c> overstates it.
+    /// </remarks>
+    public static int GetMaxLength(int dataLength, int charLength, string? charUsed)
+    {
+        return HasCharacterLengthSemantics(charUsed) ? charLength : dataLength;
+    }
+
+    /// <summary>
+    /// Determines whether the catalog's <c>CHAR_USED</c> value describes a length declared in characters.
+    /// </summary>
+    /// <param name="charUsed"><c>C</c> when the length was declared in characters, <c>B</c> when declared in bytes.</param>
+    /// <returns><see langword="true" /> when the length counts characters; otherwise <see langword="false" />.</returns>
+    public static bool HasCharacterLengthSemantics(string? charUsed)
+    {
+        return string.Equals(charUsed, CharacterLengthSemantics, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -237,6 +266,7 @@ internal static class OracleCatalogMapper
         ["COMPOUND"] = TriggerGranularity.Unknown,
     };
 
+    private const string CharacterLengthSemantics = "C";
     private const string Delete = "DELETE";
     private const string Desc = "DESC";
     private const string Enabled = "ENABLED";

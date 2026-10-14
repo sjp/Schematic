@@ -30,6 +30,16 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create index mview_view_test_view_4_ix_2 on mview_view_test_view_4 (test_column desc)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table mview_view_test_table_4 (test_column number)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_5 as select test_column from mview_view_test_table_4", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table mview_view_test_table_5 (
+    number_column number,
+    integer_column integer,
+    nvarchar_column nvarchar2(100),
+    nchar_column nchar(3),
+    char_semantics_varchar_column varchar2(10 char),
+    char_semantics_char_column char(5 char),
+    byte_semantics_varchar_column varchar2(100 byte)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_6 as select * from mview_view_test_table_5", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger mview_view_test_view_5_trigger_1
 before insert on mview_view_test_view_5
@@ -51,7 +61,9 @@ end;
         "drop materialized view mview_view_test_view_4",
         "drop table mview_view_test_table_3",
         "drop materialized view mview_view_test_view_5",
-        "drop table mview_view_test_table_4");
+        "drop table mview_view_test_table_4",
+        "drop materialized view mview_view_test_view_6",
+        "drop table mview_view_test_table_5");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
@@ -362,6 +374,28 @@ end;
         {
             Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.Before));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Insert));
+        }
+    }
+
+    // the catalog reports a NUMBER's storage size and the byte length of a length declared in
+    // characters, neither of which is part of the column's declaration
+    [TestCase("NUMBER_COLUMN", "\"NUMBER\"", 22, DataType.Numeric)]
+    [TestCase("INTEGER_COLUMN", "\"NUMBER\"(38)", 22, DataType.BigInteger)]
+    [TestCase("NVARCHAR_COLUMN", "\"NVARCHAR2\"(100)", 100, DataType.Unicode)]
+    [TestCase("NCHAR_COLUMN", "\"NCHAR\"(3)", 3, DataType.Unicode)]
+    [TestCase("CHAR_SEMANTICS_VARCHAR_COLUMN", "\"VARCHAR2\"(10 CHAR)", 10, DataType.String)]
+    [TestCase("CHAR_SEMANTICS_CHAR_COLUMN", "\"CHAR\"(5 CHAR)", 5, DataType.String)]
+    [TestCase("BYTE_SEMANTICS_VARCHAR_COLUMN", "\"VARCHAR2\"(100)", 100, DataType.String)]
+    public async Task Columns_WhenGivenViewWithLengthOrPrecisionColumn_ReturnsDeclaredType(string columnName, string expectedDefinition, int expectedMaxLength, DataType expectedDataType)
+    {
+        var view = await GetViewAsync("mview_view_test_view_6");
+        var column = view.Columns.Single(c => c.Name.LocalName == columnName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(column.Type.MaxLength, Is.EqualTo(expectedMaxLength));
+            Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
         }
     }
 

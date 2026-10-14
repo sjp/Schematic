@@ -22,11 +22,19 @@ internal interface IUserDefinedTypeDefinitionRow
     /// </summary>
     string? ElementTypeName { get; }
 
+    /// <summary>
+    /// The length of a collection type's element type, which counts characters when <see cref="ElementCharUsed"/> is <c>C</c>.
+    /// </summary>
     int ElementLength { get; }
 
-    int ElementPrecision { get; }
+    /// <summary>
+    /// <c>C</c> when the element's character length was declared in characters, <c>B</c> otherwise.
+    /// </summary>
+    string? ElementCharUsed { get; }
 
-    int ElementScale { get; }
+    int? ElementPrecision { get; }
+
+    int? ElementScale { get; }
 
     string? ElementCollation { get; }
 }

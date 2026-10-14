@@ -300,13 +300,14 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
         foreach (var row in query)
         {
-            var typeMetadata = new ColumnTypeMetadata
+            var typeMetadata = new OracleColumnTypeMetadata
             {
                 TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
                 Collation = !row.Collation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
                     : Option<Identifier>.None,
-                MaxLength = row.DataLength,
+                MaxLength = OracleCatalogMapper.GetMaxLength(row.DataLength, row.CharLength, row.CharUsed),
+                HasCharacterLengthSemantics = OracleCatalogMapper.HasCharacterLengthSemantics(row.CharUsed),
                 NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ColumnTypeName, row.Precision, row.Scale),
             };
             var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);

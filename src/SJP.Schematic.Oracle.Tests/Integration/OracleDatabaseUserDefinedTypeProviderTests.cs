@@ -15,14 +15,18 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     public Task Init() => ExecuteBatchAsync(
         "create type db_test_udt_object_1 as object (attr_one number(10, 2), attr_two varchar2(50))",
         "create type db_test_udt_varray_1 as varray(10) of number(9)",
-        "create type db_test_udt_nested_1 as table of varchar2(30)"
+        "create type db_test_udt_nested_1 as table of varchar2(30)",
+        "create type db_test_udt_object_2 as object (number_attr number, integer_attr integer, nvarchar_attr nvarchar2(100), char_semantics_attr varchar2(10 char), byte_semantics_attr varchar2(100 byte))",
+        "create type db_test_udt_nested_2 as table of varchar2(10 char)"
     );
 
     [OneTimeTearDown]
     public Task CleanUp() => ExecuteBatchAsync(
         "drop type db_test_udt_object_1",
         "drop type db_test_udt_varray_1",
-        "drop type db_test_udt_nested_1"
+        "drop type db_test_udt_nested_1",
+        "drop type db_test_udt_object_2",
+        "drop type db_test_udt_nested_2"
     );
 
     [Test]
@@ -128,6 +132,37 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
             Assert.That(type.Attributes[0].Type.NumericPrecision.UnwrapSome().Scale, Is.EqualTo(2));
             Assert.That(type.Attributes[1].Type.TypeName.LocalName, Is.EqualTo("VARCHAR2"));
             Assert.That(type.Attributes[1].Type.MaxLength, Is.EqualTo(50));
+        }
+    }
+
+    // ALL_TYPE_ATTRS reports INTEGER by name, and a length declared in characters in characters
+    [TestCase(0, "\"NUMBER\"", DataType.Numeric)]
+    [TestCase(1, "\"INTEGER\"", DataType.BigInteger)]
+    [TestCase(2, "\"NVARCHAR2\"(100)", DataType.Unicode)]
+    [TestCase(3, "\"VARCHAR2\"(10 CHAR)", DataType.String)]
+    [TestCase(4, "\"VARCHAR2\"(100)", DataType.String)]
+    public async Task GetUserDefinedType_ForObjectTypeWithLengthOrPrecisionAttribute_ReturnsDeclaredType(int attributeIndex, string expectedDefinition, DataType expectedDataType)
+    {
+        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var attributeType = type.Attributes[attributeIndex].Type;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(attributeType.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(attributeType.DataType, Is.EqualTo(expectedDataType));
+        }
+    }
+
+    [Test]
+    public async Task GetUserDefinedType_ForCollectionOfCharacterSemanticsElement_ReturnsDeclaredBaseType()
+    {
+        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_NESTED_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var baseType = type.BaseType.UnwrapSome();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(baseType.Definition, Is.EqualTo("\"VARCHAR2\"(10 CHAR)"));
+            Assert.That(baseType.MaxLength, Is.EqualTo(10));
         }
     }
 

@@ -45,14 +45,9 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
             typeMetadata.DataType = GetDataType(typeMetadata.TypeName, typeInfo);
             if (typeMetadata.DataType == DataType.Numeric)
             {
+                // a NUMBER declared without a precision holds any value, fractions included
                 var numericPrecision = typeMetadata.NumericPrecision.MatchUnsafe(static np => np, static () => (INumericPrecision?)null);
-                if (numericPrecision == null)
-                {
-                    typeMetadata.DataType = typeMetadata.MaxLength < 8
-                        ? DataType.Integer     // 2^32
-                        : DataType.BigInteger; // note: could require storing in a decimal instead of long
-                }
-                else if (numericPrecision.Scale == 0)
+                if (numericPrecision?.Scale == 0)
                 {
                     typeMetadata.DataType = numericPrecision.Precision < 8
                         ? DataType.Integer     // 2^32
@@ -254,9 +249,14 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
                 builder.Append(CultureInfo.InvariantCulture, $", {numericPrecision.Scale}");
             builder.Append(')');
         }
-        else if (typeMetadata.MaxLength > 0)
+        // a number's length is its storage size, which is not something it can be declared with
+        else if (annotation != TypeAnnotation.Precision && typeMetadata.MaxLength > 0)
         {
-            builder.Append(CultureInfo.InvariantCulture, $"({typeMetadata.MaxLength})");
+            builder.Append(CultureInfo.InvariantCulture, $"({typeMetadata.MaxLength}");
+            // NVARCHAR2 and NCHAR lengths always count characters, and take no qualifier
+            if (typeMetadata is OracleColumnTypeMetadata { HasCharacterLengthSemantics: true } && typeInfo?.DataType == DataType.String)
+                builder.Append(" CHAR");
+            builder.Append(')');
         }
 
         return builder.GetStringAndRelease();
@@ -302,6 +302,9 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         // the length, or the precision and scale, in parentheses
         LengthOrPrecision,
 
+        // the precision and scale in parentheses, when there is a precision
+        Precision,
+
         // nothing, the type takes no arguments
         None,
 
@@ -318,14 +321,14 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         ["BFILE"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
         ["BINARY_DOUBLE"] = new(DataType.Float, typeof(double), TypeAnnotation.None, IsFixedLength: false),
         ["BINARY_FLOAT"] = new(DataType.Float, typeof(float), TypeAnnotation.None, IsFixedLength: false),
-        ["BINARY_INTEGER"] = new(DataType.BigInteger, typeof(long), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["BINARY_INTEGER"] = new(DataType.BigInteger, typeof(long), TypeAnnotation.Precision, IsFixedLength: false),
         ["BLOB"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
-        ["BOOLEAN"] = new(DataType.Boolean, typeof(bool), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["BOOLEAN"] = new(DataType.Boolean, typeof(bool), TypeAnnotation.None, IsFixedLength: false),
         ["CHAR"] = new(DataType.String, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
         ["CLOB"] = new(DataType.Text, typeof(string), TypeAnnotation.None, IsFixedLength: false),
         ["DATE"] = new(DataType.Date, typeof(DateTime), TypeAnnotation.None, IsFixedLength: false),
-        ["FLOAT"] = new(DataType.Float, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
-        ["INTEGER"] = new(DataType.BigInteger, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["FLOAT"] = new(DataType.Float, typeof(decimal), TypeAnnotation.Precision, IsFixedLength: false),
+        ["INTEGER"] = new(DataType.BigInteger, typeof(decimal), TypeAnnotation.Precision, IsFixedLength: false),
         ["INTERVAL DAY TO SECOND"] = new(DataType.Interval, typeof(TimeSpan), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
         ["INTERVAL YEAR TO MONTH"] = new(DataType.Interval, typeof(int), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
         ["JSON"] = new(DataType.Json, typeof(string), TypeAnnotation.None, IsFixedLength: false),
@@ -333,17 +336,17 @@ public partial class OracleDbTypeProvider : IDbTypeProvider
         ["LONG RAW"] = new(DataType.LargeBinary, typeof(byte[]), TypeAnnotation.None, IsFixedLength: false),
         ["NCHAR"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
         ["NCLOB"] = new(DataType.UnicodeText, typeof(string), TypeAnnotation.None, IsFixedLength: false),
-        ["NUMBER"] = new(DataType.Numeric, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["NUMBER"] = new(DataType.Numeric, typeof(decimal), TypeAnnotation.Precision, IsFixedLength: false),
         ["NVARCHAR2"] = new(DataType.Unicode, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
-        ["PLS_INTEGER"] = new(DataType.Integer, typeof(int), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["PLS_INTEGER"] = new(DataType.Integer, typeof(int), TypeAnnotation.Precision, IsFixedLength: false),
         ["RAW"] = new(DataType.Binary, typeof(byte[]), TypeAnnotation.LengthOrPrecision, IsFixedLength: true),
-        ["REAL"] = new(DataType.Float, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["REAL"] = new(DataType.Float, typeof(decimal), TypeAnnotation.Precision, IsFixedLength: false),
         ["ROWID"] = new(DataType.Other, typeof(string), TypeAnnotation.None, IsFixedLength: false),
         ["SDO_GEOMETRY"] = new(DataType.Geometry, typeof(object), TypeAnnotation.None, IsFixedLength: false),
         ["TIMESTAMP"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
         ["TIMESTAMP WITH LOCAL TIME ZONE"] = new(DataType.DateTime, typeof(DateTime), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
         ["TIMESTAMP WITH TIME ZONE"] = new(DataType.DateTimeOffset, typeof(DateTimeOffset), TypeAnnotation.FractionalSecondsPrecision, IsFixedLength: false),
-        ["UNSIGNED INTEGER"] = new(DataType.BigInteger, typeof(decimal), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
+        ["UNSIGNED INTEGER"] = new(DataType.BigInteger, typeof(decimal), TypeAnnotation.Precision, IsFixedLength: false),
         ["UROWID"] = new(DataType.Other, typeof(string), TypeAnnotation.None, IsFixedLength: false),
         ["VARCHAR2"] = new(DataType.String, typeof(string), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),
         ["VECTOR"] = new(DataType.Vector, typeof(object), TypeAnnotation.LengthOrPrecision, IsFixedLength: false),

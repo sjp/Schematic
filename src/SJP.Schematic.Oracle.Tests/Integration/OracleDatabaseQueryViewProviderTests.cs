@@ -33,6 +33,16 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     unbounded_precision_column number(*, 2)
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_5 as select * from query_view_test_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table query_view_test_table_4 (
+    number_column number,
+    integer_column integer,
+    nvarchar_column nvarchar2(100),
+    nchar_column nchar(3),
+    char_semantics_varchar_column varchar2(10 char),
+    char_semantics_char_column char(5 char),
+    byte_semantics_varchar_column varchar2(100 byte)
+)", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_7 as select * from query_view_test_table_4", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_6 as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
 create trigger query_view_test_view_6_trigger_1
@@ -55,7 +65,9 @@ end;
         "drop view query_view_test_view_6",
         "drop table query_view_test_table_2",
         "drop view query_view_test_view_5",
-        "drop table query_view_test_table_3");
+        "drop table query_view_test_table_3",
+        "drop view query_view_test_view_7",
+        "drop table query_view_test_table_4");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
     {
@@ -365,6 +377,28 @@ end;
             Assert.That(trigger.Name.LocalName, Is.EqualTo("QUERY_VIEW_TEST_VIEW_6_TRIGGER_1"));
             Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.InsteadOf));
             Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Insert));
+        }
+    }
+
+    // the catalog reports a NUMBER's storage size and the byte length of a length declared in
+    // characters, neither of which is part of the column's declaration
+    [TestCase("NUMBER_COLUMN", "\"NUMBER\"", 22, DataType.Numeric)]
+    [TestCase("INTEGER_COLUMN", "\"NUMBER\"(38)", 22, DataType.BigInteger)]
+    [TestCase("NVARCHAR_COLUMN", "\"NVARCHAR2\"(100)", 100, DataType.Unicode)]
+    [TestCase("NCHAR_COLUMN", "\"NCHAR\"(3)", 3, DataType.Unicode)]
+    [TestCase("CHAR_SEMANTICS_VARCHAR_COLUMN", "\"VARCHAR2\"(10 CHAR)", 10, DataType.String)]
+    [TestCase("CHAR_SEMANTICS_CHAR_COLUMN", "\"CHAR\"(5 CHAR)", 5, DataType.String)]
+    [TestCase("BYTE_SEMANTICS_VARCHAR_COLUMN", "\"VARCHAR2\"(100)", 100, DataType.String)]
+    public async Task Columns_WhenGivenViewWithLengthOrPrecisionColumn_ReturnsDeclaredType(string columnName, string expectedDefinition, int expectedMaxLength, DataType expectedDataType)
+    {
+        var view = await GetViewAsync("query_view_test_view_7");
+        var column = view.Columns.Single(c => c.Name.LocalName == columnName);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.Type.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(column.Type.MaxLength, Is.EqualTo(expectedMaxLength));
+            Assert.That(column.Type.DataType, Is.EqualTo(expectedDataType));
         }
     }
 

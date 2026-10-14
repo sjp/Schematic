@@ -19,9 +19,11 @@ internal static class GetAllUserDefinedTypes
 
         public required int ElementLength { get; init; }
 
-        public required int ElementPrecision { get; init; }
+        public required string? ElementCharUsed { get; init; }
 
-        public required int ElementScale { get; init; }
+        public required int? ElementPrecision { get; init; }
+
+        public required int? ElementScale { get; init; }
 
         public required string? ElementCollation { get; init; }
     }
@@ -35,8 +37,9 @@ select
     ct.ELEM_TYPE_OWNER as "{nameof(Result.ElementTypeSchema)}",
     ct.ELEM_TYPE_NAME as "{nameof(Result.ElementTypeName)}",
     coalesce(ct.LENGTH, 0) as "{nameof(Result.ElementLength)}",
-    coalesce(ct.PRECISION, 0) as "{nameof(Result.ElementPrecision)}",
-    coalesce(ct.SCALE, 0) as "{nameof(Result.ElementScale)}",
+    ct.CHAR_USED as "{nameof(Result.ElementCharUsed)}",
+    ct.PRECISION as "{nameof(Result.ElementPrecision)}",
+    ct.SCALE as "{nameof(Result.ElementScale)}",
     ct.CHARACTER_SET_NAME as "{nameof(Result.ElementCollation)}"
 from SYS.ALL_TYPES t
 -- a collection type is described by the element it holds, which only ALL_COLL_TYPES reports

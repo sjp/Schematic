@@ -172,6 +172,15 @@ create table table_test_table_32 (
         await DbConnection.ExecuteAsync("create table table_test_table_44 ( first_column number, second_column varchar2(10) )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create index ix_test_table_44_1 on table_test_table_44 (first_column desc, second_column)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create index ix_test_table_44_2 on table_test_table_44 (upper(second_column))", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create table table_test_table_45 (
+    number_column number,
+    integer_column integer,
+    nvarchar_column nvarchar2(100),
+    nchar_column nchar(3),
+    char_semantics_varchar_column varchar2(10 char),
+    char_semantics_char_column char(5 char),
+    byte_semantics_varchar_column varchar2(100 byte)
+)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"create table constraint_state_parent (
     a number not null,
     constraint pk_constraint_state_parent primary key (a) deferrable initially deferred
@@ -311,6 +320,7 @@ end trigger_test_table_1_trig_cmp;
             "table_test_table_42",
             "table_test_table_43",
             "table_test_table_44",
+            "table_test_table_45",
             "constraint_state_child",
             "constraint_state_parent",
             "trigger_test_table_1",

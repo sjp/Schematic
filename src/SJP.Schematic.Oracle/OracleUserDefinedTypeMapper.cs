@@ -39,10 +39,11 @@ internal static class OracleUserDefinedTypeMapper
 
         // only a collection type names an element type, which becomes the type it is defined over
         var baseType = !row.ElementTypeName.IsNullOrWhiteSpace()
-            ? Option<IDbType>.Some(typeProvider.CreateColumnType(new ColumnTypeMetadata
+            ? Option<IDbType>.Some(typeProvider.CreateColumnType(new OracleColumnTypeMetadata
             {
                 TypeName = Identifier.CreateQualifiedIdentifier(row.ElementTypeSchema, row.ElementTypeName),
                 MaxLength = row.ElementLength,
+                HasCharacterLengthSemantics = OracleCatalogMapper.HasCharacterLengthSemantics(row.ElementCharUsed),
                 NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ElementTypeName, row.ElementPrecision, row.ElementScale),
                 Collation = !row.ElementCollation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ElementCollation))
@@ -73,10 +74,11 @@ internal static class OracleUserDefinedTypeMapper
 
         return rows.Select(row =>
         {
-            var typeMetadata = new ColumnTypeMetadata
+            var typeMetadata = new OracleColumnTypeMetadata
             {
                 TypeName = Identifier.CreateQualifiedIdentifier(row.AttributeTypeSchema, row.AttributeTypeName),
                 MaxLength = row.DataLength,
+                HasCharacterLengthSemantics = OracleCatalogMapper.HasCharacterLengthSemantics(row.CharUsed),
                 NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.AttributeTypeName, row.Precision, row.Scale),
                 Collation = !row.Collation.IsNullOrWhiteSpace()
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))

@@ -28,8 +28,8 @@ select
     cast(null as varchar2(128)) as "{nameof(RoutineDefinitionRow.ArgumentTypeSchema)}",
     cast(null as varchar2(128)) as "{nameof(RoutineDefinitionRow.ArgumentTypeName)}",
     0 as "{nameof(RoutineDefinitionRow.DataLength)}",
-    0 as "{nameof(RoutineDefinitionRow.Precision)}",
-    0 as "{nameof(RoutineDefinitionRow.Scale)}",
+    cast(null as number) as "{nameof(RoutineDefinitionRow.Precision)}",
+    cast(null as number) as "{nameof(RoutineDefinitionRow.Scale)}",
     cast(null as varchar2(1)) as "{nameof(RoutineDefinitionRow.Defaulted)}"
 from SYS.ALL_SOURCE s
 where s.OWNER = :{nameof(Query.SchemaName)} and s.NAME = :{nameof(Query.RoutineName)}
@@ -47,8 +47,8 @@ select
     a.TYPE_OWNER,
     a.DATA_TYPE,
     nvl(a.DATA_LENGTH, 0),
-    nvl(a.DATA_PRECISION, 0),
-    nvl(a.DATA_SCALE, 0),
+    a.DATA_PRECISION,
+    a.DATA_SCALE,
     a.DEFAULTED
 from SYS.ALL_ARGUMENTS a
 where a.OWNER = :{nameof(Query.SchemaName)} and a.OBJECT_NAME = :{nameof(Query.RoutineName)}

@@ -342,13 +342,65 @@ internal static class OracleDbTypeProviderTests
         Assert.That(columnType.DataType, Is.EqualTo(expectedDataType));
     }
 
-    [TestCase(4, DataType.Integer)]
-    [TestCase(22, DataType.BigInteger)]
-    public static void CreateColumnType_GivenNumberWithoutPrecision_ResolvesDataTypeFromLength(int maxLength, DataType expectedDataType)
+    // a NUMBER without a precision holds fractions too, whatever its storage size
+    [TestCase(4)]
+    [TestCase(22)]
+    public static void CreateColumnType_GivenNumberWithoutPrecision_ResolvesNumeric(int maxLength)
     {
         var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", "NUMBER"), MaxLength = maxLength });
 
-        Assert.That(columnType.DataType, Is.EqualTo(expectedDataType));
+        Assert.That(columnType.DataType, Is.EqualTo(DataType.Numeric));
+    }
+
+    // the catalog reports a storage size for each of these, which is not part of their declaration
+    [TestCase("NUMBER", 22, "\"NUMBER\"")]
+    [TestCase("FLOAT", 22, "\"FLOAT\"")]
+    [TestCase("INTEGER", 22, "\"INTEGER\"")]
+    [TestCase("BOOLEAN", 1, "\"BOOLEAN\"")]
+    public static void CreateColumnType_GivenTypeWithoutPrecisionAndWithLength_ReturnsUnannotatedDefinition(string typeName, int maxLength, string expectedDefinition)
+    {
+        var columnType = Provider.CreateColumnType(new ColumnTypeMetadata { TypeName = new Identifier("SYS", typeName), MaxLength = maxLength });
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(columnType.MaxLength, Is.EqualTo(maxLength));
+        }
+    }
+
+    // only VARCHAR2 and CHAR can declare which unit their length counts; NVARCHAR2 and NCHAR always count characters
+    [TestCase("VARCHAR2", true, "\"VARCHAR2\"(10 CHAR)")]
+    [TestCase("CHAR", true, "\"CHAR\"(10 CHAR)")]
+    [TestCase("VARCHAR2", false, "\"VARCHAR2\"(10)")]
+    [TestCase("NVARCHAR2", true, "\"NVARCHAR2\"(10)")]
+    [TestCase("NCHAR", true, "\"NCHAR\"(10)")]
+    [TestCase("RAW", true, "\"RAW\"(10)")]
+    public static void CreateColumnType_GivenLengthSemantics_ReturnsExpectedDefinition(string typeName, bool hasCharacterLengthSemantics, string expectedDefinition)
+    {
+        var metadata = new OracleColumnTypeMetadata
+        {
+            TypeName = new Identifier("SYS", typeName),
+            MaxLength = 10,
+            HasCharacterLengthSemantics = hasCharacterLengthSemantics,
+        };
+        var columnType = Provider.CreateColumnType(metadata);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(columnType.Definition, Is.EqualTo(expectedDefinition));
+            Assert.That(columnType.MaxLength, Is.EqualTo(10));
+        }
+    }
+
+    [Test]
+    public static void CreateColumnType_GivenSameLengthInDifferentUnits_ReturnsDifferentTypes()
+    {
+        var provider = new OracleDbTypeProvider();
+
+        var bytes = provider.CreateColumnType(new OracleColumnTypeMetadata { TypeName = new Identifier("SYS", "VARCHAR2"), MaxLength = 10 });
+        var characters = provider.CreateColumnType(new OracleColumnTypeMetadata { TypeName = new Identifier("SYS", "VARCHAR2"), MaxLength = 10, HasCharacterLengthSemantics = true });
+
+        Assert.That(characters, Is.Not.SameAs(bytes));
     }
 
     [Test]

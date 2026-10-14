@@ -321,6 +321,20 @@ END;";
         }
     }
 
+    // a PL/SQL argument is declared without a length or precision, whatever its storage size
+    [Test]
+    public async Task Parameters_GivenRoutineWithNumberParameter_ReturnsUnconstrainedNumber()
+    {
+        var routine = await GetRoutineAsync("DB_TEST_ROUTINE_3");
+        var parameterType = routine.Parameters[0].Type;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(parameterType.Definition, Is.EqualTo("\"NUMBER\""));
+            Assert.That(parameterType.DataType, Is.EqualTo(DataType.Numeric));
+        }
+    }
+
     [Test]
     public async Task Overloads_GivenRoutine_ReturnsEmpty()
     {
