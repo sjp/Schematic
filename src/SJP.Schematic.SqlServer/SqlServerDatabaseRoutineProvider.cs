@@ -134,14 +134,14 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
     private async Task<IDatabaseRoutine> LoadRoutineAsyncCore(Identifier routineName, CancellationToken cancellationToken)
     {
-        var (routineDetail, parameterRows) = await (
-            LoadRoutineDetailAsync(routineName, cancellationToken),
-            Connection.QueryAsync(
-                GetRoutineParameters.Sql,
-                new GetRoutineParameters.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-                cancellationToken
-            )
-        ).WhenAll();
+        var rows = await Connection.QueryAsync(
+            GetRoutineDefinition.Sql,
+            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
+            cancellationToken
+        );
+
+        // only the first row carries the definition, see the query
+        var routineDetail = rows.FirstOrDefault();
 
         // the routine was dropped after its name was read
         if (routineDetail == null)
@@ -149,12 +149,12 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
 
         // parameter_id 0 is a scalar function's return value rather than a parameter. A table-valued
         // function has no such row, so its return type is unavailable rather than absent.
-        var returnType = parameterRows
+        var returnType = rows
             .Where(static row => row.Ordinal == 0)
             .Select(GetParameterType)
             .HeadOrNone();
         // the query returns parameters in signature order
-        var parameters = parameterRows
+        var parameters = rows
             .Where(static row => row.Ordinal > 0)
             .Select(BuildParameter)
             .ToList();
@@ -170,7 +170,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
         );
     }
 
-    private IDatabaseRoutineParameter BuildParameter(GetRoutineParameters.Result row)
+    private IDatabaseRoutineParameter BuildParameter(GetRoutineDefinition.Result row)
     {
         // sys.parameters names a parameter with its leading '@', which is part of the name in T-SQL
         var parameterName = !row.ParameterName.IsNullOrWhiteSpace()
@@ -178,7 +178,7 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
             : Option<Identifier>.None;
 
         // an OUTPUT parameter in T-SQL is also readable inside the routine, so it is an in/out parameter
-        var direction = row.IsOutput
+        var direction = row.IsOutput == true
             ? RoutineParameterDirection.InputOutput
             : RoutineParameterDirection.Input;
 
@@ -187,19 +187,19 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
             GetParameterType(row),
             direction,
             !row.DefaultValue.IsNullOrWhiteSpace() ? Option<string>.Some(row.DefaultValue) : Option<string>.None,
-            row.Ordinal
+            row.Ordinal!.Value
         );
     }
 
-    private IDbType GetParameterType(GetRoutineParameters.Result row)
+    private IDbType GetParameterType(GetRoutineDefinition.Result row)
     {
         var typeMetadata = new ColumnTypeMetadata
         {
-            TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName),
+            TypeName = Identifier.CreateQualifiedIdentifier(row.ColumnTypeSchema, row.ColumnTypeName!),
             // sys.parameters records no collation, unlike sys.columns
             Collation = Option<Identifier>.None,
-            MaxLength = row.MaxLength,
-            NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
+            MaxLength = row.MaxLength ?? 0,
+            NumericPrecision = new NumericPrecision(row.Precision ?? 0, row.Scale ?? 0),
         };
 
         return TypeProvider.CreateColumnType(typeMetadata);
@@ -211,18 +211,6 @@ public class SqlServerDatabaseRoutineProvider : IDatabaseRoutineProvider
         Constants.ScalarFunctionTypeCode or Constants.InlineTableFunctionTypeCode or Constants.TableFunctionTypeCode => RoutineType.Function,
         _ => RoutineType.Unknown,
     };
-
-    private async Task<GetRoutineDefinition.Result?> LoadRoutineDetailAsync(Identifier routineName, CancellationToken cancellationToken)
-    {
-        // a routine name is unique within its schema, so at most one row can match
-        var detail = await Connection.QueryFirstOrNone(
-            GetRoutineDefinition.Sql,
-            new GetRoutineDefinition.Query { SchemaName = routineName.Schema!, RoutineName = routineName.LocalName },
-            cancellationToken
-        ).ToOption();
-
-        return detail.MatchUnsafe(static row => row, static () => (GetRoutineDefinition.Result?)null);
-    }
 
     /// <summary>
     /// Qualifies the name of a routine, using known identifier defaults.

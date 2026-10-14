@@ -57,6 +57,14 @@ SELECT DB_NAME() AS ThisDB", TestContext.CurrentContext.CancellationToken);
     @second nvarchar(50) OUTPUT
 AS
 SELECT @first", TestContext.CurrentContext.CancellationToken);
+        // FN, with parameters
+        await DbConnection.ExecuteAsync(@"
+CREATE FUNCTION dbo.db_test_routine_6(@first int, @second varchar(20))
+RETURNS bigint
+AS
+BEGIN
+     RETURN(@first);
+END", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -65,7 +73,8 @@ SELECT @first", TestContext.CurrentContext.CancellationToken);
         "drop function db_test_routine_2",
         "drop function db_test_routine_3",
         "drop procedure db_test_routine_4",
-        "drop procedure db_test_routine_5");
+        "drop procedure db_test_routine_5",
+        "drop function db_test_routine_6");
 
     private Task<IDatabaseRoutine> GetRoutineAsync(Identifier routineName)
     {
@@ -358,6 +367,55 @@ SELECT DB_NAME() AS ThisDB";
             // an OUTPUT parameter in T-SQL is readable inside the routine too
             Assert.That(parameters[1].Direction, Is.EqualTo(RoutineParameterDirection.InputOutput));
         }
+    }
+
+    [Test]
+    public async Task Definition_GivenScalarFunctionWithParameters_ReturnsCorrectDefinition()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_6");
+        const string expectedDefinition = @"
+CREATE FUNCTION dbo.db_test_routine_6(@first int, @second varchar(20))
+RETURNS bigint
+AS
+BEGIN
+     RETURN(@first);
+END";
+
+        Assert.That(routine.Definition, Is.EqualTo(expectedDefinition));
+    }
+
+    [Test]
+    public async Task ReturnTypeAndParameters_GivenScalarFunctionWithParameters_ReturnsBoth()
+    {
+        var routine = await GetRoutineAsync("db_test_routine_6");
+        var parameters = routine.Parameters;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(routine.ReturnType.UnwrapSome().TypeName.LocalName, Is.EqualTo("bigint"));
+            Assert.That(parameters, Has.Count.EqualTo(2));
+            Assert.That(parameters[0].Name.UnwrapSome().LocalName, Is.EqualTo("@first"));
+            Assert.That(parameters[0].Ordinal, Is.EqualTo(1));
+            Assert.That(parameters[0].Type.TypeName.LocalName, Is.EqualTo("int"));
+            Assert.That(parameters[1].Name.UnwrapSome().LocalName, Is.EqualTo("@second"));
+            Assert.That(parameters[1].Ordinal, Is.EqualTo(2));
+            Assert.That(parameters[1].Type.TypeName.LocalName, Is.EqualTo("varchar"));
+            Assert.That(parameters[1].Type.MaxLength, Is.EqualTo(20));
+        }
+    }
+
+    // A routine load issues one query to resolve the routine's name, then one for its definition and parameters.
+    [TestCase("db_test_routine_4")]
+    [TestCase("db_test_routine_5")]
+    [TestCase("db_test_routine_6")]
+    public async Task GetRoutine_WhenRoutinePresent_IssuesExpectedNumberOfRoundTrips(string routineName)
+    {
+        var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
+        var routineProvider = new SqlServerDatabaseRoutineProvider(countingConnectionFactory, IdentifierDefaults);
+
+        _ = await routineProvider.GetRoutine(routineName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(2));
     }
 
     [Test]
