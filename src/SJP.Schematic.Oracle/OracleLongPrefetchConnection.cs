@@ -28,6 +28,12 @@ namespace SJP.Schematic.Oracle;
 /// Wrapping the connection puts that in one place, covering queries whose commands are built by a data access
 /// library rather than by this library directly.
 /// </para>
+/// <para>
+/// Dapper already sets <see cref="OracleCommand.InitialLONGFetchSize"/> to the same value on every command it
+/// runs, so for queries issued through Dapper the assignment here changes nothing. The wrapper is kept because
+/// it is the one place every command is created: it still covers any command not run through Dapper, and it is
+/// where other per-command settings, such as <see cref="OracleCommand.FetchSize"/>, would be applied.
+/// </para>
 /// </remarks>
 internal sealed class OracleLongPrefetchConnection : DbConnection
 {

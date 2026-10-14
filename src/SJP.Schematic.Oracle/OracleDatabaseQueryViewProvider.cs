@@ -281,7 +281,6 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
             var isNullable = !string.Equals(row.IsNullable, NoValue, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var defaultValue = OracleDefaultValueParser.Parse(row.DefaultValue);
             // only a column declared INVISIBLE reaches this point; the query filters out the
             // system-generated hidden columns that back function-based indexes
             var isHidden = string.Equals(row.IsHidden, HiddenValue, StringComparison.Ordinal);
@@ -290,7 +289,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
                 columnName,
                 columnType,
                 isNullable,
-                defaultValue,
+                Option<IDatabaseDefaultValue>.None,
                 Option<IAutoIncrement>.None,
                 false,
                 Option<string>.None,
