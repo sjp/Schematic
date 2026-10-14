@@ -140,23 +140,26 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
     private async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (
-            columns,
-            (definition, checkOption),
-            triggers,
-            indexRows
-        ) = await (
-            LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAndCheckOptionAsync(viewName, cancellationToken),
-            LoadTriggersAsync(viewName, cancellationToken),
-            LoadIndexRowsAsync(viewName, cancellationToken)
-        ).WhenAll();
+        var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
+        var details = await LoadViewDetailsAsync(viewName, cancellationToken);
 
-        var columnLookup = GetColumnLookup(columns);
-        var indexes = SqlServerCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+        // most views have neither triggers nor indexes, so their queries are only run when the
+        // definition query has found something for them to return
+        var triggersTask = details.HasTriggers
+            ? LoadTriggersAsync(viewName, cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseTrigger>>([]);
+        var indexRowsTask = details.HasIndexes
+            ? LoadIndexRowsAsync(viewName, cancellationToken)
+            : Task.FromResult(Enumerable.Empty<GetTableIndexes.Result>());
+
+        var (columns, triggers, indexRows) = await (columnsTask, triggersTask, indexRowsTask).WhenAll();
+
+        var indexes = details.HasIndexes
+            ? SqlServerCatalogMapper.MapIndexes(indexRows, GetColumnLookup(columns), Dialect)
+            : [];
         // the definition is null for an encrypted view, and missing when the view was dropped after its
         // name was read
-        var viewDefinition = !definition.IsNullOrWhiteSpace() ? definition : SqlServerCatalogMapper.UnavailableDefinition;
+        var viewDefinition = !details.Definition.IsNullOrWhiteSpace() ? details.Definition : SqlServerCatalogMapper.UnavailableDefinition;
 
         // SQL Server has no materialized view of its own. An indexed view is the equivalent: creating a
         // unique clustered index on a view is what causes its results to be stored.
@@ -175,7 +178,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
             )
             // SQL Server does not record whether a view is updatable: INFORMATION_SCHEMA.VIEWS.IS_UPDATABLE
             // always reports 'NO', and no sys catalog view carries the information, so it is left unset.
-            : new DatabaseView(viewName, viewDefinition, columns, triggers, indexes, checkOption, isUpdatable: false);
+            : new DatabaseView(viewName, viewDefinition, columns, triggers, indexes, details.CheckOption, isUpdatable: false);
     }
 
     private static IReadOnlyDictionary<Identifier, IDatabaseColumn> GetColumnLookup(IReadOnlyList<IDatabaseColumn> columns)
@@ -192,7 +195,7 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
     }
 
     // The check option is a column of sys.views, which the definition query already joins to.
-    private async Task<(string? Definition, ViewCheckOption CheckOption)> LoadDefinitionAndCheckOptionAsync(Identifier viewName, CancellationToken cancellationToken)
+    private async Task<(string? Definition, ViewCheckOption CheckOption, bool HasTriggers, bool HasIndexes)> LoadViewDetailsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await DbConnection.QueryFirstOrNone(
             GetViewDefinition.Sql,
@@ -202,8 +205,9 @@ public class SqlServerDatabaseViewProvider : IDatabaseViewProvider
 
         return result.Match(
             // SQL Server only supports a cascaded check option.
-            static row => (row.Definition, row.WithCheckOption ? ViewCheckOption.Cascaded : ViewCheckOption.None),
-            static () => ((string?)null, ViewCheckOption.None)
+            static row => (row.Definition, row.WithCheckOption ? ViewCheckOption.Cascaded : ViewCheckOption.None, row.HasTriggers, row.HasIndexes),
+            // a view dropped after its name was read has nothing left to load
+            static () => ((string?)null, ViewCheckOption.None, false, false)
         );
     }
 

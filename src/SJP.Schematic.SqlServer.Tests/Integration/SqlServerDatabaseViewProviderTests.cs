@@ -24,6 +24,15 @@ internal sealed class SqlServerDatabaseViewProviderTests : SqlServerTest
         await DbConnection.ExecuteAsync("create view view_test_view_2 with schemabinding as select table_id as test from [dbo].[view_test_table_1]", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create unique clustered index ix_view_test_view_2 on view_test_view_2 (test)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view view_test_view_3 as select table_id as test from [dbo].[view_test_table_1] where table_id > 0 with check option", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view view_test_view_4 as select table_id as test from [dbo].[view_test_table_1]", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create trigger view_test_view_4_trigger_1
+on view_test_view_4
+instead of insert
+as
+begin
+    declare @test int
+end", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -32,6 +41,7 @@ internal sealed class SqlServerDatabaseViewProviderTests : SqlServerTest
         "drop view view_test_view_1",
         "drop view view_test_view_2",
         "drop view view_test_view_3",
+        "drop view view_test_view_4",
         "drop table view_test_table_1");
 
     private Task<IDatabaseView> GetViewAsync(Identifier viewName)
@@ -263,17 +273,42 @@ internal sealed class SqlServerDatabaseViewProviderTests : SqlServerTest
         Assert.That(view.CheckOption, Is.EqualTo(ViewCheckOption.Cascaded));
     }
 
-    // A view load issues 5 queries: one to resolve the view's name, then columns, INSTEAD OF triggers,
-    // indexes, and the definition read together with the check option.
     [Test]
-    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    public async Task Triggers_WhenViewHasInsteadOfTrigger_ReturnsTrigger()
+    {
+        var view = await GetViewAsync("view_test_view_4");
+        var trigger = view.Triggers.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Name.LocalName, Is.EqualTo("view_test_view_4_trigger_1"));
+            Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.InsteadOf));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Insert));
+        }
+    }
+
+    [Test]
+    public async Task Triggers_WhenViewHasNoTriggers_ReturnsEmptyCollection()
+    {
+        var view = await GetViewAsync("view_test_view_1");
+
+        Assert.That(view.Triggers, Is.Empty);
+    }
+
+    // A view load issues one query to resolve the view's name, then its columns alongside its definition,
+    // which also reads the check option and whether the view has any triggers or indexes. The trigger and
+    // index queries only follow when it does.
+    [TestCase("view_test_view_1", 3)]
+    [TestCase("view_test_view_2", 4)]
+    [TestCase("view_test_view_4", 4)]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips(string viewName, int expectedQueryCount)
     {
         var countingConnectionFactory = new CountingDbConnectionFactory(DbConnection);
         var countingConnection = new SchematicConnection(countingConnectionFactory, Connection.Dialect);
         var viewProvider = new SqlServerDatabaseViewProvider(countingConnection, IdentifierDefaults);
 
-        _ = await viewProvider.GetView("view_test_view_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        _ = await viewProvider.GetView(viewName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(expectedQueryCount));
     }
 }
