@@ -254,7 +254,7 @@ internal sealed class SqliteDatabaseViewProviderTests : SqliteTest
         var viewName = new Identifier(IdentifierDefaults.Schema, "view_test_view_3");
         var view = await GetViewAsync(viewName);
         var columnTypes = view.Columns.Select(c => c.Type.DataType).ToList();
-        var expectedTypes = new[] { DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.Numeric, DataType.BigInteger };
+        var expectedTypes = new[] { DataType.LargeBinary, DataType.LargeBinary, DataType.LargeBinary, DataType.LargeBinary, DataType.BigInteger };
 
         Assert.That(columnTypes, Is.EqualTo(expectedTypes));
     }

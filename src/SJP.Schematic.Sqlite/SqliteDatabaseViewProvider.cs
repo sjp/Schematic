@@ -419,9 +419,19 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             .Where(static ti => ti.name != null && ti.type.IsNullOrWhiteSpace())
             .Select(static ti => ti.name!)
             .ToList();
-        var columnTypeLookup = untypedColumnNames.Count > 0
-            ? await GetTypeofColumnsAsync(viewName, untypedColumnNames, cancellationToken)
-            : EmptyColumnTypeLookup;
+        var columnTypeLookup = EmptyColumnTypeLookup;
+        if (untypedColumnNames.Count > 0)
+        {
+            try
+            {
+                columnTypeLookup = await GetTypeofColumnsAsync(viewName, untypedColumnNames, cancellationToken);
+            }
+            catch (SqliteException ex) when (ex.SqliteErrorCode == SqliteError)
+            {
+                // evaluating the view's first row can fail at runtime (e.g. malformed JSON or an
+                // integer overflow), so its expression columns are left without a runtime type
+            }
+        }
 
         var result = new List<IDatabaseColumn>();
         foreach (var tableInfo in tableInfoList)
@@ -434,16 +444,13 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             // no pragma reports the collation of a view column, so a view column never carries one.
             // a view column that projects an expression has no declared type, so its type is only
             // known from the runtime type of a value. That names an affinity rather than a declared
-            // type, so the column is described by the affinity alone.
+            // type, so the column is described by the affinity alone. When there is no runtime type
+            // (an empty view, a NULL first value, or a view that fails to evaluate), the column has
+            // BLOB affinity, as any column with no declared type does.
             var declaredTypeName = tableInfo.type;
-            var columnTypeName = declaredTypeName;
-            if (columnTypeName.IsNullOrWhiteSpace())
-                columnTypeLookup.TryGetValue(columnName, out columnTypeName);
-
-            var affinity = AffinityParser.ParseTypeName(columnTypeName);
             var columnType = declaredTypeName.IsNullOrWhiteSpace()
-                ? new SqliteColumnType(affinity)
-                : new SqliteColumnType(declaredTypeName, affinity);
+                ? new SqliteColumnType(GetRuntimeTypeAffinity(columnTypeLookup, columnName))
+                : new SqliteColumnType(declaredTypeName, AffinityParser.ParseTypeName(declaredTypeName));
             // a view column cannot carry a default, so there is no definition to classify
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value))
@@ -462,7 +469,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
     /// <param name="viewName">A view name.</param>
     /// <param name="columnNames">The names of the columns to retrieve types for.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A lookup of column name to its runtime type name.</returns>
+    /// <returns>A lookup of column name to the runtime type name of its value in the view's first row, which is <see langword="null" /> for a <c>NULL</c> value. The lookup is empty when the view returns no rows.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="viewName"/> or <paramref name="columnNames"/> is <see langword="null" />.</exception>
     protected async Task<IReadOnlyDictionary<string, string?>> GetTypeofColumnsAsync(Identifier viewName, IReadOnlyCollection<string> columnNames, CancellationToken cancellationToken)
     {
@@ -473,11 +480,33 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
             return EmptyColumnTypeLookup;
 
         var sql = GetTypeofColumns.Sql(Dialect, viewName, columnNames);
-        var results = await DbConnection.QueryAsync<GetTypeofColumns.Result>(sql, cancellationToken);
-        return results.ToDictionary(static r => r.ColumnName, static r => r.TypeName, StringComparer.Ordinal);
+        var typeNames = await DbConnection.ExecuteScalarAsync<string>(sql, cancellationToken);
+        if (typeNames == null)
+            return EmptyColumnTypeLookup;
+
+        var splitTypeNames = typeNames.Split(GetTypeofColumns.TypeNameSeparator);
+        var result = new Dictionary<string, string?>(columnNames.Count, StringComparer.Ordinal);
+        var index = 0;
+        foreach (var columnName in columnNames)
+        {
+            var typeName = splitTypeNames[index++];
+            result[columnName] = string.Equals(typeName, NullTypeName, StringComparison.Ordinal) ? null : typeName;
+        }
+
+        return result;
     }
 
-    private static readonly FrozenDictionary<string, string?> EmptyColumnTypeLookup = FrozenDictionary<string, string?>.Empty;
+    private static SqliteTypeAffinity GetRuntimeTypeAffinity(IReadOnlyDictionary<string, string?> columnTypeLookup, string columnName)
+    {
+        return columnTypeLookup.TryGetValue(columnName, out var typeName) && typeName != null
+            ? AffinityParser.ParseTypeName(typeName)
+            : SqliteTypeAffinity.Blob;
+    }
+
+    private static readonly IReadOnlyDictionary<string, string?> EmptyColumnTypeLookup = FrozenDictionary<string, string?>.Empty;
+
+    // the runtime type name that typeof() gives a NULL value
+    private const string NullTypeName = "null";
 
     /// <summary>
     /// Qualifies the name of the view.

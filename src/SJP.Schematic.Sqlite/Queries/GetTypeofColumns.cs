@@ -8,12 +8,15 @@ namespace SJP.Schematic.Sqlite.Queries;
 
 internal static class GetTypeofColumns
 {
-    internal sealed record Result
-    {
-        public required string ColumnName { get; init; }
+    /// <summary>
+    /// Separates the runtime type names in the single value returned by the query. <c>typeof()</c> only
+    /// returns <c>null</c>, <c>integer</c>, <c>real</c>, <c>text</c> or <c>blob</c>, so it never occurs within a type name.
+    /// </summary>
+    internal const char TypeNameSeparator = ',';
 
-        public required string? TypeName { get; init; }
-    }
+    // the concatenation is a left-deep expression tree, so its depth grows with every column;
+    // parenthesised groups keep it well below SQLite's default expression depth limit of 1000
+    private const int ColumnsPerGroup = 100;
 
     internal static string Sql(IDatabaseDialect dialect, Identifier viewName, IReadOnlyCollection<string> columnNames)
     {
@@ -26,22 +29,16 @@ internal static class GetTypeofColumns
         var quotedViewName = dialect.QuoteName(viewName);
         var quotedRowAlias = dialect.QuoteIdentifier("__schematic_row");
 
-        // A single query is used to reduce this to one round-trip instead of one per column.
-        // The view's first row is pulled once into a CTE, which SQLite 3.35+ materializes because
-        // it's referenced more than once, so the view is evaluated a single time regardless of how
-        // many columns are requested. Each column's type is then read from that materialized row via
-        // its own scalar subquery, joined together with `union all`, so that the result shape stays a
-        // fixed two-column (name, type) record. On SQLite older than 3.35 the CTE may be inlined back
-        // into each branch, which is no worse than evaluating the view per column.
-        var branches = columnNames
-            .Select(columnName =>
-            {
-                var quotedColumnName = dialect.QuoteName(columnName);
-                var literalColumnName = columnName.Replace("'", "''", StringComparison.Ordinal);
-                return $"select '{literalColumnName}' as \"{nameof(Result.ColumnName)}\", (select typeof({quotedColumnName}) from {quotedRowAlias}) as \"{nameof(Result.TypeName)}\"";
-            })
-            .Join(Environment.NewLine + "union all" + Environment.NewLine);
+        // The view's first row is read once, and the runtime type of each requested column is joined
+        // into a single value, so the result is one row with one value regardless of how many columns
+        // are requested. When the view returns no rows, neither does this query.
+        var separator = $" || '{TypeNameSeparator}' || ";
+        var groups = columnNames
+            .Select(columnName => $"typeof({dialect.QuoteName(columnName)})")
+            .Chunk(ColumnsPerGroup)
+            .Select(group => "(" + group.Join(separator) + ")")
+            .Join(separator);
 
-        return $"with {quotedRowAlias} as (select * from {quotedViewName} limit 1){Environment.NewLine}{branches}";
+        return $"with {quotedRowAlias} as (select * from {quotedViewName} limit 1){Environment.NewLine}select {groups}{Environment.NewLine}from {quotedRowAlias}";
     }
 }
