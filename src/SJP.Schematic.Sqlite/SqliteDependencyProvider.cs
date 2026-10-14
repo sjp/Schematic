@@ -53,18 +53,26 @@ public sealed class SqliteDependencyProvider : IDependencyProvider
                 continue;
             }
 
-            // Stitch together qualified names of the form IDENTIFIER (DOT IDENTIFIER)*,
-            // e.g. schema.table or schema.table.column.
-            var parts = new List<string> { UnquoteIdentifier(tokens[i].Text) };
-            while (i + 2 < tokens.Count
-                && tokens[i + 1].Type == SQLiteLexer.DOT
-                && tokens[i + 2].Type == SQLiteLexer.IDENTIFIER)
+            Identifier identifier;
+            if (!IsQualifiedNamePart(tokens, i + 1))
             {
-                parts.Add(UnquoteIdentifier(tokens[i + 2].Text));
-                i += 2;
+                // Most identifiers are unqualified, so skip building a list of parts for them.
+                identifier = Identifier.CreateQualifiedIdentifier(UnquoteIdentifier(tokens[i].Text));
+            }
+            else
+            {
+                // Stitch together qualified names of the form IDENTIFIER (DOT IDENTIFIER)*,
+                // e.g. schema.table or schema.table.column.
+                var parts = new List<string> { UnquoteIdentifier(tokens[i].Text) };
+                while (IsQualifiedNamePart(tokens, i + 1))
+                {
+                    parts.Add(UnquoteIdentifier(tokens[i + 2].Text));
+                    i += 2;
+                }
+
+                identifier = BuildIdentifier(parts);
             }
 
-            var identifier = BuildIdentifier(parts);
             if (!Comparer.Equals(identifier, objectName) && seen.Add(identifier))
                 result.Add(identifier);
 
@@ -84,6 +92,13 @@ public sealed class SqliteDependencyProvider : IDependencyProvider
         {
             throw new ArgumentException($"Could not parse the given expression as a SQL expression. Given: {expression}", nameof(expression), ex);
         }
+    }
+
+    private static bool IsQualifiedNamePart(IReadOnlyList<IToken> tokens, int dotIndex)
+    {
+        return dotIndex + 1 < tokens.Count
+            && tokens[dotIndex].Type == SQLiteLexer.DOT
+            && tokens[dotIndex + 1].Type == SQLiteLexer.IDENTIFIER;
     }
 
     private static Identifier BuildIdentifier(IReadOnlyList<string> parts)

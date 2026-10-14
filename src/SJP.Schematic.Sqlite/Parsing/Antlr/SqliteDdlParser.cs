@@ -49,7 +49,7 @@ internal static class SqliteDdlParser
         lexer.RemoveErrorListeners();
         lexer.AddErrorListener(ThrowingErrorListener.Instance);
 
-        var tokenStream = new CommonTokenStream(lexer);
+        var tokenStream = new CommonTokenStream(new SignificantTokenSource(lexer));
 
         var parser = new SQLiteParser(tokenStream);
         // No throwing listener in the first stage: the generated rules report an error before

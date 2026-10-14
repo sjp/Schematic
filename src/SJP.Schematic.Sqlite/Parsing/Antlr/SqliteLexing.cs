@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Antlr4.Runtime;
 
 namespace SJP.Schematic.Sqlite.Parsing.Antlr;
@@ -24,11 +23,13 @@ internal static class SqliteLexing
         lexer.RemoveErrorListeners();
         lexer.AddErrorListener(ThrowingErrorListener.Instance);
 
-        var tokenStream = new CommonTokenStream(lexer);
-        tokenStream.Fill();
+        // Pull tokens straight from the source rather than buffering them in a token stream first;
+        // hidden tokens are neither allocated nor returned.
+        var tokenSource = new SignificantTokenSource(lexer);
+        var tokens = new List<IToken>();
+        for (var token = tokenSource.NextToken(); token.Type != TokenConstants.EOF; token = tokenSource.NextToken())
+            tokens.Add(token);
 
-        return tokenStream.GetTokens()
-            .Where(static t => t.Channel == Lexer.DefaultTokenChannel && t.Type != TokenConstants.EOF)
-            .ToList();
+        return tokens;
     }
 }

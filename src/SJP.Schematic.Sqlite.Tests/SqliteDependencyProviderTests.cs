@@ -109,6 +109,25 @@ internal static class SqliteDependencyProviderTests
     }
 
     [Test]
+    public static void GetDependencies_GivenUnqualifiedAndQualifiedNames_ReturnsEachWithItsParts()
+    {
+        var provider = new SqliteDependencyProvider();
+        Identifier objectName = "test";
+        const string expression = "select col, main.other_table.col2, [other] from main . \"other_table\"";
+
+        var dependencies = provider.GetDependencies(objectName, expression);
+        var expectedNames = new[]
+        {
+            new Identifier("col"),
+            new Identifier("main", "other_table", "col2"),
+            new Identifier("other"),
+            new Identifier("main", "other_table"),
+        };
+
+        Assert.That(dependencies, Is.EqualTo(expectedNames));
+    }
+
+    [Test]
     public static void GetDependencies_GivenExpressionForViewPointingToTableAndFunction_ReturnsColumnsTablesAndFunctions()
     {
         var provider = new SqliteDependencyProvider();
