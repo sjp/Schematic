@@ -32,6 +32,11 @@ internal static class GetViewDefinition
         /// Whether the view was created <c>WITH CHECK OPTION</c>, i.e. <c>Y</c> or <c>N</c>.
         /// </summary>
         public required string? HasCheckOption { get; init; }
+
+        /// <summary>
+        /// Whether the view has any <c>INSTEAD OF</c> triggers, i.e. <c>Y</c> or <c>N</c>.
+        /// </summary>
+        public required string? HasTriggers { get; init; }
     }
 
     // Oracle records a view's WITH CHECK OPTION as a constraint of type 'V' on the view, and reports
@@ -40,6 +45,8 @@ internal static class GetViewDefinition
     // consulted rather than inferring updatability from READ_ONLY alone.
     // TEXT is a LONG column, which Oracle rejects in GROUP BY and DISTINCT, so the other values must
     // stay correlated subqueries rather than becoming a grouped join.
+    // HasTriggers uses the same predicates as GetViewTriggers, so that a trigger the trigger query can
+    // see is never missed by the probe.
     internal const string Sql = $"""
 
 select
@@ -55,7 +62,12 @@ select
         select 1
         from SYS.ALL_CONSTRAINTS c
         where c.OWNER = v.OWNER and c.TABLE_NAME = v.VIEW_NAME and c.CONSTRAINT_TYPE = 'V'
-    ) then 'Y' else 'N' end as "{nameof(Result.HasCheckOption)}"
+    ) then 'Y' else 'N' end as "{nameof(Result.HasCheckOption)}",
+    case when exists (
+        select 1
+        from SYS.ALL_TRIGGERS t
+        where t.TABLE_OWNER = v.OWNER and t.TABLE_NAME = v.VIEW_NAME and t.BASE_OBJECT_TYPE = 'VIEW'
+    ) then 'Y' else 'N' end as "{nameof(Result.HasTriggers)}"
 from SYS.ALL_VIEWS v
 where v.OWNER = :{nameof(Query.SchemaName)} and v.VIEW_NAME = :{nameof(Query.ViewName)}
 """;

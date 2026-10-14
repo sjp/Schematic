@@ -170,11 +170,16 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definitionAndOptions, triggers) = await (
-            LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAndOptionsAsync(viewName, cancellationToken),
-            LoadTriggersAsync(viewName, cancellationToken)
-        ).WhenAll();
+        var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
+        var definitionAndOptions = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
+
+        // few views have INSTEAD OF triggers, so the trigger query is only run when the
+        // definition query has found something for it to return
+        var triggersTask = definitionAndOptions.HasTriggers
+            ? LoadTriggersAsync(viewName, cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseTrigger>>([]);
+
+        var (columns, triggers) = await (columnsTask, triggersTask).WhenAll();
 
         // Oracle cannot index a plain view, only a materialized one.
         return new DatabaseView(
@@ -213,8 +218,8 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
         return OracleCatalogMapper.MapTriggers(queryResult);
     }
 
-    // The definition and the options come from the same SYS.ALL_VIEWS row, so they are read together.
-    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    // The definition, the options and whether the view has triggers come from the same SYS.ALL_VIEWS row, so they are read together.
+    private async Task<(string? Definition, ViewCheckOption CheckOption, bool IsUpdatable, bool HasTriggers)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await DbConnection.QueryFirstOrNone(
             GetViewDefinition.Sql,
@@ -230,9 +235,10 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
                 // cascaded check option; it has no LOCAL form to distinguish.
                 string.Equals(row.HasCheckOption, YesValue, StringComparison.Ordinal) ? ViewCheckOption.Cascaded : ViewCheckOption.None,
                 !string.Equals(row.IsReadOnly, YesValue, StringComparison.Ordinal)
-                    && string.Equals(row.IsUpdatable, YesValue, StringComparison.Ordinal)
+                    && string.Equals(row.IsUpdatable, YesValue, StringComparison.Ordinal),
+                string.Equals(row.HasTriggers, YesValue, StringComparison.Ordinal)
             ),
-            static () => ((string?)null, ViewCheckOption.None, false)
+            static () => ((string?)null, ViewCheckOption.None, false, false)
         );
     }
 

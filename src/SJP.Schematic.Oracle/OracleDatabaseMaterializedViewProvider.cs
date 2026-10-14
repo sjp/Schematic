@@ -170,15 +170,22 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
 
     internal async Task<IDatabaseView> LoadViewAsyncCore(Identifier viewName, CancellationToken cancellationToken)
     {
-        var (columns, definitionAndOptions, triggers, indexRows) = await (
-            LoadColumnsAsync(viewName, cancellationToken),
-            LoadDefinitionAndOptionsAsync(viewName, cancellationToken),
-            LoadTriggersAsync(viewName, cancellationToken),
-            LoadIndexRowsAsync(viewName, cancellationToken)
-        ).WhenAll();
+        var columnsTask = LoadColumnsAsync(viewName, cancellationToken);
+        var indexRowsTask = LoadIndexRowsAsync(viewName, cancellationToken);
+        var definitionAndOptions = await LoadDefinitionAndOptionsAsync(viewName, cancellationToken);
 
-        var columnLookup = GetColumnLookup(columns);
-        var indexes = OracleCatalogMapper.MapIndexes(indexRows, columnLookup, Dialect);
+        // few materialized views have triggers, so the trigger query is only run when the
+        // definition query has found something for it to return
+        var triggersTask = definitionAndOptions.HasTriggers
+            ? LoadTriggersAsync(viewName, cancellationToken)
+            : Task.FromResult<IReadOnlyCollection<IDatabaseTrigger>>([]);
+
+        var (columns, triggers, indexRows) = await (columnsTask, triggersTask, indexRowsTask).WhenAll();
+
+        // the column lookup is only needed to resolve index columns
+        var indexes = indexRows.Any()
+            ? OracleCatalogMapper.MapIndexes(indexRows, GetColumnLookup(columns), Dialect)
+            : [];
 
         return new DatabaseMaterializedView(
             viewName,
@@ -226,8 +233,8 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
         );
     }
 
-    // The definition and the refresh metadata come from the same SYS.ALL_MVIEWS row, so they are read together.
-    private async Task<(string? Definition, MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
+    // The definition, the refresh metadata and whether the view has triggers come from the same SYS.ALL_MVIEWS row, so they are read together.
+    private async Task<(string? Definition, MaterializedViewRefreshMode RefreshMode, Option<string> RefreshMethod, bool IsPopulated, bool HasTriggers)> LoadDefinitionAndOptionsAsync(Identifier viewName, CancellationToken cancellationToken)
     {
         var result = await DbConnection.QueryFirstOrNone(
             GetMaterializedViewDefinition.Sql,
@@ -247,9 +254,10 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
                     : Option<string>.None,
                 // a view built DEFERRED holds no data and cannot be queried until it is first
                 // refreshed, which Oracle reports as an UNUSABLE staleness.
-                !string.Equals(row.Staleness, UnusableValue, StringComparison.Ordinal)
+                !string.Equals(row.Staleness, UnusableValue, StringComparison.Ordinal),
+                string.Equals(row.HasTriggers, YesValue, StringComparison.Ordinal)
             ),
-            static () => ((string?)null, MaterializedViewRefreshMode.Unknown, Option<string>.None, false)
+            static () => ((string?)null, MaterializedViewRefreshMode.Unknown, Option<string>.None, false, false)
         );
     }
 
@@ -342,6 +350,8 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
     }
 
     private const string NoValue = "N";
+
+    private const string YesValue = "Y";
 
     private const string UnusableValue = "UNUSABLE";
 

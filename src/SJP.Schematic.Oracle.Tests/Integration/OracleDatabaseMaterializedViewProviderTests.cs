@@ -365,17 +365,19 @@ end;
         }
     }
 
-    // A materialized view load issues 5 queries: one to resolve the view's name, then columns (including
-    // their nullability), triggers, indexes, and the definition read together with the refresh options.
-    [Test]
-    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    // A materialized view load issues 4 queries: one to resolve the view's name, then columns (including
+    // their nullability), indexes, and the definition read together with the refresh options and whether
+    // the view has triggers. The trigger query only follows when it does.
+    [TestCase("mview_view_test_view_3", 4)]
+    [TestCase("mview_view_test_view_5", 5)]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips(string viewName, int expectedQueryCount)
     {
         var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
         var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
         var viewProvider = new OracleDatabaseMaterializedViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
 
-        _ = await viewProvider.GetView("mview_view_test_view_3", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        _ = await viewProvider.GetView(viewName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(expectedQueryCount));
     }
 }

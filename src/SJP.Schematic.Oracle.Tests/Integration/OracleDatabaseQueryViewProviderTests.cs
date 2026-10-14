@@ -33,6 +33,15 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     unbounded_precision_column number(*, 2)
 )", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create view query_view_test_view_5 as select * from query_view_test_table_3", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create view query_view_test_view_6 as select not_null_column, nullable_column from query_view_test_table_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
+create trigger query_view_test_view_6_trigger_1
+instead of insert on query_view_test_view_6
+for each row
+begin
+    null;
+end;
+", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -43,6 +52,7 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         "drop table query_view_test_table_1",
         "drop view query_view_test_view_3",
         "drop view query_view_test_view_4",
+        "drop view query_view_test_view_6",
         "drop table query_view_test_table_2",
         "drop view query_view_test_view_5",
         "drop table query_view_test_table_3");
@@ -305,9 +315,6 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
         Assert.That(columnNames, Is.EqualTo(new[] { "VISIBLE_COLUMN", "INVISIBLE_COLUMN" }));
     }
 
-    // A view load issues 4 queries: one to resolve the view's name, then columns (including their
-    // nullability), INSTEAD OF triggers, and the definition read together with the check option and
-    // updatability.
     [Test]
     public async Task GetAllViews_WhenViewHasFractionalSecondsAndUnusualScaleColumns_ContainsView()
     {
@@ -340,14 +347,41 @@ internal sealed class OracleDatabaseQueryViewProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips()
+    public async Task Triggers_WhenViewHasNoTriggers_ReturnsEmptyCollection()
+    {
+        var view = await GetViewAsync("query_view_test_view_3");
+
+        Assert.That(view.Triggers, Is.Empty);
+    }
+
+    [Test]
+    public async Task Triggers_WhenViewHasInsteadOfTrigger_ReturnsTrigger()
+    {
+        var view = await GetViewAsync("query_view_test_view_6");
+        var trigger = view.Triggers.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.Name.LocalName, Is.EqualTo("QUERY_VIEW_TEST_VIEW_6_TRIGGER_1"));
+            Assert.That(trigger.QueryTiming, Is.EqualTo(TriggerQueryTiming.InsteadOf));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(TriggerEvent.Insert));
+        }
+    }
+
+    // A view load issues 3 queries: one to resolve the view's name, then columns (including their
+    // nullability) alongside the definition, which is read together with the check option, the
+    // updatability and whether the view has INSTEAD OF triggers. The trigger query only follows when
+    // it does.
+    [TestCase("query_view_test_view_3", 3)]
+    [TestCase("query_view_test_view_6", 4)]
+    public async Task GetView_WhenViewPresent_IssuesExpectedNumberOfRoundTrips(string viewName, int expectedQueryCount)
     {
         var countingConnectionFactory = new CountingDbConnectionFactory(Config.ConnectionFactory);
         var countingConnection = new SchematicConnection(countingConnectionFactory, Dialect);
         var viewProvider = new OracleDatabaseQueryViewProvider(countingConnection, IdentifierDefaults, IdentifierResolver);
 
-        _ = await viewProvider.GetView("query_view_test_view_3", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        _ = await viewProvider.GetView(viewName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(4));
+        Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(expectedQueryCount));
     }
 }
