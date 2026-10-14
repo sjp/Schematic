@@ -393,6 +393,12 @@ when new.table_id > 1
 begin
     select 1;
 end", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"create trigger trigger_test_table_1_trigger_8
+insert
+on trigger_test_table_1
+begin
+    select 1;
+end", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]

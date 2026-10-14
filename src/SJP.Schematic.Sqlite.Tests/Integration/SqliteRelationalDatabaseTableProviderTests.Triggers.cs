@@ -158,6 +158,22 @@ end";
     }
 
     [Test]
+    public async Task Triggers_GivenTableWithTriggerWithoutTiming_ReturnsBeforeTiming()
+    {
+        var table = await GetTableAsync("trigger_test_table_1");
+        var trigger = table.Triggers.First(t => t.Name == "trigger_test_table_1_trigger_8");
+
+        const TriggerQueryTiming timing = TriggerQueryTiming.Before;
+        const TriggerEvent events = TriggerEvent.Insert;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(trigger.QueryTiming, Is.EqualTo(timing));
+            Assert.That(trigger.TriggerEvent, Is.EqualTo(events));
+        }
+    }
+
+    [Test]
     public async Task Triggers_GivenTableWithTrigger_ReturnsRowGranularity()
     {
         var table = await GetTableAsync("trigger_test_table_1");

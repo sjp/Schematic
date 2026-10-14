@@ -22,14 +22,14 @@ internal static class SqliteTriggerDefinitionBuilder
 
     private static TriggerQueryTiming GetTiming(SQLiteParser.Create_trigger_stmtContext context)
     {
-        if (context.BEFORE_() != null)
-            return TriggerQueryTiming.Before;
+        if (context.AFTER_() != null)
+            return TriggerQueryTiming.After;
         if (context.INSTEAD_() != null && context.OF_().Length > 0)
             return TriggerQueryTiming.InsteadOf;
 
-        // AFTER is both the explicit keyword case and the default when no timing is declared,
-        // matching the behaviour of the previous parser.
-        return TriggerQueryTiming.After;
+        // BEFORE is both the explicit keyword case and the default when no timing is declared,
+        // which is how SQLite itself runs such a trigger.
+        return TriggerQueryTiming.Before;
     }
 
     private static TriggerEvent GetEvent(SQLiteParser.Create_trigger_stmtContext context)

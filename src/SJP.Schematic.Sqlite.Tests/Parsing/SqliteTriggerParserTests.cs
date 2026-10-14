@@ -22,7 +22,7 @@ internal static class SqliteTriggerParserTests
     [TestCase("create trigger trig before insert on foo begin select 1; end", TriggerQueryTiming.Before, TriggerEvent.Insert)]
     [TestCase("create trigger trig after update on foo begin select 1; end", TriggerQueryTiming.After, TriggerEvent.Update)]
     [TestCase("create trigger trig instead of delete on foo begin select 1; end", TriggerQueryTiming.InsteadOf, TriggerEvent.Delete)]
-    [TestCase("create trigger trig delete on foo begin select 1; end", TriggerQueryTiming.After, TriggerEvent.Delete)]
+    [TestCase("create trigger trig delete on foo begin select 1; end", TriggerQueryTiming.Before, TriggerEvent.Delete)]
     [TestCase("create trigger trig before update of a, b on foo begin select 1; end", TriggerQueryTiming.Before, TriggerEvent.Update)]
     [TestCase("create temp trigger if not exists main.trig after insert on foo when new.a > 1 begin select 1; end", TriggerQueryTiming.After, TriggerEvent.Insert)]
     public static void Parse_GivenTrigger_ReturnsExpectedTimingAndEvent(string definition, TriggerQueryTiming expectedTiming, TriggerEvent expectedEvent)
