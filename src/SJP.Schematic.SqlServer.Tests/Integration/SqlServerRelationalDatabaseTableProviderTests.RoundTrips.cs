@@ -11,9 +11,9 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     // creeping back up. table_test_table_2 is a single-column, primary-keyed table with no unique keys,
     // foreign keys or child keys, so no other table is loaded.
     //
-    // The primary and unique keys are built from the index rows rather than queried separately, so a
-    // table load issues 8 queries: name resolution, then columns, checks, triggers, indexes, parent keys,
-    // child keys and table options.
+    // The primary and unique keys are built from the index rows rather than queried separately, parent and
+    // child keys from one foreign key query, and the table options, checks and triggers come from one query,
+    // so a table load issues 5 queries: name resolution, then columns, indexes, foreign keys and table details.
     [Test]
     public async Task GetTable_ForSingleTableWithOnlyAPrimaryKey_IssuesExpectedNumberOfRoundTrips()
     {
@@ -26,7 +26,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         using (Assert.EnterMultipleScope())
         {
             Assert.That(table.PrimaryKey, OptionIs.Some);
-            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(8));
+            Assert.That(countingConnectionFactory.QueryCount, Is.EqualTo(5));
         }
     }
 }

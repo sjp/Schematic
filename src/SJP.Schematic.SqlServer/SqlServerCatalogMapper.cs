@@ -116,7 +116,7 @@ internal static class SqlServerCatalogMapper
         return result;
     }
 
-    public static IReadOnlyCollection<IDatabaseTrigger> MapTriggers(IEnumerable<GetTableTriggers.Result> rows)
+    public static IReadOnlyCollection<IDatabaseTrigger> MapTriggers(IEnumerable<TriggerRow> rows)
     {
         ArgumentNullException.ThrowIfNull(rows);
 

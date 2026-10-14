@@ -4,27 +4,30 @@ namespace SJP.Schematic.SqlServer.Queries;
 
 internal static class GetViewTriggers
 {
-    // The shape of a trigger is the same whether it is attached to a table or a view, so the rows are
-    // described by GetTableTriggers.Result and mapped by the same code.
-    internal sealed record Query : ISqlQuery<GetTableTriggers.Result>
+    internal sealed record Query : ISqlQuery<TriggerRow>
     {
         public required string SchemaName { get; init; }
 
         public required string ViewName { get; init; }
     }
 
+    // sys.trigger_events emits one row per (trigger, event), and a trigger fired on multiple events would
+    // otherwise resend its (potentially large) definition once per event. The events are pivoted per
+    // trigger inside the apply, so the definition is never part of a grouping key; the inner group by
+    // makes the apply return no row for a trigger without events, which excludes it like an inner join.
+    //
     // parent_class = 1 restricts the join to triggers whose parent is an object, i.e. DML triggers,
     // as opposed to the database-scoped DDL triggers that also live in sys.triggers.
     internal const string Sql = @$"
 select
-    st.name as [{nameof(GetTableTriggers.Result.TriggerName)}],
-    sm.definition as [{nameof(GetTableTriggers.Result.Definition)}],
-    st.is_instead_of_trigger as [{nameof(GetTableTriggers.Result.IsInsteadOfTrigger)}],
-    st.is_disabled as [{nameof(GetTableTriggers.Result.IsDisabled)}],
-    ev.IsInsertTrigger as [{nameof(GetTableTriggers.Result.IsInsertTrigger)}],
-    ev.IsUpdateTrigger as [{nameof(GetTableTriggers.Result.IsUpdateTrigger)}],
-    ev.IsDeleteTrigger as [{nameof(GetTableTriggers.Result.IsDeleteTrigger)}],
-    ev.IsOtherTrigger as [{nameof(GetTableTriggers.Result.IsOtherTrigger)}]
+    st.name as [{nameof(TriggerRow.TriggerName)}],
+    sm.definition as [{nameof(TriggerRow.Definition)}],
+    st.is_instead_of_trigger as [{nameof(TriggerRow.IsInsteadOfTrigger)}],
+    st.is_disabled as [{nameof(TriggerRow.IsDisabled)}],
+    ev.IsInsertTrigger as [{nameof(TriggerRow.IsInsertTrigger)}],
+    ev.IsUpdateTrigger as [{nameof(TriggerRow.IsUpdateTrigger)}],
+    ev.IsDeleteTrigger as [{nameof(TriggerRow.IsDeleteTrigger)}],
+    ev.IsOtherTrigger as [{nameof(TriggerRow.IsOtherTrigger)}]
 from sys.views v
 inner join sys.triggers st on v.object_id = st.parent_id and st.parent_class = 1
 inner join sys.sql_modules sm on st.object_id = sm.object_id

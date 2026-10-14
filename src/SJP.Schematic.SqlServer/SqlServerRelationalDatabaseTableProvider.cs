@@ -69,6 +69,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache>(LoadIndexesAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache>(LoadParentKeysAsync, cancellationToken),
         new AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache>((tableName, _, token) => LoadIndexRowsAsync(tableName, token), cancellationToken),
+        new AsyncCache<Identifier, IReadOnlyList<GetTableForeignKeys.Result>, SqlServerTableQueryCache>((tableName, _, token) => LoadForeignKeyRowsAsync(tableName, token), cancellationToken),
         new AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache>(
             async (tableName, cache, token) => GetColumnLookup(await cache.GetColumnsAsync(tableName, token)), cancellationToken)
     );
@@ -195,24 +196,20 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     {
         var (
             columns,
-            checks,
-            triggers,
             indexes,
             primaryKey,
             uniqueKeys,
             parentKeys,
             childKeys,
-            options
+            (options, checks, triggers)
         ) = await (
             queryCache.GetColumnsAsync(tableName, cancellationToken),
-            LoadChecksAsync(tableName, cancellationToken),
-            LoadTriggersAsync(tableName, cancellationToken),
             queryCache.GetIndexesAsync(tableName, cancellationToken),
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken),
             queryCache.GetForeignKeysAsync(tableName, cancellationToken),
             LoadChildKeysAsync(tableName, queryCache, cancellationToken),
-            LoadTableOptionsAsync(tableName, queryCache, cancellationToken)
+            LoadTableDetailsAsync(tableName, queryCache, cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabaseTable(
@@ -233,18 +230,62 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         );
     }
 
-    private async Task<TableOptions> LoadTableOptionsAsync(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
+    // A table's options, check constraints and triggers are read by one query, which repeats the options on
+    // each check or trigger row.
+    private async Task<(TableOptions Options, IReadOnlyCollection<IDatabaseCheckConstraint> Checks, IReadOnlyCollection<IDatabaseTrigger> Triggers)> LoadTableDetailsAsync(
+        Identifier tableName,
+        SqlServerTableQueryCache queryCache,
+        CancellationToken cancellationToken
+    )
     {
-        var optionsResult = await DbConnection.QueryAsync(
-            GetTableOptions.Sql,
-            new GetTableOptions.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+        var queryResult = await DbConnection.QueryAsync(
+            GetTableDetails.Sql,
+            new GetTableDetails.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
             cancellationToken
         );
+        var rows = queryResult.ToList();
+        if (rows.Count == 0)
+            return (TableOptions.Default, [], []);
 
-        var options = optionsResult.FirstOrDefault();
-        if (options == null)
-            return TableOptions.Default;
+        var checks = new List<IDatabaseCheckConstraint>();
+        var triggerRows = new List<TriggerRow>();
+        foreach (var row in rows)
+        {
+            if (row.ObjectName == null)
+                continue;
 
+            if (string.Equals(row.ObjectKind, GetTableDetails.CheckObjectKind, StringComparison.Ordinal))
+            {
+                if (row.Definition == null)
+                    continue;
+
+                var constraintName = Identifier.CreateQualifiedIdentifier(row.ObjectName);
+                var isEnabled = row.IsDisabled != true;
+                var isValidated = row.IsNotTrusted != true;
+                checks.Add(new DatabaseCheckConstraint(constraintName, row.Definition, isEnabled, isValidated, ConstraintDeferrability.NotDeferrable));
+            }
+            else if (string.Equals(row.ObjectKind, GetTableDetails.TriggerObjectKind, StringComparison.Ordinal))
+            {
+                triggerRows.Add(new TriggerRow
+                {
+                    TriggerName = row.ObjectName,
+                    Definition = row.Definition,
+                    IsInsteadOfTrigger = row.IsInsteadOfTrigger == true,
+                    IsDisabled = row.IsDisabled == true,
+                    IsInsertTrigger = row.IsInsertTrigger == true,
+                    IsUpdateTrigger = row.IsUpdateTrigger == true,
+                    IsDeleteTrigger = row.IsDeleteTrigger == true,
+                    IsOtherTrigger = row.IsOtherTrigger == true,
+                });
+            }
+        }
+
+        var options = await MapTableOptionsAsync(tableName, rows[0], queryCache, cancellationToken);
+        return (options, checks, SqlServerCatalogMapper.MapTriggers(triggerRows));
+    }
+
+    private async Task<TableOptions> MapTableOptionsAsync(Identifier tableName, GetTableDetails.Result options, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
+    {
         var partitioning = Option<ITablePartitioning>.None;
         if (options.PartitionSchemeName != null)
         {
@@ -526,26 +567,21 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableChildKeys.Sql,
-            new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var foreignKeyRows = await queryCache.GetForeignKeyRowsAsync(tableName, cancellationToken);
 
-        if (queryResult.Empty())
-            return [];
-
-        var groupedChildKeys = queryResult.GroupAsDictionary(static row =>
-        new
-        {
-            row.ChildTableSchema,
-            row.ChildTableName,
-            row.ChildKeyName,
-            row.ParentKeyName,
-            row.ParentKeyType,
-            row.DeleteAction,
-            row.UpdateAction,
-        }).ToList();
+        var groupedChildKeys = foreignKeyRows
+            .Where(static row => !row.IsParentKey)
+            .GroupAsDictionary(static row => new
+            {
+                row.ChildTableSchema,
+                row.ChildTableName,
+                row.ChildKeyName,
+                row.ParentKeyName,
+                row.ParentKeyType,
+                row.DeleteAction,
+                row.UpdateAction,
+            })
+            .ToList();
         if (groupedChildKeys.Empty())
             return [];
 
@@ -608,32 +644,6 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     }
 
     /// <summary>
-    /// Retrieves check constraints defined on a given table.
-    /// </summary>
-    /// <param name="tableName">A table name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of check constraints.</returns>
-    protected async Task<IReadOnlyCollection<IDatabaseCheckConstraint>> LoadChecksAsync(Identifier tableName, CancellationToken cancellationToken)
-    {
-        return await DbConnection.QueryEnumerableAsync(
-                GetTableChecks.Sql,
-                new GetTableChecks.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-                cancellationToken
-            )
-            .Where(checkRow => checkRow.ConstraintName != null && checkRow.Definition != null)
-            .Select(checkRow =>
-            {
-                var constraintName = Identifier.CreateQualifiedIdentifier(checkRow.ConstraintName);
-                var definition = checkRow.Definition;
-                var isEnabled = !checkRow.IsDisabled;
-                var isValidated = !checkRow.IsNotTrusted;
-
-                return new DatabaseCheckConstraint(constraintName, definition, isEnabled, isValidated, ConstraintDeferrability.NotDeferrable);
-            })
-            .ToListAsync(cancellationToken);
-    }
-
-    /// <summary>
     /// Retrieves foreign keys that relate to the given table.
     /// </summary>
     /// <param name="tableName">A table name.</param>
@@ -651,27 +661,23 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadParentKeysAsyncCore(Identifier tableName, SqlServerTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableParentKeys.Sql,
-            new GetTableParentKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
+        var foreignKeyRows = await queryCache.GetForeignKeyRowsAsync(tableName, cancellationToken);
 
-        if (queryResult.Empty())
-            return [];
-
-        var foreignKeys = queryResult.GroupAsDictionary(static row => new
-        {
-            row.ChildKeyName,
-            row.ParentTableSchema,
-            row.ParentTableName,
-            row.ParentKeyName,
-            KeyType = row.ParentKeyType,
-            row.DeleteAction,
-            row.UpdateAction,
-            row.IsDisabled,
-            row.IsNotTrusted,
-        }).ToList();
+        var foreignKeys = foreignKeyRows
+            .Where(static row => row.IsParentKey)
+            .GroupAsDictionary(static row => new
+            {
+                row.ChildKeyName,
+                row.ParentTableSchema,
+                row.ParentTableName,
+                row.ParentKeyName,
+                KeyType = row.ParentKeyType,
+                row.DeleteAction,
+                row.UpdateAction,
+                row.IsDisabled,
+                row.IsNotTrusted,
+            })
+            .ToList();
         if (foreignKeys.Empty())
             return [];
 
@@ -729,7 +735,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     var childKeyColumns = ResolveColumns(
                         fkey.Value
                             .OrderBy(static row => row.ConstraintColumnId)
-                            .Select(static row => (Identifier)row.ColumnName),
+                            .Select(static row => (Identifier)row.ColumnName!),
                         columnLookup
                     ).ToList();
 
@@ -746,6 +752,32 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// Retrieves the raw foreign key rows at both ends of the given table: the foreign keys it owns, and those on
+    /// other tables that reference it. Its parent and child keys are both built from these rows.
+    /// </summary>
+    /// <param name="tableName">A table name.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A collection of foreign key rows.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+    internal Task<IReadOnlyList<GetTableForeignKeys.Result>> LoadForeignKeyRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(tableName);
+
+        return LoadForeignKeyRowsAsyncCore(tableName, cancellationToken);
+    }
+
+    private async Task<IReadOnlyList<GetTableForeignKeys.Result>> LoadForeignKeyRowsAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var queryResult = await DbConnection.QueryAsync(
+            GetTableForeignKeys.Sql,
+            new GetTableForeignKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        return queryResult.ToList();
     }
 
     /// <summary>
@@ -816,31 +848,6 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     row.IsHidden);
             })
             .ToListAsync(cancellationToken);
-    }
-
-    /// <summary>
-    /// Retrieves all triggers defined on a table.
-    /// </summary>
-    /// <param name="tableName">A table name.</param>
-    /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A collection of triggers.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-    protected Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsync(Identifier tableName, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(tableName);
-
-        return LoadTriggersAsyncCore(tableName, cancellationToken);
-    }
-
-    private async Task<IReadOnlyCollection<IDatabaseTrigger>> LoadTriggersAsyncCore(Identifier tableName, CancellationToken cancellationToken)
-    {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableTriggers.Sql,
-            new GetTableTriggers.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
-
-        return SqlServerCatalogMapper.MapTriggers(queryResult);
     }
 
     /// <summary>
@@ -968,6 +975,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache> _indexes;
         private readonly AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> _foreignKeys;
         private readonly AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache> _indexRows;
+        private readonly AsyncCache<Identifier, IReadOnlyList<GetTableForeignKeys.Result>, SqlServerTableQueryCache> _foreignKeyRows;
         private readonly AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache> _columnLookups;
 
         /// <summary>
@@ -980,8 +988,9 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
         /// <param name="indexLoader">An index cache.</param>
         /// <param name="foreignKeyLoader">A foreign key cache.</param>
         /// <param name="indexRowsLoader">A raw index column row cache.</param>
+        /// <param name="foreignKeyRowsLoader">A raw foreign key row cache.</param>
         /// <param name="columnLookupLoader">A column lookup cache.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexRowsLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when any of <paramref name="tableNameLoader"/>, <paramref name="columnLoader"/>, <paramref name="primaryKeyLoader"/>, <paramref name="uniqueKeyLoader"/>, <paramref name="indexLoader"/>, <paramref name="foreignKeyLoader"/>, <paramref name="indexRowsLoader"/>, <paramref name="foreignKeyRowsLoader"/> or <paramref name="columnLookupLoader"/> are <see langword="null" />.</exception>
         internal SqlServerTableQueryCache(
             AsyncCache<Identifier, Option<Identifier>, SqlServerTableQueryCache> tableNameLoader,
             AsyncCache<Identifier, IReadOnlyList<IDatabaseColumn>, SqlServerTableQueryCache> columnLoader,
@@ -990,6 +999,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseIndex>, SqlServerTableQueryCache> indexLoader,
             AsyncCache<Identifier, IReadOnlyCollection<IDatabaseRelationalKey>, SqlServerTableQueryCache> foreignKeyLoader,
             AsyncCache<Identifier, IReadOnlyList<GetTableIndexes.Result>, SqlServerTableQueryCache> indexRowsLoader,
+            AsyncCache<Identifier, IReadOnlyList<GetTableForeignKeys.Result>, SqlServerTableQueryCache> foreignKeyRowsLoader,
             AsyncCache<Identifier, IReadOnlyDictionary<Identifier, IDatabaseColumn>, SqlServerTableQueryCache> columnLookupLoader
         )
         {
@@ -1000,6 +1010,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             _indexes = indexLoader ?? throw new ArgumentNullException(nameof(indexLoader));
             _foreignKeys = foreignKeyLoader ?? throw new ArgumentNullException(nameof(foreignKeyLoader));
             _indexRows = indexRowsLoader ?? throw new ArgumentNullException(nameof(indexRowsLoader));
+            _foreignKeyRows = foreignKeyRowsLoader ?? throw new ArgumentNullException(nameof(foreignKeyRowsLoader));
             _columnLookups = columnLookupLoader ?? throw new ArgumentNullException(nameof(columnLookupLoader));
         }
 
@@ -1114,6 +1125,20 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
             ArgumentNullException.ThrowIfNull(tableName);
 
             return _indexRows.GetByKeyAsync(tableName, this, cancellationToken);
+        }
+
+        /// <summary>
+        /// Retrieves a table's raw foreign key rows from the cache, querying the database when not populated.
+        /// </summary>
+        /// <param name="tableName">A table name.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns>A collection of foreign key rows.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
+        internal Task<IReadOnlyList<GetTableForeignKeys.Result>> GetForeignKeyRowsAsync(Identifier tableName, CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(tableName);
+
+            return _foreignKeyRows.GetByKeyAsync(tableName, this, cancellationToken);
         }
 
         /// <summary>
