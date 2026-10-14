@@ -125,4 +125,35 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         Assert.That(table.Indexes, Is.Empty);
     }
+
+    // a descending column is stored over a system-generated hidden column, with the column's quoted name as its expression
+    [Test]
+    public async Task Indexes_WhenGivenTableWithDescendingColumn_ReturnsColumnsWithOrderAndDependentColumn()
+    {
+        var table = await GetTableAsync("table_test_table_44");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "IX_TEST_TABLE_44_1");
+        var indexColumns = index.Columns.ToList();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumns.Select(c => c.Expression), Is.EqualTo(new[] { "\"FIRST_COLUMN\"", "\"SECOND_COLUMN\"" }));
+            Assert.That(indexColumns.Select(c => c.Order), Is.EqualTo(new[] { IndexColumnOrder.Descending, IndexColumnOrder.Ascending }));
+            Assert.That(indexColumns.Select(c => c.DependentColumns.Single().Name.LocalName), Is.EqualTo(new[] { "FIRST_COLUMN", "SECOND_COLUMN" }));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenGivenTableWithFunctionBasedIndex_ReturnsExpressionWithoutDependentColumns()
+    {
+        var table = await GetTableAsync("table_test_table_44");
+        var index = table.Indexes.Single(i => i.Name.LocalName == "IX_TEST_TABLE_44_2");
+        var indexColumn = index.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.Expression, Is.EqualTo("UPPER(\"SECOND_COLUMN\")"));
+            Assert.That(indexColumn.DependentColumns, Is.Empty);
+            Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Ascending));
+        }
+    }
 }

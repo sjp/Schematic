@@ -40,17 +40,7 @@ internal static class OracleCatalogMapper
             var indexCols = indexInfo.Value
                 .Where(static row => row.ColumnName != null)
                 .OrderBy(static row => row.ColumnPosition)
-                .Select(static row => new { row.IsDescending, Column = row.ColumnName! })
-                .Select(row =>
-                {
-                    var order = string.Equals(row.IsDescending, Y, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
-                    var expression = dialect.QuoteName(row.Column);
-                    // a function-based index depends on a system-generated hidden column that is
-                    // filtered out of the table/view's own columns, so it will never be found here
-                    return columnLookup.TryGetValue(row.Column, out var indexColumn)
-                        ? new OracleDatabaseIndexColumn(expression, indexColumn, order)
-                        : new OracleDatabaseIndexColumn(expression, order);
-                })
+                .Select(row => MapIndexColumn(row, columnLookup, dialect))
                 .ToList();
 
             var indexType = indexInfo.Key.IndexType != null && IndexTypeMapping.TryGetValue(indexInfo.Key.IndexType, out var mappedIndexType)
@@ -64,6 +54,41 @@ internal static class OracleCatalogMapper
         }
 
         return result;
+    }
+
+    private static OracleDatabaseIndexColumn MapIndexColumn(
+        GetTableIndexes.Result row,
+        IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
+        IDatabaseDialect dialect
+    )
+    {
+        var order = string.Equals(row.Descend, Desc, StringComparison.Ordinal) ? IndexColumnOrder.Descending : IndexColumnOrder.Ascending;
+
+        // A descending or function-based index column is stored over a system-generated hidden column,
+        // which is filtered out of the table/view's own columns. Its expression is the quoted column
+        // name for a descending column, so that column is resolved instead. Any other expression is
+        // reported as is, without dependent columns.
+        var columnName = row.ColumnExpression.IsNullOrWhiteSpace()
+            ? row.ColumnName!
+            : TryGetQuotedName(row.ColumnExpression);
+        if (columnName == null)
+            return new OracleDatabaseIndexColumn(row.ColumnExpression!, order);
+
+        var expression = dialect.QuoteName(columnName);
+        return columnLookup.TryGetValue(columnName, out var indexColumn)
+            ? new OracleDatabaseIndexColumn(expression, indexColumn, order)
+            : new OracleDatabaseIndexColumn(expression, order);
+    }
+
+    // Oracle identifiers cannot contain a double quote, so a quoted name is exactly one pair of quotes.
+    private static string? TryGetQuotedName(string expression)
+    {
+        var trimmed = expression.AsSpan().Trim();
+        if (trimmed.Length < 3 || trimmed[0] != '"' || trimmed[^1] != '"')
+            return null;
+
+        var name = trimmed[1..^1];
+        return name.Contains('"') ? null : name.ToString();
     }
 
     public static IReadOnlyCollection<IDatabaseTrigger> MapTriggers(IEnumerable<GetTableTriggers.Result> rows)
@@ -213,6 +238,7 @@ internal static class OracleCatalogMapper
     };
 
     private const string Delete = "DELETE";
+    private const string Desc = "DESC";
     private const string Enabled = "ENABLED";
     private const string Insert = "INSERT";
     private const string Invisible = "INVISIBLE";
@@ -221,7 +247,6 @@ internal static class OracleCatalogMapper
     private const string Unique = "UNIQUE";
     private const string Unusable = "UNUSABLE";
     private const string Update = "UPDATE";
-    private const string Y = "Y";
 
     // ALL_INDEXES.INDEX_TYPE values, see the Oracle reference for ALL_INDEXES.
     private static readonly IReadOnlyDictionary<string, IndexType> IndexTypeMapping = new Dictionary<string, IndexType>(StringComparer.Ordinal)

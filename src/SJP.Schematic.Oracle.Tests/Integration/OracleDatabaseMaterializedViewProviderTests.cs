@@ -27,6 +27,7 @@ internal sealed class OracleDatabaseMaterializedViewProviderTests : OracleTest
         await DbConnection.ExecuteAsync("create table mview_view_test_table_3 (test_column varchar2(20))", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_4 as select test_column from mview_view_test_table_3", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create index mview_view_test_view_4_ix_1 on mview_view_test_view_4 (upper(test_column))", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create index mview_view_test_view_4_ix_2 on mview_view_test_view_4 (test_column desc)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create table mview_view_test_table_4 (test_column number)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create materialized view mview_view_test_view_5 as select test_column from mview_view_test_table_4", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
@@ -299,6 +300,36 @@ end;
         var view = await GetViewAsync("mview_view_test_view_4");
 
         Assert.That(view.Columns.Select(c => c.IsHidden), Is.All.False);
+    }
+
+    [Test]
+    public async Task Indexes_WhenViewHasFunctionBasedIndex_ReturnsExpressionWithoutDependentColumns()
+    {
+        var view = await GetViewAsync("mview_view_test_view_4");
+        var index = view.Indexes.Single(i => i.Name.LocalName == "MVIEW_VIEW_TEST_VIEW_4_IX_1");
+        var indexColumn = index.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.Expression, Is.EqualTo("UPPER(\"TEST_COLUMN\")"));
+            Assert.That(indexColumn.DependentColumns, Is.Empty);
+            Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Ascending));
+        }
+    }
+
+    [Test]
+    public async Task Indexes_WhenViewHasDescendingIndex_ReturnsDescendingColumn()
+    {
+        var view = await GetViewAsync("mview_view_test_view_4");
+        var index = view.Indexes.Single(i => i.Name.LocalName == "MVIEW_VIEW_TEST_VIEW_4_IX_2");
+        var indexColumn = index.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(indexColumn.Expression, Is.EqualTo("\"TEST_COLUMN\""));
+            Assert.That(indexColumn.DependentColumns.Single().Name.LocalName, Is.EqualTo("TEST_COLUMN"));
+            Assert.That(indexColumn.Order, Is.EqualTo(IndexColumnOrder.Descending));
+        }
     }
 
     [Test]
