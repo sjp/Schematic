@@ -2,7 +2,7 @@
 
 namespace SJP.Schematic.MySql.Queries;
 
-internal static class GetTableChildKeys
+internal static class GetTableChildTables
 {
     internal sealed record Query : ISqlQuery<Result>
     {
@@ -16,34 +16,21 @@ internal static class GetTableChildKeys
         public required string ChildTableSchema { get; init; }
 
         public required string ChildTableName { get; init; }
-
-        public required string ChildKeyName { get; init; }
-
-        public required string ParentKeyName { get; init; }
-
-        public required string DeleteAction { get; init; }
-
-        public required string UpdateAction { get; init; }
     }
 
-    // The parent key is matched on its name and the child table's referenced columns in C#, rather than by
-    // joining table_constraints. On MariaDB the join could not use a lookup key and scanned every table on the
-    // server a second time.
+    // Only the tables holding the foreign keys are read here. Each foreign key is then built from the child
+    // table's own cached foreign key rows, which are read by key and describe the constraint in full.
     //
     // Child tables can be in any schema, so referential_constraints is filtered on the referenced table only.
     // MariaDB cannot look that up by key and still reads every table on the server to answer it.
     internal const string Sql = $"""
 
-select
+select distinct
     rc.constraint_schema as `{nameof(Result.ChildTableSchema)}`,
-    rc.table_name as `{nameof(Result.ChildTableName)}`,
-    rc.constraint_name as `{nameof(Result.ChildKeyName)}`,
-    rc.unique_constraint_name as `{nameof(Result.ParentKeyName)}`,
-    rc.delete_rule as `{nameof(Result.DeleteAction)}`,
-    rc.update_rule as `{nameof(Result.UpdateAction)}`
+    rc.table_name as `{nameof(Result.ChildTableName)}`
 from information_schema.referential_constraints rc
 where rc.unique_constraint_schema = @{nameof(Query.SchemaName)} and rc.referenced_table_name = @{nameof(Query.TableName)}
     and rc.unique_constraint_name is not null
-order by rc.constraint_schema, rc.table_name, rc.constraint_name
+order by rc.constraint_schema, rc.table_name
 """;
 }

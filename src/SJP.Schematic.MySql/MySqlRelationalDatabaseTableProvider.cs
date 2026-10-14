@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using LanguageExt;
+using MySqlConnector;
 using Nito.AsyncEx;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -21,6 +22,11 @@ namespace SJP.Schematic.MySql;
 /// it references are exactly the columns of the referenced table's primary key or one of its unique keys.
 /// A foreign key that references part of a wider unique index, or a non-unique index, is not reported from
 /// either table.
+/// <para>
+/// On MariaDB, finding the foreign keys that reference a table through <c>information_schema</c> opens every table
+/// on the server. When the user has the <c>PROCESS</c> privilege, InnoDB's foreign key dictionary is read instead,
+/// which is much faster when the server holds many tables.
+/// </para>
 /// </remarks>
 /// <seealso cref="IRelationalDatabaseTableProvider" />
 public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProvider
@@ -548,55 +554,121 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     private async Task<IReadOnlyCollection<IDatabaseRelationalKey>> LoadChildKeysAsyncCore(Identifier tableName, MySqlTableQueryCache queryCache, CancellationToken cancellationToken)
     {
-        var queryResult = await DbConnection.QueryAsync(
-            GetTableChildKeys.Sql,
-            new GetTableChildKeys.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
-            cancellationToken
-        );
-
-        if (queryResult.Empty())
-            return [];
-
+        // A foreign key can only be reported against a primary or unique key, so when this table has neither,
+        // the tables referencing it are never looked for. The keys are cached, and are loaded for the table anyway.
         var (primaryKey, uniqueKeys) = await (
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken)
         ).WhenAll();
-
-        // A foreign key can only be reported against a primary or unique key, so when this table has neither,
-        // the child tables are never queried at all.
         if (primaryKey.IsNone && uniqueKeys.Count == 0)
+            return [];
+
+        var childTables = await LoadChildTableNamesAsync(tableName, cancellationToken);
+        if (childTables.Count == 0)
             return [];
 
         var parentKeys = new ParentTableKeys(primaryKey, uniqueKeys);
 
-        var childTables = new Dictionary<(string Schema, string Name), List<GetTableChildKeys.Result>>();
-        foreach (var childKey in queryResult)
-        {
-            var childTableKey = (childKey.ChildTableSchema, childKey.ChildTableName);
-            if (!childTables.TryGetValue(childTableKey, out var childForeignKeys))
-            {
-                childForeignKeys = [];
-                childTables[childTableKey] = childForeignKeys;
-            }
-            childForeignKeys.Add(childKey);
-        }
-
         // Each child table only needs its name, columns and foreign key rows to build its side of the
         // foreign key, so the child tables are independent of one another and are loaded concurrently.
-        var childTableKeys = await childTables.ToList().SelectBoundedAsync(
-            (childTable, ct) => LoadChildTableKeysAsync(tableName, parentKeys, childTable.Key.Schema, childTable.Key.Name, childTable.Value, queryCache, ct),
+        var childTableKeys = await childTables.SelectBoundedAsync(
+            (childTable, ct) => LoadChildTableKeysAsync(tableName, parentKeys, childTable.Schema, childTable.Name, queryCache, ct),
             Math.Max(1, DbConnection.MaxConcurrentQueries),
             cancellationToken);
 
         return childTableKeys.SelectMany(static keys => keys).ToList();
     }
 
+    private async Task<IReadOnlyList<(string Schema, string Name)>> LoadChildTableNamesAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        var features = await _catalogFeatures;
+        if (features.IsMariaDb && !_innoDbForeignKeysUnreadable)
+        {
+            var childTables = await LoadChildTableNamesFromInnoDbAsync(tableName, cancellationToken);
+            if (childTables != null)
+                return childTables;
+        }
+
+        var queryResult = await DbConnection.QueryAsync(
+            GetTableChildTables.Sql,
+            new GetTableChildTables.Query { SchemaName = tableName.Schema!, TableName = tableName.LocalName },
+            cancellationToken
+        );
+
+        return queryResult
+            .Select(static row => (row.ChildTableSchema, row.ChildTableName))
+            .ToList();
+    }
+
+    // On MariaDB, finding the tables that reference a table through referential_constraints opens every table on
+    // the server, and it is done once for every table loaded. InnoDB's own foreign key dictionary answers the same
+    // question without opening any tables, but only for users with the PROCESS privilege. Its names are encoded as
+    // file names, so they are only used when that encoding leaves them unchanged; otherwise the catalog is queried.
+    // Returns null when the dictionary cannot answer.
+    private async Task<IReadOnlyList<(string Schema, string Name)>?> LoadChildTableNamesFromInnoDbAsync(Identifier tableName, CancellationToken cancellationToken)
+    {
+        if (!IsInnoDbName(tableName.Schema!) || !IsInnoDbName(tableName.LocalName))
+            return null;
+
+        IEnumerable<GetTableChildTablesFromInnoDb.Result> queryResult;
+        try
+        {
+            queryResult = await DbConnection.QueryAsync(
+                GetTableChildTablesFromInnoDb.Sql,
+                new GetTableChildTablesFromInnoDb.Query { ReferencedTableName = tableName.Schema + InnoDbNameSeparator + tableName.LocalName },
+                cancellationToken
+            );
+        }
+        catch (MySqlException ex) when (ex.ErrorCode is MySqlErrorCode.SpecifiedAccessDeniedError or MySqlErrorCode.UnknownTable)
+        {
+            // without the PROCESS privilege, or without InnoDB, this will never succeed
+            _innoDbForeignKeysUnreadable = true;
+            return null;
+        }
+
+        var result = new List<(string Schema, string Name)>();
+        foreach (var row in queryResult)
+        {
+            var separatorIndex = row.ChildTableName.IndexOf(InnoDbNameSeparator, StringComparison.Ordinal);
+            if (separatorIndex < 0)
+                return null;
+
+            var schemaName = row.ChildTableName[..separatorIndex];
+            var localName = row.ChildTableName[(separatorIndex + 1)..];
+            if (!IsInnoDbName(schemaName) || !IsInnoDbName(localName))
+                return null;
+
+            result.Add((schemaName, localName));
+        }
+
+        return result;
+    }
+
+    // InnoDB names a table "schema/table", with every character other than an ASCII letter, digit or underscore
+    // escaped. Such a name reads the same in the catalog and in InnoDB.
+    private static bool IsInnoDbName(string name)
+    {
+        if (name.Length == 0)
+            return false;
+
+        foreach (var c in name)
+        {
+            if (!char.IsAsciiLetterOrDigit(c) && c != '_')
+                return false;
+        }
+
+        return true;
+    }
+
+    private const char InnoDbNameSeparator = '/';
+
+    private volatile bool _innoDbForeignKeysUnreadable;
+
     private async Task<IReadOnlyList<IDatabaseRelationalKey>> LoadChildTableKeysAsync(
         Identifier tableName,
         ParentTableKeys parentKeys,
         string childTableSchema,
         string childTableLocalName,
-        IReadOnlyCollection<GetTableChildKeys.Result> foreignKeys,
         MySqlTableQueryCache queryCache,
         CancellationToken cancellationToken)
     {
@@ -606,31 +678,43 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         if (childTableName == null)
             return [];
 
-        // The child table's foreign key columns come from the same cached rows its own parent keys are built
-        // from, which are read by key and only open that one table. Joining them onto the child-key query
-        // instead would make MariaDB scan the key columns of every table on the server on every call,
-        // including for tables that have no child keys at all.
-        var (childColumnLookup, foreignKeyColumns) = await (
+        // The child table's foreign keys come from the same cached rows its own parent keys are built from,
+        // which are read by key and only open that one table. Joining them onto the query for the child tables
+        // instead would make MariaDB scan the key columns of every table on the server on every call, including
+        // for tables that have no child keys at all.
+        var (childColumnLookup, foreignKeyRows) = await (
             queryCache.GetColumnLookupAsync(childTableName, cancellationToken),
             queryCache.GetParentKeyRowsAsync(childTableName, cancellationToken)
         ).WhenAll();
-        var foreignKeyColumnLookup = foreignKeyColumns.GroupAsDictionary(static row => row.ChildKeyName, StringComparer.Ordinal);
 
-        var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
-        foreach (var row in foreignKeys)
+        // The rows are ordered by foreign key name, then by column position. Table names are compared the way
+        // the catalog compares them when it is filtered on the referenced table.
+        var result = new List<IDatabaseRelationalKey>();
+        var start = 0;
+        while (start < foreignKeyRows.Count)
         {
-            if (!foreignKeyColumnLookup.TryGetValue(row.ChildKeyName, out var columnRows))
-                continue;
+            var row = foreignKeyRows[start];
+            var end = start + 1;
+            while (end < foreignKeyRows.Count && string.Equals(foreignKeyRows[end].ChildKeyName, row.ChildKeyName, StringComparison.Ordinal))
+                end++;
 
-            var parentKey = FindParentKey(row.ParentKeyName, columnRows, parentKeys);
-            if (parentKey == null)
-                continue;
+            var referencesTable = string.Equals(row.ParentTableSchema, tableName.Schema, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(row.ParentTableName, tableName.LocalName, StringComparison.OrdinalIgnoreCase);
+            if (referencesTable)
+            {
+                var columnRows = foreignKeyRows.Skip(start).Take(end - start).ToList();
+                var parentKey = FindParentKey(row.ParentKeyName, columnRows, parentKeys);
+                if (parentKey != null)
+                {
+                    var childKey = CreateForeignKey(row.ChildKeyName, columnRows, childColumnLookup);
+                    var deleteAction = ReferentialActionMapping[row.DeleteAction];
+                    var updateAction = ReferentialActionMapping[row.UpdateAction];
 
-            var childKey = CreateForeignKey(row.ChildKeyName, columnRows, childColumnLookup);
-            var deleteAction = ReferentialActionMapping[row.DeleteAction];
-            var updateAction = ReferentialActionMapping[row.UpdateAction];
+                    result.Add(new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction));
+                }
+            }
 
-            result.Add(new DatabaseRelationalKey(childTableName, childKey, tableName, parentKey, deleteAction, updateAction));
+            start = end;
         }
 
         return result;
