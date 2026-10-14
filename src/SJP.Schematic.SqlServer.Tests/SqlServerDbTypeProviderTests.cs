@@ -221,6 +221,8 @@ internal static class SqlServerDbTypeProviderTests
     [TestCase("sys", "varbinary", 0, "[varbinary](max)")]
     [TestCase("sys", "int", 4, "[int]")]
     [TestCase("SYS", "UniqueIdentifier", 16, "[UniqueIdentifier]")]
+    [TestCase("sys", "sysname", 256, "[sysname]")]
+    [TestCase("sys", "vector", 20, "[vector]")]
     [TestCase("dbo", "my]type", 16, "[dbo].[my]]type](16)")]
     public static void CreateColumnType_GivenTypeNameWithLength_ReturnsExpectedDefinition(string schema, string typeName, int maxLength, string expectedDefinition)
     {
@@ -232,6 +234,8 @@ internal static class SqlServerDbTypeProviderTests
 
     [TestCase("decimal", 18, 2, "[decimal](18, 2)")]
     [TestCase("numeric", 10, 0, "[numeric](10)")]
+    [TestCase("float", 53, 0, "[float](53)")]
+    [TestCase("real", 24, 0, "[real]")]
     public static void CreateColumnType_GivenTypeNameWithPrecision_ReturnsExpectedDefinition(string typeName, int precision, int scale, string expectedDefinition)
     {
         var metadata = new ColumnTypeMetadata
