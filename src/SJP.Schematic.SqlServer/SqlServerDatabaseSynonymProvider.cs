@@ -163,8 +163,9 @@ public class SqlServerDatabaseSynonymProvider : IDatabaseSynonymProvider
     {
         ArgumentNullException.ThrowIfNull(targetName);
 
+        var server = targetName.Server ?? IdentifierDefaults.Server;
         var database = targetName.Database ?? IdentifierDefaults.Database;
         var schema = targetName.Schema ?? IdentifierDefaults.Schema;
-        return Identifier.CreateQualifiedIdentifier(IdentifierDefaults.Server, database, schema, targetName.LocalName);
+        return Identifier.CreateQualifiedIdentifier(server, database, schema, targetName.LocalName);
     }
 }

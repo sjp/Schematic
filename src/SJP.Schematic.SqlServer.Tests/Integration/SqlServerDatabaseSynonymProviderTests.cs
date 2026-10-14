@@ -22,6 +22,7 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
         await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_1 for synonym_test_view_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_2 for synonym_test_table_1", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_3 for non_existent_target", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync("create synonym synonym_test_synonym_4 for [synonym_test_server].[synonym_test_db].[dbo].[synonym_test_remote_table]", TestContext.CurrentContext.CancellationToken);
     }
 
     [OneTimeTearDown]
@@ -31,7 +32,8 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
         "drop table synonym_test_table_1",
         "drop synonym synonym_test_synonym_1",
         "drop synonym synonym_test_synonym_2",
-        "drop synonym synonym_test_synonym_3");
+        "drop synonym synonym_test_synonym_3",
+        "drop synonym synonym_test_synonym_4");
 
     [Test]
     public async Task GetSynonym_WhenSynonymPresent_ReturnsSynonym()
@@ -199,6 +201,26 @@ internal sealed class SqlServerDatabaseSynonymProviderTests : SqlServerTest
     {
         var expectedTarget = new Identifier(IdentifierDefaults.Server, IdentifierDefaults.Database, IdentifierDefaults.Schema, "non_existent_target");
         var synonym = await SynonymProvider.GetSynonym("synonym_test_synonym_3").UnwrapSomeAsync();
+
+        Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
+    }
+
+    // Creating a synonym does not validate its target, so no linked server is needed.
+    [Test]
+    public async Task GetSynonym_ForSynonymToLinkedServerObject_KeepsTargetServer()
+    {
+        var expectedTarget = new Identifier("synonym_test_server", "synonym_test_db", "dbo", "synonym_test_remote_table");
+        var synonym = await SynonymProvider.GetSynonym("synonym_test_synonym_4").UnwrapSomeAsync();
+
+        Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
+    }
+
+    [Test]
+    public async Task GetAllSynonyms_ForSynonymToLinkedServerObject_KeepsTargetServer()
+    {
+        var expectedTarget = new Identifier("synonym_test_server", "synonym_test_db", "dbo", "synonym_test_remote_table");
+        var synonyms = await SynonymProvider.GetAllSynonyms();
+        var synonym = synonyms.Single(s => string.Equals(s.Name.LocalName, "synonym_test_synonym_4", StringComparison.Ordinal));
 
         Assert.That(synonym.Target, Is.EqualTo(expectedTarget));
     }
