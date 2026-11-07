@@ -1,0 +1,82 @@
+name: pages
+
+permissions:
+  contents: read
+
+# Never cancel a deployment part-way through; let the newest queued run follow it.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - 'LICENSE'
+      - '*.png'
+      - '*.svg'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v7
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v7
+      with:
+        node-version: '26'
+        cache: npm
+        cache-dependency-path: src/SJP.Schematic.Reporting/ui/package-lock.json
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v6
+      with:
+        dotnet-version: 10.0.x
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v6
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('src/Directory.Packages.props') }}
+        restore-keys: nuget-${{ runner.os }}-
+
+    - name: Build tool
+      run: dotnet build SJP.Schematic.Tool --configuration Release
+      working-directory: src
+
+    - name: Extract Sakila database
+      run: unzip -q src/SJP.Schematic.Tests.Utilities/sakila.sqlite.zip -d "$RUNNER_TEMP/sakila"
+
+    # The site root is _site; the Sakila report is served from <pages-url>/demo/report/.
+    - name: Generate Sakila report
+      run: >
+        dotnet run --project src/SJP.Schematic.Tool --configuration Release --no-build --
+        report --dialect sqlite
+        --connection-string "Data Source=$RUNNER_TEMP/sakila/sakila.sqlite;Mode=ReadOnly"
+        --output _site/demo/report
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v6
+
+    - name: Upload Pages artifact
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}demo/report/
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v5
