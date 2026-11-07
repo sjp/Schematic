@@ -13,7 +13,7 @@ The aim of this project is to create an easier way to review and manage schemas 
 * Easy querying of database schema in a vendor-independent manner. Vendor-specific information may also be available (e.g. `PRAGMA` for SQLite).
 * Given a declared schema, generate code/classes that can be used in Entity Framework, Dapper, ServiceStack.OrmLite, etc.
 * Detects potential schema issues. For example, missing indexes or foreign key constraints.
-* Generates a schema report that includes details on tables, views, columns, indexes, etc. Also includes relationship diagrams. A demo is available at https://sjp.github.io/demo/report
+* Generates a schema report that includes details on tables, views, columns, indexes, etc. Also includes relationship diagrams. A demo is available at https://sjp.github.io/Schematic/demo/report
 
 ## Currently supported databases
 
