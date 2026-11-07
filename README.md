@@ -6,14 +6,14 @@
 
 This is a work in progress.
 
-The aim of this project is to create an easier way to declare and manage schemas of medium-level complexity. An additional constraint is that schemas should be largely transferable between different SQL implementations.
+The aim of this project is to create an easier way to review and manage schemas of medium-level complexity.
 
 ## Features
 
 * Easy querying of database schema in a vendor-independent manner. Vendor-specific information may also be available (e.g. `PRAGMA` for SQLite).
 * Given a declared schema, generate code/classes that can be used in Entity Framework, Dapper, ServiceStack.OrmLite, etc.
 * Detects potential schema issues. For example, missing indexes or foreign key constraints.
-* Generates a schema report that includes details on tables, views, columns, indexes, etc. Also includes relationship diagrams.
+* Generates a schema report that includes details on tables, views, columns, indexes, etc. Also includes relationship diagrams. A demo is available at https://sjp.github.io/demo/report
 
 ## Currently supported databases
 
@@ -138,12 +138,6 @@ schematic completion powershell >> $PROFILE
 ```
 
 Each generated script starts with a comment describing how to install it.
-
-## Status
-
-At the moment, all supported vendors are able to provide a significant amount of information about the structure of the schema. In other words, obtaining schema information is largely complete.
-
-There is an aspirational goal of generating scripts for migration purposes. This is still in a work-in-progress phase.
 
 ## Icon
 
