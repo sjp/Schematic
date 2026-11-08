@@ -240,7 +240,7 @@ export function TableDetailPage() {
           Tables
         </Link>
         <span className="text-muted-foreground">/</span>
-        <h1 className="text-2xl font-semibold">{data.name}</h1>
+        <h1 className="min-w-0 text-2xl font-semibold wrap-anywhere">{data.name}</h1>
         <span className="text-sm text-muted-foreground">{data.columnsCount} columns</span>
         {data.kind && (
           <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
@@ -469,7 +469,7 @@ export function TableDetailPage() {
         ) : (
           diagram && (
             <>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 {diagrams.map((d, i) => (
                   <Button
                     key={d.name}

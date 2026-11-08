@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
@@ -130,5 +130,40 @@ describe("RootLayout", () => {
     // Nothing is left mounted to reopen.
     await user.keyboard("{Control>}k{/Control}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("offers the navigation links in a drawer for narrow screens", async () => {
+    const user = userEvent.setup();
+
+    await renderLayout("/tables");
+    await user.click(screen.getByRole("button", { name: "Open navigation" }));
+
+    const drawer = screen.getByRole("dialog", { name: "Navigation" });
+    const links = within(drawer).getAllByRole("link");
+    expect(links).toHaveLength(15);
+    expect(within(drawer).getByRole("link", { name: "Tables" })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  });
+
+  it("closes the drawer once a link in it is followed", async () => {
+    const user = userEvent.setup();
+
+    await renderLayout();
+    await user.click(screen.getByRole("button", { name: "Open navigation" }));
+    const drawer = screen.getByRole("dialog", { name: "Navigation" });
+
+    await user.click(within(drawer).getByRole("link", { name: "Views" }));
+    expect(screen.queryByRole("dialog", { name: "Navigation" })).not.toBeInTheDocument();
+  });
+
+  it("closes the drawer from its close button", async () => {
+    const user = userEvent.setup();
+
+    await renderLayout();
+    await user.click(screen.getByRole("button", { name: "Open navigation" }));
+    await user.click(screen.getByRole("button", { name: "Close navigation" }));
+    expect(screen.queryByRole("dialog", { name: "Navigation" })).not.toBeInTheDocument();
   });
 });

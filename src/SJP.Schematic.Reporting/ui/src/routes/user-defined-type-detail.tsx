@@ -106,7 +106,7 @@ export function UserDefinedTypeDetailPage() {
           User-Defined Types
         </Link>
         <span className="text-muted-foreground">/</span>
-        <h1 className="text-2xl font-semibold">{data.name}</h1>
+        <h1 className="min-w-0 text-2xl font-semibold wrap-anywhere">{data.name}</h1>
         {data.kind && (
           <span className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground">
             {data.kind}

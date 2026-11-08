@@ -100,9 +100,9 @@ export function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">
-        <Database className="size-7 text-primary" />
-        <div>
-          <h1 className="text-2xl font-semibold">{data.databaseName}</h1>
+        <Database className="size-7 shrink-0 text-primary" />
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold wrap-anywhere">{data.databaseName}</h1>
           <p className="text-sm text-muted-foreground">{data.databaseVersion}</p>
         </div>
       </div>

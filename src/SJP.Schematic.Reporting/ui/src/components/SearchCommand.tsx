@@ -78,7 +78,7 @@ export function SearchCommand({
         <Dialog.Overlay className="fixed inset-0 z-40 bg-black/50" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="fixed top-[20%] left-1/2 z-50 w-full max-w-lg -translate-x-1/2 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg"
+          className="fixed top-4 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 overflow-hidden rounded-lg border bg-popover text-popover-foreground shadow-lg sm:top-[20%]"
         >
           {/* Radix requires an accessible title; visually hidden to keep the palette clean. */}
           <Dialog.Title className="sr-only">Search schema</Dialog.Title>
@@ -87,10 +87,10 @@ export function SearchCommand({
               <SearchIcon className="size-4 shrink-0 text-muted-foreground" />
               <Command.Input
                 placeholder="Search tables, views, columns…"
-                className="h-11 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground"
+                className="h-11 w-full bg-transparent py-3 text-base outline-none placeholder:text-muted-foreground md:text-sm"
               />
             </div>
-            <Command.List className="max-h-80 overflow-y-auto p-1">
+            <Command.List className="max-h-[60svh] overflow-y-auto p-1 sm:max-h-80">
               <Command.Empty className="py-6 text-center text-sm text-muted-foreground">
                 No results found.
               </Command.Empty>

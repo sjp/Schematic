@@ -173,12 +173,12 @@ export function DataTable<TData extends RowData>({
         </Table>
       </div>
       {pageCount > 1 && (
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <span className="text-sm text-muted-foreground">
             {firstRow}–{lastRow} of {filteredCount}
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">
+            <span className="hidden text-sm text-muted-foreground sm:inline">
               Page {pageIndex + 1} of {pageCount}
             </span>
             <Button

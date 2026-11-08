@@ -34,7 +34,7 @@ export function SequenceDetailPage() {
           Sequences
         </Link>
         <span className="text-muted-foreground">/</span>
-        <h1 className="text-2xl font-semibold">{data.name}</h1>
+        <h1 className="min-w-0 text-2xl font-semibold wrap-anywhere">{data.name}</h1>
       </div>
 
       <LintFindings objectUrl={`#/sequences/${sequenceKey}`} />

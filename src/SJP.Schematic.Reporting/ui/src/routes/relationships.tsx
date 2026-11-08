@@ -31,7 +31,7 @@ export function RelationshipsPage() {
         <p className="text-muted-foreground">No relationship diagrams available.</p>
       ) : (
         <>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={compact ? "default" : "outline"}
               size="sm"
