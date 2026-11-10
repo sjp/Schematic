@@ -49,24 +49,24 @@ public class DatabaseUserDefinedTypeMapper
 
         return source.Kind switch
         {
-            UserDefinedTypeKind.Unknown => new DatabaseUserDefinedType.Unknown(name, definition),
-            UserDefinedTypeKind.Alias => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
+            Dto.UserDefinedTypeKind.Unknown => new DatabaseUserDefinedType.Unknown(name, definition),
+            Dto.UserDefinedTypeKind.Alias => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
                 aliasedType => new DatabaseUserDefinedType.Alias(name, aliasedType, source.IsNullable, optionalMapper.Map(source.DefaultValue)),
                 () => new DatabaseUserDefinedType.Unknown(name, definition)),
-            UserDefinedTypeKind.Domain => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
+            Dto.UserDefinedTypeKind.Domain => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
                 aliasedType => new DatabaseUserDefinedType.Domain(name, aliasedType, source.IsNullable, optionalMapper.Map(source.DefaultValue), MapChecks(source)),
                 () => new DatabaseUserDefinedType.Unknown(name, definition)),
-            UserDefinedTypeKind.Enum => new DatabaseUserDefinedType.Enum(name, source.EnumValues.ToList()),
-            UserDefinedTypeKind.Composite => new DatabaseUserDefinedType.Composite(name, MapAttributes(source), definition),
-            UserDefinedTypeKind.Range => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
+            Dto.UserDefinedTypeKind.Enum => new DatabaseUserDefinedType.Enum(name, source.EnumValues.ToList()),
+            Dto.UserDefinedTypeKind.Composite => new DatabaseUserDefinedType.Composite(name, MapAttributes(source), definition),
+            Dto.UserDefinedTypeKind.Range => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
                 subtype => new DatabaseUserDefinedType.Range(name, subtype),
                 () => new DatabaseUserDefinedType.Unknown(name, definition)),
-            UserDefinedTypeKind.Table => new DatabaseUserDefinedType.Table(name, MapAttributes(source), MapChecks(source)),
-            UserDefinedTypeKind.Clr => new DatabaseUserDefinedType.Clr(name, definition),
-            UserDefinedTypeKind.Collection => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
+            Dto.UserDefinedTypeKind.Table => new DatabaseUserDefinedType.Table(name, MapAttributes(source), MapChecks(source)),
+            Dto.UserDefinedTypeKind.Clr => new DatabaseUserDefinedType.Clr(name, definition),
+            Dto.UserDefinedTypeKind.Collection => dbTypeMapper.Map(source.BaseType).Match<DatabaseUserDefinedType>(
                 elementType => new DatabaseUserDefinedType.Collection(name, elementType, definition),
                 () => new DatabaseUserDefinedType.Unknown(name, definition)),
-            _ => throw new ArgumentException($"The {nameof(UserDefinedTypeKind)} provided must be a valid enum.", nameof(source)),
+            _ => throw new ArgumentException($"The {nameof(Dto.UserDefinedTypeKind)} provided must be a valid enum.", nameof(source)),
         };
     }
 
@@ -109,19 +109,19 @@ public class DatabaseUserDefinedTypeMapper
         {
             DatabaseUserDefinedType.Unknown type => result with
             {
-                Kind = UserDefinedTypeKind.Unknown,
+                Kind = Dto.UserDefinedTypeKind.Unknown,
                 Definition = optionalMapper.Map(type.Definition),
             },
             DatabaseUserDefinedType.Alias type => result with
             {
-                Kind = UserDefinedTypeKind.Alias,
+                Kind = Dto.UserDefinedTypeKind.Alias,
                 BaseType = dbTypeMapper.Map(type.AliasedType),
                 IsNullable = type.IsNullable,
                 DefaultValue = optionalMapper.Map(type.DefaultValue),
             },
             DatabaseUserDefinedType.Domain type => result with
             {
-                Kind = UserDefinedTypeKind.Domain,
+                Kind = Dto.UserDefinedTypeKind.Domain,
                 BaseType = dbTypeMapper.Map(type.AliasedType),
                 Checks = type.Checks.Select(checkMapper.Map).ToList(),
                 IsNullable = type.IsNullable,
@@ -129,34 +129,34 @@ public class DatabaseUserDefinedTypeMapper
             },
             DatabaseUserDefinedType.Enum type => result with
             {
-                Kind = UserDefinedTypeKind.Enum,
+                Kind = Dto.UserDefinedTypeKind.Enum,
                 EnumValues = type.Values.ToList(),
             },
             DatabaseUserDefinedType.Composite type => result with
             {
-                Kind = UserDefinedTypeKind.Composite,
+                Kind = Dto.UserDefinedTypeKind.Composite,
                 Attributes = type.Attributes.Select(columnMapper.Map).ToList(),
                 Definition = optionalMapper.Map(type.Definition),
             },
             DatabaseUserDefinedType.Range type => result with
             {
-                Kind = UserDefinedTypeKind.Range,
+                Kind = Dto.UserDefinedTypeKind.Range,
                 BaseType = dbTypeMapper.Map(type.Subtype),
             },
             DatabaseUserDefinedType.Table type => result with
             {
-                Kind = UserDefinedTypeKind.Table,
+                Kind = Dto.UserDefinedTypeKind.Table,
                 Attributes = type.Columns.Select(columnMapper.Map).ToList(),
                 Checks = type.Checks.Select(checkMapper.Map).ToList(),
             },
             DatabaseUserDefinedType.Clr type => result with
             {
-                Kind = UserDefinedTypeKind.Clr,
+                Kind = Dto.UserDefinedTypeKind.Clr,
                 Definition = optionalMapper.Map(type.ExternalName),
             },
             DatabaseUserDefinedType.Collection type => result with
             {
-                Kind = UserDefinedTypeKind.Collection,
+                Kind = Dto.UserDefinedTypeKind.Collection,
                 BaseType = dbTypeMapper.Map(type.ElementType),
                 Definition = optionalMapper.Map(type.Definition),
             },

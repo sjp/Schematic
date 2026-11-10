@@ -1,7 +1,7 @@
-namespace SJP.Schematic.Core;
+namespace SJP.Schematic.Serialization.Dto;
 
 /// <summary>
-/// Describes the kind of a user-defined type.
+/// The kind of a serialized user-defined type, recording which case of <see cref="Core.DatabaseUserDefinedType"/> it was written from.
 /// </summary>
 public enum UserDefinedTypeKind
 {
