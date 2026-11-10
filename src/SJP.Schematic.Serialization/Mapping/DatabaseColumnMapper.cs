@@ -47,12 +47,12 @@ public class DatabaseColumnMapper
 
         return source.DefaultValueKind switch
         {
-            DefaultValueKind.Unknown => new DatabaseDefaultValue.Unknown(definition, constraintName),
-            DefaultValueKind.Literal => new DatabaseDefaultValue.Literal(definition, constraintName),
-            DefaultValueKind.Null => new DatabaseDefaultValue.Null(definition, constraintName),
-            DefaultValueKind.Expression => new DatabaseDefaultValue.Expression(definition, constraintName),
-            DefaultValueKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition, constraintName, identifierMapper.Map(source.DefaultSequenceName)),
-            _ => throw new ArgumentException($"The {nameof(DefaultValueKind)} provided must be a valid enum.", nameof(source)),
+            Dto.DefaultValueKind.Unknown => new DatabaseDefaultValue.Unknown(definition, constraintName),
+            Dto.DefaultValueKind.Literal => new DatabaseDefaultValue.Literal(definition, constraintName),
+            Dto.DefaultValueKind.Null => new DatabaseDefaultValue.Null(definition, constraintName),
+            Dto.DefaultValueKind.Expression => new DatabaseDefaultValue.Expression(definition, constraintName),
+            Dto.DefaultValueKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition, constraintName, identifierMapper.Map(source.DefaultSequenceName)),
+            _ => throw new ArgumentException($"The {nameof(Dto.DefaultValueKind)} provided must be a valid enum.", nameof(source)),
         };
     }
 
@@ -82,7 +82,7 @@ public class DatabaseColumnMapper
 
         var (defaultValueKind, defaultSequenceName) = source.Default.Match(
             MapDefaultValueKind,
-            static () => (DefaultValueKind.Unknown, Option<Identifier>.None)
+            static () => (Dto.DefaultValueKind.Unknown, Option<Identifier>.None)
         );
 
         var result = new Dto.DatabaseColumn
@@ -105,12 +105,12 @@ public class DatabaseColumnMapper
         return result;
     }
 
-    private static (DefaultValueKind Kind, Option<Identifier> SequenceName) MapDefaultValueKind(DatabaseDefaultValue defaultValue) => defaultValue switch
+    private static (Dto.DefaultValueKind Kind, Option<Identifier> SequenceName) MapDefaultValueKind(DatabaseDefaultValue defaultValue) => defaultValue switch
     {
-        DatabaseDefaultValue.Unknown => (DefaultValueKind.Unknown, Option<Identifier>.None),
-        DatabaseDefaultValue.Literal => (DefaultValueKind.Literal, Option<Identifier>.None),
-        DatabaseDefaultValue.Null => (DefaultValueKind.Null, Option<Identifier>.None),
-        DatabaseDefaultValue.Expression => (DefaultValueKind.Expression, Option<Identifier>.None),
-        DatabaseDefaultValue.SequenceNextValue sequenceDefault => (DefaultValueKind.SequenceNextValue, sequenceDefault.SequenceName),
+        DatabaseDefaultValue.Unknown => (Dto.DefaultValueKind.Unknown, Option<Identifier>.None),
+        DatabaseDefaultValue.Literal => (Dto.DefaultValueKind.Literal, Option<Identifier>.None),
+        DatabaseDefaultValue.Null => (Dto.DefaultValueKind.Null, Option<Identifier>.None),
+        DatabaseDefaultValue.Expression => (Dto.DefaultValueKind.Expression, Option<Identifier>.None),
+        DatabaseDefaultValue.SequenceNextValue sequenceDefault => (Dto.DefaultValueKind.SequenceNextValue, sequenceDefault.SequenceName),
     };
 }

@@ -1,8 +1,7 @@
-namespace SJP.Schematic.Core;
+namespace SJP.Schematic.Serialization.Dto;
 
 /// <summary>
-/// Describes what a column's default value expression evaluates to, so that a consumer does not
-/// have to parse the expression text to tell a constant apart from a call into the database.
+/// The kind of a serialized column default, recording which case of <see cref="Core.DatabaseDefaultValue"/> it was written from.
 /// </summary>
 public enum DefaultValueKind
 {

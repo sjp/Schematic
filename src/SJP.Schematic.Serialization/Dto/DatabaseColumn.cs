@@ -77,11 +77,11 @@ public sealed record DatabaseColumn
     /// Not required, so that a document written before defaults were classified still reads back, as
     /// an unknown kind.
     /// </remarks>
-    public Core.DefaultValueKind DefaultValueKind { get; init; }
+    public DefaultValueKind DefaultValueKind { get; init; }
 
     /// <summary>
     /// The sequence a default draws its values from, when <see cref="DefaultValueKind"/> is
-    /// <see cref="Core.DefaultValueKind.SequenceNextValue"/> and the source database named one.
+    /// <see cref="DefaultValueKind.SequenceNextValue"/> and the source database named one.
     /// </summary>
     public Identifier? DefaultSequenceName { get; init; }
 
