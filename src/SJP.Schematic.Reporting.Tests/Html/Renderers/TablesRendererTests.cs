@@ -58,7 +58,7 @@ internal static class TablesRendererTests
         return new RelationalDatabaseTable(
             tableName,
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

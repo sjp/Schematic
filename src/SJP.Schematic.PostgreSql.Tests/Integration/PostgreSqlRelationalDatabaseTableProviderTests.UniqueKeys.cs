@@ -17,15 +17,6 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     }
 
     [Test]
-    public async Task UniqueKeys_WhenGivenTableWithSingleUniqueKey_ReturnsCorrectKeyType()
-    {
-        var table = await GetTableAsync("table_test_table_5");
-        var uk = table.UniqueKeys.Single();
-
-        Assert.That(uk.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
-    }
-
-    [Test]
     public async Task UniqueKeys_WhenGivenTableWithColumnAsUniqueKey_ReturnsUniqueKeyWithColumnOnly()
     {
         var table = await GetTableAsync("table_test_table_5");

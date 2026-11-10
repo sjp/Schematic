@@ -24,9 +24,9 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// <param name="parentKey">The parent key.</param>
     /// <param name="deleteAction">The delete action.</param>
     /// <param name="updateAction">The update action.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/> or <paramref name="parentKey"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="deleteAction"/> or <paramref name="updateAction"/> is not a valid enum, <paramref name="childKey"/> is not a foreign key, <paramref name="parentKey"/> is not a primary or unique key, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
-    public DatabaseRelationalKey(Identifier childTableName, IDatabaseKey childKey, Identifier parentTableName, IDatabaseKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/> or <paramref name="parentTableName"/> is <see langword="null" />, or <paramref name="parentKey"/> holds no key.</exception>
+    /// <exception cref="ArgumentException"><paramref name="deleteAction"/> or <paramref name="updateAction"/> is not a valid enum, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
+    public DatabaseRelationalKey(Identifier childTableName, DatabaseKey.Foreign childKey, Identifier parentTableName, CandidateKey parentKey, ReferentialAction deleteAction, ReferentialAction updateAction)
         : this(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction, ForeignKeyMatchType.Simple, [])
     {
     }
@@ -42,13 +42,13 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// <param name="updateAction">The update action.</param>
     /// <param name="matchType">How partially <c>null</c> child rows are matched against the parent key.</param>
     /// <param name="setNullColumns">The child key columns set to <c>null</c> when <paramref name="deleteAction"/> is <see cref="ReferentialAction.SetNull"/>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/>, <paramref name="parentKey"/> or <paramref name="setNullColumns"/> is <see langword="null" />, or <paramref name="setNullColumns"/> contains a <see langword="null" /> value.</exception>
-    /// <exception cref="ArgumentException"><paramref name="deleteAction"/>, <paramref name="updateAction"/> or <paramref name="matchType"/> is not a valid enum, <paramref name="childKey"/> is not a foreign key, <paramref name="parentKey"/> is not a primary or unique key, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="childTableName"/>, <paramref name="childKey"/>, <paramref name="parentTableName"/> or <paramref name="setNullColumns"/> is <see langword="null" />, <paramref name="setNullColumns"/> contains a <see langword="null" /> value, or <paramref name="parentKey"/> holds no key.</exception>
+    /// <exception cref="ArgumentException"><paramref name="deleteAction"/>, <paramref name="updateAction"/> or <paramref name="matchType"/> is not a valid enum, or <paramref name="childKey"/> and <paramref name="parentKey"/> do not have the same number of columns.</exception>
     public DatabaseRelationalKey(
         Identifier childTableName,
-        IDatabaseKey childKey,
+        DatabaseKey.Foreign childKey,
         Identifier parentTableName,
-        IDatabaseKey parentKey,
+        CandidateKey parentKey,
         ReferentialAction deleteAction,
         ReferentialAction updateAction,
         ForeignKeyMatchType matchType,
@@ -65,12 +65,7 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
         ChildTable = childTableName ?? throw new ArgumentNullException(nameof(childTableName));
         ChildKey = childKey ?? throw new ArgumentNullException(nameof(childKey));
         ParentTable = parentTableName ?? throw new ArgumentNullException(nameof(parentTableName));
-        ParentKey = parentKey ?? throw new ArgumentNullException(nameof(parentKey));
-
-        if (ChildKey.KeyType != DatabaseKeyType.Foreign)
-            throw new ArgumentException($"The child key must be a foreign key, instead given a key of type '{childKey.KeyType}'.", nameof(childKey));
-        if (ParentKey.KeyType != DatabaseKeyType.Primary && ParentKey.KeyType != DatabaseKeyType.Unique)
-            throw new ArgumentException($"The parent key must be a primary or unique key, instead given a key of type '{parentKey.KeyType}'.", nameof(parentKey));
+        ParentKey = parentKey.Value is not null ? parentKey : throw new ArgumentNullException(nameof(parentKey));
 
         if (ChildKey.Columns.Count != ParentKey.Columns.Count)
         {
@@ -96,7 +91,7 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// The foreign key defined in the child table.
     /// </summary>
     /// <value>The child foreign key.</value>
-    public IDatabaseKey ChildKey { get; }
+    public DatabaseKey.Foreign ChildKey { get; }
 
     /// <summary>
     /// The parent table name.
@@ -108,7 +103,7 @@ public class DatabaseRelationalKey : IDatabaseRelationalKey
     /// The primary or unique key being referred to in the relationship.
     /// </summary>
     /// <value>The parent primary or unique key.</value>
-    public IDatabaseKey ParentKey { get; }
+    public CandidateKey ParentKey { get; }
 
     /// <summary>
     /// The action to perform if the parent key's value is deleted.

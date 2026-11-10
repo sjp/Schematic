@@ -42,13 +42,13 @@ internal static class RelationalDatabaseTableExtensionsTests
 
         var childKeys = new[]
         {
-            new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Foreign, columns, true),
-            new DatabaseKey(Option<Identifier>.Some("test_fk_2"), DatabaseKeyType.Foreign, columns, true),
+            new DatabaseKey.Foreign(Option<Identifier>.None, columns, true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_2"), columns, true),
         };
         var uniqueKeys = new[]
         {
-            new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Unique, columns, true),
-            new DatabaseKey(Option<Identifier>.Some("test_uk_2"), DatabaseKeyType.Unique, columns, true),
+            new DatabaseKey.Unique(Option<Identifier>.None, columns, true),
+            new DatabaseKey.Unique(Option<Identifier>.Some("test_uk_2"), columns, true),
         };
         var parentKeys = new[]
         {

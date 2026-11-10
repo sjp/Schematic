@@ -49,7 +49,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         return new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -95,7 +95,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var table = new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.Some(TestKeys.Primary()),
+            Option<DatabaseKey.Primary>.Some(TestKeys.Primary()),
             [],
             [],
             [],
@@ -122,9 +122,8 @@ internal static class NoIndexesPresentOnTableRuleTests
             null,
             null
         );
-        var testUniqueKey = new DatabaseKey(
+        var testUniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test_unique_key"),
-            DatabaseKeyType.Unique,
             [testColumn],
             true
         );
@@ -132,7 +131,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var table = new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [testUniqueKey],
             [],
             [],
@@ -155,7 +154,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var table = new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

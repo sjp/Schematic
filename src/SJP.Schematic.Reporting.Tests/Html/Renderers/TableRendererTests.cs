@@ -67,15 +67,15 @@ internal static class TableRendererTests
     {
         var hubName = Identifier.CreateQualifiedIdentifier("test_schema", "hub");
         var hubColumns = CreateColumns("hub_id");
-        var hubPrimaryKey = new DatabaseKey(Option<Identifier>.Some("pk_hub"), DatabaseKeyType.Primary, [hubColumns[0]], true);
+        var hubPrimaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_hub"), [hubColumns[0]], true);
 
-        var children = new List<(Identifier Name, IReadOnlyList<IDatabaseColumn> Columns, IDatabaseKey PrimaryKey, IDatabaseRelationalKey ParentKey)>();
+        var children = new List<(Identifier Name, IReadOnlyList<IDatabaseColumn> Columns, DatabaseKey.Primary PrimaryKey, IDatabaseRelationalKey ParentKey)>();
         for (var i = 0; i < childCount; i++)
         {
             var childName = Identifier.CreateQualifiedIdentifier("test_schema", "child_" + i);
             var childColumns = CreateColumns("child_id", "hub_id");
-            var childPrimaryKey = new DatabaseKey(Option<Identifier>.Some("pk_child_" + i), DatabaseKeyType.Primary, [childColumns[0]], true);
-            var foreignKey = new DatabaseKey(Option<Identifier>.Some("fk_child_" + i + "_hub"), DatabaseKeyType.Foreign, [childColumns[1]], true);
+            var childPrimaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_child_" + i), [childColumns[0]], true);
+            var foreignKey = new DatabaseKey.Foreign(Option<Identifier>.Some("fk_child_" + i + "_hub"), [childColumns[1]], true);
             var relationalKey = new DatabaseRelationalKey(childName, foreignKey, hubName, hubPrimaryKey, ReferentialAction.NoAction, ReferentialAction.NoAction);
 
             children.Add((childName, childColumns, childPrimaryKey, relationalKey));
@@ -97,7 +97,7 @@ internal static class TableRendererTests
         tables.AddRange(children.Select(static c => new RelationalDatabaseTable(
             c.Name,
             c.Columns,
-            Option<IDatabaseKey>.Some(c.PrimaryKey),
+            Option<DatabaseKey.Primary>.Some(c.PrimaryKey),
             [],
             [c.ParentKey],
             [],

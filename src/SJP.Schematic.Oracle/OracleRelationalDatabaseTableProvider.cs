@@ -374,16 +374,16 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     }
 
     // An index that exists only to enforce a primary or unique key constraint is reported by that
-    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes.
+    // constraint's BackingIndex, so it is not repeated in the table's indexes.
     private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
         IReadOnlyCollection<IDatabaseIndex> indexes,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys
     )
     {
         var backingIndexNames = uniqueKeys
-            .Concat(primaryKey.ToList())
             .SelectMany(static key => key.BackingIndex.ToList())
+            .Concat(primaryKey.Bind(static key => key.BackingIndex).ToList())
             .Select(static index => index.Name)
             .ToHashSet();
         if (backingIndexNames.Count == 0)
@@ -473,19 +473,19 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         );
     }
 
-    private static Option<IDatabaseKey> CreatePrimaryKey(
+    private static Option<DatabaseKey.Primary> CreatePrimaryKey(
         IReadOnlyCollection<GetTableConstraints.Result> rows,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
         IReadOnlyCollection<IDatabaseIndex> indexes)
     {
         if (rows.Count == 0)
-            return Option<IDatabaseKey>.None;
+            return Option<DatabaseKey.Primary>.None;
 
         var groupedByName = rows.GroupAsDictionary(static row => new { row.ConstraintName, row.EnabledStatus, row.ValidatedStatus, row.Deferrable, row.Deferred, row.IndexName });
         var firstRow = groupedByName.First();
         var constraintName = firstRow.Key.ConstraintName;
         if (constraintName == null)
-            return Option<IDatabaseKey>.None;
+            return Option<DatabaseKey.Primary>.None;
 
         var isEnabled = string.Equals(firstRow.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
         var isValidated = string.Equals(firstRow.Key.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
@@ -501,11 +501,11 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var backingIndex = GetBackingIndex(indexes, firstRow.Key.IndexName);
 
-        var primaryKey = new DatabaseKey(Identifier.CreateQualifiedIdentifier(constraintName), DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex, isValidated, deferrability);
-        return Option<IDatabaseKey>.Some(primaryKey);
+        var primaryKey = new DatabaseKey.Primary(Identifier.CreateQualifiedIdentifier(constraintName), keyColumns, isEnabled, backingIndex, isValidated, deferrability);
+        return Option<DatabaseKey.Primary>.Some(primaryKey);
     }
 
-    private static IReadOnlyCollection<IDatabaseKey> CreateUniqueKeys(
+    private static IReadOnlyCollection<DatabaseKey.Unique> CreateUniqueKeys(
         IReadOnlyCollection<GetTableConstraints.Result> rows,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
         IReadOnlyCollection<IDatabaseIndex> indexes)
@@ -516,7 +516,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         if (groupedByName.Count == 0)
             return [];
 
-        var result = new List<IDatabaseKey>(groupedByName.Count);
+        var result = new List<DatabaseKey.Unique>(groupedByName.Count);
         foreach (var uk in groupedByName)
         {
             var columns = ResolveColumns(
@@ -531,7 +531,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var deferrability = GetDeferrability(uk.Key.Deferrable, uk.Key.Deferred);
             var backingIndex = GetBackingIndex(indexes, uk.Key.IndexName);
 
-            result.Add(new DatabaseKey(Identifier.CreateQualifiedIdentifier(uk.Key.ConstraintName), DatabaseKeyType.Unique, columns, isEnabled, backingIndex, isValidated, deferrability));
+            result.Add(new DatabaseKey.Unique(Identifier.CreateQualifiedIdentifier(uk.Key.ConstraintName), columns, isEnabled, backingIndex, isValidated, deferrability));
         }
 
         return result;
@@ -572,7 +572,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var isEnabled = string.Equals(fkey.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
             var isValidated = string.Equals(fkey.Key.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
             var deferrability = GetDeferrability(fkey.Key.Deferrable, fkey.Key.Deferred);
-            var childKey = new DatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated, deferrability);
+            var childKey = new DatabaseKey.Foreign(childKeyName, childKeyColumns, isEnabled, isValidated, deferrability);
 
             var parentKeyType = string.Equals(fkey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal)
                 ? DatabaseKeyType.Primary
@@ -630,7 +630,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return result;
     }
 
-    private static readonly TableConstraints NoConstraints = new(Option<IDatabaseKey>.None, [], [], []);
+    private static readonly TableConstraints NoConstraints = new(Option<DatabaseKey.Primary>.None, [], [], []);
 
     /// <summary>
     /// The primary key, unique keys, foreign keys and check constraints declared on a table, which are read from the catalog together.
@@ -640,8 +640,8 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="ForeignKeys">The table's foreign keys, each identifying the key it references without loading it.</param>
     /// <param name="Checks">The table's check constraints, excluding the system-named <c>NOT NULL</c> constraints that the columns' nullability already reports.</param>
     protected sealed record TableConstraints(
-        Option<IDatabaseKey> PrimaryKey,
-        IReadOnlyCollection<IDatabaseKey> UniqueKeys,
+        Option<DatabaseKey.Primary> PrimaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> UniqueKeys,
         IReadOnlyCollection<ForeignKeyReference> ForeignKeys,
         IReadOnlyCollection<IDatabaseCheckConstraint> Checks
     );
@@ -656,7 +656,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="DeleteAction">The action taken on the child rows when a referenced row is deleted.</param>
     /// <exception cref="ArgumentException"><paramref name="ParentKeyType"/> or <paramref name="DeleteAction"/> is not a valid enum.</exception>
     protected sealed record ForeignKeyReference(
-        IDatabaseKey ChildKey,
+        DatabaseKey.Foreign ChildKey,
         Identifier ParentTableName,
         Identifier ParentKeyName,
         DatabaseKeyType ParentKeyType,
@@ -738,22 +738,22 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             queryCache.GetPrimaryKeyAsync(tableName, cancellationToken),
             queryCache.GetUniqueKeysAsync(tableName, cancellationToken)
         ).WhenAll();
-        var uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+        var uniqueKeyLookup = GetKeyLookup(uniqueKeys, static k => k.Name);
 
         var result = new List<IDatabaseRelationalKey>(childKeyRows.Count);
         // Memoized per child table name so that a child table referencing this table via more than one
         // foreign key does not rebuild the same lookup dictionary once per row.
-        var childForeignKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+        var childForeignKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, DatabaseKey.Foreign>>();
 
         foreach (var childKeyRow in childKeyRows)
         {
             // ensure we have a key to begin with
-            IDatabaseKey? parentKey = null;
+            CandidateKey? candidateParentKey = null;
             if (string.Equals(childKeyRow.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                primaryKey.IfSome(k => parentKey = k);
+                primaryKey.IfSome(k => candidateParentKey = k);
             else if (childKeyRow.ParentKeyName != null && uniqueKeyLookup.TryGetValue(childKeyRow.ParentKeyName, out var uniqueParentKey))
-                parentKey = uniqueParentKey;
-            if (parentKey == null)
+                candidateParentKey = uniqueParentKey;
+            if (candidateParentKey is not { } parentKey)
                 continue;
 
             var candidateChildTableName = Identifier.CreateQualifiedIdentifier(childKeyRow.ChildTableSchema, childKeyRow.ChildTableName);
@@ -765,7 +765,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     if (!childForeignKeyLookups.TryGetValue(childTableName, out var parentKeyLookup))
                     {
                         var parentKeys = await queryCache.GetForeignKeysAsync(childTableName, cancellationToken);
-                        parentKeyLookup = GetDatabaseKeyLookup(parentKeys.Select(static fk => fk.ChildKey).ToList());
+                        parentKeyLookup = GetKeyLookup(parentKeys.Select(static fk => fk.ChildKey).ToList(), static k => k.Name);
                         childForeignKeyLookups[childTableName] = parentKeyLookup;
                     }
 
@@ -832,7 +832,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         var result = new List<IDatabaseRelationalKey>(constraints.ForeignKeys.Count);
         // Memoized per parent table name so that multiple foreign keys referencing unique keys on the
         // same parent table don't rebuild the same lookup dictionary once per foreign key.
-        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>();
+        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, DatabaseKey.Unique>>();
         foreach (var foreignKey in constraints.ForeignKeys)
         {
             var parentTableNameOption = await queryCache.GetTableNameAsync(foreignKey.ParentTableName, cancellationToken);
@@ -845,19 +845,19 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     if (foreignKey.ParentKeyType == DatabaseKeyType.Primary)
                     {
                         var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken);
-                        return pk.ToAsync();
+                        return pk.Map(static k => (CandidateKey)k).ToAsync();
                     }
 
                     if (!parentUniqueKeyLookups.TryGetValue(parentTableName, out var uniqueKeyLookup))
                     {
                         var uniqueKeys = await queryCache.GetUniqueKeysAsync(parentTableName, cancellationToken);
-                        uniqueKeyLookup = GetDatabaseKeyLookup(uniqueKeys);
+                        uniqueKeyLookup = GetKeyLookup(uniqueKeys, static k => k.Name);
                         parentUniqueKeyLookups[parentTableName] = uniqueKeyLookup;
                     }
 
                     return uniqueKeyLookup.TryGetValue(foreignKey.ParentKeyName.LocalName, out var uniqueParentKey)
-                        ? OptionAsync<IDatabaseKey>.Some(uniqueParentKey)
-                        : OptionAsync<IDatabaseKey>.None;
+                        ? OptionAsync<CandidateKey>.Some(uniqueParentKey)
+                        : OptionAsync<CandidateKey>.None;
                 })
                 .Map(parentKey => new OracleRelationalKey(tableName, foreignKey.ChildKey, resolvedParentTableName!, parentKey, foreignKey.DeleteAction))
                 .IfSome(result.Add);
@@ -1086,16 +1086,17 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             : ConstraintDeferrability.DeferrableInitiallyImmediate;
     }
 
-    private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
+    private static IReadOnlyDictionary<Identifier, TKey> GetKeyLookup<TKey>(IReadOnlyCollection<TKey> keys, Func<TKey, Option<Identifier>> getName)
+        where TKey : class
     {
         ArgumentNullException.ThrowIfNull(keys);
 
-        var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
+        var result = new Dictionary<Identifier, TKey>(keys.Count);
 
         // Key constructors keep only the local name, so names are used as keys without rebuilding them.
         foreach (var key in keys)
         {
-            var name = key.Name.MatchUnsafe(static n => n, static () => (Identifier?)null);
+            var name = getName(key).MatchUnsafe(static n => n, static () => (Identifier?)null);
             if (name != null)
                 result[name] = key;
         }
@@ -1246,14 +1247,14 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-        public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
+        public Task<Option<DatabaseKey.Primary>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             return GetPrimaryKeyAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> GetPrimaryKeyAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<DatabaseKey.Primary>> GetPrimaryKeyAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var constraints = await _constraints.GetByKeyAsync(tableName, this, cancellationToken);
             return constraints.PrimaryKey;
@@ -1266,14 +1267,14 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-        public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<DatabaseKey.Unique>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             return GetUniqueKeysAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<DatabaseKey.Unique>> GetUniqueKeysAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var constraints = await _constraints.GetByKeyAsync(tableName, this, cancellationToken);
             return constraints.UniqueKeys;

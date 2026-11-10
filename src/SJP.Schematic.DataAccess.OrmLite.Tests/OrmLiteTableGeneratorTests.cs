@@ -136,7 +136,7 @@ internal static class OrmLiteTableGeneratorTests
         var table = new RelationalDatabaseTable(
             new Identifier("child_schema", "child_table"),
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [parentKey],
             [],
@@ -164,7 +164,7 @@ internal static class OrmLiteTableGeneratorTests
         var table = new RelationalDatabaseTable(
             new Identifier("test_schema", "child_table"),
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [parentKey],
             [],
@@ -188,7 +188,7 @@ internal static class OrmLiteTableGeneratorTests
         var table = new RelationalDatabaseTable(
             "child_table",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [parentKey],
             [],
@@ -221,9 +221,9 @@ internal static class OrmLiteTableGeneratorTests
     private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier parentTableName, IDatabaseColumn childColumn) =>
         new DatabaseRelationalKey(
             childTableName,
-            new DatabaseKey(Option<Identifier>.Some("test_child_key"), DatabaseKeyType.Foreign, [childColumn], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("test_child_key"), [childColumn], true),
             parentTableName,
-            new DatabaseKey(Option<Identifier>.Some("test_parent_key"), DatabaseKeyType.Primary, [childColumn], true),
+            new DatabaseKey.Primary(Option<Identifier>.Some("test_parent_key"), [childColumn], true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
@@ -234,7 +234,7 @@ internal static class OrmLiteTableGeneratorTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

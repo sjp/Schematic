@@ -15,15 +15,13 @@ internal static class ForeignKeyIsPrimaryKeyRuleTests
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, Identifier otherTableName)
     {
         var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var childKey = new DatabaseKey(
+        var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
-            DatabaseKeyType.Foreign,
             [column],
             true
         );
-        var parentKey = new DatabaseKey(
+        var parentKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [column],
             true
         );

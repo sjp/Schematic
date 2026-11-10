@@ -30,7 +30,7 @@ internal static class UnvalidatedConstraintsRuleTests
         var rule = new UnvalidatedConstraintsRule(RuleLevel.Error);
 
         var table = CreateTable(
-            primaryKey: CreateKey(DatabaseKeyType.Primary, isEnabled: true, isValidated: true),
+            primaryKey: CreatePrimaryKey(isEnabled: true, isValidated: true),
             check: CreateCheck(isEnabled: true, isValidated: true)
         );
 
@@ -44,7 +44,7 @@ internal static class UnvalidatedConstraintsRuleTests
     {
         var rule = new UnvalidatedConstraintsRule(RuleLevel.Error);
 
-        var table = CreateTable(primaryKey: CreateKey(DatabaseKeyType.Primary, isEnabled: true, isValidated: false));
+        var table = CreateTable(primaryKey: CreatePrimaryKey(isEnabled: true, isValidated: false));
 
         var messages = await rule.AnalyseTables([table]);
 
@@ -56,7 +56,7 @@ internal static class UnvalidatedConstraintsRuleTests
     {
         var rule = new UnvalidatedConstraintsRule(RuleLevel.Error);
 
-        var table = CreateTable(uniqueKey: CreateKey(DatabaseKeyType.Unique, isEnabled: true, isValidated: false));
+        var table = CreateTable(uniqueKey: CreateUniqueKey(isEnabled: true, isValidated: false));
 
         var messages = await rule.AnalyseTables([table]);
 
@@ -93,8 +93,8 @@ internal static class UnvalidatedConstraintsRuleTests
         var rule = new UnvalidatedConstraintsRule(RuleLevel.Error);
 
         var table = CreateTable(
-            primaryKey: CreateKey(DatabaseKeyType.Primary, isEnabled: false, isValidated: false),
-            uniqueKey: CreateKey(DatabaseKeyType.Unique, isEnabled: false, isValidated: false),
+            primaryKey: CreatePrimaryKey(isEnabled: false, isValidated: false),
+            uniqueKey: CreateUniqueKey(isEnabled: false, isValidated: false),
             relationalKey: CreateRelationalKey(isEnabled: false, isValidated: false),
             check: CreateCheck(isEnabled: false, isValidated: false)
         );
@@ -112,14 +112,36 @@ internal static class UnvalidatedConstraintsRuleTests
         null
     );
 
-    private static DatabaseKey CreateKey(DatabaseKeyType keyType, bool isEnabled, bool isValidated)
+    private static DatabaseKey.Primary CreatePrimaryKey(bool isEnabled, bool isValidated)
     {
-        return new DatabaseKey(
+        return new DatabaseKey.Primary(
             Option<Identifier>.Some("test_key"),
-            keyType,
             [TestColumn],
             isEnabled,
             Option<IDatabaseIndex>.None,
+            isValidated,
+            ConstraintDeferrability.NotDeferrable
+        );
+    }
+
+    private static DatabaseKey.Unique CreateUniqueKey(bool isEnabled, bool isValidated)
+    {
+        return new DatabaseKey.Unique(
+            Option<Identifier>.Some("test_key"),
+            [TestColumn],
+            isEnabled,
+            Option<IDatabaseIndex>.None,
+            isValidated,
+            ConstraintDeferrability.NotDeferrable
+        );
+    }
+
+    private static DatabaseKey.Foreign CreateForeignKey(bool isEnabled, bool isValidated)
+    {
+        return new DatabaseKey.Foreign(
+            Option<Identifier>.Some("test_key"),
+            [TestColumn],
+            isEnabled,
             isValidated,
             ConstraintDeferrability.NotDeferrable
         );
@@ -140,17 +162,17 @@ internal static class UnvalidatedConstraintsRuleTests
     {
         return new DatabaseRelationalKey(
             "child_table",
-            CreateKey(DatabaseKeyType.Foreign, isEnabled, isValidated),
+            CreateForeignKey(isEnabled, isValidated),
             "parent_table",
-            CreateKey(DatabaseKeyType.Primary, true, true),
+            CreatePrimaryKey(true, true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
     }
 
     private static RelationalDatabaseTable CreateTable(
-        IDatabaseKey primaryKey = null,
-        IDatabaseKey uniqueKey = null,
+        DatabaseKey.Primary primaryKey = null,
+        DatabaseKey.Unique uniqueKey = null,
         IDatabaseRelationalKey relationalKey = null,
         IDatabaseCheckConstraint check = null
     )
@@ -158,7 +180,7 @@ internal static class UnvalidatedConstraintsRuleTests
         return new RelationalDatabaseTable(
             "test",
             [],
-            primaryKey == null ? Option<IDatabaseKey>.None : Option<IDatabaseKey>.Some(primaryKey),
+            primaryKey == null ? Option<DatabaseKey.Primary>.None : Option<DatabaseKey.Primary>.Some(primaryKey),
             uniqueKey == null ? [] : [uniqueKey],
             relationalKey == null ? [] : [relationalKey],
             [],

@@ -63,9 +63,9 @@ public class ForeignKeyIndexRule : Rule, ITableRule
         var indexes = table.Indexes.Where(static i => i.FilterDefinition.IsNone).ToList();
 
         // schema providers exclude the indexes backing key constraints from the index set, so the constraints are checked separately
-        var keys = new List<IDatabaseKey>();
-        table.PrimaryKey.IfSome(keys.Add);
-        keys.AddRange(table.UniqueKeys);
+        var keyColumnSets = new List<IReadOnlyCollection<IDatabaseColumn>>(table.UniqueKeys.Count + 1);
+        table.PrimaryKey.IfSome(pk => keyColumnSets.Add(pk.Columns));
+        keyColumnSets.AddRange(table.UniqueKeys.Select(static uk => uk.Columns));
 
         var foreignKeys = table.ParentKeys.Select(fk => fk.ChildKey).ToList();
 
@@ -75,7 +75,7 @@ public class ForeignKeyIndexRule : Rule, ITableRule
 
             var isIndexedKey = indexes.Any(i =>
                 ColumnsHaveIndex(columns, i.Columns) || ColumnsHaveIndexWithIncludedColumns(columns, i.Columns, i.IncludedColumns))
-                || keys.Any(k => ColumnsHaveKeyConstraint(columns, k.Columns));
+                || keyColumnSets.Any(keyColumns => ColumnsHaveKeyConstraint(columns, keyColumns));
             if (!isIndexedKey)
             {
                 var columnNames = columns.Select(c => c.Name.LocalName).ToList();

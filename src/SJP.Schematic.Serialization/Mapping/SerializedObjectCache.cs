@@ -20,7 +20,8 @@ internal sealed class SerializedObjectCache
 
     public Dictionary<IDbType, Dto.DbType> Types { get; } = new(ReferenceEqualityComparer.Instance);
 
-    public Dictionary<IDatabaseKey, Dto.DatabaseKey> Keys { get; } = new(ReferenceEqualityComparer.Instance);
+    // keyed by the case instance a key holds, since DatabaseKey itself is a value type
+    public Dictionary<object, Dto.DatabaseKey> Keys { get; } = new(ReferenceEqualityComparer.Instance);
 
     public Dictionary<IDatabaseIndex, Dto.DatabaseIndex> Indexes { get; } = new(ReferenceEqualityComparer.Instance);
 

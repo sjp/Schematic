@@ -44,7 +44,7 @@ internal static class UnvalidatedConstraintsRuleTests
         var table = new RelationalDatabaseTable(
             TableName,
             [],
-            Option<IDatabaseKey>.Some(CreateKey(DatabaseKeyType.Primary, false)),
+            Option<DatabaseKey.Primary>.Some(CreatePrimaryKey(false)),
             [],
             [],
             [],
@@ -66,8 +66,8 @@ internal static class UnvalidatedConstraintsRuleTests
         var table = new RelationalDatabaseTable(
             TableName,
             [],
-            Option<IDatabaseKey>.None,
-            [CreateKey(DatabaseKeyType.Unique, false)],
+            Option<DatabaseKey.Primary>.None,
+            [CreateUniqueKey(false)],
             [],
             [],
             [],
@@ -87,9 +87,9 @@ internal static class UnvalidatedConstraintsRuleTests
 
         var relationalKey = new DatabaseRelationalKey(
             "child_table",
-            CreateKey(DatabaseKeyType.Foreign, false),
+            CreateForeignKey(false),
             "parent_table",
-            CreateKey(DatabaseKeyType.Primary, true),
+            CreatePrimaryKey(true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
@@ -97,7 +97,7 @@ internal static class UnvalidatedConstraintsRuleTests
         var table = new RelationalDatabaseTable(
             TableName,
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [relationalKey],
             [],
@@ -127,7 +127,7 @@ internal static class UnvalidatedConstraintsRuleTests
         var table = new RelationalDatabaseTable(
             TableName,
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -141,14 +141,36 @@ internal static class UnvalidatedConstraintsRuleTests
         AssertVisibleTableNameMessage(messages.Single());
     }
 
-    private static DatabaseKey CreateKey(DatabaseKeyType keyType, bool isValidated)
+    private static DatabaseKey.Primary CreatePrimaryKey(bool isValidated)
     {
-        return new DatabaseKey(
+        return new DatabaseKey.Primary(
             Option<Identifier>.Some("test_key"),
-            keyType,
             [TestColumn],
             true,
             Option<IDatabaseIndex>.None,
+            isValidated,
+            ConstraintDeferrability.NotDeferrable
+        );
+    }
+
+    private static DatabaseKey.Unique CreateUniqueKey(bool isValidated)
+    {
+        return new DatabaseKey.Unique(
+            Option<Identifier>.Some("test_key"),
+            [TestColumn],
+            true,
+            Option<IDatabaseIndex>.None,
+            isValidated,
+            ConstraintDeferrability.NotDeferrable
+        );
+    }
+
+    private static DatabaseKey.Foreign CreateForeignKey(bool isValidated)
+    {
+        return new DatabaseKey.Foreign(
+            Option<Identifier>.Some("test_key"),
+            [TestColumn],
+            true,
             isValidated,
             ConstraintDeferrability.NotDeferrable
         );

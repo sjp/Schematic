@@ -17,15 +17,6 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     }
 
     [Test]
-    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
-    {
-        var table = await GetTableAsync("table_test_table_2");
-        var primaryKey = table.PrimaryKey.UnwrapSome();
-
-        Assert.That(primaryKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
-    }
-
-    [Test]
     public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
     {
         var table = await GetTableAsync("table_test_table_2");

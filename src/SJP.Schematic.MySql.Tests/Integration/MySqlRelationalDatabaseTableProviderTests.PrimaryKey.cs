@@ -17,15 +17,6 @@ internal sealed partial class MySqlRelationalDatabaseTableProviderTests : MySqlT
     }
 
     [Test]
-    public async Task PrimaryKey_WhenGivenTableWithPrimaryKey_ReturnsCorrectKeyType()
-    {
-        var table = await GetTableAsync("table_test_table_2");
-        var keyType = table.PrimaryKey.UnwrapSome().KeyType;
-
-        Assert.That(keyType, Is.EqualTo(DatabaseKeyType.Primary));
-    }
-
-    [Test]
     public async Task PrimaryKey_WhenGivenTableWithColumnAsPrimaryKey_ReturnsPrimaryKeyWithColumnOnly()
     {
         var table = await GetTableAsync("table_test_table_2");

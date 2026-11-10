@@ -342,16 +342,16 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     // An index that exists only to enforce a primary or unique key constraint is reported by that
-    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes.
+    // constraint's BackingIndex, so it is not repeated in the table's indexes.
     private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
         IReadOnlyCollection<IDatabaseIndex> indexes,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys
     )
     {
         var backingIndexNames = uniqueKeys
-            .Concat(primaryKey.ToList())
             .SelectMany(static key => key.BackingIndex.ToList())
+            .Concat(primaryKey.Bind(static key => key.BackingIndex).ToList())
             .Select(static index => index.Name)
             .ToHashSet();
         if (backingIndexNames.Count == 0)
@@ -401,20 +401,19 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         }
 
         if (keyRows.Count == 0)
-            return new TableIndexes(indexes, Option<IDatabaseKey>.None, []);
+            return new TableIndexes(indexes, Option<DatabaseKey.Primary>.None, []);
 
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = new List<IDatabaseKey>(keyRows.Count);
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = new List<DatabaseKey.Unique>(keyRows.Count);
         foreach (var index in indexes)
         {
             if (!keyRows.TryGetValue(index.Name.LocalName, out var keyRow))
                 continue;
 
-            var key = CreateKey(keyRow, index);
             if (keyRow.IsPrimary)
-                primaryKey = Option<IDatabaseKey>.Some(key);
+                primaryKey = Option<DatabaseKey.Primary>.Some(CreatePrimaryKey(keyRow, index));
             else
-                uniqueKeys.Add(key);
+                uniqueKeys.Add(CreateUniqueKey(keyRow, index));
         }
 
         return new TableIndexes(indexes, primaryKey, uniqueKeys);
@@ -422,16 +421,23 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
     // The key columns of the backing index are the constraint's columns in order. Its included columns
     // are not part of the key, and the mapped index already leaves them out of its columns.
-    private static IDatabaseKey CreateKey(GetTableIndexes.Result row, IDatabaseIndex backingIndex)
+    private static DatabaseKey.Primary CreatePrimaryKey(GetTableIndexes.Result row, IDatabaseIndex backingIndex)
     {
         var columns = backingIndex.Columns.SelectMany(static column => column.DependentColumns).ToList();
-        var keyType = row.IsPrimary ? DatabaseKeyType.Primary : DatabaseKeyType.Unique;
         var deferrability = GetDeferrability(row.IsDeferrable, row.IsInitiallyDeferred);
 
-        return new DatabaseKey(Identifier.CreateQualifiedIdentifier(row.ConstraintName!), keyType, columns, true, Option<IDatabaseIndex>.Some(backingIndex), true, deferrability);
+        return new DatabaseKey.Primary(Identifier.CreateQualifiedIdentifier(row.ConstraintName!), columns, true, Option<IDatabaseIndex>.Some(backingIndex), true, deferrability);
     }
 
-    private static readonly TableIndexes NoIndexes = new([], Option<IDatabaseKey>.None, []);
+    private static DatabaseKey.Unique CreateUniqueKey(GetTableIndexes.Result row, IDatabaseIndex backingIndex)
+    {
+        var columns = backingIndex.Columns.SelectMany(static column => column.DependentColumns).ToList();
+        var deferrability = GetDeferrability(row.IsDeferrable, row.IsInitiallyDeferred);
+
+        return new DatabaseKey.Unique(Identifier.CreateQualifiedIdentifier(row.ConstraintName!), columns, true, Option<IDatabaseIndex>.Some(backingIndex), true, deferrability);
+    }
+
+    private static readonly TableIndexes NoIndexes = new([], Option<DatabaseKey.Primary>.None, []);
 
     /// <summary>
     /// The indexes on a table, together with the primary key and unique keys they enforce, which are read from the catalog together.
@@ -439,7 +445,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     /// <param name="Indexes">The table's indexes, including those that enforce a key.</param>
     /// <param name="PrimaryKey">The table's primary key, if it has one.</param>
     /// <param name="UniqueKeys">The table's unique keys.</param>
-    protected sealed record TableIndexes(IReadOnlyCollection<IDatabaseIndex> Indexes, Option<IDatabaseKey> PrimaryKey, IReadOnlyCollection<IDatabaseKey> UniqueKeys);
+    protected sealed record TableIndexes(IReadOnlyCollection<IDatabaseIndex> Indexes, Option<DatabaseKey.Primary> PrimaryKey, IReadOnlyCollection<DatabaseKey.Unique> UniqueKeys);
 
     /// <summary>
     /// Retrieves child keys that relate to the given table.
@@ -481,16 +487,16 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var childTables = new Dictionary<(string Schema, string Name), List<ChildForeignKey>>();
         foreach (var foreignKey in queryResult.GroupAsDictionary(static row => new { row.ChildTableSchema, row.ChildTableName, row.ChildKeyName, row.ParentKeyName, row.ParentKeyType }))
         {
-            IDatabaseKey? parentKey = null;
+            CandidateKey? candidateParentKey = null;
             if (string.Equals(foreignKey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
-                primaryKey.IfSome(k => parentKey = k);
+                primaryKey.IfSome(k => candidateParentKey = k);
             else if (uniqueKeyLookup.TryGetValue(foreignKey.Key.ParentKeyName, out var uniqueKey))
-                parentKey = uniqueKey;
+                candidateParentKey = uniqueKey;
             else if (uniqueIndexLookup.TryGetValue(foreignKey.Key.ParentKeyName, out var uniqueIndex))
                 // the foreign key references a unique index with no backing UNIQUE constraint
-                parentKey = CreateKeyFromUniqueIndex(uniqueIndex);
+                candidateParentKey = CreateKeyFromUniqueIndex(uniqueIndex);
 
-            if (parentKey == null)
+            if (candidateParentKey is not { } parentKey)
                 continue;
 
             var childTableKey = (foreignKey.Key.ChildTableSchema, foreignKey.Key.ChildTableName);
@@ -536,7 +542,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             .ToList();
     }
 
-    private sealed record ChildForeignKey(IDatabaseKey ParentKey, IReadOnlyCollection<GetTableChildKeys.Result> Rows);
+    private sealed record ChildForeignKey(CandidateKey ParentKey, IReadOnlyCollection<GetTableChildKeys.Result> Rows);
 
     /// <summary>
     /// Retrieves check constraints defined on a given table.
@@ -618,7 +624,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
 
         // memoises the parent table's unique-key/unique-index lookups across foreign keys that share
         // the same parent table, instead of rebuilding them (and re-querying the cache) once per key.
-        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseKey>>(IdentifierComparer.Ordinal);
+        var parentUniqueKeyLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, DatabaseKey.Unique>>(IdentifierComparer.Ordinal);
         var parentUniqueIndexLookups = new Dictionary<Identifier, IReadOnlyDictionary<Identifier, IDatabaseIndex>>(IdentifierComparer.Ordinal);
 
         var result = new List<IDatabaseRelationalKey>(foreignKeys.Count);
@@ -635,7 +641,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     if (string.Equals(fkey.Key.KeyType, Constants.PrimaryKeyType, StringComparison.Ordinal))
                     {
                         var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken);
-                        return pk.ToAsync();
+                        return pk.Map(static k => (CandidateKey)k).ToAsync();
                     }
 
                     var parentKeyName = Identifier.CreateQualifiedIdentifier(fkey.Key.ParentKeyName);
@@ -648,7 +654,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     }
 
                     if (uniqueKeyLookup.TryGetValue(parentKeyName.LocalName, out var uniqueKey))
-                        return OptionAsync<IDatabaseKey>.Some(uniqueKey);
+                        return OptionAsync<CandidateKey>.Some(uniqueKey);
 
                     // the foreign key references a unique index with no backing UNIQUE constraint
                     if (!parentUniqueIndexLookups.TryGetValue(parentTableName, out var parentUniqueIndexLookup))
@@ -659,8 +665,8 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     }
 
                     return parentUniqueIndexLookup.TryGetValue(parentKeyName.LocalName, out var uniqueIndex)
-                        ? OptionAsync<IDatabaseKey>.Some(CreateKeyFromUniqueIndex(uniqueIndex))
-                        : OptionAsync<IDatabaseKey>.None;
+                        ? OptionAsync<CandidateKey>.Some(CreateKeyFromUniqueIndex(uniqueIndex))
+                        : OptionAsync<CandidateKey>.None;
                 })
                 .Map(parentKey => CreateRelationalKey(tableName, columnLookup, resolvedParentTableName!, parentKey, fkey.Value))
                 .IfSome(result.Add);
@@ -675,7 +681,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         Identifier childTableName,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> childColumnLookup,
         Identifier parentTableName,
-        IDatabaseKey parentKey,
+        CandidateKey parentKey,
         IReadOnlyCollection<IForeignKeyColumnRow> rows)
     {
         // every row describes the same constraint, differing only in the column it names
@@ -690,7 +696,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var childKeyColumns = ResolveColumns(orderedRows.Select(static row => (Identifier)row.ColumnName), childColumnLookup).ToList();
 
         var deferrability = GetDeferrability(constraint.IsDeferrable, constraint.IsInitiallyDeferred);
-        var childKey = new DatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, true, Option<IDatabaseIndex>.None, constraint.IsValidated, deferrability);
+        var childKey = new DatabaseKey.Foreign(childKeyName, childKeyColumns, true, constraint.IsValidated, deferrability);
 
         var deleteAction = ReferentialActionMapping[constraint.DeleteAction];
         var updateAction = ReferentialActionMapping[constraint.UpdateAction];
@@ -879,11 +885,11 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
             : ConstraintDeferrability.DeferrableInitiallyImmediate;
     }
 
-    private static IReadOnlyDictionary<Identifier, IDatabaseKey> GetDatabaseKeyLookup(IReadOnlyCollection<IDatabaseKey> keys)
+    private static IReadOnlyDictionary<Identifier, DatabaseKey.Unique> GetDatabaseKeyLookup(IReadOnlyCollection<DatabaseKey.Unique> keys)
     {
         ArgumentNullException.ThrowIfNull(keys);
 
-        var result = new Dictionary<Identifier, IDatabaseKey>(keys.Count);
+        var result = new Dictionary<Identifier, DatabaseKey.Unique>(keys.Count);
 
         // Key constructors keep only the local name, so names are used as keys without rebuilding them.
         foreach (var key in keys)
@@ -916,12 +922,12 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     }
 
     // Synthesizes a key from a unique index so that a foreign key referencing a bare unique index (i.e. one with
-    // no backing UNIQUE constraint) can still be represented as an IDatabaseKey. The index is what enforces the
+    // no backing UNIQUE constraint) can still be represented as a unique key. The index is what enforces the
     // uniqueness the foreign key relies on, so it is also the key's backing index.
-    private static IDatabaseKey CreateKeyFromUniqueIndex(IDatabaseIndex uniqueIndex)
+    private static DatabaseKey.Unique CreateKeyFromUniqueIndex(IDatabaseIndex uniqueIndex)
     {
         var columns = uniqueIndex.Columns.SelectMany(static ic => ic.DependentColumns).ToList();
-        return new DatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns, true, Option<IDatabaseIndex>.Some(uniqueIndex));
+        return new DatabaseKey.Unique(uniqueIndex.Name, columns, true, Option<IDatabaseIndex>.Some(uniqueIndex));
     }
 
     /// <summary>
@@ -1092,14 +1098,14 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-        public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
+        public Task<Option<DatabaseKey.Primary>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             return GetPrimaryKeyAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> GetPrimaryKeyAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<DatabaseKey.Primary>> GetPrimaryKeyAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var indexes = await _indexes.GetByKeyAsync(tableName, this, cancellationToken);
             return indexes.PrimaryKey;
@@ -1112,14 +1118,14 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-        public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<DatabaseKey.Unique>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             return GetUniqueKeysAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<DatabaseKey.Unique>> GetUniqueKeysAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var indexes = await _indexes.GetByKeyAsync(tableName, this, cancellationToken);
             return indexes.UniqueKeys;

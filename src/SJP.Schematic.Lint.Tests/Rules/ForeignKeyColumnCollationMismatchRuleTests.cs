@@ -19,15 +19,13 @@ internal static class ForeignKeyColumnCollationMismatchRuleTests
 
     private static IRelationalDatabaseTable CreateChildTable(IDatabaseColumn childColumn, IDatabaseColumn parentColumn)
     {
-        var childKey = new DatabaseKey(
+        var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
-            DatabaseKeyType.Foreign,
             [childColumn],
             true
         );
-        var parentKey = new DatabaseKey(
+        var parentKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [parentColumn],
             true
         );

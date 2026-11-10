@@ -37,8 +37,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
         }
     }
 
@@ -155,8 +154,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
         }
     }
 

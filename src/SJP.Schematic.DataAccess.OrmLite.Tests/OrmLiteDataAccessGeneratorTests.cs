@@ -181,7 +181,7 @@ internal static class OrmLiteDataAccessGeneratorTests
 
     private static IRelationalDatabase CreateDatabase(Identifier tableName, Identifier viewName)
     {
-        var table = new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
+        var table = new RelationalDatabaseTable(tableName, [], Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
         var view = new DatabaseView(viewName, "select 1 as dummy", []);
 
         return new RelationalDatabase(

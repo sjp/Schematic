@@ -78,7 +78,7 @@ internal sealed class NoRowsPresentOnTableRuleTests : SqliteTest
             new RelationalDatabaseTable(
                 "test",
                 [],
-                Option<IDatabaseKey>.None,
+                Option<DatabaseKey.Primary>.None,
                 [],
                 [],
                 [],

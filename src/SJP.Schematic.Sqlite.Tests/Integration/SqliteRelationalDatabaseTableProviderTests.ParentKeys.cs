@@ -37,8 +37,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
         }
     }
 
@@ -185,8 +184,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
         }
     }
 
@@ -340,7 +338,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         {
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_implicit_fk_child_1"));
             Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("implicit_fk_parent_1"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
             Assert.That(childColumns, Is.EqualTo(new[] { "test_column" }));
             Assert.That(parentColumns, Is.EqualTo(new[] { "test_column" }));
         }
@@ -406,7 +404,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_case_fk_child_2"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
             Assert.That(foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "id" }));
         }
     }

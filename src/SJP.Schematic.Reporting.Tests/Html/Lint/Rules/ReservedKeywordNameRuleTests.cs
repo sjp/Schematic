@@ -56,7 +56,7 @@ internal static class ReservedKeywordNameRuleTests
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("SELECT"), DatabaseKeyType.Primary, [testColumn], true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("SELECT"), [testColumn], true);
 
         var table = new RelationalDatabaseTable(
             tableName,
@@ -85,7 +85,7 @@ internal static class ReservedKeywordNameRuleTests
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("SELECT"), DatabaseKeyType.Unique, [testColumn], true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("SELECT"), [testColumn], true);
 
         var table = new RelationalDatabaseTable(
             tableName,
@@ -114,8 +114,8 @@ internal static class ReservedKeywordNameRuleTests
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var childKey = new DatabaseKey(Option<Identifier>.Some("SELECT"), DatabaseKeyType.Foreign, [testColumn], true);
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_pk"), DatabaseKeyType.Primary, [testColumn], true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("SELECT"), [testColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("parent_pk"), [testColumn], true);
         var relationalKey = new DatabaseRelationalKey(
             tableName,
             childKey,

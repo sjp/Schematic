@@ -29,7 +29,7 @@ internal static class RelationalDatabaseTableExtensions
         return new TableKeyColumns(primaryKeyColumns, uniqueKeyColumns, foreignKeyColumns);
     }
 
-    private static void AddColumnNames(HashSet<string> columnNames, IDatabaseKey key)
+    private static void AddColumnNames(HashSet<string> columnNames, DatabaseKey key)
     {
         foreach (var column in key.Columns)
             columnNames.Add(column.Name.LocalName);

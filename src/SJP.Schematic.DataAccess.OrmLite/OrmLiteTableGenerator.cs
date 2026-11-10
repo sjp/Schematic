@@ -504,7 +504,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
 
         foreach (var foreignKey in foreignKeys)
         {
-            if (foreignKey.ParentKey.KeyType != DatabaseKeyType.Primary)
+            if (foreignKey.ParentKey is not DatabaseKey.Primary)
                 continue; // ormlite only supports FK to primary key
 
             var childColumns = foreignKey.ChildKey.Columns;

@@ -108,7 +108,7 @@ create table reordered_primary_key_child (
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_unique_index_child_code"));
             Assert.That(foreignKey.ParentTable.LocalName, Is.EqualTo("unique_index_parent"));
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_unique_index_parent_code"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
             Assert.That(foreignKey.ParentKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "code" }));
         }
     }
@@ -175,7 +175,7 @@ create table reordered_primary_key_child (
         using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("uk_reordered_unique_constraint_parent"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
         }
     }
 
@@ -188,7 +188,7 @@ create table reordered_primary_key_child (
         using (Assert.EnterMultipleScope())
         {
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("pk_reordered_primary_key_parent"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
         }
     }
 

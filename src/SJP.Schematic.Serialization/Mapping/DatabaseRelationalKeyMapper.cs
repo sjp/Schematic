@@ -21,13 +21,13 @@ public class DatabaseRelationalKeyMapper
     internal IDatabaseRelationalKey Map(Dto.DatabaseRelationalKey source, ColumnLookup childTableColumns, ColumnLookup parentTableColumns)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
-        var databaseKeyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
+        var databaseKeyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseKey, DatabaseKey>();
 
         return new DatabaseRelationalKey(
             identifierMapper.Map(source.ChildTable),
-            databaseKeyMapper.Map(source.ChildKey, childTableColumns),
+            databaseKeyMapper.MapForeignKey(source.ChildKey, childTableColumns),
             identifierMapper.Map(source.ParentTable),
-            databaseKeyMapper.Map(source.ParentKey, parentTableColumns),
+            databaseKeyMapper.MapCandidateKey(source.ParentKey, parentTableColumns),
             source.DeleteAction,
             source.UpdateAction,
             source.MatchType,
@@ -48,7 +48,7 @@ public class DatabaseRelationalKeyMapper
             return cached;
 
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
-        var databaseKeyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+        var databaseKeyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<DatabaseKey, Dto.DatabaseKey>();
         var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
 
         var result = new Dto.DatabaseRelationalKey

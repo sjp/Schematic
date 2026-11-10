@@ -43,14 +43,14 @@ internal static class OracleRelationalKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenNullParentKey_ThrowsArgumentNullException()
+    public static void Ctor_GivenDefaultParentKey_ThrowsArgumentNullException()
     {
         const string childTableName = "child_table";
         var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, null, deleteAction), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey"));
+        Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, default, deleteAction), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey"));
     }
 
     [Test]
@@ -131,7 +131,7 @@ internal static class OracleRelationalKeyTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(relationalKey.ParentKey.Name.UnwrapSome(), Is.EqualTo(keyName));
-            Assert.That(relationalKey.ParentKey, Is.EqualTo(parentKey));
+            Assert.That(relationalKey.ParentKey.Value, Is.SameAs(parentKey));
         }
     }
 
@@ -163,32 +163,6 @@ internal static class OracleRelationalKeyTests
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
         Assert.That(relationalKey.UpdateAction, Is.EqualTo(ReferentialAction.NoAction));
-    }
-
-    [Test]
-    public static void Ctor_GivenChildKeyNotForeignKey_ThrowsArgumentException()
-    {
-        const string childTableName = "child_table";
-        const string parentTableName = "parent_table";
-
-        var childKey = TestKeys.Primary();
-        var parentKey = TestKeys.Primary();
-        const ReferentialAction deleteAction = ReferentialAction.NoAction;
-
-        Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey"));
-    }
-
-    [Test]
-    public static void Ctor_GivenParentKeyNotCandidateKey_ThrowsArgumentException()
-    {
-        const string childTableName = "child_table";
-        const string parentTableName = "parent_table";
-
-        var childKey = TestKeys.Foreign();
-        var parentKey = TestKeys.Foreign();
-        const ReferentialAction deleteAction = ReferentialAction.NoAction;
-
-        Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey"));
     }
 
     [TestCase(null, "test_table_1", null, null, "test_table_2", null, "Relational Key: test_table_1 -> test_table_2")]

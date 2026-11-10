@@ -497,7 +497,7 @@ public class EFCoreDbContextBuilder
         return property;
     }
 
-    private InvocationExpressionSyntax BuildTablePrimaryKeyForBuilder(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
+    private InvocationExpressionSyntax BuildTablePrimaryKeyForBuilder(IRelationalDatabaseTable table, DatabaseKey.Primary primaryKey)
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(primaryKey);
@@ -667,7 +667,7 @@ public class EFCoreDbContextBuilder
         };
     }
 
-    private InvocationExpressionSyntax BuildTableUniqueKeyForBuilder(IRelationalDatabaseTable table, IDatabaseKey uniqueKey)
+    private InvocationExpressionSyntax BuildTableUniqueKeyForBuilder(IRelationalDatabaseTable table, DatabaseKey.Unique uniqueKey)
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(uniqueKey);

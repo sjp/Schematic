@@ -67,7 +67,7 @@ public class PrimaryKeyColumnNotFirstColumnRule : Rule, ITableRule
     /// <param name="primaryKey">The primary key for the database table.</param>
     /// <returns>A set of linting messages used for reporting. An empty set indicates no issues discovered.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="primaryKey"/> is <see langword="null" />.</exception>
-    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, IDatabaseKey primaryKey)
+    protected IReadOnlyCollection<IRuleMessage> AnalyseTable(IRelationalDatabaseTable table, DatabaseKey.Primary primaryKey)
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(primaryKey);

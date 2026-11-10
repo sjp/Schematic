@@ -30,13 +30,12 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// <param name="checks">The checks.</param>
     /// <param name="triggers">The triggers.</param>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="columns"/>, <paramref name="uniqueKeys"/>, <paramref name="parentKeys"/>, <paramref name="childKeys"/>, <paramref name="indexes"/>, <paramref name="checks"/> or <paramref name="triggers"/> is <see langword="null" />, or one of the given collections contains <see langword="null" /> values.</exception>
-    /// <exception cref="ArgumentException"><paramref name="primaryKey"/> does not have a primary key type, or <paramref name="uniqueKeys"/> contains a key that does not have a unique key type.</exception>
     /// <remarks>Describes an ordinary, logged, unpartitioned table that is not system-versioned.</remarks>
     public RelationalDatabaseTable(
         Identifier tableName,
         IReadOnlyList<IDatabaseColumn> columns,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys,
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys,
         IReadOnlyCollection<IDatabaseRelationalKey> parentKeys,
         IReadOnlyCollection<IDatabaseRelationalKey> childKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes,
@@ -78,12 +77,12 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// <param name="isLogged">Whether writes to the table are written to the database's transaction log.</param>
     /// <param name="collation">The default collation applied to the table's character data.</param>
     /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="columns"/>, <paramref name="uniqueKeys"/>, <paramref name="parentKeys"/>, <paramref name="childKeys"/>, <paramref name="indexes"/>, <paramref name="checks"/> or <paramref name="triggers"/> is <see langword="null" />, or one of the given collections contains <see langword="null" /> values.</exception>
-    /// <exception cref="ArgumentException"><paramref name="primaryKey"/> does not have a primary key type, <paramref name="uniqueKeys"/> contains a key that does not have a unique key type, or <paramref name="kind"/> is an invalid enum value.</exception>
+    /// <exception cref="ArgumentException"><paramref name="kind"/> is an invalid enum value.</exception>
     public RelationalDatabaseTable(
         Identifier tableName,
         IReadOnlyList<IDatabaseColumn> columns,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys,
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys,
         IReadOnlyCollection<IDatabaseRelationalKey> parentKeys,
         IReadOnlyCollection<IDatabaseRelationalKey> childKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes,
@@ -102,16 +101,6 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
         var tableIndexes = indexes.ToDefensiveCopy(nameof(indexes));
         var tableChecks = checks.ToDefensiveCopy(nameof(checks));
         var tableTriggers = triggers.ToDefensiveCopy(nameof(triggers));
-
-        primaryKey.IfSome(static pk =>
-        {
-            if (pk.KeyType != DatabaseKeyType.Primary)
-                throw new ArgumentException("The given primary key did not have a key type of '" + nameof(DatabaseKeyType.Primary) + "'", nameof(primaryKey));
-        });
-
-        var anyNonUniqueKey = tableUniqueKeys.Any(static uk => uk.KeyType != DatabaseKeyType.Unique);
-        if (anyNonUniqueKey)
-            throw new ArgumentException("A given unique key did not have a key type of '" + nameof(DatabaseKeyType.Unique) + "'", nameof(uniqueKeys));
 
         if (!kind.IsValid())
             throw new ArgumentException($"The {nameof(TableKind)} provided must be a valid enum.", nameof(kind));
@@ -142,7 +131,7 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// The primary key of the table, if available.
     /// </summary>
     /// <value>A primary key, if available.</value>
-    public Option<IDatabaseKey> PrimaryKey { get; }
+    public Option<DatabaseKey.Primary> PrimaryKey { get; }
 
     /// <summary>
     /// Indexes defined for the table.
@@ -154,7 +143,7 @@ public class RelationalDatabaseTable : IRelationalDatabaseTable
     /// Unique key constraints defined for the table.
     /// </summary>
     /// <value>Unique key constraints.</value>
-    public IReadOnlyCollection<IDatabaseKey> UniqueKeys { get; }
+    public IReadOnlyCollection<DatabaseKey.Unique> UniqueKeys { get; }
 
     /// <summary>
     /// <para>A set of child foreign key constraints.</para>

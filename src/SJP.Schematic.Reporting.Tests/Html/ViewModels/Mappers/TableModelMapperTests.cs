@@ -24,7 +24,7 @@ internal static class TableModelMapperTests
             new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null),
             new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, null, null),
         ];
-        var table = new RelationalDatabaseTable(OrdersName, columns, Option<IDatabaseKey>.None, [], [], [], [], [], []);
+        var table = new RelationalDatabaseTable(OrdersName, columns, Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
         var model = new TableModelMapper([OrdersName]).Map(table, new UserDefinedTypeTargets([moodName]));
 
@@ -100,15 +100,15 @@ internal static class TableModelMapperTests
     private static Table MapOrders()
     {
         var customerColumns = CreateColumns("number", "region_code");
-        var customersKey = new DatabaseKey(Option<Identifier>.Some("pk_customers"), DatabaseKeyType.Primary, [customerColumns[1], customerColumns[0]], true);
-        var customersRegionKey = new DatabaseKey(Option<Identifier>.Some("uk_customers_region"), DatabaseKeyType.Unique, [customerColumns[1]], true);
+        var customersKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_customers"), [customerColumns[1], customerColumns[0]], true);
+        var customersRegionKey = new DatabaseKey.Unique(Option<Identifier>.Some("uk_customers_region"), [customerColumns[1]], true);
 
         var orderColumns = CreateColumns("order_id", "ORDER_ID", "customer_no", "region", "notes");
-        var ordersKey = new DatabaseKey(Option<Identifier>.Some("pk_orders"), DatabaseKeyType.Primary, [orderColumns[0]], true);
+        var ordersKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_orders"), [orderColumns[0]], true);
 
         // Listed in the opposite order to the table's columns, so pairing must follow key position.
-        var customerForeignKey = new DatabaseKey(Option<Identifier>.Some("fk_orders_customers"), DatabaseKeyType.Foreign, [orderColumns[3], orderColumns[2]], true);
-        var regionForeignKey = new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Foreign, [orderColumns[3]], true);
+        var customerForeignKey = new DatabaseKey.Foreign(Option<Identifier>.Some("fk_orders_customers"), [orderColumns[3], orderColumns[2]], true);
+        var regionForeignKey = new DatabaseKey.Foreign(Option<Identifier>.None, [orderColumns[3]], true);
         var parentKeys = new List<IDatabaseRelationalKey>
         {
             new DatabaseRelationalKey(OrdersName, customerForeignKey, CustomersName, customersKey, ReferentialAction.NoAction, ReferentialAction.NoAction),
@@ -116,7 +116,7 @@ internal static class TableModelMapperTests
         };
 
         var lineColumns = CreateColumns("line_id", "line_order_id");
-        var linesForeignKey = new DatabaseKey(Option<Identifier>.Some("fk_lines_orders"), DatabaseKeyType.Foreign, [lineColumns[1]], true);
+        var linesForeignKey = new DatabaseKey.Foreign(Option<Identifier>.Some("fk_lines_orders"), [lineColumns[1]], true);
         var childKeys = new List<IDatabaseRelationalKey>
         {
             new DatabaseRelationalKey(LinesName, linesForeignKey, OrdersName, ordersKey, ReferentialAction.NoAction, ReferentialAction.NoAction),

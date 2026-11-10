@@ -178,9 +178,9 @@ internal sealed class TableModelMapper
     private static void AddKeyColumnLinks(
         Dictionary<string, List<KeyColumnLink>> links,
         IDatabaseRelationalKey relationalKey,
-        IDatabaseKey localKey,
+        DatabaseKey localKey,
         Identifier linkedTableName,
-        IDatabaseKey linkedKey)
+        DatabaseKey linkedKey)
     {
         var constraintName = relationalKey.ChildKey.Name.Match(static name => name.LocalName, static () => string.Empty);
 

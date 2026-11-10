@@ -75,9 +75,8 @@ internal static class AutoIncrementColumnNotInKeyRuleTests
     {
         var rule = new AutoIncrementColumnNotInKeyRule(RuleLevel.Error);
         var column = CreateAutoIncrementColumn("id");
-        var primaryKey = new DatabaseKey(
+        var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("pk_test"),
-            DatabaseKeyType.Primary,
             [column],
             true
         );

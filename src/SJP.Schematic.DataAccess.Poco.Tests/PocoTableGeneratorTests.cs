@@ -130,7 +130,7 @@ internal static class PocoTableGeneratorTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [CreateColumn("visible_column", false), CreateColumn("hidden_column", true)],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

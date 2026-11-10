@@ -29,7 +29,7 @@ internal static class RelationalDatabaseTableMapperTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [partitionColumn, CreateColumn("id")],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -105,14 +105,14 @@ internal static class RelationalDatabaseTableMapperTests
         var parentIdColumn = CreateColumn("parent_id");
 
         var primaryKeyIndex = new DatabaseIndex("pk_index", true, [new DatabaseIndexColumn("id", idColumn, IndexColumnOrder.Ascending)], [], true, Option<string>.None);
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [idColumn], true, Option<IDatabaseIndex>.Some(primaryKeyIndex));
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("uk"), DatabaseKeyType.Unique, [codeColumn], true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk"), [idColumn], true, Option<IDatabaseIndex>.Some(primaryKeyIndex));
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("uk"), [codeColumn], true);
         var index = new DatabaseIndex("ix", false, [new DatabaseIndexColumn("parent_id", parentIdColumn, IndexColumnOrder.Ascending)], [codeColumn], true, Option<string>.None);
 
         // a self-referencing foreign key, so that both of its sides belong to the mapped table
         var foreignKey = new DatabaseRelationalKey(
             "test_table",
-            new DatabaseKey(Option<Identifier>.Some("fk"), DatabaseKeyType.Foreign, [parentIdColumn], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("fk"), [parentIdColumn], true),
             "test_table",
             primaryKey,
             ReferentialAction.SetNull,
@@ -124,7 +124,7 @@ internal static class RelationalDatabaseTableMapperTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [idColumn, codeColumn, parentIdColumn],
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<DatabaseKey.Primary>.Some(primaryKey),
             [uniqueKey],
             [foreignKey],
             [foreignKey],
@@ -167,13 +167,13 @@ internal static class RelationalDatabaseTableMapperTests
         var otherTableIdColumn = CreateColumn("id");
         var foreignKey = new DatabaseRelationalKey(
             "test_table",
-            new DatabaseKey(Option<Identifier>.Some("fk"), DatabaseKeyType.Foreign, [parentIdColumn], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("fk"), [parentIdColumn], true),
             "parent_table",
-            new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [otherTableIdColumn], true),
+            new DatabaseKey.Primary(Option<Identifier>.Some("pk"), [otherTableIdColumn], true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
-        var table = new RelationalDatabaseTable("test_table", [parentIdColumn], Option<IDatabaseKey>.None, [], [foreignKey], [], [], [], []);
+        var table = new RelationalDatabaseTable("test_table", [parentIdColumn], Option<DatabaseKey.Primary>.None, [], [foreignKey], [], [], [], []);
 
         var result = mapper.Map(mapper.Map(table));
 
@@ -192,8 +192,8 @@ internal static class RelationalDatabaseTableMapperTests
 
         var idColumn = CreateColumn("id");
         var hiddenColumn = CreateColumn("hidden_id");
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [hiddenColumn], true);
-        var table = new RelationalDatabaseTable("test_table", [idColumn], Option<IDatabaseKey>.Some(primaryKey), [], [], [], [], [], []);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk"), [hiddenColumn], true);
+        var table = new RelationalDatabaseTable("test_table", [idColumn], Option<DatabaseKey.Primary>.Some(primaryKey), [], [], [], [], [], []);
 
         var result = mapper.Map(mapper.Map(table));
 
@@ -212,8 +212,8 @@ internal static class RelationalDatabaseTableMapperTests
 
         var lowerColumn = CreateColumn("a");
         var upperColumn = CreateColumn("A");
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [upperColumn], true);
-        var table = new RelationalDatabaseTable("test_table", [lowerColumn, upperColumn], Option<IDatabaseKey>.Some(primaryKey), [], [], [], [], [], []);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk"), [upperColumn], true);
+        var table = new RelationalDatabaseTable("test_table", [lowerColumn, upperColumn], Option<DatabaseKey.Primary>.Some(primaryKey), [], [], [], [], [], []);
 
         var result = mapper.Map(mapper.Map(table));
 
@@ -227,8 +227,8 @@ internal static class RelationalDatabaseTableMapperTests
 
         var idColumn = CreateColumn("id");
         var index = new DatabaseIndex("ix", true, [new DatabaseIndexColumn("id", idColumn, IndexColumnOrder.Ascending)], [], true, Option<string>.None);
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk"), DatabaseKeyType.Primary, [idColumn], true, Option<IDatabaseIndex>.Some(index));
-        var table = new RelationalDatabaseTable("test_table", [idColumn], Option<IDatabaseKey>.Some(primaryKey), [], [], [], [index], [], []);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk"), [idColumn], true, Option<IDatabaseIndex>.Some(index));
+        var table = new RelationalDatabaseTable("test_table", [idColumn], Option<DatabaseKey.Primary>.Some(primaryKey), [], [], [], [index], [], []);
 
         var result = mapper.Map(table);
 

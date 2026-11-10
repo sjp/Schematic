@@ -38,8 +38,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
         }
     }
 
@@ -186,8 +185,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
         }
     }
 
@@ -343,7 +341,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         {
             Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("implicit_fk_child_1"));
             Assert.That(foreignKey.ChildKey.Name.UnwrapSome().LocalName, Is.EqualTo("fk_implicit_fk_child_1"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
         }
     }
 

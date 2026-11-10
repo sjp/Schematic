@@ -65,9 +65,8 @@ internal static class DisabledObjectsRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn],
             false
         );
@@ -102,15 +101,13 @@ internal static class DisabledObjectsRuleTests
             null,
             null
         );
-        var testForeignKey = new DatabaseKey(
+        var testForeignKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
-            DatabaseKeyType.Foreign,
             [testColumn],
             false
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn],
             false
         );
@@ -153,9 +150,8 @@ internal static class DisabledObjectsRuleTests
             null,
             null
         );
-        var testUniqueKey = new DatabaseKey(
+        var testUniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test_unique_key"),
-            DatabaseKeyType.Unique,
             [testColumn],
             false
         );

@@ -195,14 +195,14 @@ internal static class EFCoreDbContextBuilderTests
         var parentColumn = CreateColumn("address_id");
         var billingColumn = CreateColumn("billing_address_id");
         var shippingColumn = CreateColumn("shipping_address_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("address_pk"), [parentColumn], true);
         var billingRelationalKey = CreateRelationalKey("order", "billing_fk", billingColumn, "address", parentKey);
         var shippingRelationalKey = CreateRelationalKey("order", "shipping_fk", shippingColumn, "address", parentKey);
 
         var addressTable = new RelationalDatabaseTable(
             "address",
             [parentColumn],
-            Option<IDatabaseKey>.Some(parentKey),
+            Option<DatabaseKey.Primary>.Some(parentKey),
             [],
             [],
             [billingRelationalKey, shippingRelationalKey],
@@ -213,7 +213,7 @@ internal static class EFCoreDbContextBuilderTests
         var orderTable = new RelationalDatabaseTable(
             "order",
             [billingColumn, shippingColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [billingRelationalKey, shippingRelationalKey],
             [],
@@ -240,7 +240,7 @@ internal static class EFCoreDbContextBuilderTests
         var parentColumn = CreateColumn("address_id");
         var orderColumn = CreateColumn("address_id");
         var customerColumn = CreateColumn("address_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("address_pk"), [parentColumn], true);
         var firstOrderRelationalKey = CreateRelationalKey("order", "first_address_fk", orderColumn, "address", parentKey);
         var secondOrderRelationalKey = CreateRelationalKey("order", "second_address_fk", orderColumn, "address", parentKey);
         var customerRelationalKey = CreateRelationalKey("customer", "customer_address_fk", customerColumn, "address", parentKey);
@@ -249,7 +249,7 @@ internal static class EFCoreDbContextBuilderTests
         var addressTable = new RelationalDatabaseTable(
             "address",
             [parentColumn],
-            Option<IDatabaseKey>.Some(parentKey),
+            Option<DatabaseKey.Primary>.Some(parentKey),
             [],
             [],
             [firstOrderRelationalKey, customerRelationalKey, secondOrderRelationalKey],
@@ -260,7 +260,7 @@ internal static class EFCoreDbContextBuilderTests
         var orderTable = new RelationalDatabaseTable(
             "order",
             [orderColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [firstOrderRelationalKey, secondOrderRelationalKey],
             [],
@@ -271,7 +271,7 @@ internal static class EFCoreDbContextBuilderTests
         var customerTable = new RelationalDatabaseTable(
             "customer",
             [customerColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [customerRelationalKey],
             [],
@@ -298,14 +298,14 @@ internal static class EFCoreDbContextBuilderTests
 
         var childColumn = CreateColumn("address_id");
         var parentColumn = CreateColumn("address_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("address_pk"), [parentColumn], true);
         var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
 
         // the parent does not list the foreign key among its child keys
         var addressTable = new RelationalDatabaseTable(
             "address",
             [parentColumn],
-            Option<IDatabaseKey>.Some(parentKey),
+            Option<DatabaseKey.Primary>.Some(parentKey),
             [],
             [],
             [],
@@ -316,7 +316,7 @@ internal static class EFCoreDbContextBuilderTests
         var orderTable = new RelationalDatabaseTable(
             "order",
             [childColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [relationalKey],
             [],
@@ -339,13 +339,13 @@ internal static class EFCoreDbContextBuilderTests
         // the child's column property name is the same as the parent's class name, so the navigation is suffixed
         var childColumn = CreateColumn("address");
         var parentColumn = CreateColumn("address_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("address_pk"), [parentColumn], true);
         var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
 
         var addressTable = new RelationalDatabaseTable(
             "address",
             [parentColumn],
-            Option<IDatabaseKey>.Some(parentKey),
+            Option<DatabaseKey.Primary>.Some(parentKey),
             [],
             [],
             [relationalKey],
@@ -356,7 +356,7 @@ internal static class EFCoreDbContextBuilderTests
         var orderTable = new RelationalDatabaseTable(
             "order",
             [childColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [relationalKey],
             [],
@@ -378,14 +378,14 @@ internal static class EFCoreDbContextBuilderTests
 
         var childColumn = CreateColumn("address_id");
         var parentColumn = CreateColumn("address_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
-        var childUniqueKey = new DatabaseKey(Option<Identifier>.Some("order_uk"), DatabaseKeyType.Unique, [childColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("address_pk"), [parentColumn], true);
+        var childUniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("order_uk"), [childColumn], true);
         var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
 
         var addressTable = new RelationalDatabaseTable(
             "address",
             [parentColumn],
-            Option<IDatabaseKey>.Some(parentKey),
+            Option<DatabaseKey.Primary>.Some(parentKey),
             [],
             [],
             [relationalKey],
@@ -396,7 +396,7 @@ internal static class EFCoreDbContextBuilderTests
         var orderTable = new RelationalDatabaseTable(
             "order",
             [childColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [childUniqueKey],
             [relationalKey],
             [],
@@ -419,13 +419,13 @@ internal static class EFCoreDbContextBuilderTests
         // the parent's column property name is suffixed because it matches the parent's class name
         var childColumn = CreateColumn("address_id");
         var parentColumn = CreateColumn("address");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("address_pk"), DatabaseKeyType.Primary, [parentColumn], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("address_pk"), [parentColumn], true);
         var relationalKey = CreateRelationalKey("order", "address_fk", childColumn, "address", parentKey);
 
         var addressTable = new RelationalDatabaseTable(
             "address",
             [parentColumn],
-            Option<IDatabaseKey>.Some(parentKey),
+            Option<DatabaseKey.Primary>.Some(parentKey),
             [],
             [],
             [relationalKey],
@@ -436,7 +436,7 @@ internal static class EFCoreDbContextBuilderTests
         var orderTable = new RelationalDatabaseTable(
             "order",
             [childColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [relationalKey],
             [],
@@ -460,7 +460,7 @@ internal static class EFCoreDbContextBuilderTests
         var table = new RelationalDatabaseTable(
             "address",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -488,7 +488,7 @@ internal static class EFCoreDbContextBuilderTests
         var table = new RelationalDatabaseTable(
             "address",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -512,7 +512,7 @@ internal static class EFCoreDbContextBuilderTests
         var table = new RelationalDatabaseTable(
             "address",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -538,7 +538,7 @@ internal static class EFCoreDbContextBuilderTests
         var table = new RelationalDatabaseTable(
             "address",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -553,7 +553,7 @@ internal static class EFCoreDbContextBuilderTests
     }
 
     private static IRelationalDatabaseTable CreateTable(Identifier tableName) =>
-        new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
+        new RelationalDatabaseTable(tableName, [], Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
     private static IDatabaseColumn CreateColumn(Identifier columnName)
     {
@@ -605,10 +605,10 @@ internal static class EFCoreDbContextBuilderTests
         return new DatabaseColumn(columnName, columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.Some(autoIncrement));
     }
 
-    private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier childKeyName, IDatabaseColumn childColumn, Identifier parentTableName, IDatabaseKey parentKey) =>
+    private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier childKeyName, IDatabaseColumn childColumn, Identifier parentTableName, CandidateKey parentKey) =>
         new DatabaseRelationalKey(
             childTableName,
-            new DatabaseKey(Option<Identifier>.Some(childKeyName), DatabaseKeyType.Foreign, [childColumn], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some(childKeyName), [childColumn], true),
             parentTableName,
             parentKey,
             ReferentialAction.NoAction,

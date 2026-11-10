@@ -38,8 +38,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
         }
     }
 
@@ -186,8 +185,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(foreignKey.ChildKey.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
         }
     }
 
@@ -380,7 +378,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
             Assert.That(foreignKey.ChildTable.LocalName, Is.EqualTo("fk_bare_unique_child"));
             Assert.That(foreignKey.ChildKey.Columns.Select(c => c.Name.LocalName), Is.EqualTo(new[] { "a" }));
             Assert.That(foreignKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
-            Assert.That(foreignKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
         }
     }
 

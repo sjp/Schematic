@@ -20,11 +20,11 @@ internal static class MainRendererTests
         using var tempDir = new TemporaryDirectory();
         var column = Mock.Of<IDatabaseColumn>();
 
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk_test"), DatabaseKeyType.Primary, [column], true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_test"), [column], true);
         var uniqueKeys = new[]
         {
-            new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Unique, [column], true),
-            new DatabaseKey(Option<Identifier>.Some("uk_test"), DatabaseKeyType.Unique, [column], true),
+            new DatabaseKey.Unique(Option<Identifier>.None, [column], true),
+            new DatabaseKey.Unique(Option<Identifier>.Some("uk_test"), [column], true),
         };
         var checks = new[]
         {
@@ -33,9 +33,9 @@ internal static class MainRendererTests
         };
         var parentKey = new DatabaseRelationalKey(
             "test_table",
-            new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Foreign, [column], true),
+            new DatabaseKey.Foreign(Option<Identifier>.None, [column], true),
             "parent_table",
-            new DatabaseKey(Option<Identifier>.Some("pk_parent"), DatabaseKeyType.Primary, [column], true),
+            new DatabaseKey.Primary(Option<Identifier>.Some("pk_parent"), [column], true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
@@ -43,7 +43,7 @@ internal static class MainRendererTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [column],
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<DatabaseKey.Primary>.Some(primaryKey),
             uniqueKeys,
             [parentKey],
             [],
@@ -71,7 +71,7 @@ internal static class MainRendererTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

@@ -13,8 +13,8 @@ internal static class RelationalDatabaseTableTests
     public static void Ctor_GivenNullTableName_ThrowsArgumentNullException()
     {
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -31,8 +31,8 @@ internal static class RelationalDatabaseTableTests
     public static void Ctor_GivenNullColumns_ThrowsArgumentNullException()
     {
         Identifier tableName = "test_table";
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -50,8 +50,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new IDatabaseColumn[] { null };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -69,7 +69,7 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
+        var primaryKey = Option<DatabaseKey.Primary>.None;
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -87,8 +87,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = new IDatabaseKey[] { null };
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = new DatabaseKey.Unique[] { null };
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -106,8 +106,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
         var checks = Array.Empty<IDatabaseCheckConstraint>();
@@ -124,8 +124,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = new IDatabaseRelationalKey[] { null };
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -143,8 +143,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
         var checks = Array.Empty<IDatabaseCheckConstraint>();
@@ -161,8 +161,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = new IDatabaseRelationalKey[] { null };
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -180,8 +180,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var checks = Array.Empty<IDatabaseCheckConstraint>();
@@ -198,8 +198,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = new IDatabaseIndex[] { null };
@@ -217,8 +217,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -235,8 +235,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -254,8 +254,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -272,8 +272,8 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -287,46 +287,6 @@ internal static class RelationalDatabaseTableTests
     }
 
     [Test]
-    public static void Ctor_GivenPrimaryKeyWithNonPrimaryKeyType_ThrowsArgumentException()
-    {
-        Identifier tableName = "test_table";
-        var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var key = new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Foreign, columns, true);
-        var primaryKey = Option<IDatabaseKey>.Some(key);
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
-        var parentKeys = Array.Empty<IDatabaseRelationalKey>();
-        var childKeys = Array.Empty<IDatabaseRelationalKey>();
-        var indexes = Array.Empty<IDatabaseIndex>();
-        var checks = Array.Empty<IDatabaseCheckConstraint>();
-        var triggers = Array.Empty<IDatabaseTrigger>();
-
-        Assert.That(
-            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("primaryKey")
-        );
-    }
-
-    [Test]
-    public static void Ctor_GivenUniqueKeyWithNonUniqueKeyType_ThrowsArgumentException()
-    {
-        Identifier tableName = "test_table";
-        var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var key = new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Foreign, columns, true);
-        var uniqueKeys = new[] { key };
-        var parentKeys = Array.Empty<IDatabaseRelationalKey>();
-        var childKeys = Array.Empty<IDatabaseRelationalKey>();
-        var indexes = Array.Empty<IDatabaseIndex>();
-        var checks = Array.Empty<IDatabaseCheckConstraint>();
-        var triggers = Array.Empty<IDatabaseTrigger>();
-
-        Assert.That(
-            () => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, parentKeys, childKeys, indexes, checks, triggers),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("uniqueKeys")
-        );
-    }
-
-    [Test]
     public static void Ctor_GivenInvalidTableKind_ThrowsArgumentException()
     {
         Identifier tableName = "test_table";
@@ -336,7 +296,7 @@ internal static class RelationalDatabaseTableTests
             () => new RelationalDatabaseTable(
                 tableName,
                 columns,
-                Option<IDatabaseKey>.None,
+                Option<DatabaseKey.Primary>.None,
                 [],
                 [],
                 [],
@@ -358,7 +318,7 @@ internal static class RelationalDatabaseTableTests
         Identifier tableName = "test_table";
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
 
-        var table = new RelationalDatabaseTable(tableName, columns, Option<IDatabaseKey>.None, [], [], [], [], [], []);
+        var table = new RelationalDatabaseTable(tableName, columns, Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
         using (Assert.EnterMultipleScope())
         {
@@ -381,7 +341,7 @@ internal static class RelationalDatabaseTableTests
         var table = new RelationalDatabaseTable(
             tableName,
             columns,
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -411,8 +371,8 @@ internal static class RelationalDatabaseTableTests
     {
         var tableName = Identifier.CreateQualifiedIdentifier(schema, localName);
         var columns = new[] { Mock.Of<IDatabaseColumn>() };
-        var primaryKey = Option<IDatabaseKey>.None;
-        var uniqueKeys = Array.Empty<IDatabaseKey>();
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        var uniqueKeys = Array.Empty<DatabaseKey.Unique>();
         var parentKeys = Array.Empty<IDatabaseRelationalKey>();
         var childKeys = Array.Empty<IDatabaseRelationalKey>();
         var indexes = Array.Empty<IDatabaseIndex>();
@@ -429,7 +389,7 @@ internal static class RelationalDatabaseTableTests
     [Test]
     public static void Collections_GivenEmptyCollectionExpressions_AreEmpty()
     {
-        var table = new RelationalDatabaseTable("test_table", [], Option<IDatabaseKey>.None, [], [], [], [], [], []);
+        var table = new RelationalDatabaseTable("test_table", [], Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
         using (Assert.EnterMultipleScope())
         {
@@ -448,7 +408,7 @@ internal static class RelationalDatabaseTableTests
     {
         Identifier tableName = "test_table";
         var columns = new List<IDatabaseColumn>();
-        var uniqueKeys = new List<IDatabaseKey>();
+        var uniqueKeys = new List<DatabaseKey.Unique>();
         var parentKeys = new List<IDatabaseRelationalKey>();
         var childKeys = new List<IDatabaseRelationalKey>();
         var indexes = new List<IDatabaseIndex>();
@@ -458,7 +418,7 @@ internal static class RelationalDatabaseTableTests
         var table = new RelationalDatabaseTable(
             tableName,
             columns,
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             uniqueKeys,
             parentKeys,
             childKeys,

@@ -40,9 +40,8 @@ internal static class NoSurrogatePrimaryKeyRuleTests
 
         var testColumnA = new DatabaseColumn("test_column_a", Mock.Of<IDbType>(), false, null, null);
         var testColumnB = new DatabaseColumn("test_column_b", Mock.Of<IDbType>(), false, null, null);
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumnA, testColumnB],
             true
         );
@@ -74,9 +73,8 @@ internal static class NoSurrogatePrimaryKeyRuleTests
         var rule = new NoSurrogatePrimaryKeyRule(RuleLevel.Error);
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn],
             true
         );

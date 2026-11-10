@@ -48,7 +48,7 @@ internal static class DbmlFormatterTests
             CreateColumn("first_name", "text", Option<IDatabaseDefaultValue>.None, true, Option<IAutoIncrement>.None),
             CreateColumn("last_name", "text"),
         };
-        var table = CreateTable(columns, Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -60,7 +60,7 @@ internal static class DbmlFormatterTests
     {
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
         var column = CreateColumn("id", "text", Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("0")), false, autoIncrement);
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, [column], true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_table_pk"), [column], true);
         var table = CreateTable([column], primaryKey, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
@@ -72,8 +72,8 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenSingleColumnUniqueKey_RendersUniqueColumnOptionWithoutIndexEntry()
     {
         var columns = CreateColumns("first_name", "last_name");
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, [columns[0]], true);
-        var table = CreateTable(columns, Option<IDatabaseKey>.None, [uniqueKey], []);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("test_table_uk"), [columns[0]], true);
+        var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [uniqueKey], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -84,8 +84,8 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenColumnInSingleColumnPrimaryAndUniqueKeys_RendersOnlyPrimaryKeyOption()
     {
         var columns = CreateColumns("id");
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, columns, true);
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, columns, true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_table_pk"), columns, true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("test_table_uk"), columns, true);
         var table = CreateTable(columns, primaryKey, [uniqueKey], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
@@ -97,8 +97,8 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableWithCompositePrimaryAndUniqueKeys_RendersPrimaryKeyBeforeUniqueKey()
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, columns.Take(2).ToList(), true);
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, columns.Skip(1).ToList(), true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_table_pk"), columns.Take(2).ToList(), true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("test_table_uk"), columns.Skip(1).ToList(), true);
         var table = CreateTable(columns, primaryKey, [uniqueKey], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
@@ -110,7 +110,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableWithCompositePrimaryKey_RendersPrimaryKeyAsIndex()
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("test_table_pk"), DatabaseKeyType.Primary, columns.Take(2).ToList(), true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_table_pk"), columns.Take(2).ToList(), true);
         var table = CreateTable(columns, primaryKey, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
@@ -122,8 +122,8 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableWithCompositeUniqueKey_RendersUniqueKeyAsIndex()
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, columns.Take(2).ToList(), true);
-        var table = CreateTable(columns, Option<IDatabaseKey>.None, [uniqueKey], []);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("test_table_uk"), columns.Take(2).ToList(), true);
+        var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [uniqueKey], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -134,7 +134,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableWithUnnamedCompositePrimaryKey_RendersPrimaryKeyWithoutName()
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
-        var primaryKey = new DatabaseKey(Option<Identifier>.None, DatabaseKeyType.Primary, columns.Take(2).ToList(), true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.None, columns.Take(2).ToList(), true);
         var table = CreateTable(columns, primaryKey, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
@@ -147,7 +147,7 @@ internal static class DbmlFormatterTests
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
         var keyColumns = columns.Take(2).ToList();
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, keyColumns, true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("test_table_uk"), keyColumns, true);
         var backingIndex = new DatabaseIndex(
             "test_table_uk",
             true,
@@ -156,7 +156,7 @@ internal static class DbmlFormatterTests
             true,
             Option<string>.None
         );
-        var table = CreateTable(columns, Option<IDatabaseKey>.None, [uniqueKey], [backingIndex]);
+        var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [uniqueKey], [backingIndex]);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -168,7 +168,7 @@ internal static class DbmlFormatterTests
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
         var keyColumns = columns.Take(2).ToList();
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("test_table_uk"), DatabaseKeyType.Unique, keyColumns, true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("test_table_uk"), keyColumns, true);
         var index = new DatabaseIndex(
             "ix_test_table",
             false,
@@ -177,7 +177,7 @@ internal static class DbmlFormatterTests
             true,
             Option<string>.None
         );
-        var table = CreateTable(columns, Option<IDatabaseKey>.None, [uniqueKey], [index]);
+        var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [uniqueKey], [index]);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -188,7 +188,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableAndColumnNamesRequiringQuoting_QuotesNames()
     {
         var columns = CreateColumns("Order ID", "Unit Price");
-        var table = CreateTable("Order Details", columns, Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("Order Details", columns, Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -199,7 +199,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenDialectQuotedNames_RemovesOnlyEnclosingQuoting()
     {
         var columns = CreateColumns("[Order ID]", "\"Unit Price\"");
-        var table = CreateTable("[Order Details]", columns, Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("[Order Details]", columns, Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -210,7 +210,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenNamesWithEmbeddedQuotingCharacters_PreservesAndEscapesThem()
     {
         var columns = CreateColumns("a\"b", "c[d]e");
-        var table = CreateTable("first'second", columns, Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("first'second", columns, Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -227,7 +227,7 @@ internal static class DbmlFormatterTests
             CreateColumn("label", "character varying(50)"),
             CreateColumn("amount", "numeric(10, 2)"),
         };
-        var table = CreateTable("test_table", columns, Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("test_table", columns, Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -260,7 +260,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenColumnWithDefaultValue_RendersClassifiedDefault(string defaultValue, string expectedDefault)
     {
         var column = CreateColumn("test_column", "text", Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(defaultValue)));
-        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("test_table", [column], Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -281,7 +281,7 @@ internal static class DbmlFormatterTests
     {
         var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(definition, kind));
         var column = CreateColumn("test_column", "text", defaultValue);
-        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("test_table", [column], Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -295,7 +295,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenComputedColumn_RendersDefinitionAsNote(ComputedColumnStorage storage, string expectedNote)
     {
         var column = CreateComputedColumn("test_column", "text", Option<string>.Some("a + b"), storage);
-        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("test_table", [column], Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -307,7 +307,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenComputedColumnWithoutDefinition_RendersStorageOnlyNote()
     {
         var column = CreateComputedColumn("test_column", "text", Option<string>.None, ComputedColumnStorage.Stored);
-        var table = CreateTable("test_table", [column], Option<IDatabaseKey>.None, [], []);
+        var table = CreateTable("test_table", [column], Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -338,7 +338,7 @@ internal static class DbmlFormatterTests
             true,
             Option<string>.None
         );
-        var table = CreateTable("test_table", columns, Option<IDatabaseKey>.None, [], [functionalIndex, mixedIndex]);
+        var table = CreateTable("test_table", columns, Option<DatabaseKey.Primary>.None, [], [functionalIndex, mixedIndex]);
 
         var result = new DbmlFormatter().RenderTables([table]);
 
@@ -349,7 +349,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenIndexAndKeyNamesContainingApostrophes_EscapesNames()
     {
         var columns = CreateColumns("first_name", "last_name");
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("o'brien pk"), DatabaseKeyType.Primary, columns, true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("o'brien pk"), columns, true);
         var index = new DatabaseIndex(
             "o'brien ix",
             false,
@@ -369,11 +369,11 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenForeignKeyWithNamesRequiringQuoting_QuotesRefNames()
     {
         var parentColumns = CreateColumns("Order ID");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("orders_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("orders_pk"), parentColumns, true);
         var parentTable = CreateTable("Order Details", parentColumns, parentKey, [], []);
 
         var childColumns = CreateColumns("Order ID");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("lines_fk"), DatabaseKeyType.Foreign, childColumns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("lines_fk"), childColumns, true);
         var relationalKey = new DatabaseRelationalKey(
             "Order Lines",
             childKey,
@@ -382,7 +382,7 @@ internal static class DbmlFormatterTests
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
-        var childTable = new RelationalDatabaseTable("Order Lines", childColumns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+        var childTable = new RelationalDatabaseTable("Order Lines", childColumns, Option<DatabaseKey.Primary>.None, [], [relationalKey], [], [], [], []);
 
         var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
 
@@ -393,7 +393,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenChildKeyMatchingQuotedUniqueIndexExpression_RendersOneToOneRelationship()
     {
         var columns = CreateColumns("order_id");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), columns, true);
         var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
         var uniqueIndex = new DatabaseIndex(
             "ix_child_table_order_id",
@@ -414,8 +414,8 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenChildKeyContainingUniqueKeyColumns_RendersOneToOneRelationship()
     {
         var columns = CreateColumns("first_name", "last_name", "comment");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("child_table_uk"), DatabaseKeyType.Unique, columns.Take(2).ToList(), true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), columns, true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("child_table_uk"), columns.Take(2).ToList(), true);
         var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
         var childTable = CreateChildTable(columns, relationalKey, [uniqueKey], []);
 
@@ -428,8 +428,8 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenChildKeyMatchingUniqueKeyInDifferentColumnOrder_RendersOneToOneRelationship()
     {
         var columns = CreateColumns("first_name", "last_name");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, [columns[1], columns[0]], true);
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("child_table_uk"), DatabaseKeyType.Unique, columns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), [columns[1], columns[0]], true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("child_table_uk"), columns, true);
         var (parentTable, relationalKey) = CreateParentTableWithRelationalKey(childKey);
         var childTable = CreateChildTable(columns, relationalKey, [uniqueKey], []);
 
@@ -442,7 +442,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenChildKeyMatchingFunctionalUniqueIndexColumns_RendersManyToOneRelationship()
     {
         var columns = CreateColumns("email");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), columns, true);
         var uniqueIndex = new DatabaseIndex(
             "ix_child_table_email",
             true,
@@ -463,7 +463,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenForeignKeyToTableOutsideRenderedSet_DoesNotRenderRef()
     {
         var columns = CreateColumns("order_id");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), columns, true);
         var (_, relationalKey) = CreateParentTableWithRelationalKey(childKey);
         var childTable = CreateChildTable(columns, relationalKey, [], []);
 
@@ -476,11 +476,11 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenForeignKeysInsideAndOutsideRenderedSet_RendersOnlyRefsToRenderedTables()
     {
         var columns = CreateColumns("order_id", "customer_id");
-        var renderedChildKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, [columns[0]], true);
+        var renderedChildKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), [columns[0]], true);
         var (parentTable, renderedRelationalKey) = CreateParentTableWithRelationalKey(renderedChildKey);
 
-        var missingChildKey = new DatabaseKey(Option<Identifier>.Some("child_table_customer_fk"), DatabaseKeyType.Foreign, [columns[1]], true);
-        var missingParentKey = new DatabaseKey(Option<Identifier>.Some("missing_table_pk"), DatabaseKeyType.Primary, CreateColumns("customer_id"), true);
+        var missingChildKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_customer_fk"), [columns[1]], true);
+        var missingParentKey = new DatabaseKey.Primary(Option<Identifier>.Some("missing_table_pk"), CreateColumns("customer_id"), true);
         var missingRelationalKey = new DatabaseRelationalKey(
             "child_table",
             missingChildKey,
@@ -493,7 +493,7 @@ internal static class DbmlFormatterTests
         var childTable = new RelationalDatabaseTable(
             "child_table",
             columns,
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [renderedRelationalKey, missingRelationalKey],
             [],
@@ -511,9 +511,9 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenSchemaQualifiedParentTableOutsideRenderedSet_DoesNotRenderRef()
     {
         var columns = CreateColumns("order_id");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, columns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), columns, true);
         var parentColumns = CreateColumns("order_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_table_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("parent_table_pk"), parentColumns, true);
         var parentTable = CreateTable(Identifier.CreateQualifiedIdentifier("a_b", "c"), parentColumns, parentKey, [], []);
 
         var childTableName = Identifier.CreateQualifiedIdentifier("a", "child_table");
@@ -525,7 +525,7 @@ internal static class DbmlFormatterTests
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
-        var childTable = new RelationalDatabaseTable(childTableName, columns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+        var childTable = new RelationalDatabaseTable(childTableName, columns, Option<DatabaseKey.Primary>.None, [], [relationalKey], [], [], [], []);
 
         var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
 
@@ -536,12 +536,12 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenSchemaQualifiedTableNames_RendersSchemaQualifiedDbmlNames()
     {
         var parentColumns = CreateColumns("Order ID");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("orders_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("orders_pk"), parentColumns, true);
         var parentTableName = Identifier.CreateQualifiedIdentifier("sales", "orders");
         var parentTable = CreateTable(parentTableName, parentColumns, parentKey, [], []);
 
         var childColumns = CreateColumns("Order ID");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("lines_fk"), DatabaseKeyType.Foreign, childColumns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("lines_fk"), childColumns, true);
         var childTableName = Identifier.CreateQualifiedIdentifier("archive schema", "order lines");
         var relationalKey = new DatabaseRelationalKey(
             childTableName,
@@ -551,7 +551,7 @@ internal static class DbmlFormatterTests
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
-        var childTable = new RelationalDatabaseTable(childTableName, childColumns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+        var childTable = new RelationalDatabaseTable(childTableName, childColumns, Option<DatabaseKey.Primary>.None, [], [relationalKey], [], [], [], []);
 
         var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
 
@@ -562,12 +562,12 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableNamesSharingAFlattenedForm_RendersDistinctTablesAndRefs()
     {
         var parentColumns = CreateColumns("order_id");
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_table_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("parent_table_pk"), parentColumns, true);
         var parentTableName = Identifier.CreateQualifiedIdentifier("a_b", "c");
         var parentTable = CreateTable(parentTableName, parentColumns, parentKey, [], []);
 
         var childColumns = CreateColumns("order_id");
-        var childKey = new DatabaseKey(Option<Identifier>.Some("child_table_fk"), DatabaseKeyType.Foreign, childColumns, true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("child_table_fk"), childColumns, true);
         var childTableName = Identifier.CreateQualifiedIdentifier("a", "b_c");
         var relationalKey = new DatabaseRelationalKey(
             childTableName,
@@ -577,7 +577,7 @@ internal static class DbmlFormatterTests
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
-        var childTable = new RelationalDatabaseTable(childTableName, childColumns, Option<IDatabaseKey>.None, [], [relationalKey], [], [], [], []);
+        var childTable = new RelationalDatabaseTable(childTableName, childColumns, Option<DatabaseKey.Primary>.None, [], [relationalKey], [], [], [], []);
 
         var result = new DbmlFormatter().RenderTables([parentTable, childTable]);
 
@@ -588,18 +588,18 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenTableNamesQualifiedBeyondSchema_FoldsLeadingPartsIntoSchemaName()
     {
         var columns = CreateColumns("order_id");
-        var firstTable = CreateTable(Identifier.CreateQualifiedIdentifier("live", "sales", "orders"), columns, Option<IDatabaseKey>.None, [], []);
-        var secondTable = CreateTable(Identifier.CreateQualifiedIdentifier("remote_server", "backup", "sales", "orders"), CreateColumns("order_id"), Option<IDatabaseKey>.None, [], []);
+        var firstTable = CreateTable(Identifier.CreateQualifiedIdentifier("live", "sales", "orders"), columns, Option<DatabaseKey.Primary>.None, [], []);
+        var secondTable = CreateTable(Identifier.CreateQualifiedIdentifier("remote_server", "backup", "sales", "orders"), CreateColumns("order_id"), Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([firstTable, secondTable]);
 
         Assert.That(result, Is.EqualTo(FullyQualifiedNamesDbml).IgnoreLineEndingFormat);
     }
 
-    private static (IRelationalDatabaseTable ParentTable, IDatabaseRelationalKey RelationalKey) CreateParentTableWithRelationalKey(IDatabaseKey childKey)
+    private static (IRelationalDatabaseTable ParentTable, IDatabaseRelationalKey RelationalKey) CreateParentTableWithRelationalKey(DatabaseKey.Foreign childKey)
     {
         var parentColumns = CreateColumns(childKey.Columns.Select(static c => c.Name.LocalName).ToArray());
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_table_pk"), DatabaseKeyType.Primary, parentColumns, true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("parent_table_pk"), parentColumns, true);
         var parentTable = CreateTable("parent_table", parentColumns, parentKey, [], []);
         var relationalKey = new DatabaseRelationalKey(
             "child_table",
@@ -616,9 +616,9 @@ internal static class DbmlFormatterTests
     private static IRelationalDatabaseTable CreateChildTable(
         IReadOnlyList<IDatabaseColumn> columns,
         IDatabaseRelationalKey relationalKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes
-    ) => new RelationalDatabaseTable("child_table", columns, Option<IDatabaseKey>.None, uniqueKeys, [relationalKey], [], indexes, [], []);
+    ) => new RelationalDatabaseTable("child_table", columns, Option<DatabaseKey.Primary>.None, uniqueKeys, [relationalKey], [], indexes, [], []);
 
     private sealed class ExpressionIndexColumn(string expression) : IDatabaseIndexColumn
     {
@@ -709,8 +709,8 @@ internal static class DbmlFormatterTests
     [Test]
     public static void RenderTables_GivenTablesInMultipleSchemas_RendersATableGroupPerSchema()
     {
-        var first = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "orders"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
-        var second = CreateTable(Identifier.CreateQualifiedIdentifier("hr", "staff"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+        var first = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "orders"), CreateColumns("id"), Option<DatabaseKey.Primary>.None, [], []);
+        var second = CreateTable(Identifier.CreateQualifiedIdentifier("hr", "staff"), CreateColumns("id"), Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([first, second]);
 
@@ -720,8 +720,8 @@ internal static class DbmlFormatterTests
     [Test]
     public static void RenderTables_GivenTablesInASingleSchema_DoesNotRenderATableGroup()
     {
-        var first = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "orders"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
-        var second = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "customers"), CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+        var first = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "orders"), CreateColumns("id"), Option<DatabaseKey.Primary>.None, [], []);
+        var second = CreateTable(Identifier.CreateQualifiedIdentifier("sales", "customers"), CreateColumns("id"), Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([first, second]);
 
@@ -731,8 +731,8 @@ internal static class DbmlFormatterTests
     [Test]
     public static void RenderTables_GivenUnqualifiedTableNames_DoesNotRenderATableGroup()
     {
-        var first = CreateTable("orders", CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
-        var second = CreateTable("customers", CreateColumns("id"), Option<IDatabaseKey>.None, [], []);
+        var first = CreateTable("orders", CreateColumns("id"), Option<DatabaseKey.Primary>.None, [], []);
+        var second = CreateTable("customers", CreateColumns("id"), Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([first, second]);
 
@@ -741,16 +741,16 @@ internal static class DbmlFormatterTests
 
     private static IRelationalDatabaseTable CreateTable(
         IReadOnlyList<IDatabaseColumn> columns,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys,
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes
     ) => CreateTable("test_table", columns, primaryKey, uniqueKeys, indexes);
 
     private static IRelationalDatabaseTable CreateTable(
         Identifier tableName,
         IReadOnlyList<IDatabaseColumn> columns,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys,
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys,
         IReadOnlyCollection<IDatabaseIndex> indexes
     ) => new RelationalDatabaseTable(tableName, columns, primaryKey, uniqueKeys, [], [], indexes, [], []);
 

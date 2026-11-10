@@ -23,7 +23,7 @@ internal static class RelationalDatabaseTableExtensionsTests
     public static void GetMappedColumns_GivenNoHiddenColumns_ReturnsEveryColumn()
     {
         var columns = new[] { CreateColumn("first_column", false), CreateColumn("second_column", false) };
-        var table = CreateTable(columns, Option<IDatabaseKey>.None, []);
+        var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, []);
 
         var result = table.GetMappedColumns().Select(static c => c.Name.LocalName).ToList();
 
@@ -35,7 +35,7 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var visibleColumn = CreateColumn("first_column", false);
         var hiddenColumn = CreateColumn("second_column", true);
-        var table = CreateTable([visibleColumn, hiddenColumn], Option<IDatabaseKey>.None, []);
+        var table = CreateTable([visibleColumn, hiddenColumn], Option<DatabaseKey.Primary>.None, []);
 
         var result = table.GetMappedColumns().Select(static c => c.Name.LocalName).ToList();
 
@@ -47,8 +47,8 @@ internal static class RelationalDatabaseTableExtensionsTests
     {
         var visibleColumn = CreateColumn("first_column", false);
         var hiddenColumn = CreateColumn("second_column", true);
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk_test"), DatabaseKeyType.Primary, [hiddenColumn], true);
-        var table = CreateTable([visibleColumn, hiddenColumn], Option<IDatabaseKey>.Some(primaryKey), []);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_test"), [hiddenColumn], true);
+        var table = CreateTable([visibleColumn, hiddenColumn], Option<DatabaseKey.Primary>.Some(primaryKey), []);
 
         var result = table.GetMappedColumns().Select(static c => c.Name.LocalName).ToList();
 
@@ -62,13 +62,13 @@ internal static class RelationalDatabaseTableExtensionsTests
         var hiddenColumn = CreateColumn("second_column", true);
         var parentKey = new DatabaseRelationalKey(
             "child_table",
-            new DatabaseKey(Option<Identifier>.Some("fk_test"), DatabaseKeyType.Foreign, [hiddenColumn], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("fk_test"), [hiddenColumn], true),
             "parent_table",
-            new DatabaseKey(Option<Identifier>.Some("pk_parent"), DatabaseKeyType.Primary, [visibleColumn], true),
+            new DatabaseKey.Primary(Option<Identifier>.Some("pk_parent"), [visibleColumn], true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
-        var table = CreateTable([visibleColumn, hiddenColumn], Option<IDatabaseKey>.None, [parentKey]);
+        var table = CreateTable([visibleColumn, hiddenColumn], Option<DatabaseKey.Primary>.None, [parentKey]);
 
         var result = table.GetMappedColumns().Select(static c => c.Name.LocalName).ToList();
 
@@ -91,7 +91,7 @@ internal static class RelationalDatabaseTableExtensionsTests
         var table = new RelationalDatabaseTable(
             "child_table",
             [visibleColumn, hiddenColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -107,7 +107,7 @@ internal static class RelationalDatabaseTableExtensionsTests
 
     private static IRelationalDatabaseTable CreateTable(
         IReadOnlyList<IDatabaseColumn> columns,
-        Option<IDatabaseKey> primaryKey,
+        Option<DatabaseKey.Primary> primaryKey,
         IReadOnlyCollection<IDatabaseRelationalKey> parentKeys
     ) => new RelationalDatabaseTable("child_table", columns, primaryKey, [], parentKeys, [], [], [], []);
 

@@ -117,21 +117,21 @@ internal static class RelationalDatabaseMapperTests
 
         var parentId = CreateColumn("id");
         var parentIndex = new DatabaseIndex("parent_pk_index", true, [new DatabaseIndexColumn("id", parentId, IndexColumnOrder.Ascending)], [], true, Option<string>.None);
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("parent_pk"), DatabaseKeyType.Primary, [parentId], true, Option<IDatabaseIndex>.Some(parentIndex));
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("parent_pk"), [parentId], true, Option<IDatabaseIndex>.Some(parentIndex));
 
         var childId = CreateColumn("id");
         var childParentId = CreateColumn("parent_id");
         var foreignKey = new DatabaseRelationalKey(
             childTableName,
-            new DatabaseKey(Option<Identifier>.Some("child_fk"), DatabaseKeyType.Foreign, [childParentId], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("child_fk"), [childParentId], true),
             parentTableName,
             parentKey,
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
 
-        var parent = new RelationalDatabaseTable(parentTableName, [parentId], Option<IDatabaseKey>.Some(parentKey), [], [], [foreignKey], [], [], []);
-        var child = new RelationalDatabaseTable(childTableName, [childId, childParentId], Option<IDatabaseKey>.None, [], [foreignKey], [], [], [], []);
+        var parent = new RelationalDatabaseTable(parentTableName, [parentId], Option<DatabaseKey.Primary>.Some(parentKey), [], [], [foreignKey], [], [], []);
+        var child = new RelationalDatabaseTable(childTableName, [childId, childParentId], Option<DatabaseKey.Primary>.None, [], [foreignKey], [], [], [], []);
 
         return new RelationalDatabase(
             new IdentifierDefaults(null, null, null),

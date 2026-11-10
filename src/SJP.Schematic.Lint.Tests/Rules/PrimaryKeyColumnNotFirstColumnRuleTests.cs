@@ -66,9 +66,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn1, testColumn2],
             true
         );
@@ -110,9 +109,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn1],
             true
         );
@@ -154,9 +152,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn2],
             true
         );

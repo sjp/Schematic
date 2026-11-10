@@ -6,7 +6,7 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class ConstraintsModelMapper
 {
-    public Constraints.PrimaryKeyConstraintRow MapPrimaryKey(Identifier tableName, IDatabaseKey primaryKey)
+    public Constraints.PrimaryKeyConstraintRow MapPrimaryKey(Identifier tableName, DatabaseKey.Primary primaryKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(primaryKey);
@@ -23,7 +23,7 @@ internal sealed class ConstraintsModelMapper
         );
     }
 
-    public Constraints.UniqueKeyRow MapUniqueKey(Identifier tableName, IDatabaseKey uniqueKey)
+    public Constraints.UniqueKeyRow MapUniqueKey(Identifier tableName, DatabaseKey.Unique uniqueKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
         ArgumentNullException.ThrowIfNull(uniqueKey);

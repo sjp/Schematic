@@ -1303,7 +1303,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -1363,7 +1363,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -1412,7 +1412,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             columns,
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -1448,13 +1448,12 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var primaryKey = hasPrimaryKey
-            ? Option<IDatabaseKey>.Some(new DatabaseKey(
+            ? Option<DatabaseKey.Primary>.Some(new DatabaseKey.Primary(
                 Option<Identifier>.Some("test_primary_key"),
-                DatabaseKeyType.Primary,
                 [firstNameColumn],
                 true
             ))
-            : Option<IDatabaseKey>.None;
+            : Option<DatabaseKey.Primary>.None;
 
         var table = new RelationalDatabaseTable(
             "test_table_name",
@@ -1497,9 +1496,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
         var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
-        var primaryKey = new DatabaseKey(
+        var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_pk_name"),
-            DatabaseKeyType.Primary,
             [firstNameColumn],
             true,
             Option<IDatabaseIndex>.None,
@@ -1507,12 +1505,10 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             ConstraintDeferrability.DeferrableInitiallyDeferred
         );
 
-        var foreignKey = new DatabaseKey(
+        var foreignKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_fk_name"),
-            DatabaseKeyType.Foreign,
             [firstNameColumn],
             true,
-            Option<IDatabaseIndex>.None,
             false,
             ConstraintDeferrability.DeferrableInitiallyImmediate
         );
@@ -1539,7 +1535,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<DatabaseKey.Primary>.Some(primaryKey),
             [],
             [relationalKey],
             [],
@@ -1598,7 +1594,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -1668,9 +1664,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             true
         );
 
-        var primaryKey = new DatabaseKey(
+        var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_pk_name"),
-            DatabaseKeyType.Primary,
             [firstNameColumn],
             true,
             Option<IDatabaseIndex>.Some(backingIndex)
@@ -1679,7 +1674,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.Some(primaryKey),
+            Option<DatabaseKey.Primary>.Some(primaryKey),
             [],
             [],
             [],
@@ -1726,7 +1721,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [firstNameColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],
@@ -1891,7 +1886,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var table = new RelationalDatabaseTable(
             "test_table_name",
             [idColumn],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

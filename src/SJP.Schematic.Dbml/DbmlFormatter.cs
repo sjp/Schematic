@@ -172,10 +172,10 @@ public class DbmlFormatter : IDbmlFormatter
         ArgumentNullException.ThrowIfNull(builder);
         ArgumentNullException.ThrowIfNull(table);
 
-        var compositeKeys = new List<IDatabaseKey>();
-        table.PrimaryKey.Filter(static pk => pk.Columns.Count > 1).IfSome(compositeKeys.Add);
-        var compositePrimaryKeyCount = compositeKeys.Count;
-        compositeKeys.AddRange(table.UniqueKeys.Where(static uk => uk.Columns.Count > 1));
+        var compositeKeys = new List<CandidateKey>();
+        table.PrimaryKey.Filter(static pk => pk.Columns.Count > 1).IfSome(pk => compositeKeys.Add(pk));
+        foreach (var uniqueKey in table.UniqueKeys.Where(static uk => uk.Columns.Count > 1))
+            compositeKeys.Add(uniqueKey);
 
         var renderableIndexes = table.Indexes
             .Where(index => !index.IsUnique || !compositeKeys.Exists(key => IsIndexForKey(index, key)))
@@ -188,8 +188,8 @@ public class DbmlFormatter : IDbmlFormatter
             .Append(Indent)
             .AppendLine("Indexes {");
 
-        for (var i = 0; i < compositeKeys.Count; i++)
-            RenderKeyIndexLine(builder, compositeKeys[i], i < compositePrimaryKeyCount ? "pk" : "unique");
+        foreach (var compositeKey in compositeKeys)
+            RenderKeyIndexLine(builder, compositeKey);
 
         foreach (var index in renderableIndexes)
             RenderIndexLine(builder, index);
@@ -198,11 +198,15 @@ public class DbmlFormatter : IDbmlFormatter
             .AppendLine("}");
     }
 
-    private static void RenderKeyIndexLine(StringBuilder builder, IDatabaseKey key, string keyOption)
+    private static void RenderKeyIndexLine(StringBuilder builder, CandidateKey key)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        ArgumentNullException.ThrowIfNull(key);
-        ArgumentNullException.ThrowIfNull(keyOption);
+
+        var keyOption = key switch
+        {
+            DatabaseKey.Primary => "pk",
+            DatabaseKey.Unique => "unique",
+        };
 
         builder.Append(Indent)
             .Append(Indent)
@@ -216,10 +220,9 @@ public class DbmlFormatter : IDbmlFormatter
             .AppendLine("]");
     }
 
-    private static bool IsIndexForKey(IDatabaseIndex index, IDatabaseKey key)
+    private static bool IsIndexForKey(IDatabaseIndex index, CandidateKey key)
     {
         ArgumentNullException.ThrowIfNull(index);
-        ArgumentNullException.ThrowIfNull(key);
 
         var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName);
         return GetIndexColumnNames(index).SequenceEqual(keyColumnNames, StringComparer.Ordinal);
@@ -313,10 +316,8 @@ public class DbmlFormatter : IDbmlFormatter
         }
     }
 
-    private static string RenderKeyColumns(IDatabaseKey key)
+    private static string RenderKeyColumns(DatabaseKey key)
     {
-        ArgumentNullException.ThrowIfNull(key);
-
         return key.Columns.Count > 1
             ? "(" + key.Columns.Select(static c => c.Name.ToDbmlLocalName()).Join(", ") + ")"
             : key.Columns.Single().Name.ToDbmlLocalName();
@@ -363,14 +364,12 @@ public class DbmlFormatter : IDbmlFormatter
         return result;
     }
 
-    private static HashSet<string> GetKeyColumnNames(IDatabaseKey key)
+    private static HashSet<string> GetKeyColumnNames(DatabaseKey key)
     {
-        ArgumentNullException.ThrowIfNull(key);
-
         return key.Columns.Select(static c => c.Name.LocalName).ToHashSet(StringComparer.Ordinal);
     }
 
-    private static bool IsChildKeyUnique(IEnumerable<HashSet<string>> uniqueColumnSets, IDatabaseKey key)
+    private static bool IsChildKeyUnique(IEnumerable<HashSet<string>> uniqueColumnSets, DatabaseKey.Foreign key)
     {
         ArgumentNullException.ThrowIfNull(uniqueColumnSets);
         ArgumentNullException.ThrowIfNull(key);

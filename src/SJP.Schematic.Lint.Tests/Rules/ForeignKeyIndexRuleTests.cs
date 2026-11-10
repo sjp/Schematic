@@ -61,9 +61,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -106,9 +106,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -151,9 +151,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -196,9 +196,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -241,9 +241,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -286,9 +286,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b"), GetColumn("c")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("b"), GetColumn("c")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("b"), GetColumn("c")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -326,14 +326,14 @@ internal static class ForeignKeyIndexRuleTests
                 GetColumn("b"),
                 GetColumn("c"),
             ],
-            Option<IDatabaseKey>.Some(new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("a"), GetColumn("b")], true)),
+            Option<DatabaseKey.Primary>.Some(new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("a"), GetColumn("b")], true)),
             [],
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("a")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("a")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("a")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_parent_pk_1"), [GetColumn("a")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -364,14 +364,14 @@ internal static class ForeignKeyIndexRuleTests
             ],
             null,
             [
-                new DatabaseKey(Option<Identifier>.Some("test_uk_1"), DatabaseKeyType.Unique, [GetColumn("b"), GetColumn("c")], true),
+                new DatabaseKey.Unique(Option<Identifier>.Some("test_uk_1"), [GetColumn("b"), GetColumn("c")], true),
             ],
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_parent_pk_1"), [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -400,14 +400,14 @@ internal static class ForeignKeyIndexRuleTests
                 GetColumn("b"),
                 GetColumn("c"),
             ],
-            Option<IDatabaseKey>.Some(new DatabaseKey(Option<Identifier>.Some("test_pk_1"), DatabaseKeyType.Primary, [GetColumn("a"), GetColumn("b")], true)),
+            Option<DatabaseKey.Primary>.Some(new DatabaseKey.Primary(Option<Identifier>.Some("test_pk_1"), [GetColumn("a"), GetColumn("b")], true)),
             [],
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_parent_pk_1"), [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),
@@ -441,9 +441,9 @@ internal static class ForeignKeyIndexRuleTests
             [
                 new DatabaseRelationalKey(
                     "test",
-                    new DatabaseKey(Option<Identifier>.Some("test_fk_1"), DatabaseKeyType.Foreign, [GetColumn("b")], true),
+                    new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk_1"), [GetColumn("b")], true),
                     "test_parent",
-                    new DatabaseKey(Option<Identifier>.Some("test_parent_pk_1"), DatabaseKeyType.Primary, [GetColumn("b")], true),
+                    new DatabaseKey.Primary(Option<Identifier>.Some("test_parent_pk_1"), [GetColumn("b")], true),
                     ReferentialAction.Cascade,
                     ReferentialAction.Cascade
                 ),

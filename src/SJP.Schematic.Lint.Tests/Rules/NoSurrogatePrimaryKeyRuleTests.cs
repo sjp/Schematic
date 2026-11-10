@@ -59,9 +59,8 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn],
             true
         );
@@ -103,9 +102,8 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumnA, testColumnB],
             true
         );
@@ -147,35 +145,30 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumnA, testColumnB],
             true
         );
 
-        var testForeignKey1 = new DatabaseKey(
+        var testForeignKey1 = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_fk1"),
-            DatabaseKeyType.Foreign,
             [testColumnA],
             true
         );
-        var testForeignKey2 = new DatabaseKey(
+        var testForeignKey2 = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_fk2"),
-            DatabaseKeyType.Foreign,
             [testColumnB],
             true
         );
 
-        var testParentKey1 = new DatabaseKey(
+        var testParentKey1 = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_parent_key_1"),
-            DatabaseKeyType.Primary,
             [testColumnA],
             true
         );
-        var testParentKey2 = new DatabaseKey(
+        var testParentKey2 = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_parent_key_2"),
-            DatabaseKeyType.Primary,
             [testColumnB],
             true
         );

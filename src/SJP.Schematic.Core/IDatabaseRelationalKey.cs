@@ -17,7 +17,7 @@ public interface IDatabaseRelationalKey
     /// The primary or unique key being referred to in the relationship.
     /// </summary>
     /// <value>The parent primary or unique key.</value>
-    IDatabaseKey ParentKey { get; }
+    CandidateKey ParentKey { get; }
 
     /// <summary>
     /// The child table name.
@@ -29,7 +29,7 @@ public interface IDatabaseRelationalKey
     /// The foreign key defined in the child table.
     /// </summary>
     /// <value>The child foreign key.</value>
-    IDatabaseKey ChildKey { get; }
+    DatabaseKey.Foreign ChildKey { get; }
 
     /// <summary>
     /// <para>The action to perform if the parent key's value is updated.</para>

@@ -111,16 +111,15 @@ public class ForeignKeySelfReferenceRule : Rule, ITableRule
         return result;
     }
 
-    private Task<bool> TableHasSelfReferencingForeignKeyRowsAsync(IRelationalDatabaseTable table, IDatabaseKey targetKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
+    private Task<bool> TableHasSelfReferencingForeignKeyRowsAsync(IRelationalDatabaseTable table, CandidateKey targetKey, DatabaseKey.Foreign foreignKey, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(table);
-        ArgumentNullException.ThrowIfNull(targetKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
         return TableHasSelfReferencingForeignKeyRowsCore(table, targetKey, foreignKey, cancellationToken);
     }
 
-    private Task<bool> TableHasSelfReferencingForeignKeyRowsCore(IRelationalDatabaseTable table, IDatabaseKey targetKey, IDatabaseKey foreignKey, CancellationToken cancellationToken)
+    private Task<bool> TableHasSelfReferencingForeignKeyRowsCore(IRelationalDatabaseTable table, CandidateKey targetKey, DatabaseKey.Foreign foreignKey, CancellationToken cancellationToken)
     {
         var targetColumnNames = targetKey.Columns.Select(c => c.Name).ToList();
         var fkColumnNames = foreignKey.Columns.Select(c => c.Name).ToList();
@@ -165,11 +164,10 @@ where {whereFilterClauses}
     /// <param name="targetKey">The key in the table which the foreign key refers to.</param>
     /// <param name="foreignKey">The self-referencing foreign key.</param>
     /// <returns>A formatted linting message.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="tableName"/>, <paramref name="targetKey"/> or <paramref name="foreignKey"/> is <see langword="null" />.</exception>
-    protected virtual IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey targetKey, IDatabaseKey foreignKey)
+    /// <exception cref="ArgumentNullException"><paramref name="tableName"/> or <paramref name="foreignKey"/> is <see langword="null" />.</exception>
+    protected virtual IRuleMessage BuildMessage(Identifier tableName, CandidateKey targetKey, DatabaseKey.Foreign foreignKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        ArgumentNullException.ThrowIfNull(targetKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
         var targetKeyColumnNames = targetKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
@@ -177,7 +175,7 @@ where {whereFilterClauses}
             targetKeyName => Dialect.QuoteName(targetKeyName) + " ",
             () => string.Empty
         );
-        var targetKeyMessage = $"{GetKeyTypeDescription(targetKey.KeyType)} {targetKeyNameSuffix}({targetKeyColumnNames.Join(", ")})";
+        var targetKeyMessage = $"{GetKeyTypeDescription(targetKey)} {targetKeyNameSuffix}({targetKeyColumnNames.Join(", ")})";
 
         var foreignKeyColumnNames = foreignKey.Columns.Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));
         var fkNameSuffix = foreignKey.Name.Match(
@@ -193,16 +191,15 @@ where {whereFilterClauses}
     /// <summary>
     /// Describes a key in the manner it is referred to in a linting message.
     /// </summary>
-    /// <param name="keyType">The type of a key.</param>
-    /// <returns>A description of the key type.</returns>
-    protected static string GetKeyTypeDescription(DatabaseKeyType keyType)
+    /// <param name="key">A key.</param>
+    /// <returns>A description of the kind of key.</returns>
+    protected static string GetKeyTypeDescription(DatabaseKey key)
     {
-        return keyType switch
+        return key switch
         {
-            DatabaseKeyType.Primary => "primary key",
-            DatabaseKeyType.Unique => "unique key",
-            DatabaseKeyType.Foreign => "foreign key",
-            _ => "key"
+            DatabaseKey.Primary => "primary key",
+            DatabaseKey.Unique => "unique key",
+            DatabaseKey.Foreign => "foreign key",
         };
     }
 

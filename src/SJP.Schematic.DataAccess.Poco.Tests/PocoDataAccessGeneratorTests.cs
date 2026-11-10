@@ -236,7 +236,7 @@ internal static class PocoDataAccessGeneratorTests
     private static IRelationalDatabase CreateDatabase(IEnumerable<Identifier> tableNames, IEnumerable<Identifier> viewNames)
     {
         var tables = tableNames
-            .Select(static tableName => new RelationalDatabaseTable(tableName, [], Option<IDatabaseKey>.None, [], [], [], [], [], []))
+            .Select(static tableName => new RelationalDatabaseTable(tableName, [], Option<DatabaseKey.Primary>.None, [], [], [], [], [], []))
             .ToList<IRelationalDatabaseTable>();
         var views = viewNames
             .Select(static viewName => new DatabaseView(viewName, "select 1 as dummy", []))

@@ -20,7 +20,7 @@ internal static class ColumnsModelMapperTests
             new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null),
             new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(MoodName), true, null, null),
         ];
-        var table = new RelationalDatabaseTable(tableName, columns, Option<IDatabaseKey>.None, [], [], [], [], [], []);
+        var table = new RelationalDatabaseTable(tableName, columns, Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
         var summaries = new ColumnsModelMapper().Map(table, new UserDefinedTypeTargets([MoodName])).ToList();
 
@@ -61,13 +61,13 @@ internal static class ColumnsModelMapperTests
         ];
         var parentColumn = new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null);
 
-        var primaryKey = new DatabaseKey(Option<Identifier>.Some("pk_orders"), DatabaseKeyType.Primary, [columns[0]], true);
-        var uniqueKey = new DatabaseKey(Option<Identifier>.Some("uk_orders_code"), DatabaseKeyType.Unique, [columns[2], columns[3]], true);
+        var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_orders"), [columns[0]], true);
+        var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("uk_orders_code"), [columns[2], columns[3]], true);
         var foreignKey = new DatabaseRelationalKey(
             tableName,
-            new DatabaseKey(Option<Identifier>.Some("fk_orders_customers"), DatabaseKeyType.Foreign, [columns[3]], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("fk_orders_customers"), [columns[3]], true),
             parentName,
-            new DatabaseKey(Option<Identifier>.Some("pk_customers"), DatabaseKeyType.Primary, [parentColumn], true),
+            new DatabaseKey.Primary(Option<Identifier>.Some("pk_customers"), [parentColumn], true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction);
         var table = new RelationalDatabaseTable(tableName, columns, primaryKey, [uniqueKey], [foreignKey], [], [], [], []);

@@ -358,18 +358,18 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     }
 
     // An index that exists only to enforce a primary or unique key constraint is reported by that
-    // constraint's IDatabaseKey.BackingIndex, so it is not repeated in the table's indexes. Without
+    // constraint's BackingIndex, so it is not repeated in the table's indexes. Without
     // this, every key would also be listed as an index, because information_schema.statistics does
     // not distinguish the two.
     private static IReadOnlyCollection<IDatabaseIndex> FilterConstraintIndexes(
         IReadOnlyCollection<IDatabaseIndex> indexes,
-        Option<IDatabaseKey> primaryKey,
-        IReadOnlyCollection<IDatabaseKey> uniqueKeys
+        Option<DatabaseKey.Primary> primaryKey,
+        IReadOnlyCollection<DatabaseKey.Unique> uniqueKeys
     )
     {
         var backingIndexNames = uniqueKeys
-            .Concat(primaryKey.ToList())
             .SelectMany(static key => key.BackingIndex.ToList())
+            .Concat(primaryKey.Bind(static key => key.BackingIndex).ToList())
             .Select(static index => index.Name)
             .ToHashSet();
         if (backingIndexNames.Count == 0)
@@ -403,8 +403,8 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     {
         var indexes = await queryCache.GetIndexesAsync(tableName, cancellationToken);
 
-        var primaryKey = Option<IDatabaseKey>.None;
-        List<IDatabaseKey>? uniqueKeys = null;
+        var primaryKey = Option<DatabaseKey.Primary>.None;
+        List<DatabaseKey.Unique>? uniqueKeys = null;
         foreach (var index in indexes)
         {
             if (!index.IsUnique)
@@ -415,9 +415,9 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 continue;
 
             if (string.Equals(index.Name.LocalName, PrimaryKeyIndexName, StringComparison.Ordinal))
-                primaryKey = Option<IDatabaseKey>.Some(new DatabaseKey(index.Name, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.Some(index)));
+                primaryKey = Option<DatabaseKey.Primary>.Some(new DatabaseKey.Primary(index.Name, columns, true, Option<IDatabaseIndex>.Some(index)));
             else
-                (uniqueKeys ??= []).Add(new DatabaseKey(index.Name, DatabaseKeyType.Unique, columns, true, Option<IDatabaseIndex>.Some(index)));
+                (uniqueKeys ??= []).Add(new DatabaseKey.Unique(index.Name, columns, true, Option<IDatabaseIndex>.Some(index)));
         }
 
         if (primaryKey.IsNone && uniqueKeys == null)
@@ -441,14 +441,14 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return columns;
     }
 
-    private static readonly TableKeys NoKeys = new(Option<IDatabaseKey>.None, []);
+    private static readonly TableKeys NoKeys = new(Option<DatabaseKey.Primary>.None, []);
 
     /// <summary>
     /// The primary key and unique keys declared on a table, which are read from the catalog together.
     /// </summary>
     /// <param name="PrimaryKey">The table's primary key, if it has one.</param>
     /// <param name="UniqueKeys">The table's unique keys.</param>
-    protected sealed record TableKeys(Option<IDatabaseKey> PrimaryKey, IReadOnlyCollection<IDatabaseKey> UniqueKeys);
+    protected sealed record TableKeys(Option<DatabaseKey.Primary> PrimaryKey, IReadOnlyCollection<DatabaseKey.Unique> UniqueKeys);
 
     /// <summary>
     /// Retrieves indexes that relate to the given table.
@@ -703,8 +703,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
             if (referencesTable)
             {
                 var columnRows = foreignKeyRows.Skip(start).Take(end - start).ToList();
-                var parentKey = FindParentKey(row.ParentKeyName, columnRows, parentKeys);
-                if (parentKey != null)
+                if (FindParentKey(row.ParentKeyName, columnRows, parentKeys) is { } parentKey)
                 {
                     var childKey = CreateForeignKey(row.ChildKeyName, columnRows, childColumnLookup);
                     var deleteAction = ReferentialActionMapping[row.DeleteAction];
@@ -720,29 +719,30 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         return result;
     }
 
-    private sealed record ParentTableKeys(Option<IDatabaseKey> PrimaryKey, IReadOnlyCollection<IDatabaseKey> UniqueKeys);
+    private sealed record ParentTableKeys(Option<DatabaseKey.Primary> PrimaryKey, IReadOnlyCollection<DatabaseKey.Unique> UniqueKeys);
 
     // The catalog names the index InnoDB chose for a foreign key, which need not be a key with the foreign
     // key's columns: it can be a wider unique index whose leading columns are the referenced ones, or an index
     // that is not unique at all. The named key is used when its columns are the referenced columns, otherwise
     // whichever primary or unique key has exactly those columns. Parent-key and child-key loading both choose
     // the key here, so a foreign key resolves the same way whichever end of it is loaded.
-    private static IDatabaseKey? FindParentKey(string parentKeyName, IReadOnlyList<GetTableParentKeys.Result> columnRows, ParentTableKeys parentKeys)
+    private static CandidateKey? FindParentKey(string parentKeyName, IReadOnlyList<GetTableParentKeys.Result> columnRows, ParentTableKeys parentKeys)
     {
         var (primaryKey, uniqueKeys) = parentKeys;
-        var namedKey = string.Equals(parentKeyName, PrimaryKeyIndexName, StringComparison.OrdinalIgnoreCase)
-            ? primaryKey.MatchUnsafe(static k => k, static () => (IDatabaseKey?)null)
-            : uniqueKeys.FirstOrDefault(k => k.Name.Match(n => string.Equals(n.LocalName, parentKeyName, StringComparison.OrdinalIgnoreCase), static () => false));
-        if (namedKey != null && KeyHasReferencedColumns(namedKey, columnRows))
-            return namedKey;
+        var matchingPrimaryKey = primaryKey.MatchUnsafe(static k => k, static () => (DatabaseKey.Primary?)null);
+        if (!string.Equals(parentKeyName, PrimaryKeyIndexName, StringComparison.OrdinalIgnoreCase))
+        {
+            var namedKey = uniqueKeys.FirstOrDefault(k => k.Name.Match(n => string.Equals(n.LocalName, parentKeyName, StringComparison.OrdinalIgnoreCase), static () => false));
+            if (namedKey != null && KeyHasReferencedColumns(namedKey.Columns, columnRows))
+                return namedKey;
+        }
 
-        var matchingPrimaryKey = primaryKey.MatchUnsafe(static k => k, static () => (IDatabaseKey?)null);
-        if (matchingPrimaryKey != null && KeyHasReferencedColumns(matchingPrimaryKey, columnRows))
+        if (matchingPrimaryKey != null && KeyHasReferencedColumns(matchingPrimaryKey.Columns, columnRows))
             return matchingPrimaryKey;
 
         foreach (var uniqueKey in uniqueKeys)
         {
-            if (KeyHasReferencedColumns(uniqueKey, columnRows))
+            if (KeyHasReferencedColumns(uniqueKey.Columns, columnRows))
                 return uniqueKey;
         }
 
@@ -751,15 +751,15 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
 
     // Column names are case-insensitive in MySQL. The columns are compared as a set because a key enforces
     // uniqueness over its columns in any order.
-    private static bool KeyHasReferencedColumns(IDatabaseKey key, IReadOnlyList<GetTableParentKeys.Result> columnRows)
+    private static bool KeyHasReferencedColumns(IReadOnlyCollection<IDatabaseColumn> keyColumns, IReadOnlyList<GetTableParentKeys.Result> columnRows)
     {
-        if (key.Columns.Count != columnRows.Count)
+        if (keyColumns.Count != columnRows.Count)
             return false;
 
         foreach (var row in columnRows)
         {
             var found = false;
-            foreach (var column in key.Columns)
+            foreach (var column in keyColumns)
             {
                 if (string.Equals(column.Name.LocalName, row.ParentColumnName, StringComparison.OrdinalIgnoreCase))
                 {
@@ -780,14 +780,14 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     // Builds a foreign key as declared on the table holding it. Parent-key and child-key loading both build
     // it here, from the same rows, so a foreign key reads the same whichever end of the relationship it is
     // loaded from. The rows are in key order, so they are not sorted again here.
-    private static DatabaseKey CreateForeignKey(string constraintName, IEnumerable<GetTableParentKeys.Result> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    private static DatabaseKey.Foreign CreateForeignKey(string constraintName, IEnumerable<GetTableParentKeys.Result> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
     {
         var keyName = Identifier.CreateQualifiedIdentifier(constraintName);
         var keyColumns = columnRows
             .Select(row => columnLookup[row.ColumnName])
             .ToList();
 
-        return new DatabaseKey(keyName, DatabaseKeyType.Foreign, keyColumns, true);
+        return new DatabaseKey.Foreign(keyName, keyColumns, true);
     }
 
     /// <summary>
@@ -922,8 +922,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 parentTableKeys[parentTableName] = parentKeys;
             }
 
-            var parentKey = FindParentKey(fkey.Key.ParentKeyName, fkey.Value, parentKeys);
-            if (parentKey == null)
+            if (FindParentKey(fkey.Key.ParentKeyName, fkey.Value, parentKeys) is not { } parentKey)
                 continue;
 
             var childKey = CreateForeignKey(fkey.Key.ChildKeyName, fkey.Value, columnLookup);
@@ -1233,14 +1232,14 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A primary key, if available.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-        public Task<Option<IDatabaseKey>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
+        public Task<Option<DatabaseKey.Primary>> GetPrimaryKeyAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             return GetPrimaryKeyAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<Option<IDatabaseKey>> GetPrimaryKeyAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<Option<DatabaseKey.Primary>> GetPrimaryKeyAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var keys = await _keys.GetByKeyAsync(tableName, this, cancellationToken);
             return keys.PrimaryKey;
@@ -1253,14 +1252,14 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A collection of unique keys.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="tableName"/> is <see langword="null" />.</exception>
-        public Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
+        public Task<IReadOnlyCollection<DatabaseKey.Unique>> GetUniqueKeysAsync(Identifier tableName, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(tableName);
 
             return GetUniqueKeysAsyncCore(tableName, cancellationToken);
         }
 
-        private async Task<IReadOnlyCollection<IDatabaseKey>> GetUniqueKeysAsyncCore(Identifier tableName, CancellationToken cancellationToken)
+        private async Task<IReadOnlyCollection<DatabaseKey.Unique>> GetUniqueKeysAsyncCore(Identifier tableName, CancellationToken cancellationToken)
         {
             var keys = await _keys.GetByKeyAsync(tableName, this, cancellationToken);
             return keys.UniqueKeys;

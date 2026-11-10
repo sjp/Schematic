@@ -22,15 +22,13 @@ internal static class ForeignKeySetDefaultReferentialActionRuleTests
 
     private static IRelationalDatabaseTable CreateChildTable(IDatabaseColumn childColumn, ReferentialAction deleteAction, ReferentialAction updateAction)
     {
-        var childKey = new DatabaseKey(
+        var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
-            DatabaseKeyType.Foreign,
             [childColumn],
             true
         );
-        var parentKey = new DatabaseKey(
+        var parentKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [childColumn],
             true
         );

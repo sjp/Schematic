@@ -15,8 +15,8 @@ internal static class ForeignKeyRelationshipCycleRuleTests
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, Identifier referencedTableName)
     {
         var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var childKey = new DatabaseKey(Option<Identifier>.Some("test_fk"), DatabaseKeyType.Foreign, [column], true);
-        var parentKey = new DatabaseKey(Option<Identifier>.Some("test_pk"), DatabaseKeyType.Primary, [column], true);
+        var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk"), [column], true);
+        var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_pk"), [column], true);
         var relationalKey = new DatabaseRelationalKey(
             tableName,
             childKey,

@@ -55,7 +55,7 @@ internal static class MySqlRelationalKeyTests
     }
 
     [Test]
-    public static void Ctor_GivenNullParentKey_ThrowsArgumentNullException()
+    public static void Ctor_GivenDefaultParentKey_ThrowsArgumentNullException()
     {
         const string childTableName = "child_table";
         var childKey = TestKeys.Foreign();
@@ -64,7 +64,7 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
         Assert.That(
-            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, null, deleteAction, updateAction),
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, default, deleteAction, updateAction),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
         );
     }
@@ -171,7 +171,7 @@ internal static class MySqlRelationalKeyTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(relationalKey.ParentKey.Name.UnwrapSome(), Is.EqualTo(keyName));
-            Assert.That(relationalKey.ParentKey, Is.EqualTo(parentKey));
+            Assert.That(relationalKey.ParentKey.Value, Is.SameAs(parentKey));
         }
     }
 
@@ -205,38 +205,6 @@ internal static class MySqlRelationalKeyTests
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
         Assert.That(relationalKey.UpdateAction, Is.EqualTo(updateAction));
-    }
-
-    [Test]
-    public static void Ctor_GivenChildKeyNotForeignKey_ThrowsArgumentException()
-    {
-        const string childTableName = "child_table";
-        const string parentTableName = "parent_table";
-        var childKey = TestKeys.Primary();
-        var parentKey = TestKeys.Primary();
-        const ReferentialAction deleteAction = ReferentialAction.NoAction;
-        const ReferentialAction updateAction = ReferentialAction.NoAction;
-
-        Assert.That(
-            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
-        );
-    }
-
-    [Test]
-    public static void Ctor_GivenParentKeyNotCandidateKey_ThrowsArgumentException()
-    {
-        const string childTableName = "child_table";
-        const string parentTableName = "parent_table";
-        var childKey = TestKeys.Foreign();
-        var parentKey = TestKeys.Foreign();
-        const ReferentialAction deleteAction = ReferentialAction.NoAction;
-        const ReferentialAction updateAction = ReferentialAction.NoAction;
-
-        Assert.That(
-            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
-        );
     }
 
     [Test]

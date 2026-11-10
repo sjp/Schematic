@@ -67,7 +67,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var table = new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.Some(TestKeys.Primary()),
+            Option<DatabaseKey.Primary>.Some(TestKeys.Primary()),
             [],
             [],
             [],

@@ -441,9 +441,8 @@ internal static class ReservedKeywordNameRuleTests
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var primaryKey = new DatabaseKey(
+        var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("SELECT"),
-            DatabaseKeyType.Primary,
             [testColumn],
             true
         );
@@ -472,9 +471,8 @@ internal static class ReservedKeywordNameRuleTests
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var primaryKey = new DatabaseKey(
+        var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.None,
-            DatabaseKeyType.Primary,
             [testColumn],
             true
         );
@@ -503,9 +501,8 @@ internal static class ReservedKeywordNameRuleTests
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var uniqueKey = new DatabaseKey(
+        var uniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("SELECT"),
-            DatabaseKeyType.Unique,
             [testColumn],
             true
         );
@@ -534,15 +531,13 @@ internal static class ReservedKeywordNameRuleTests
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
         var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
-        var childKey = new DatabaseKey(
+        var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("SELECT"),
-            DatabaseKeyType.Foreign,
             [testColumn],
             true
         );
-        var parentKey = new DatabaseKey(
+        var parentKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("parent_pk"),
-            DatabaseKeyType.Primary,
             [testColumn],
             true
         );

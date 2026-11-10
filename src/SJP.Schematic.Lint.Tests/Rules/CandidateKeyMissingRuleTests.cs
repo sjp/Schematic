@@ -65,9 +65,8 @@ internal static class CandidateKeyMissingRuleTests
             null,
             null
         );
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn],
             true
         );
@@ -102,9 +101,8 @@ internal static class CandidateKeyMissingRuleTests
             null,
             null
         );
-        var testUniqueKey = new DatabaseKey(
+        var testUniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test_unique_key"),
-            DatabaseKeyType.Unique,
             [testColumn],
             true
         );

@@ -762,7 +762,7 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         var parentKey = table.ParentKeys.Single().ParentKey;
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(parentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(parentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
             Assert.That(parentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
         }
     }
@@ -777,7 +777,7 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         var childKey = table.ChildKeys.Single();
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(childKey.ParentKey.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(childKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
             Assert.That(childKey.ParentKey.Name.UnwrapSome().LocalName, Is.EqualTo("ux_fk_bare_unique_parent"));
         }
     }

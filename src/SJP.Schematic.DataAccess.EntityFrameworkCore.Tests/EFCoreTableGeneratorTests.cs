@@ -140,7 +140,7 @@ internal static class EFCoreTableGeneratorTests
         var table = new RelationalDatabaseTable(
             "test table",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [parentKey],
             [],
@@ -168,7 +168,7 @@ internal static class EFCoreTableGeneratorTests
         var table = new RelationalDatabaseTable(
             "test_table",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [parentKey],
             [],
@@ -193,7 +193,7 @@ internal static class EFCoreTableGeneratorTests
         var parentTable = new RelationalDatabaseTable(
             "parent_table",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [relationalKey],
@@ -204,7 +204,7 @@ internal static class EFCoreTableGeneratorTests
         var childTable = new RelationalDatabaseTable(
             "child_table",
             [column],
-            Option<IDatabaseKey>.Some(new DatabaseKey(Option<Identifier>.Some("test_child_pk"), DatabaseKeyType.Primary, [column], true)),
+            Option<DatabaseKey.Primary>.Some(new DatabaseKey.Primary(Option<Identifier>.Some("test_child_pk"), [column], true)),
             [],
             [relationalKey],
             [],
@@ -243,9 +243,9 @@ internal static class EFCoreTableGeneratorTests
     private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier parentTableName, IDatabaseColumn childColumn) =>
         new DatabaseRelationalKey(
             childTableName,
-            new DatabaseKey(Option<Identifier>.Some("test_child_key"), DatabaseKeyType.Foreign, [childColumn], true),
+            new DatabaseKey.Foreign(Option<Identifier>.Some("test_child_key"), [childColumn], true),
             parentTableName,
-            new DatabaseKey(Option<Identifier>.Some("test_parent_key"), DatabaseKeyType.Primary, [childColumn], true),
+            new DatabaseKey.Primary(Option<Identifier>.Some("test_parent_key"), [childColumn], true),
             ReferentialAction.NoAction,
             ReferentialAction.NoAction
         );
@@ -257,7 +257,7 @@ internal static class EFCoreTableGeneratorTests
         return new RelationalDatabaseTable(
             "test_table",
             [column],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

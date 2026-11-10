@@ -207,12 +207,12 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="table">A database table.</param>
     /// <returns>A lookup keyed by unique key names, whose values are the associated unique keys.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> is <see langword="null" />.</exception>
-    public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table)
+    public static IReadOnlyDictionary<Identifier, DatabaseKey.Unique> GetUniqueKeyLookup(this IRelationalDatabaseTable table)
     {
         ArgumentNullException.ThrowIfNull(table);
 
         var uniqueKeys = table.UniqueKeys;
-        var result = new Dictionary<Identifier, IDatabaseKey>(uniqueKeys.Count);
+        var result = new Dictionary<Identifier, DatabaseKey.Unique>(uniqueKeys.Count);
 
         foreach (var key in uniqueKeys)
         {
@@ -231,12 +231,12 @@ public static class RelationalDatabaseTableExtensions
     /// <param name="identifierResolver">An identifier resolver.</param>
     /// <returns>A lookup keyed by unique key names, whose values are the associated unique keys.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="table"/> or <paramref name="identifierResolver"/> is <see langword="null" />.</exception>
-    public static IReadOnlyDictionary<Identifier, IDatabaseKey> GetUniqueKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
+    public static IReadOnlyDictionary<Identifier, DatabaseKey.Unique> GetUniqueKeyLookup(this IRelationalDatabaseTable table, IIdentifierResolutionStrategy identifierResolver)
     {
         ArgumentNullException.ThrowIfNull(table);
         ArgumentNullException.ThrowIfNull(identifierResolver);
 
         var lookup = GetUniqueKeyLookup(table);
-        return new IdentifierResolvingDictionary<IDatabaseKey>(lookup, identifierResolver);
+        return new IdentifierResolvingDictionary<DatabaseKey.Unique>(lookup, identifierResolver);
     }
 }

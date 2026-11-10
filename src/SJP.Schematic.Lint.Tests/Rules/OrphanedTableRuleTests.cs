@@ -31,16 +31,14 @@ internal static class OrphanedTableRuleTests
 
         var parentKey = new DatabaseRelationalKey(
             "child_table",
-            new DatabaseKey(
+            new DatabaseKey.Foreign(
                 Option<Identifier>.Some("child_key"),
-                DatabaseKeyType.Foreign,
                 [Mock.Of<IDatabaseColumn>()],
                 true
             ),
             "parent_table",
-            new DatabaseKey(
+            new DatabaseKey.Primary(
                 Option<Identifier>.Some("parent_key"),
-                DatabaseKeyType.Primary,
                 [Mock.Of<IDatabaseColumn>()],
                 true
             ),
@@ -72,16 +70,14 @@ internal static class OrphanedTableRuleTests
 
         var childKey = new DatabaseRelationalKey(
             "child_table",
-            new DatabaseKey(
+            new DatabaseKey.Foreign(
                 Option<Identifier>.Some("child_key"),
-                DatabaseKeyType.Foreign,
                 [Mock.Of<IDatabaseColumn>()],
                 true
             ),
             "parent_table",
-            new DatabaseKey(
+            new DatabaseKey.Primary(
                 Option<Identifier>.Some("parent_key"),
-                DatabaseKeyType.Primary,
                 [Mock.Of<IDatabaseColumn>()],
                 true
             ),
@@ -124,7 +120,7 @@ internal static class OrphanedTableRuleTests
         return new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.None,
+            Option<DatabaseKey.Primary>.None,
             [],
             [],
             [],

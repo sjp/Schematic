@@ -44,7 +44,7 @@ public class RelationalDatabaseTableMapper
         IReadOnlyDictionary<Dto.Identifier, ColumnLookup> tableColumns)
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
-        var keyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseKey, IDatabaseKey>();
+        var keyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseKey, DatabaseKey>();
         var relationalKeyMapper = (DatabaseRelationalKeyMapper)MapperRegistry.GetMapper<Dto.DatabaseRelationalKey, IDatabaseRelationalKey>();
         var indexMapper = (IndexMapper)MapperRegistry.GetMapper<Dto.DatabaseIndex, IDatabaseIndex>();
         var checkMapper = MapperRegistry.GetMapper<Dto.DatabaseCheckConstraint, IDatabaseCheckConstraint>();
@@ -55,14 +55,14 @@ public class RelationalDatabaseTableMapper
             : tableColumns.GetValueOrDefault(tableName, ColumnLookup.Empty);
 
         var primaryKey = source.PrimaryKey != null
-            ? Option<IDatabaseKey>.Some(keyMapper.Map(source.PrimaryKey, columns))
-            : Option<IDatabaseKey>.None;
+            ? Option<DatabaseKey.Primary>.Some(keyMapper.MapPrimaryKey(source.PrimaryKey, columns))
+            : Option<DatabaseKey.Primary>.None;
 
         return new RelationalDatabaseTable(
             identifierMapper.Map<Dto.Identifier, Identifier>(source.TableName),
             columns.Columns,
             primaryKey,
-            source.UniqueKeys.Select(key => keyMapper.Map(key, columns)).ToList(),
+            source.UniqueKeys.Select(key => keyMapper.MapUniqueKey(key, columns)).ToList(),
             source.ParentKeys.Select(key => relationalKeyMapper.Map(key, ColumnsOf(key.ChildTable), ColumnsOf(key.ParentTable))).ToList(),
             source.ChildKeys.Select(key => relationalKeyMapper.Map(key, ColumnsOf(key.ChildTable), ColumnsOf(key.ParentTable))).ToList(),
             source.Indexes.Select(index => indexMapper.Map(index, columns)).ToList(),
@@ -125,7 +125,7 @@ public class RelationalDatabaseTableMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var columnMapper = (DatabaseColumnMapper)MapperRegistry.GetMapper<IDatabaseColumn, Dto.DatabaseColumn>();
-        var keyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<IDatabaseKey, Dto.DatabaseKey>();
+        var keyMapper = (DatabaseKeyMapper)MapperRegistry.GetMapper<DatabaseKey, Dto.DatabaseKey>();
         var relationalKeyMapper = (DatabaseRelationalKeyMapper)MapperRegistry.GetMapper<IDatabaseRelationalKey, Dto.DatabaseRelationalKey>();
         var indexMapper = (IndexMapper)MapperRegistry.GetMapper<IDatabaseIndex, Dto.DatabaseIndex>();
         var checkMapper = MapperRegistry.GetMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>();

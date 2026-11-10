@@ -13,10 +13,9 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
     {
     }
 
-    protected override IRuleMessage BuildMessage(Identifier tableName, IDatabaseKey targetKey, IDatabaseKey foreignKey)
+    protected override IRuleMessage BuildMessage(Identifier tableName, CandidateKey targetKey, DatabaseKey.Foreign foreignKey)
     {
         ArgumentNullException.ThrowIfNull(tableName);
-        ArgumentNullException.ThrowIfNull(targetKey);
         ArgumentNullException.ThrowIfNull(foreignKey);
 
         var targetKeyColumnNames = targetKey.Columns
@@ -25,7 +24,7 @@ internal sealed class ForeignKeySelfReferenceRule : Schematic.Lint.Rules.Foreign
             targetKeyName => $"{Dialect.QuoteName(targetKeyName)} ",
             () => string.Empty
         );
-        var targetKeyMessage = $"{GetKeyTypeDescription(targetKey.KeyType)} {targetKeyNameSuffix}({targetKeyColumnNames.Join(", ")})";
+        var targetKeyMessage = $"{GetKeyTypeDescription(targetKey)} {targetKeyNameSuffix}({targetKeyColumnNames.Join(", ")})";
 
         var foreignKeyColumnNames = foreignKey.Columns
             .Select(c => Dialect.QuoteIdentifier(c.Name.LocalName));

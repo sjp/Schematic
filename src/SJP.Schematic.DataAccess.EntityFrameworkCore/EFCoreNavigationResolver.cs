@@ -187,7 +187,7 @@ internal sealed class EFCoreNavigationResolver
             && IsChildKeyUnique(childTable, relationalKey.ChildKey);
     }
 
-    private static bool IsChildKeyUnique(IRelationalDatabaseTable table, IDatabaseKey key)
+    private static bool IsChildKeyUnique(IRelationalDatabaseTable table, DatabaseKey.Foreign key)
     {
         var keyColumnNames = key.Columns.Select(static c => c.Name.LocalName).ToList();
         var matchesPkColumns = table.PrimaryKey

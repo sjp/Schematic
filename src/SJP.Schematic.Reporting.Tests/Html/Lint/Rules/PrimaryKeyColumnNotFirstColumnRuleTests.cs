@@ -40,9 +40,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
 
         var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, null, null);
         var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), false, null, null);
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn2],
             true
         );
@@ -75,9 +74,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
 
         var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, null, null);
         var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), false, null, null);
-        var testPrimaryKey = new DatabaseKey(
+        var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
-            DatabaseKeyType.Primary,
             [testColumn1],
             true
         );

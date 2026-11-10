@@ -31,8 +31,8 @@ public static class TestKeys
     /// </summary>
     /// <param name="columns">The key columns. When none are given, the key covers <see cref="Column"/>.</param>
     /// <returns>A primary key.</returns>
-    public static IDatabaseKey Primary(params IReadOnlyCollection<IDatabaseColumn> columns)
-        => Create(Option<Identifier>.None, DatabaseKeyType.Primary, columns);
+    public static DatabaseKey.Primary Primary(params IReadOnlyCollection<IDatabaseColumn> columns)
+        => new(Option<Identifier>.None, KeyColumns(columns), true);
 
     /// <summary>
     /// Creates an enabled primary key with the given name.
@@ -40,16 +40,16 @@ public static class TestKeys
     /// <param name="name">The key name, if any.</param>
     /// <param name="columns">The key columns. When none are given, the key covers <see cref="Column"/>.</param>
     /// <returns>A primary key.</returns>
-    public static IDatabaseKey Primary(Option<Identifier> name, params IReadOnlyCollection<IDatabaseColumn> columns)
-        => Create(name, DatabaseKeyType.Primary, columns);
+    public static DatabaseKey.Primary Primary(Option<Identifier> name, params IReadOnlyCollection<IDatabaseColumn> columns)
+        => new(name, KeyColumns(columns), true);
 
     /// <summary>
     /// Creates an unnamed, enabled unique key.
     /// </summary>
     /// <param name="columns">The key columns. When none are given, the key covers <see cref="Column"/>.</param>
     /// <returns>A unique key.</returns>
-    public static IDatabaseKey Unique(params IReadOnlyCollection<IDatabaseColumn> columns)
-        => Create(Option<Identifier>.None, DatabaseKeyType.Unique, columns);
+    public static DatabaseKey.Unique Unique(params IReadOnlyCollection<IDatabaseColumn> columns)
+        => new(Option<Identifier>.None, KeyColumns(columns), true);
 
     /// <summary>
     /// Creates an enabled unique key with the given name.
@@ -57,16 +57,16 @@ public static class TestKeys
     /// <param name="name">The key name, if any.</param>
     /// <param name="columns">The key columns. When none are given, the key covers <see cref="Column"/>.</param>
     /// <returns>A unique key.</returns>
-    public static IDatabaseKey Unique(Option<Identifier> name, params IReadOnlyCollection<IDatabaseColumn> columns)
-        => Create(name, DatabaseKeyType.Unique, columns);
+    public static DatabaseKey.Unique Unique(Option<Identifier> name, params IReadOnlyCollection<IDatabaseColumn> columns)
+        => new(name, KeyColumns(columns), true);
 
     /// <summary>
     /// Creates an unnamed, enabled foreign key.
     /// </summary>
     /// <param name="columns">The key columns. When none are given, the key covers <see cref="Column"/>.</param>
     /// <returns>A foreign key.</returns>
-    public static IDatabaseKey Foreign(params IReadOnlyCollection<IDatabaseColumn> columns)
-        => Create(Option<Identifier>.None, DatabaseKeyType.Foreign, columns);
+    public static DatabaseKey.Foreign Foreign(params IReadOnlyCollection<IDatabaseColumn> columns)
+        => new(Option<Identifier>.None, KeyColumns(columns), true);
 
     /// <summary>
     /// Creates an enabled foreign key with the given name.
@@ -74,9 +74,9 @@ public static class TestKeys
     /// <param name="name">The key name, if any.</param>
     /// <param name="columns">The key columns. When none are given, the key covers <see cref="Column"/>.</param>
     /// <returns>A foreign key.</returns>
-    public static IDatabaseKey Foreign(Option<Identifier> name, params IReadOnlyCollection<IDatabaseColumn> columns)
-        => Create(name, DatabaseKeyType.Foreign, columns);
+    public static DatabaseKey.Foreign Foreign(Option<Identifier> name, params IReadOnlyCollection<IDatabaseColumn> columns)
+        => new(name, KeyColumns(columns), true);
 
-    private static DatabaseKey Create(Option<Identifier> name, DatabaseKeyType keyType, IReadOnlyCollection<IDatabaseColumn> columns)
-        => new(name, keyType, columns.Count > 0 ? columns : [Column], true);
+    private static IReadOnlyCollection<IDatabaseColumn> KeyColumns(IReadOnlyCollection<IDatabaseColumn> columns)
+        => columns.Count > 0 ? columns : [Column];
 }
