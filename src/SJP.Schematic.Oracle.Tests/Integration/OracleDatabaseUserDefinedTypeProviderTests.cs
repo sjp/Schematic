@@ -11,6 +11,18 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
 {
     private IDatabaseUserDefinedTypeProvider TypeProvider => new OracleDatabaseUserDefinedTypeProvider(DbConnection, IdentifierDefaults);
 
+    private async Task<T> GetUserDefinedTypeAsync<T>(string typeName)
+    {
+        var type = await TypeProvider.GetUserDefinedType(typeName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        return AsCase<T>(type);
+    }
+
+    private static T AsCase<T>(DatabaseUserDefinedType type)
+    {
+        Assert.That(type.Value, Is.TypeOf<T>());
+        return (T)type.Value!;
+    }
+
     [OneTimeSetUp]
     public Task Init() => ExecuteBatchAsync(
         "create type db_test_udt_object_1 as object (attr_one number(10, 2), attr_two varchar2(50))",
@@ -108,7 +120,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     {
         var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
-        Assert.That(type.Kind, Is.EqualTo(UserDefinedTypeKind.Composite));
+        Assert.That(type.Value, Is.TypeOf<DatabaseUserDefinedType.Composite>());
     }
 
     [Test]
@@ -116,7 +128,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     {
         var expectedAttributeNames = new[] { "ATTR_ONE", "ATTR_TWO" };
 
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("DB_TEST_UDT_OBJECT_1");
         var attributeNames = type.Attributes.Select(static a => a.Name.LocalName).ToList();
 
         Assert.That(attributeNames, Is.EqualTo(expectedAttributeNames));
@@ -125,7 +137,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     [Test]
     public async Task GetUserDefinedType_ForObjectType_ReturnsAttributesWithCorrectTypes()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("DB_TEST_UDT_OBJECT_1");
 
         using (Assert.EnterMultipleScope())
         {
@@ -145,7 +157,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     [TestCase(4, "\"VARCHAR2\"(100)", DataType.String)]
     public async Task GetUserDefinedType_ForObjectTypeWithLengthOrPrecisionAttribute_ReturnsDeclaredType(int attributeIndex, string expectedDefinition, DataType expectedDataType)
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("DB_TEST_UDT_OBJECT_2");
         var attributeType = type.Attributes[attributeIndex].Type;
 
         using (Assert.EnterMultipleScope())
@@ -156,10 +168,10 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     }
 
     [Test]
-    public async Task GetUserDefinedType_ForCollectionOfCharacterSemanticsElement_ReturnsDeclaredBaseType()
+    public async Task GetUserDefinedType_ForCollectionOfCharacterSemanticsElement_ReturnsDeclaredElementType()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_NESTED_2", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
-        var baseType = type.BaseType.UnwrapSome();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Collection>("DB_TEST_UDT_NESTED_2");
+        var baseType = type.ElementType;
 
         using (Assert.EnterMultipleScope())
         {
@@ -173,7 +185,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     [Test]
     public async Task GetUserDefinedType_ForObjectType_ReturnsNullableAttributesWithoutDefaults()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("DB_TEST_UDT_OBJECT_1");
 
         using (Assert.EnterMultipleScope())
         {
@@ -182,19 +194,10 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
         }
     }
 
-    // An object type is not defined over another type; only a collection type is.
-    [Test]
-    public async Task GetUserDefinedType_ForObjectType_ReturnsNoBaseType()
-    {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
-
-        Assert.That(type.BaseType, OptionIs.None);
-    }
-
     [Test]
     public async Task GetUserDefinedType_ForObjectType_ReturnsSpecification()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("DB_TEST_UDT_OBJECT_1");
 
         Assert.That(type.Definition.UnwrapSome(), Does.Contain("db_test_udt_object_1").IgnoreCase);
     }
@@ -202,7 +205,7 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     [Test]
     public async Task GetUserDefinedType_ForWrappedObjectType_ReturnsUnwrappedSpecification()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_WRAPPED_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("DB_TEST_UDT_WRAPPED_1");
 
         Assert.That(type.Definition.UnwrapSome(), Is.EqualTo(ExpectedWrappedTypeSpecification));
     }
@@ -211,59 +214,25 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     public async Task GetAllUserDefinedTypes_ForWrappedObjectType_ReturnsUnwrappedSpecification()
     {
         var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
-        var wrappedType = types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_WRAPPED_1", StringComparison.Ordinal));
+        var wrappedType = AsCase<DatabaseUserDefinedType.Composite>(types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_WRAPPED_1", StringComparison.Ordinal)));
 
         Assert.That(wrappedType.Definition.UnwrapSome(), Is.EqualTo(ExpectedWrappedTypeSpecification));
     }
 
     [Test]
-    public async Task GetUserDefinedType_ForVarrayType_ReturnsCollectionKindWithElementTypeAsBaseType()
+    public async Task GetUserDefinedType_ForVarrayType_ReturnsCollectionWithElementType()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_VARRAY_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Collection>("DB_TEST_UDT_VARRAY_1");
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(type.Kind, Is.EqualTo(UserDefinedTypeKind.Collection));
-            Assert.That(type.BaseType.UnwrapSome().TypeName.LocalName, Is.EqualTo("NUMBER"));
-        }
+        Assert.That(type.ElementType.TypeName.LocalName, Is.EqualTo("NUMBER"));
     }
 
     [Test]
-    public async Task GetUserDefinedType_ForNestedTableType_ReturnsCollectionKindWithElementTypeAsBaseType()
+    public async Task GetUserDefinedType_ForNestedTableType_ReturnsCollectionWithElementType()
     {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_NESTED_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Collection>("DB_TEST_UDT_NESTED_1");
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(type.Kind, Is.EqualTo(UserDefinedTypeKind.Collection));
-            Assert.That(type.BaseType.UnwrapSome().TypeName.LocalName, Is.EqualTo("VARCHAR2"));
-        }
-    }
-
-    // A collection type has no named attributes, so nothing is reported against it even though the
-    // attribute query is issued for every type.
-    [Test]
-    public async Task GetUserDefinedType_ForCollectionType_ReturnsNoAttributes()
-    {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_VARRAY_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
-
-        Assert.That(type.Attributes, Is.Empty);
-    }
-
-    // Oracle constrains an object type through the methods declared on it, never through a check
-    // constraint, and every Oracle type is nullable.
-    [Test]
-    public async Task GetUserDefinedType_WhenTypePresent_ReturnsNullableTypeWithoutChecksOrEnumValuesOrDefault()
-    {
-        var type = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_OBJECT_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(type.IsNullable, Is.True);
-            Assert.That(type.Checks, Is.Empty);
-            Assert.That(type.EnumValues, Is.Empty);
-            Assert.That(type.DefaultValue, OptionIs.None);
-        }
+        Assert.That(type.ElementType.TypeName.LocalName, Is.EqualTo("VARCHAR2"));
     }
 
     [Test]
@@ -298,14 +267,13 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     public async Task GetAllUserDefinedTypes_WhenRetrieved_AttachesAttributesAndSpecificationToOwningType()
     {
         var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
-        var objectType = types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_OBJECT_1", StringComparison.Ordinal));
-        var varrayType = types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_VARRAY_1", StringComparison.Ordinal));
+        var objectType = AsCase<DatabaseUserDefinedType.Composite>(types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_OBJECT_1", StringComparison.Ordinal)));
+        var varrayType = AsCase<DatabaseUserDefinedType.Collection>(types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_VARRAY_1", StringComparison.Ordinal)));
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(objectType.Attributes.Select(static a => a.Name.LocalName), Is.EqualTo(new[] { "ATTR_ONE", "ATTR_TWO" }));
             Assert.That(objectType.Definition.UnwrapSome(), Does.Contain("db_test_udt_object_1").IgnoreCase);
-            Assert.That(varrayType.Attributes, Is.Empty);
             Assert.That(varrayType.Definition.UnwrapSome(), Does.Contain("db_test_udt_varray_1").IgnoreCase);
         }
     }
@@ -314,14 +282,13 @@ internal sealed class OracleDatabaseUserDefinedTypeProviderTests : OracleTest
     public async Task GetAllUserDefinedTypes_WhenRetrieved_MatchesTypeRetrievedIndividually()
     {
         var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
-        var fromAll = types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_VARRAY_1", StringComparison.Ordinal));
-        var fromSingle = await TypeProvider.GetUserDefinedType("DB_TEST_UDT_VARRAY_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+        var fromAll = AsCase<DatabaseUserDefinedType.Collection>(types.First(static t => string.Equals(t.Name.LocalName, "DB_TEST_UDT_VARRAY_1", StringComparison.Ordinal)));
+        var fromSingle = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Collection>("DB_TEST_UDT_VARRAY_1");
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(fromAll.Name, Is.EqualTo(fromSingle.Name));
-            Assert.That(fromAll.Kind, Is.EqualTo(fromSingle.Kind));
-            Assert.That(fromAll.BaseType.UnwrapSome().TypeName, Is.EqualTo(fromSingle.BaseType.UnwrapSome().TypeName));
+            Assert.That(fromAll.ElementType.TypeName, Is.EqualTo(fromSingle.ElementType.TypeName));
             Assert.That(fromAll.Definition.UnwrapSome(), Is.EqualTo(fromSingle.Definition.UnwrapSome()));
         }
     }

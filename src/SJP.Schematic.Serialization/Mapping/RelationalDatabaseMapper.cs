@@ -32,7 +32,7 @@ public class RelationalDatabaseMapper
         var sequenceMapper = MapperRegistry.GetMapper<Dto.DatabaseSequence, IDatabaseSequence>();
         var synonymMapper = MapperRegistry.GetMapper<Dto.DatabaseSynonym, IDatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<Dto.DatabaseRoutine, IDatabaseRoutine>();
-        var userDefinedTypeMapper = MapperRegistry.GetMapper<Dto.DatabaseUserDefinedType, IDatabaseUserDefinedType>();
+        var userDefinedTypeMapper = MapperRegistry.GetMapper<Dto.DatabaseUserDefinedType, DatabaseUserDefinedType>();
         var schemaMapper = MapperRegistry.GetMapper<Dto.DatabaseSchema, IDatabaseSchema>();
 
         return new RelationalDatabase(
@@ -89,7 +89,7 @@ public class RelationalDatabaseMapper
         var sequenceMapper = MapperRegistry.GetMapper<IDatabaseSequence, Dto.DatabaseSequence>();
         var synonymMapper = MapperRegistry.GetMapper<IDatabaseSynonym, Dto.DatabaseSynonym>();
         var routineMapper = MapperRegistry.GetMapper<IDatabaseRoutine, Dto.DatabaseRoutine>();
-        var userDefinedTypeMapper = MapperRegistry.GetMapper<IDatabaseUserDefinedType, Dto.DatabaseUserDefinedType>();
+        var userDefinedTypeMapper = MapperRegistry.GetMapper<DatabaseUserDefinedType, Dto.DatabaseUserDefinedType>();
         var schemaMapper = MapperRegistry.GetMapper<IDatabaseSchema, Dto.DatabaseSchema>();
 
         var (

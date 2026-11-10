@@ -79,20 +79,23 @@ internal sealed class MainModelMapper
     /// </summary>
     /// <param name="userDefinedType">The type to map.</param>
     /// <param name="userDefinedTypeTargets">Resolves the type's base type to the page of the user-defined type it names.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="userDefinedType"/> or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
-    public Main.UserDefinedType Map(IDatabaseUserDefinedType userDefinedType, UserDefinedTypeTargets userDefinedTypeTargets)
+    /// <exception cref="ArgumentNullException"><paramref name="userDefinedType"/> holds no type, or <paramref name="userDefinedTypeTargets"/> is <see langword="null" />.</exception>
+    public Main.UserDefinedType Map(DatabaseUserDefinedType userDefinedType, UserDefinedTypeTargets userDefinedTypeTargets)
     {
-        ArgumentNullException.ThrowIfNull(userDefinedType);
+        if (userDefinedType.Value is null)
+            throw new ArgumentNullException(nameof(userDefinedType));
         ArgumentNullException.ThrowIfNull(userDefinedTypeTargets);
+
+        var details = UserDefinedTypeDetails.From(userDefinedType);
 
         return new Main.UserDefinedType(
             userDefinedType.Name,
-            userDefinedType.Kind,
-            userDefinedType.BaseType,
-            userDefinedType.BaseType.Bind(baseType => userDefinedTypeTargets.GetTypeUrl(baseType)),
-            userDefinedType.IsNullable,
-            (uint)userDefinedType.Attributes.Count,
-            (uint)userDefinedType.EnumValues.Count
+            UserDefinedTypeKindNames.GetName(userDefinedType),
+            details.BaseType,
+            details.BaseType.Bind(baseType => userDefinedTypeTargets.GetTypeUrl(baseType)),
+            details.IsNullable,
+            (uint)details.Attributes.Count,
+            (uint)details.EnumValues.Count
         );
     }
 }

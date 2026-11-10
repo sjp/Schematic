@@ -169,7 +169,7 @@ public class ReportGenerator
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyCollection<IDatabaseSchema> schemas,
-        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes,
+        IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes,
         string databaseVersion,
         IReadOnlyDictionary<Identifier, ITableStatistics> tableStatistics
     )

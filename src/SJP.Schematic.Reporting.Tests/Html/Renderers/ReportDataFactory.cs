@@ -19,7 +19,7 @@ internal static class ReportDataFactory
         IReadOnlyCollection<IDatabaseSynonym> synonyms = null!,
         IReadOnlyCollection<IDatabaseRoutine> routines = null!,
         IReadOnlyCollection<IDatabaseSchema> schemas = null!,
-        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes = null!,
+        IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes = null!,
         string databaseVersion = null!,
         ReferencedObjectTargets referencedObjectTargets = null!,
         SynonymTargets synonymTargets = null!,

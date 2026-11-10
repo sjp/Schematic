@@ -56,7 +56,7 @@ public static class Empty
         /// <summary>
         /// An empty collection of user-defined types.
         /// </summary>
-        public static Task<IReadOnlyCollection<IDatabaseUserDefinedType>> UserDefinedTypes { get; } = Task.FromResult<IReadOnlyCollection<IDatabaseUserDefinedType>>(FrozenSet<IDatabaseUserDefinedType>.Empty);
+        public static Task<IReadOnlyCollection<DatabaseUserDefinedType>> UserDefinedTypes { get; } = Task.FromResult<IReadOnlyCollection<DatabaseUserDefinedType>>(FrozenSet<DatabaseUserDefinedType>.Empty);
 
         /// <summary>
         /// An empty collection of table statistics.

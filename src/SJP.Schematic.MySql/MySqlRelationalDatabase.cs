@@ -212,7 +212,7 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database user-defined types.</returns>
-    public IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<DatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default)
     {
         return UserDefinedTypeProvider.EnumerateAllUserDefinedTypes(cancellationToken);
     }
@@ -222,7 +222,7 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>An empty collection of database user-defined types.</returns>
-    public Task<IReadOnlyCollection<IDatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    public Task<IReadOnlyCollection<DatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default)
     {
         return UserDefinedTypeProvider.GetAllUserDefinedTypes(cancellationToken);
     }
@@ -234,7 +234,7 @@ public class MySqlRelationalDatabase : IRelationalDatabase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database user-defined type in the 'none' state.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    public OptionAsync<IDatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
+    public OptionAsync<DatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(typeName);
 

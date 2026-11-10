@@ -15,8 +15,8 @@ internal static class UserDefinedTypesRendererTests
     public static async Task RenderAsync_GivenUserDefinedTypes_WritesSummaryFileWithExpectedCount()
     {
         using var tempDir = new TemporaryDirectory();
-        var first = new DatabaseUserDefinedType(new Identifier("type_one"), UserDefinedTypeKind.Alias, Option<IDbType>.Some(TestDbTypes.BigInteger));
-        var second = new DatabaseUserDefinedType(new Identifier("type_two"), UserDefinedTypeKind.Enum, Option<IDbType>.None);
+        var first = new DatabaseUserDefinedType.Alias(new Identifier("type_one"), TestDbTypes.BigInteger);
+        var second = new DatabaseUserDefinedType.Enum(new Identifier("type_two"), []);
 
         var renderer = new UserDefinedTypesRenderer();
         var data = ReportDataFactory.Create(userDefinedTypes: [first, second]);
@@ -38,7 +38,7 @@ internal static class UserDefinedTypesRendererTests
     public static async Task RenderAsync_GivenUserDefinedTypes_RegistersSummaryPayloadUnderUserDefinedTypesBundleKey()
     {
         using var tempDir = new TemporaryDirectory();
-        var userDefinedType = new DatabaseUserDefinedType(new Identifier("type_one"), UserDefinedTypeKind.Domain, Option<IDbType>.Some(TestDbTypes.BigInteger));
+        var userDefinedType = new DatabaseUserDefinedType.Domain(new Identifier("type_one"), TestDbTypes.BigInteger);
         var bundle = new BundleBuilder();
 
         var renderer = new UserDefinedTypesRenderer();

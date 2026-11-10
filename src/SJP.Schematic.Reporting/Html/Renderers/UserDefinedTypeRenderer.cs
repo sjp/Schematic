@@ -25,7 +25,7 @@ internal sealed class UserDefinedTypeRenderer : IDataRenderer
     }
 
     private static async Task RenderUserDefinedTypeAsync(
-        IDatabaseUserDefinedType userDefinedType,
+        DatabaseUserDefinedType userDefinedType,
         UserDefinedTypeModelMapper mapper,
         UserDefinedTypeTargets userDefinedTypeTargets,
         RenderContext context,

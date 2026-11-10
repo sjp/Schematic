@@ -14,17 +14,17 @@ internal static class UserDefinedTypeTests
     public static void Ctor_GivenNullTypeName_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new UserDefinedType(null!, UserDefinedTypeKind.Domain, Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], [], []),
+            () => new UserDefinedType(null!, "Domain", Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], [], []),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
         );
     }
 
     [Test]
-    public static void Ctor_GivenInvalidUserDefinedTypeKind_ThrowsArgumentException()
+    public static void Ctor_GivenNullKind_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new UserDefinedType(TypeName, (UserDefinedTypeKind)55, Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], [], []),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind")
+            () => new UserDefinedType(TypeName, null!, Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], [], []),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind")
         );
     }
 
@@ -32,7 +32,7 @@ internal static class UserDefinedTypeTests
     public static void Ctor_GivenNullEnumValues_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new UserDefinedType(TypeName, UserDefinedTypeKind.Enum, Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, null!, [], []),
+            () => new UserDefinedType(TypeName, "Enum", Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, null!, [], []),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("enumValues")
         );
     }
@@ -41,7 +41,7 @@ internal static class UserDefinedTypeTests
     public static void Ctor_GivenNullAttributes_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new UserDefinedType(TypeName, UserDefinedTypeKind.Composite, Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], null!, []),
+            () => new UserDefinedType(TypeName, "Composite", Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], null!, []),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("attributes")
         );
     }
@@ -50,7 +50,7 @@ internal static class UserDefinedTypeTests
     public static void Ctor_GivenNullChecks_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new UserDefinedType(TypeName, UserDefinedTypeKind.Domain, Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], [], null!),
+            () => new UserDefinedType(TypeName, "Domain", Option<IDbType>.None, Option<Uri>.None, true, Option<string>.None, Option<string>.None, [], [], null!),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("checks")
         );
     }

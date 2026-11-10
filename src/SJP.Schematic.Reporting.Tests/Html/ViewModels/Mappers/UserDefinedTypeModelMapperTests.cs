@@ -20,16 +20,7 @@ internal static class UserDefinedTypeModelMapperTests
             new DatabaseColumn("intensity", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
             new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, null),
         ];
-        var feeling = new DatabaseUserDefinedType(
-            FeelingName,
-            UserDefinedTypeKind.Composite,
-            Option<IDbType>.None,
-            [],
-            attributes,
-            [],
-            true,
-            Option<string>.None,
-            Option<string>.None);
+        var feeling = new DatabaseUserDefinedType.Composite(FeelingName, attributes);
 
         var model = new UserDefinedTypeModelMapper().Map(feeling, new UserDefinedTypeTargets([MoodName, FeelingName]));
         var mappedAttributes = model.Attributes.ToList();
@@ -64,21 +55,15 @@ internal static class UserDefinedTypeModelMapperTests
     [Test]
     public static void Map_GivenDomainOverBuiltInType_DoesNotLinkBaseType()
     {
-        var domain = new DatabaseUserDefinedType(
-            FeelingName,
-            UserDefinedTypeKind.Domain,
-            Option<IDbType>.Some(TestDbTypes.BigInteger));
+        var domain = new DatabaseUserDefinedType.Domain(FeelingName, TestDbTypes.BigInteger);
 
         var model = new UserDefinedTypeModelMapper().Map(domain, new UserDefinedTypeTargets([MoodName, FeelingName]));
 
         Assert.That(model.BaseTypeUrl, Is.Null);
     }
 
-    private static IDatabaseUserDefinedType CreateDomain()
+    private static DatabaseUserDefinedType CreateDomain()
     {
-        return new DatabaseUserDefinedType(
-            FeelingName,
-            UserDefinedTypeKind.Domain,
-            Option<IDbType>.Some(UserDefinedDbTypes.Named(MoodName)));
+        return new DatabaseUserDefinedType.Domain(FeelingName, UserDefinedDbTypes.Named(MoodName));
     }
 }

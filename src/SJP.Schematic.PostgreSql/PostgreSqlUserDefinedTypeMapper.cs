@@ -19,7 +19,7 @@ internal static class PostgreSqlUserDefinedTypeMapper
     private const string CompositeTypeKind = "c";
     private const string RangeTypeKind = "r";
 
-    public static IDatabaseUserDefinedType MapType(
+    public static DatabaseUserDefinedType MapType(
         Identifier typeName,
         IUserDefinedTypeDefinitionRow row,
         IReadOnlyList<IDatabaseColumn> attributes,
@@ -32,15 +32,6 @@ internal static class PostgreSqlUserDefinedTypeMapper
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(checks);
         ArgumentNullException.ThrowIfNull(typeProvider);
-
-        var kind = row.TypeKind switch
-        {
-            DomainTypeKind => UserDefinedTypeKind.Domain,
-            EnumTypeKind => UserDefinedTypeKind.Enum,
-            CompositeTypeKind => UserDefinedTypeKind.Composite,
-            RangeTypeKind => UserDefinedTypeKind.Range,
-            _ => UserDefinedTypeKind.Unknown,
-        };
 
         // only a domain and a range are defined over another type
         var baseType = !row.BaseTypeName.IsNullOrWhiteSpace()
@@ -59,18 +50,21 @@ internal static class PostgreSqlUserDefinedTypeMapper
             ? Option<string>.Some(row.DefaultValue)
             : Option<string>.None;
 
-        return new DatabaseUserDefinedType(
-            typeName,
-            kind,
-            baseType,
-            row.EnumLabels ?? [],
-            attributes,
-            checks,
-            !row.IsNotNull,
-            defaultValue,
-            // PostgreSQL stores no textual definition for a type, only the catalog rows describing it
-            Option<string>.None
-        );
+        // PostgreSQL stores no textual definition for a type, only the catalog rows describing it.
+        // A domain or range whose underlying type cannot be read, e.g. because information_schema
+        // hides it from the current user, cannot be described as one, so it is reported as unknown.
+        return row.TypeKind switch
+        {
+            DomainTypeKind => baseType.Match<DatabaseUserDefinedType>(
+                aliasedType => new DatabaseUserDefinedType.Domain(typeName, aliasedType, !row.IsNotNull, defaultValue, checks),
+                () => new DatabaseUserDefinedType.Unknown(typeName)),
+            EnumTypeKind => new DatabaseUserDefinedType.Enum(typeName, row.EnumLabels ?? []),
+            CompositeTypeKind => new DatabaseUserDefinedType.Composite(typeName, attributes),
+            RangeTypeKind => baseType.Match<DatabaseUserDefinedType>(
+                subtype => new DatabaseUserDefinedType.Range(typeName, subtype),
+                () => new DatabaseUserDefinedType.Unknown(typeName)),
+            _ => new DatabaseUserDefinedType.Unknown(typeName),
+        };
     }
 
     public static IReadOnlyList<IDatabaseColumn> MapAttributes(IEnumerable<IUserDefinedTypeAttributeRow> rows, IDbTypeProvider typeProvider)

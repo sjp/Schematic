@@ -18,7 +18,7 @@ public class RelationalDatabase : IRelationalDatabase
     private readonly Dictionary<Identifier, IDatabaseSequence> _sequencesByName;
     private readonly Dictionary<Identifier, IDatabaseSynonym> _synonymsByName;
     private readonly Dictionary<Identifier, IDatabaseRoutine> _routinesByName;
-    private readonly Dictionary<Identifier, IDatabaseUserDefinedType> _userDefinedTypesByName;
+    private readonly Dictionary<Identifier, DatabaseUserDefinedType> _userDefinedTypesByName;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RelationalDatabase"/> class.
@@ -55,7 +55,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="synonyms">A collection of database synonyms.</param>
     /// <param name="routines">A collection of database routines.</param>
     /// <param name="userDefinedTypes">A collection of database user-defined types.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/> or <paramref name="userDefinedTypes"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/> or <paramref name="userDefinedTypes"/> is <see langword="null" /> or contains <see langword="null" /> values, or <paramref name="userDefinedTypes"/> contains a <see langword="default" /> value.</exception>
     public RelationalDatabase(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -64,7 +64,7 @@ public class RelationalDatabase : IRelationalDatabase
         IReadOnlyCollection<IDatabaseSequence> sequences,
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
-        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes
+        IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes
     )
         : this(identifierDefaults, identifierResolver, tables, views, sequences, synonyms, routines, userDefinedTypes, [])
     {
@@ -82,7 +82,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="routines">A collection of database routines.</param>
     /// <param name="userDefinedTypes">A collection of database user-defined types.</param>
     /// <param name="schemas">A collection of database schemas.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/>, <paramref name="userDefinedTypes"/> or <paramref name="schemas"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/>, <paramref name="userDefinedTypes"/> or <paramref name="schemas"/> is <see langword="null" /> or contains <see langword="null" /> values, or <paramref name="userDefinedTypes"/> contains a <see langword="default" /> value.</exception>
     public RelationalDatabase(
         IIdentifierDefaults identifierDefaults,
         IIdentifierResolutionStrategy identifierResolver,
@@ -91,7 +91,7 @@ public class RelationalDatabase : IRelationalDatabase
         IReadOnlyCollection<IDatabaseSequence> sequences,
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
-        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes,
+        IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes,
         IReadOnlyCollection<IDatabaseSchema> schemas
     )
     {
@@ -103,6 +103,13 @@ public class RelationalDatabase : IRelationalDatabase
         Synonyms = synonyms.ToDefensiveCopy(nameof(synonyms));
         Routines = routines.ToDefensiveCopy(nameof(routines));
         UserDefinedTypes = userDefinedTypes.ToDefensiveCopy(nameof(userDefinedTypes));
+        foreach (var userDefinedType in UserDefinedTypes)
+        {
+            // a default union value holds no type, so it is as absent as a null element
+            if (userDefinedType.Value is null)
+                throw new ArgumentNullException(nameof(userDefinedTypes));
+        }
+
         Schemas = schemas.ToDefensiveCopy(nameof(schemas));
 
         _tablesByName = BuildLookup(Tables);
@@ -165,7 +172,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// An in-memory collection of database user-defined types.
     /// </summary>
     /// <value>A collection of database user-defined types.</value>
-    protected IReadOnlyCollection<IDatabaseUserDefinedType> UserDefinedTypes { get; }
+    protected IReadOnlyCollection<DatabaseUserDefinedType> UserDefinedTypes { get; }
 
     /// <summary>
     /// Qualifies the name of the object so that they can be compared during lookup.
@@ -385,14 +392,14 @@ public class RelationalDatabase : IRelationalDatabase
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database user-defined types.</returns>
-    public IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default) => UserDefinedTypes.ToAsyncEnumerable();
+    public IAsyncEnumerable<DatabaseUserDefinedType> EnumerateAllUserDefinedTypes(CancellationToken cancellationToken = default) => UserDefinedTypes.ToAsyncEnumerable();
 
     /// <summary>
     /// Retrieves all of the database user-defined types.
     /// </summary>
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>A collection of database user-defined types.</returns>
-    public Task<IReadOnlyCollection<IDatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default) => Task.FromResult(UserDefinedTypes);
+    public Task<IReadOnlyCollection<DatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default) => Task.FromResult(UserDefinedTypes);
 
     /// <summary>
     /// Retrieves a database user-defined type by its name.
@@ -401,7 +408,7 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="cancellationToken">A cancellation token. Unused.</param>
     /// <returns>An option type with a database user-defined type, if available, otherwise an option type in the none state.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    public OptionAsync<IDatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
+    public OptionAsync<DatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(typeName);
 

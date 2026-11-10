@@ -8,7 +8,7 @@ namespace SJP.Schematic.Core.Comments;
 /// <summary>
 /// Defines an object which retrieves comments for database user-defined types.
 /// </summary>
-/// <seealso cref="IDatabaseUserDefinedType"/>
+/// <seealso cref="DatabaseUserDefinedType"/>
 public interface IDatabaseUserDefinedTypeCommentProvider
 {
     /// <summary>

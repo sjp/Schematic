@@ -17,7 +17,7 @@ internal static class OracleUserDefinedTypeMapper
     private const string ObjectTypeCode = "OBJECT";
     private const string CollectionTypeCode = "COLLECTION";
 
-    public static IDatabaseUserDefinedType MapType(
+    public static DatabaseUserDefinedType MapType(
         Identifier typeName,
         IUserDefinedTypeDefinitionRow row,
         IReadOnlyList<IDatabaseColumn> attributes,
@@ -30,41 +30,29 @@ internal static class OracleUserDefinedTypeMapper
         ArgumentNullException.ThrowIfNull(attributes);
         ArgumentNullException.ThrowIfNull(typeProvider);
 
-        var kind = row.TypeCode switch
+        // Oracle constrains an object type through the methods declared on it, never through a
+        // check constraint, and an Oracle type is always nullable with no default, so beyond its
+        // attributes or element type there is nothing more to report
+        if (row.TypeCode == ObjectTypeCode)
+            return new DatabaseUserDefinedType.Composite(typeName, attributes, definition);
+
+        // a collection whose element type cannot be read cannot be described as one, so it is
+        // reported as unknown
+        if (row.TypeCode != CollectionTypeCode || row.ElementTypeName.IsNullOrWhiteSpace())
+            return new DatabaseUserDefinedType.Unknown(typeName, definition);
+
+        var elementType = typeProvider.CreateColumnType(new OracleColumnTypeMetadata
         {
-            ObjectTypeCode => UserDefinedTypeKind.Composite,
-            CollectionTypeCode => UserDefinedTypeKind.Collection,
-            _ => UserDefinedTypeKind.Unknown,
-        };
+            TypeName = Identifier.CreateQualifiedIdentifier(row.ElementTypeSchema, row.ElementTypeName),
+            MaxLength = row.ElementLength,
+            HasCharacterLengthSemantics = OracleCatalogMapper.HasCharacterLengthSemantics(row.ElementCharUsed),
+            NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ElementTypeName, row.ElementPrecision, row.ElementScale),
+            Collation = !row.ElementCollation.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ElementCollation))
+                : Option<Identifier>.None,
+        });
 
-        // only a collection type names an element type, which becomes the type it is defined over
-        var baseType = !row.ElementTypeName.IsNullOrWhiteSpace()
-            ? Option<IDbType>.Some(typeProvider.CreateColumnType(new OracleColumnTypeMetadata
-            {
-                TypeName = Identifier.CreateQualifiedIdentifier(row.ElementTypeSchema, row.ElementTypeName),
-                MaxLength = row.ElementLength,
-                HasCharacterLengthSemantics = OracleCatalogMapper.HasCharacterLengthSemantics(row.ElementCharUsed),
-                NumericPrecision = OracleCatalogMapper.GetNumericPrecision(row.ElementTypeName, row.ElementPrecision, row.ElementScale),
-                Collation = !row.ElementCollation.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.ElementCollation))
-                    : Option<Identifier>.None,
-            }))
-            : Option<IDbType>.None;
-
-        return new DatabaseUserDefinedType(
-            typeName,
-            kind,
-            baseType,
-            [],
-            attributes,
-            // Oracle constrains an object type through the methods declared on it, never through a
-            // check constraint, so there is nothing to report here
-            [],
-            // an Oracle type is always nullable; there is no way to declare otherwise
-            true,
-            Option<string>.None,
-            definition
-        );
+        return new DatabaseUserDefinedType.Collection(typeName, elementType, definition);
     }
 
     public static IReadOnlyList<IDatabaseColumn> MapAttributes(IEnumerable<IUserDefinedTypeAttributeRow> rows, IDbTypeProvider typeProvider)

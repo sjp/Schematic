@@ -14,7 +14,7 @@ namespace SJP.Schematic.SqlServer;
 /// </summary>
 internal static class SqlServerUserDefinedTypeMapper
 {
-    public static IDatabaseUserDefinedType MapType(
+    public static DatabaseUserDefinedType MapType(
         Identifier typeName,
         IUserDefinedTypeDefinitionRow row,
         IReadOnlyList<IDatabaseColumn> attributes,
@@ -28,45 +28,40 @@ internal static class SqlServerUserDefinedTypeMapper
         ArgumentNullException.ThrowIfNull(checks);
         ArgumentNullException.ThrowIfNull(typeProvider);
 
-        var kind = row.IsTableType
-            ? UserDefinedTypeKind.Table
-            : row.IsAssemblyType
-                ? UserDefinedTypeKind.Clr
-                : UserDefinedTypeKind.Alias;
-
-        // only an alias type is defined over a built-in type; a table or assembly type is not
-        var baseType = !row.IsTableType && !row.IsAssemblyType && !row.BaseTypeName.IsNullOrWhiteSpace()
-            ? Option<IDbType>.Some(typeProvider.CreateColumnType(new ColumnTypeMetadata
-            {
-                TypeName = Identifier.CreateQualifiedIdentifier(Constants.SystemTypeSchema, row.BaseTypeName),
-                MaxLength = row.MaxLength,
-                NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
-                Collation = !row.Collation.IsNullOrWhiteSpace()
-                    ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
-                    : Option<Identifier>.None,
-            }))
-            : Option<IDbType>.None;
+        // only a table type carries attributes and checks
+        if (row.IsTableType)
+            return new DatabaseUserDefinedType.Table(typeName, attributes, checks);
 
         // a CLR type has no textual definition in the catalog, only the class implementing it
-        var definition = row.IsAssemblyType && !row.AssemblyName.IsNullOrWhiteSpace() && !row.AssemblyClass.IsNullOrWhiteSpace()
-            ? Option<string>.Some(row.AssemblyName + "." + row.AssemblyClass)
-            : Option<string>.None;
+        if (row.IsAssemblyType)
+        {
+            var externalName = !row.AssemblyName.IsNullOrWhiteSpace() && !row.AssemblyClass.IsNullOrWhiteSpace()
+                ? Option<string>.Some(row.AssemblyName + "." + row.AssemblyClass)
+                : Option<string>.None;
+            return new DatabaseUserDefinedType.Clr(typeName, externalName);
+        }
 
+        // every other user-defined type is an alias type, defined over a built-in type; one whose
+        // built-in type cannot be read cannot be described as an alias, so it is reported as unknown
+        if (row.BaseTypeName.IsNullOrWhiteSpace())
+            return new DatabaseUserDefinedType.Unknown(typeName);
+
+        var aliasedType = typeProvider.CreateColumnType(new ColumnTypeMetadata
+        {
+            TypeName = Identifier.CreateQualifiedIdentifier(Constants.SystemTypeSchema, row.BaseTypeName),
+            MaxLength = row.MaxLength,
+            NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
+            Collation = !row.Collation.IsNullOrWhiteSpace()
+                ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.Collation))
+                : Option<Identifier>.None,
+        });
+
+        // only an alias type can be bound to a default, with sp_bindefault
         var defaultValue = !row.DefaultValue.IsNullOrWhiteSpace()
             ? Option<string>.Some(row.DefaultValue)
             : Option<string>.None;
 
-        return new DatabaseUserDefinedType(
-            typeName,
-            kind,
-            baseType,
-            [],
-            attributes,
-            checks,
-            row.IsNullable,
-            defaultValue,
-            definition
-        );
+        return new DatabaseUserDefinedType.Alias(typeName, aliasedType, row.IsNullable, defaultValue);
     }
 
     public static IReadOnlyList<IDatabaseColumn> MapAttributes(IEnumerable<IUserDefinedTypeAttributeRow> rows, IDbTypeProvider typeProvider)

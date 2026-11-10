@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using SJP.Schematic.Reporting.Html.ViewModels;
+using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 namespace SJP.Schematic.Reporting.Html.Renderers;
 
@@ -54,7 +55,7 @@ internal sealed class SearchRenderer : IDataRenderer
             // A composite or table type's attributes are as searchable as a table's columns, and
             // are labelled distinctly so a hit leads to the type page rather than looking like a
             // column of a table that does not exist.
-            foreach (var attribute in userDefinedType.Attributes)
+            foreach (var attribute in UserDefinedTypeDetails.From(userDefinedType).Attributes)
                 entries.Add(new Search.SearchEntry(attribute.Name.LocalName, "Attribute", typeUrl, typeName));
         }
 

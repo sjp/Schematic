@@ -4,7 +4,7 @@ using LanguageExt;
 namespace SJP.Schematic.Core.Comments;
 
 /// <summary>
-/// Comments for an <see cref="IDatabaseUserDefinedType"/> instance.
+/// Comments for an <see cref="DatabaseUserDefinedType"/> instance.
 /// </summary>
 /// <seealso cref="IDatabaseUserDefinedTypeComments" />
 public class DatabaseUserDefinedTypeComments : IDatabaseUserDefinedTypeComments
@@ -22,13 +22,13 @@ public class DatabaseUserDefinedTypeComments : IDatabaseUserDefinedTypeComments
     }
 
     /// <summary>
-    /// The name of an <see cref="IDatabaseUserDefinedType" /> instance.
+    /// The name of an <see cref="DatabaseUserDefinedType" /> instance.
     /// </summary>
     /// <value>The type name.</value>
     public Identifier TypeName { get; }
 
     /// <summary>
-    /// A comment for the <see cref="IDatabaseUserDefinedType" /> instance.
+    /// A comment for the <see cref="DatabaseUserDefinedType" /> instance.
     /// </summary>
     /// <value>The comment, if available.</value>
     public Option<string> Comment { get; }

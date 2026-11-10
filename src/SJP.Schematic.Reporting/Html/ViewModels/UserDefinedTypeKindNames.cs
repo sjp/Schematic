@@ -11,21 +11,18 @@ internal static class UserDefinedTypeKindNames
     /// Describes a user-defined type's kind for display. A dialect that does not say what kind of
     /// type it reported gets no name, so that nothing is shown in place of a kind that is not known.
     /// </summary>
-    /// <param name="kind">The kind of the type.</param>
+    /// <param name="userDefinedType">The type whose kind is described.</param>
     /// <returns>A display name, or an empty string when the kind is unknown.</returns>
-    public static string GetName(UserDefinedTypeKind kind)
+    public static string GetName(DatabaseUserDefinedType userDefinedType) => userDefinedType switch
     {
-        return kind switch
-        {
-            UserDefinedTypeKind.Alias => "Alias",
-            UserDefinedTypeKind.Domain => "Domain",
-            UserDefinedTypeKind.Enum => "Enum",
-            UserDefinedTypeKind.Composite => "Composite",
-            UserDefinedTypeKind.Range => "Range",
-            UserDefinedTypeKind.Table => "Table",
-            UserDefinedTypeKind.Clr => "CLR",
-            UserDefinedTypeKind.Collection => "Collection",
-            _ => string.Empty,
-        };
-    }
+        DatabaseUserDefinedType.Unknown => string.Empty,
+        DatabaseUserDefinedType.Alias => "Alias",
+        DatabaseUserDefinedType.Domain => "Domain",
+        DatabaseUserDefinedType.Enum => "Enum",
+        DatabaseUserDefinedType.Composite => "Composite",
+        DatabaseUserDefinedType.Range => "Range",
+        DatabaseUserDefinedType.Table => "Table",
+        DatabaseUserDefinedType.Clr => "CLR",
+        DatabaseUserDefinedType.Collection => "Collection",
+    };
 }

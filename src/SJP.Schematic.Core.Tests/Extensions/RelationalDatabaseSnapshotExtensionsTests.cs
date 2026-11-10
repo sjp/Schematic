@@ -716,9 +716,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
     public static async Task SnapshotAsync_WhenGivenRelationalDatabaseWithUserDefinedTypes_ReturnsDatabaseWithMatchingUserDefinedTypes()
     {
         var testTypeName = Identifier.CreateQualifiedIdentifier("test_type_name");
-        var userDefinedType = new Mock<IDatabaseUserDefinedType>(MockBehavior.Strict);
-        userDefinedType.Setup(t => t.Name).Returns(testTypeName);
-        var userDefinedTypes = new[] { userDefinedType.Object };
+        var userDefinedTypes = new DatabaseUserDefinedType[] { new DatabaseUserDefinedType.Unknown(testTypeName) };
 
         var database = new RelationalDatabase(
             new IdentifierDefaults("test_server", "test_database", "test_schema"),
@@ -745,8 +743,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
     [Test]
     public static async Task SnapshotAsync_WhenUserDefinedTypesExcludedByOptions_ReturnsDatabaseWithoutUserDefinedTypes()
     {
-        var userDefinedType = new Mock<IDatabaseUserDefinedType>(MockBehavior.Strict);
-        userDefinedType.Setup(t => t.Name).Returns(Identifier.CreateQualifiedIdentifier("test_type_name"));
+        DatabaseUserDefinedType userDefinedType = new DatabaseUserDefinedType.Unknown(Identifier.CreateQualifiedIdentifier("test_type_name"));
 
         var database = new RelationalDatabase(
             new IdentifierDefaults("test_server", "test_database", "test_schema"),
@@ -756,7 +753,7 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             [],
             [],
             [],
-            [userDefinedType.Object]
+            [userDefinedType]
         );
 
         var snapshot = await database.SnapshotAsync(RelationalDatabaseSnapshotOptions.Empty);

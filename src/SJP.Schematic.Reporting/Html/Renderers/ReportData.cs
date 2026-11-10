@@ -24,7 +24,7 @@ internal sealed class ReportData
         IReadOnlyCollection<IDatabaseSynonym> synonyms,
         IReadOnlyCollection<IDatabaseRoutine> routines,
         IReadOnlyCollection<IDatabaseSchema> schemas,
-        IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes,
+        IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes,
         string? databaseVersion,
         ReferencedObjectTargets referencedObjectTargets,
         SynonymTargets synonymTargets,
@@ -66,7 +66,7 @@ internal sealed class ReportData
 
     public IReadOnlyCollection<IDatabaseSchema> Schemas { get; }
 
-    public IReadOnlyCollection<IDatabaseUserDefinedType> UserDefinedTypes { get; }
+    public IReadOnlyCollection<DatabaseUserDefinedType> UserDefinedTypes { get; }
 
     public string? DatabaseVersion { get; }
 

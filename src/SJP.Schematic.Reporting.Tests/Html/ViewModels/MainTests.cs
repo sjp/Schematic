@@ -107,17 +107,17 @@ internal static class MainTests
     public static void UserDefinedTypeCtor_GivenNullTypeName_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new Main.UserDefinedType(null!, UserDefinedTypeKind.Domain, Option<IDbType>.None, Option<Uri>.None, true, 0, 0),
+            () => new Main.UserDefinedType(null!, "Domain", Option<IDbType>.None, Option<Uri>.None, true, 0, 0),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("typeName")
         );
     }
 
     [Test]
-    public static void UserDefinedTypeCtor_GivenInvalidUserDefinedTypeKind_ThrowsArgumentException()
+    public static void UserDefinedTypeCtor_GivenNullKind_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new Main.UserDefinedType(TypeName, (UserDefinedTypeKind)55, Option<IDbType>.None, Option<Uri>.None, true, 0, 0),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind")
+            () => new Main.UserDefinedType(TypeName, null!, Option<IDbType>.None, Option<Uri>.None, true, 0, 0),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind")
         );
     }
 }

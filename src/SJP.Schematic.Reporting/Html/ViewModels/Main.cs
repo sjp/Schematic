@@ -332,7 +332,7 @@ public sealed class Main
     {
         public UserDefinedType(
             Identifier typeName,
-            UserDefinedTypeKind kind,
+            string kind,
             Option<IDbType> baseType,
             Option<Uri> baseTypeUrl,
             bool isNullable,
@@ -341,13 +341,11 @@ public sealed class Main
         )
         {
             ArgumentNullException.ThrowIfNull(typeName);
-            if (!kind.IsValid())
-                throw new ArgumentException($"The {nameof(UserDefinedTypeKind)} provided must be a valid enum.", nameof(kind));
 
             Name = typeName.ToVisibleName();
             TypeUrl = UrlRouter.GetUserDefinedTypeUrl(typeName);
 
-            Kind = UserDefinedTypeKindNames.GetName(kind);
+            Kind = kind ?? throw new ArgumentNullException(nameof(kind));
             BaseType = baseType.Match(static t => t.Definition, static () => string.Empty);
             BaseTypeUrl = baseTypeUrl.MatchUnsafe(static uri => uri.ToString(), static () => (string?)null);
             IsNullable = isNullable;

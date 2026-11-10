@@ -1190,7 +1190,7 @@ internal static class RelationalDatabaseTests
     }
 
     [Test]
-    public static void Ctor_GivenUserDefinedTypesContainingNull_ThrowsArgumentNullException()
+    public static void Ctor_GivenUserDefinedTypesContainingDefault_ThrowsArgumentNullException()
     {
         var identifierDefaults = new IdentifierDefaults("test_server", "test_database", "test_schema");
         var identifierResolver = new VerbatimIdentifierResolutionStrategy();
@@ -1209,7 +1209,7 @@ internal static class RelationalDatabaseTests
                 sequences,
                 synonyms,
                 routines,
-                new IDatabaseUserDefinedType[] { null }
+                new DatabaseUserDefinedType[] { default }
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
@@ -1286,7 +1286,7 @@ internal static class RelationalDatabaseTests
         var sequences = Array.Empty<IDatabaseSequence>();
         var synonyms = Array.Empty<IDatabaseSynonym>();
         var routines = Array.Empty<IDatabaseRoutine>();
-        var userDefinedTypes = Array.Empty<IDatabaseUserDefinedType>();
+        var userDefinedTypes = Array.Empty<DatabaseUserDefinedType>();
 
         Assert.That(
             () => new RelationalDatabase(
@@ -1313,7 +1313,7 @@ internal static class RelationalDatabaseTests
         var sequences = Array.Empty<IDatabaseSequence>();
         var synonyms = Array.Empty<IDatabaseSynonym>();
         var routines = Array.Empty<IDatabaseRoutine>();
-        var userDefinedTypes = Array.Empty<IDatabaseUserDefinedType>();
+        var userDefinedTypes = Array.Empty<DatabaseUserDefinedType>();
 
         Assert.That(
             () => new RelationalDatabase(
@@ -1460,14 +1460,12 @@ internal static class RelationalDatabaseTests
         );
     }
 
-    private static IDatabaseUserDefinedType CreateUserDefinedType(Identifier typeName)
+    private static DatabaseUserDefinedType CreateUserDefinedType(Identifier typeName)
     {
-        var userDefinedType = new Mock<IDatabaseUserDefinedType>(MockBehavior.Strict);
-        userDefinedType.Setup(t => t.Name).Returns(typeName);
-        return userDefinedType.Object;
+        return new DatabaseUserDefinedType.Unknown(typeName);
     }
 
-    private static RelationalDatabase CreateDatabaseWithUserDefinedTypes(IReadOnlyCollection<IDatabaseUserDefinedType> userDefinedTypes)
+    private static RelationalDatabase CreateDatabaseWithUserDefinedTypes(IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes)
     {
         return new RelationalDatabase(
             new IdentifierDefaults("test_server", "test_database", "test_schema"),

@@ -54,7 +54,7 @@ public class PostgreSqlDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTyp
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database user-defined types.</returns>
-    public async IAsyncEnumerable<IDatabaseUserDefinedType> EnumerateAllUserDefinedTypes([EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerable<DatabaseUserDefinedType> EnumerateAllUserDefinedTypes([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         // attributes and checks are read in bulk for every type at once, so there is nothing to stream
         var types = await GetAllUserDefinedTypes(cancellationToken);
@@ -67,7 +67,7 @@ public class PostgreSqlDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTyp
     /// </summary>
     /// <param name="cancellationToken">A cancellation token.</param>
     /// <returns>A collection of database user-defined types.</returns>
-    public async Task<IReadOnlyCollection<IDatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyCollection<DatabaseUserDefinedType>> GetAllUserDefinedTypes(CancellationToken cancellationToken = default)
     {
         var (definitions, attributes, checks) = await (
             Connection.QueryAsync<GetAllUserDefinedTypeDefinitions.Result>(GetAllUserDefinedTypeDefinitions.Sql, cancellationToken),
@@ -101,7 +101,7 @@ public class PostgreSqlDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTyp
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database user-defined type in the 'some' state if found; otherwise 'none'.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    public OptionAsync<IDatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
+    public OptionAsync<DatabaseUserDefinedType> GetUserDefinedType(Identifier typeName, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
@@ -116,7 +116,7 @@ public class PostgreSqlDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTyp
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A database user-defined type in the 'some' state if found; otherwise 'none'.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="typeName"/> is <see langword="null" />.</exception>
-    protected OptionAsync<IDatabaseUserDefinedType> LoadUserDefinedType(Identifier typeName, CancellationToken cancellationToken)
+    protected OptionAsync<DatabaseUserDefinedType> LoadUserDefinedType(Identifier typeName, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(typeName);
 
@@ -126,7 +126,7 @@ public class PostgreSqlDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTyp
 
     // the definition query matches the name strictly, so it doubles as the existence check and
     // reports the name as the catalog stores it
-    private OptionAsync<IDatabaseUserDefinedType> LoadUserDefinedTypeData(Identifier typeName, CancellationToken cancellationToken)
+    private OptionAsync<DatabaseUserDefinedType> LoadUserDefinedTypeData(Identifier typeName, CancellationToken cancellationToken)
     {
         return Connection.QueryFirstOrNone(
             GetUserDefinedTypeDefinition.Sql,
@@ -139,7 +139,7 @@ public class PostgreSqlDatabaseUserDefinedTypeProvider : IDatabaseUserDefinedTyp
         });
     }
 
-    private async Task<IDatabaseUserDefinedType> BuildUserDefinedTypeAsync(Identifier typeName, GetUserDefinedTypeDefinition.Result row, CancellationToken cancellationToken)
+    private async Task<DatabaseUserDefinedType> BuildUserDefinedTypeAsync(Identifier typeName, GetUserDefinedTypeDefinition.Result row, CancellationToken cancellationToken)
     {
         var (attributeRows, checkRows) = await (
             Connection.QueryAsync(

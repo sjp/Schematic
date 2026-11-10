@@ -28,11 +28,13 @@ internal sealed class PostgreSqlDatabaseUserDefinedTypeProviderTests : PostgreSq
 
         var type = await TypeProvider.GetUserDefinedType("db_test_udt_domain_1", TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
 
+        Assert.That(type.Value, Is.TypeOf<DatabaseUserDefinedType.Domain>());
+        var domain = (DatabaseUserDefinedType.Domain)type.Value!;
+
         using (Assert.EnterMultipleScope())
         {
             Assert.That(type.Name, Is.EqualTo(expectedTypeName));
-            Assert.That(type.Kind, Is.EqualTo(UserDefinedTypeKind.Domain));
-            Assert.That(type.Checks, Has.Count.EqualTo(1));
+            Assert.That(domain.Checks, Has.Count.EqualTo(1));
         }
     }
 
