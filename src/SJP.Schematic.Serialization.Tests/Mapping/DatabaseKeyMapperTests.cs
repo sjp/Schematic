@@ -38,7 +38,7 @@ internal static class DatabaseKeyMapperTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.KeyType, Is.EqualTo(DatabaseKeyType.Primary));
+            Assert.That(result.KeyType, Is.EqualTo(Dto.DatabaseKeyType.Primary));
             Assert.That(result.BackingIndex, Is.Not.Null);
         }
     }
@@ -54,7 +54,7 @@ internal static class DatabaseKeyMapperTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.KeyType, Is.EqualTo(DatabaseKeyType.Unique));
+            Assert.That(result.KeyType, Is.EqualTo(Dto.DatabaseKeyType.Unique));
             Assert.That(result.BackingIndex, Is.Not.Null);
         }
     }
@@ -69,7 +69,7 @@ internal static class DatabaseKeyMapperTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.KeyType, Is.EqualTo(DatabaseKeyType.Foreign));
+            Assert.That(result.KeyType, Is.EqualTo(Dto.DatabaseKeyType.Foreign));
             Assert.That(result.BackingIndex, Is.Null);
             Assert.That(result.IsValidated, Is.False);
             Assert.That(result.Deferrability, Is.EqualTo(ConstraintDeferrability.DeferrableInitiallyDeferred));
@@ -143,7 +143,7 @@ internal static class DatabaseKeyMapperTests
     public static void Map_GivenSerializedKeyWithInvalidKeyType_ThrowsArgumentException()
     {
         var mapper = new DatabaseKeyMapper();
-        var serializedKey = mapper.Map(TestKeys.Primary()) with { KeyType = (DatabaseKeyType)55 };
+        var serializedKey = mapper.Map(TestKeys.Primary()) with { KeyType = (Dto.DatabaseKeyType)55 };
 
         Assert.That(
             () => mapper.Map(serializedKey),
@@ -193,17 +193,17 @@ internal static class DatabaseKeyMapperTests
         var mapper = new DatabaseKeyMapper();
         var column = CreateColumn("id");
         var serializedKey = mapper.Map(new DatabaseKey.Unique(Option<Identifier>.None, [column], true, Option<IDatabaseIndex>.Some(CreateIndex("ux_test", column))))
-            with { KeyType = DatabaseKeyType.Foreign };
+            with { KeyType = Dto.DatabaseKeyType.Foreign };
 
         var result = mapper.Map(serializedKey);
 
         Assert.That(result.Value, Is.TypeOf<DatabaseKey.Foreign>());
     }
 
-    [TestCase(DatabaseKeyType.Primary, "\"Primary\"")]
-    [TestCase(DatabaseKeyType.Unique, "\"Unique\"")]
-    [TestCase(DatabaseKeyType.Foreign, "\"Foreign\"")]
-    public static void KeyType_WhenSerialized_IsWrittenByName(DatabaseKeyType keyType, string expectedJson)
+    [TestCase(Dto.DatabaseKeyType.Primary, "\"Primary\"")]
+    [TestCase(Dto.DatabaseKeyType.Unique, "\"Unique\"")]
+    [TestCase(Dto.DatabaseKeyType.Foreign, "\"Foreign\"")]
+    public static void KeyType_WhenSerialized_IsWrittenByName(Dto.DatabaseKeyType keyType, string expectedJson)
     {
         var json = JsonSerializer.Serialize(keyType, JsonSerializerSettings.Default);
 

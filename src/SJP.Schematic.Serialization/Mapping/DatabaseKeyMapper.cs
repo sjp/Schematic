@@ -37,10 +37,10 @@ public class DatabaseKeyMapper
 
         return source.KeyType switch
         {
-            DatabaseKeyType.Primary => new DatabaseKey.Primary(name, keyColumns, source.IsEnabled, MapBackingIndex(source, columns), source.IsValidated, source.Deferrability),
-            DatabaseKeyType.Unique => new DatabaseKey.Unique(name, keyColumns, source.IsEnabled, MapBackingIndex(source, columns), source.IsValidated, source.Deferrability),
-            DatabaseKeyType.Foreign => new DatabaseKey.Foreign(name, keyColumns, source.IsEnabled, source.IsValidated, source.Deferrability),
-            _ => throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(source)),
+            Dto.DatabaseKeyType.Primary => new DatabaseKey.Primary(name, keyColumns, source.IsEnabled, MapBackingIndex(source, columns), source.IsValidated, source.Deferrability),
+            Dto.DatabaseKeyType.Unique => new DatabaseKey.Unique(name, keyColumns, source.IsEnabled, MapBackingIndex(source, columns), source.IsValidated, source.Deferrability),
+            Dto.DatabaseKeyType.Foreign => new DatabaseKey.Foreign(name, keyColumns, source.IsEnabled, source.IsValidated, source.Deferrability),
+            _ => throw new ArgumentException($"The {nameof(Dto.DatabaseKeyType)} provided must be a valid enum.", nameof(source)),
         };
     }
 
@@ -48,21 +48,21 @@ public class DatabaseKeyMapper
     {
         return Map(source, columns) is DatabaseKey.Primary primaryKey
             ? primaryKey
-            : throw UnexpectedKeyType(source, DatabaseKeyType.Primary);
+            : throw UnexpectedKeyType(source, Dto.DatabaseKeyType.Primary);
     }
 
     internal DatabaseKey.Unique MapUniqueKey(Dto.DatabaseKey source, ColumnLookup columns)
     {
         return Map(source, columns) is DatabaseKey.Unique uniqueKey
             ? uniqueKey
-            : throw UnexpectedKeyType(source, DatabaseKeyType.Unique);
+            : throw UnexpectedKeyType(source, Dto.DatabaseKeyType.Unique);
     }
 
     internal DatabaseKey.Foreign MapForeignKey(Dto.DatabaseKey source, ColumnLookup columns)
     {
         return Map(source, columns) is DatabaseKey.Foreign foreignKey
             ? foreignKey
-            : throw UnexpectedKeyType(source, DatabaseKeyType.Foreign);
+            : throw UnexpectedKeyType(source, Dto.DatabaseKeyType.Foreign);
     }
 
     internal CandidateKey MapCandidateKey(Dto.DatabaseKey source, ColumnLookup columns)
@@ -84,7 +84,7 @@ public class DatabaseKeyMapper
         return Option<IDatabaseIndex>.Some(indexMapper.Map(source.BackingIndex, columns));
     }
 
-    private static ArgumentException UnexpectedKeyType(Dto.DatabaseKey source, DatabaseKeyType expected)
+    private static ArgumentException UnexpectedKeyType(Dto.DatabaseKey source, Dto.DatabaseKeyType expected)
     {
         return new ArgumentException($"A key type of '{expected}' was expected, but the serialized key has a key type of '{source.KeyType}'.", nameof(source));
     }
@@ -105,9 +105,9 @@ public class DatabaseKeyMapper
 
         var (keyType, backingIndex) = source switch
         {
-            DatabaseKey.Primary primaryKey => (DatabaseKeyType.Primary, primaryKey.BackingIndex),
-            DatabaseKey.Unique uniqueKey => (DatabaseKeyType.Unique, uniqueKey.BackingIndex),
-            DatabaseKey.Foreign => (DatabaseKeyType.Foreign, Option<IDatabaseIndex>.None),
+            DatabaseKey.Primary primaryKey => (Dto.DatabaseKeyType.Primary, primaryKey.BackingIndex),
+            DatabaseKey.Unique uniqueKey => (Dto.DatabaseKeyType.Unique, uniqueKey.BackingIndex),
+            DatabaseKey.Foreign => (Dto.DatabaseKeyType.Foreign, Option<IDatabaseIndex>.None),
         };
 
         var identifierMapper = MapperRegistry.GetMapper<Option<Identifier>, Dto.Identifier?>();

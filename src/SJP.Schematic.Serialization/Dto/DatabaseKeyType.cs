@@ -1,7 +1,7 @@
-﻿namespace SJP.Schematic.Core;
+﻿namespace SJP.Schematic.Serialization.Dto;
 
 /// <summary>
-/// Describes the type of a key constraint on a table.
+/// The kind of a serialized key constraint, recording which case of <see cref="Core.DatabaseKey"/> it was written from.
 /// </summary>
 public enum DatabaseKeyType
 {

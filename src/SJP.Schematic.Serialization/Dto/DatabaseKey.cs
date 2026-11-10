@@ -15,7 +15,7 @@ public sealed record DatabaseKey
     /// <summary>
     /// The type of key constraint, e.g. primary, unique, foreign.
     /// </summary>
-    public required Core.DatabaseKeyType KeyType { get; init; }
+    public required DatabaseKeyType KeyType { get; init; }
 
     /// <summary>
     /// The columns that define the key constraint.
