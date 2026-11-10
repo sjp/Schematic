@@ -9,7 +9,7 @@ namespace SJP.Schematic.Core.Extensions;
 
 /// <summary>
 /// Convenience extension methods for working with <see cref="IAsyncEnumerable{T}"/> instances.
-/// Ideally these wouldn't be required but are necessary for bridging feature parity between .NET 10 and <c>System.Linq.Async</c>.
+/// Ideally these wouldn't be required but are necessary for bridging feature parity between .NET 11 and <c>System.Linq.Async</c>.
 /// </summary>
 public static class AsyncEnumerableExtensions
 {
