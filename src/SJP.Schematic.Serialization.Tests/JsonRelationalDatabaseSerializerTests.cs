@@ -490,6 +490,72 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
 
     [Test]
+    public static async Task SerializeDeserialize_WhenColumnDefaultsRoundTripped_PreservesDefaultCases()
+    {
+        var db = CreateColumnDefaultsDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var tables = await importedDb.GetAllTables();
+        var defaults = tables.Single().Columns.ToDictionary(c => c.Name.LocalName, c => c.Default.UnwrapSome());
+        var sequenceDefault = defaults["sequence_column"].Value as DatabaseDefaultValue.SequenceNextValue;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(defaults["unknown_column"].Value, Is.TypeOf<DatabaseDefaultValue.Unknown>());
+            Assert.That(defaults["literal_column"].Value, Is.TypeOf<DatabaseDefaultValue.Literal>());
+            Assert.That(defaults["literal_column"].ConstraintName.UnwrapSome().LocalName, Is.EqualTo("df_literal_column"));
+            Assert.That(defaults["null_column"].Value, Is.TypeOf<DatabaseDefaultValue.Null>());
+            Assert.That(defaults["expression_column"].Value, Is.TypeOf<DatabaseDefaultValue.Expression>());
+            Assert.That(sequenceDefault?.SequenceName.UnwrapSome().LocalName, Is.EqualTo("test_seq"));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenColumnDefaultsRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateColumnDefaultsDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        }
+    }
+
+    [Test]
+    public static async Task Serialize_WhenColumnHasSequenceDefault_WritesDefaultMembers()
+    {
+        var db = CreateColumnDefaultsDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+
+        using var document = JsonDocument.Parse(jsonOutputStream.ToArray());
+        var column = document.RootElement.GetProperty("Tables")[0].GetProperty("Columns")
+            .EnumerateArray()
+            .Single(c => c.GetProperty("ColumnName").GetProperty("LocalName").GetString() == "sequence_column");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.GetProperty("DefaultValue").GetString(), Is.EqualTo("(next value for [dbo].[test_seq])"));
+            Assert.That(column.GetProperty("DefaultValueKind").GetString(), Is.EqualTo("SequenceNextValue"));
+            Assert.That(column.GetProperty("DefaultSequenceName").GetProperty("LocalName").GetString(), Is.EqualTo("test_seq"));
+        }
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenFilteredIndexRoundTripped_PreservesFilterDefinition()
     {
         const string filterDefinition = "([first_name] IS NOT NULL)";
@@ -1408,6 +1474,54 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             firstNameColumn,
             new DatabaseColumn("test_computed_column", columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, definition, storage),
         };
+
+        var table = new RelationalDatabaseTable(
+            "test_table_name",
+            columns,
+            Option<DatabaseKey.Primary>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [table],
+            [],
+            [],
+            [],
+            []
+        );
+    }
+
+    private static IRelationalDatabase CreateColumnDefaultsDatabase()
+    {
+        var columnType = new ColumnDataType(
+            "int",
+            DataType.Integer,
+            "int",
+            typeof(int),
+            false,
+            4,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var defaults = new (string ColumnName, DatabaseDefaultValue Default)[]
+        {
+            ("unknown_column", new DatabaseDefaultValue.Unknown("((1))")),
+            ("literal_column", new DatabaseDefaultValue.Literal("((0))", Option<Identifier>.Some("df_literal_column"))),
+            ("null_column", new DatabaseDefaultValue.Null("(NULL)")),
+            ("expression_column", new DatabaseDefaultValue.Expression("(datepart(year,getdate()))")),
+            ("sequence_column", new DatabaseDefaultValue.SequenceNextValue("(next value for [dbo].[test_seq])", Option<Identifier>.None, Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier("dbo", "test_seq")))),
+        };
+        var columns = defaults
+            .Select(d => (IDatabaseColumn)new DatabaseColumn(d.ColumnName, columnType, true, Option<DatabaseDefaultValue>.Some(d.Default), Option<IAutoIncrement>.None))
+            .ToList();
 
         var table = new RelationalDatabaseTable(
             "test_table_name",
