@@ -1,7 +1,7 @@
-namespace SJP.Schematic.Core;
+namespace SJP.Schematic.Serialization.Dto;
 
 /// <summary>
-/// Describes how a database keeps a supply of pre-allocated values for a sequence.
+/// The mode of a serialized sequence cache, recording which case of <see cref="Core.SequenceCache"/> it was written from.
 /// </summary>
 public enum SequenceCacheMode
 {
@@ -17,7 +17,7 @@ public enum SequenceCacheMode
     None,
 
     /// <summary>
-    /// A known number of values is pre-allocated, given by <see cref="SequenceCache.Sized.Size"/>.
+    /// A known number of values is pre-allocated, given by <see cref="DatabaseSequence.CacheSize"/>.
     /// </summary>
     Sized,
 

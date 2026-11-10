@@ -18,10 +18,10 @@ public sealed record DatabaseSequence
     /// <summary>
     /// Describes whether the database pre-allocates values for the sequence.
     /// </summary>
-    public required Core.SequenceCacheMode CacheMode { get; init; }
+    public required SequenceCacheMode CacheMode { get; init; }
 
     /// <summary>
-    /// The number of values that are pre-allocated, if the database reports a size.
+    /// The number of values that are pre-allocated, when <see cref="CacheMode"/> is <see cref="SequenceCacheMode.Sized"/>.
     /// </summary>
     public int? CacheSize { get; init; }
 

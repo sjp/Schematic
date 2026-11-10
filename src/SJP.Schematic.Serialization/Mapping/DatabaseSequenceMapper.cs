@@ -67,19 +67,19 @@ public class DatabaseSequenceMapper
     // cache rather than failing, as the size is the one thing a sized cache is meant to report
     private static SequenceCache MapCache(Dto.DatabaseSequence source) => source.CacheMode switch
     {
-        SequenceCacheMode.Unknown => new SequenceCache.Unknown(),
-        SequenceCacheMode.None => new SequenceCache.None(),
-        SequenceCacheMode.Sized when source.CacheSize is int size => new SequenceCache.Sized(size),
-        SequenceCacheMode.Sized => new SequenceCache.Unknown(),
-        SequenceCacheMode.EngineDefault => new SequenceCache.EngineDefault(),
-        _ => throw new ArgumentException($"The {nameof(SequenceCacheMode)} provided must be a valid enum.", nameof(source)),
+        Dto.SequenceCacheMode.Unknown => new SequenceCache.Unknown(),
+        Dto.SequenceCacheMode.None => new SequenceCache.None(),
+        Dto.SequenceCacheMode.Sized when source.CacheSize is int size => new SequenceCache.Sized(size),
+        Dto.SequenceCacheMode.Sized => new SequenceCache.Unknown(),
+        Dto.SequenceCacheMode.EngineDefault => new SequenceCache.EngineDefault(),
+        _ => throw new ArgumentException($"The {nameof(Dto.SequenceCacheMode)} provided must be a valid enum.", nameof(source)),
     };
 
-    private static (SequenceCacheMode CacheMode, int? CacheSize) MapCache(SequenceCache cache) => cache switch
+    private static (Dto.SequenceCacheMode CacheMode, int? CacheSize) MapCache(SequenceCache cache) => cache switch
     {
-        SequenceCache.Unknown => (SequenceCacheMode.Unknown, null),
-        SequenceCache.None => (SequenceCacheMode.None, null),
-        SequenceCache.Sized sized => (SequenceCacheMode.Sized, sized.Size),
-        SequenceCache.EngineDefault => (SequenceCacheMode.EngineDefault, null),
+        SequenceCache.Unknown => (Dto.SequenceCacheMode.Unknown, null),
+        SequenceCache.None => (Dto.SequenceCacheMode.None, null),
+        SequenceCache.Sized sized => (Dto.SequenceCacheMode.Sized, sized.Size),
+        SequenceCache.EngineDefault => (Dto.SequenceCacheMode.EngineDefault, null),
     };
 }
