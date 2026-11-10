@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Oracle.Tests;
 
@@ -219,7 +220,7 @@ internal static class OracleRelationalDatabaseTableProviderTests
         public static object CreateForeignKeyReference(DatabaseKeyType parentKeyType, ReferentialAction deleteAction)
         {
             return new ForeignKeyReference(
-                Mock.Of<IDatabaseKey>(),
+                TestKeys.Foreign(),
                 Identifier.CreateQualifiedIdentifier("test_schema", "parent_table"),
                 "parent_key",
                 parentKeyType,

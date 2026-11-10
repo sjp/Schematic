@@ -2,11 +2,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using LanguageExt;
-using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint;
 using SJP.Schematic.Reporting.Html.Lint.Rules;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Reporting.Tests.Html.Lint.Rules;
 
@@ -67,7 +67,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var table = new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.Some(Mock.Of<IDatabaseKey>()),
+            Option<IDatabaseKey>.Some(TestKeys.Primary()),
             [],
             [],
             [],

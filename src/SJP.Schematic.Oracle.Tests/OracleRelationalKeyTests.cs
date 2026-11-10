@@ -1,6 +1,5 @@
 ﻿using System;
 using LanguageExt;
-using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -13,9 +12,9 @@ internal static class OracleRelationalKeyTests
     [Test]
     public static void Ctor_GivenNullChildTable_ThrowsArgumentNullException()
     {
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
         Assert.That(() => new OracleRelationalKey(null, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childTableName"));
@@ -26,7 +25,7 @@ internal static class OracleRelationalKeyTests
     {
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
         Assert.That(() => new OracleRelationalKey(childTableName, null, parentTableName, parentKey, deleteAction), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey"));
@@ -36,8 +35,8 @@ internal static class OracleRelationalKeyTests
     public static void Ctor_GivenNullParentTable_ThrowsArgumentNullException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
         Assert.That(() => new OracleRelationalKey(childTableName, childKey, null, parentKey, deleteAction), Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentTableName"));
@@ -47,7 +46,7 @@ internal static class OracleRelationalKeyTests
     public static void Ctor_GivenNullParentKey_ThrowsArgumentNullException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
@@ -58,9 +57,9 @@ internal static class OracleRelationalKeyTests
     public static void Ctor_GivenInvalidDeleteAction_ThrowsArgumentException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = (ReferentialAction)55;
 
         Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("deleteAction"));
@@ -73,13 +72,8 @@ internal static class OracleRelationalKeyTests
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
         Assert.That(relationalKey.ChildTable, Is.EqualTo(new Identifier(childTableName)));
@@ -94,14 +88,8 @@ internal static class OracleRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.Cascade;
         Identifier keyName = "test_child_key";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        childKeyMock.Setup(k => k.Name).Returns(keyName);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign(keyName);
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
@@ -119,13 +107,8 @@ internal static class OracleRelationalKeyTests
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
         Assert.That(relationalKey.ParentTable, Is.EqualTo(new Identifier(parentTableName)));
@@ -140,14 +123,8 @@ internal static class OracleRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.Cascade;
         Identifier keyName = "test_parent_key";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        parentKeyMock.Setup(t => t.Name).Returns(keyName);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary(keyName);
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
@@ -165,13 +142,8 @@ internal static class OracleRelationalKeyTests
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.Cascade;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
@@ -185,13 +157,8 @@ internal static class OracleRelationalKeyTests
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.Cascade;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
 
@@ -204,13 +171,11 @@ internal static class OracleRelationalKeyTests
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        var childKey = TestKeys.Primary();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey"));
+        Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey"));
     }
 
     [Test]
@@ -219,13 +184,11 @@ internal static class OracleRelationalKeyTests
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Foreign();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-        Assert.That(() => new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey"));
+        Assert.That(() => new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction), Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey"));
     }
 
     [TestCase(null, "test_table_1", null, null, "test_table_2", null, "Relational Key: test_table_1 -> test_table_2")]
@@ -258,17 +221,12 @@ internal static class OracleRelationalKeyTests
             ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(parentKeyName))
             : Option<Identifier>.None;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.Name).Returns(childKeyIdentifier);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.Name).Returns(parentKeyIdentifier);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        var childKey = TestKeys.Foreign(childKeyIdentifier);
+        var parentKey = TestKeys.Primary(parentKeyIdentifier);
 
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
 
-        var key = new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction);
+        var key = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction);
         var result = key.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
@@ -280,13 +238,10 @@ internal static class OracleRelationalKeyTests
         Identifier childTableName = "child_table";
         Identifier parentTableName = "parent_table";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-
-        var key = new OracleRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, ReferentialAction.NoAction);
+        var key = new OracleRelationalKey(childTableName, childKey, parentTableName, parentKey, ReferentialAction.NoAction);
 
         using (Assert.EnterMultipleScope())
         {

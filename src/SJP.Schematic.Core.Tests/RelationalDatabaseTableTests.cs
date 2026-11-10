@@ -468,7 +468,7 @@ internal static class RelationalDatabaseTableTests
         );
 
         columns.Add(Mock.Of<IDatabaseColumn>());
-        uniqueKeys.Add(Mock.Of<IDatabaseKey>());
+        uniqueKeys.Add(TestKeys.Unique());
         parentKeys.Add(Mock.Of<IDatabaseRelationalKey>());
         childKeys.Add(Mock.Of<IDatabaseRelationalKey>());
         indexes.Add(Mock.Of<IDatabaseIndex>());

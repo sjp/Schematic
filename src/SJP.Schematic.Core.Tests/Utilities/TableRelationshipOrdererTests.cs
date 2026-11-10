@@ -4,6 +4,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Utilities;
 
@@ -12,15 +13,8 @@ internal static class TableRelationshipOrdererTests
     // creates tables where the foreign key path is a -> b -> c
     private static IReadOnlyList<IRelationalDatabaseTable> CreateTables()
     {
-        var mockChildKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        mockChildKey.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
-        mockChildKey.Setup(c => c.Columns).Returns([]);
-        var childKey = mockChildKey.Object;
-
-        var mockParentKey = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        mockParentKey.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
-        mockParentKey.Setup(p => p.Columns).Returns([]);
-        var parentKey = mockParentKey.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         IRelationalDatabaseTable CreateTable(string name, string parentName)
         {

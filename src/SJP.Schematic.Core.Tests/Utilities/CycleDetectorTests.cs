@@ -4,6 +4,7 @@ using System.Linq;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core.Utilities;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Core.Tests.Utilities;
 
@@ -209,21 +210,16 @@ internal static class CycleDetectorTests
 
     private static IRelationalDatabaseTable CreateTable(string tableName, params string[] parentTableNames)
     {
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(c => c.KeyType).Returns(DatabaseKeyType.Foreign);
-        childKeyMock.Setup(c => c.Columns).Returns([]);
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(p => p.KeyType).Returns(DatabaseKeyType.Primary);
-        parentKeyMock.Setup(p => p.Columns).Returns([]);
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var name = Identifier.CreateQualifiedIdentifier(tableName);
         var parentKeys = parentTableNames
             .Select(parentTableName => new DatabaseRelationalKey(
                 name,
-                childKeyMock.Object,
+                childKey,
                 Identifier.CreateQualifiedIdentifier(parentTableName),
-                parentKeyMock.Object,
+                parentKey,
                 ReferentialAction.NoAction,
                 ReferentialAction.NoAction
             ))

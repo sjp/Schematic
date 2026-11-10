@@ -5,6 +5,7 @@ using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Lint.Rules;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Lint.Tests.Rules;
 
@@ -94,7 +95,7 @@ internal static class NoIndexesPresentOnTableRuleTests
         var table = new RelationalDatabaseTable(
             "test",
             [],
-            Option<IDatabaseKey>.Some(Mock.Of<IDatabaseKey>()),
+            Option<IDatabaseKey>.Some(TestKeys.Primary()),
             [],
             [],
             [],

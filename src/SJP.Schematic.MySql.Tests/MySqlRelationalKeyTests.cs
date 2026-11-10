@@ -1,6 +1,5 @@
 ﻿using System;
 using LanguageExt;
-using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Extensions;
@@ -13,9 +12,9 @@ internal static class MySqlRelationalKeyTests
     [Test]
     public static void Ctor_GivenNullChildTable_ThrowsArgumentNullException()
     {
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
@@ -30,7 +29,7 @@ internal static class MySqlRelationalKeyTests
     {
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
@@ -44,8 +43,8 @@ internal static class MySqlRelationalKeyTests
     public static void Ctor_GivenNullParentTable_ThrowsArgumentNullException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
@@ -59,7 +58,7 @@ internal static class MySqlRelationalKeyTests
     public static void Ctor_GivenNullParentKey_ThrowsArgumentNullException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
@@ -74,9 +73,9 @@ internal static class MySqlRelationalKeyTests
     public static void Ctor_GivenInvalidDeleteAction_ThrowsArgumentException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = (ReferentialAction)55;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
@@ -90,9 +89,9 @@ internal static class MySqlRelationalKeyTests
     public static void Ctor_GivenInvalidUpdateAction_ThrowsArgumentException()
     {
         const string childTableName = "child_table";
-        var childKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
         const string parentTableName = "parent_table";
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = (ReferentialAction)55;
 
@@ -110,13 +109,8 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
@@ -132,14 +126,8 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction updateAction = ReferentialAction.SetNull;
         Identifier keyName = "test_child_key";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        childKeyMock.Setup(k => k.Name).Returns(keyName);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign(keyName);
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
@@ -158,13 +146,8 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
@@ -180,14 +163,8 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction updateAction = ReferentialAction.SetNull;
         Identifier keyName = "test_parent_key";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        parentKeyMock.Setup(t => t.Name).Returns(keyName);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary(keyName);
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
@@ -206,13 +183,8 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.Cascade;
         const ReferentialAction updateAction = ReferentialAction.SetNull;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
@@ -227,13 +199,8 @@ internal static class MySqlRelationalKeyTests
         const ReferentialAction deleteAction = ReferentialAction.Cascade;
         const ReferentialAction updateAction = ReferentialAction.SetNull;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var childKey = childKeyMock.Object;
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKey = parentKeyMock.Object;
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
         var relationalKey = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
 
@@ -245,15 +212,13 @@ internal static class MySqlRelationalKeyTests
     {
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        var childKey = TestKeys.Primary();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
         Assert.That(
-            () => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
             Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKey")
         );
     }
@@ -263,15 +228,13 @@ internal static class MySqlRelationalKeyTests
     {
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Foreign();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
         Assert.That(
-            () => new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction),
+            () => new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction),
             Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKey")
         );
     }
@@ -281,8 +244,8 @@ internal static class MySqlRelationalKeyTests
     {
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
-        var childKey = Mock.Of<IDatabaseKey>();
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.SetDefault;
 
@@ -297,8 +260,8 @@ internal static class MySqlRelationalKeyTests
     {
         const string childTableName = "child_table";
         const string parentTableName = "parent_table";
-        var childKey = Mock.Of<IDatabaseKey>();
-        var parentKey = Mock.Of<IDatabaseKey>();
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
         const ReferentialAction deleteAction = ReferentialAction.SetDefault;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
@@ -338,18 +301,13 @@ internal static class MySqlRelationalKeyTests
             ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(parentKeyName))
             : Option<Identifier>.None;
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.Name).Returns(childKeyIdentifier);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
-
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.Name).Returns(parentKeyIdentifier);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
+        var childKey = TestKeys.Foreign(childKeyIdentifier);
+        var parentKey = TestKeys.Primary(parentKeyIdentifier);
 
         const ReferentialAction deleteAction = ReferentialAction.NoAction;
         const ReferentialAction updateAction = ReferentialAction.NoAction;
 
-        var key = new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, deleteAction, updateAction);
+        var key = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, deleteAction, updateAction);
         var result = key.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
@@ -361,13 +319,10 @@ internal static class MySqlRelationalKeyTests
         Identifier childTableName = "child_table";
         Identifier parentTableName = "parent_table";
 
-        var childKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        childKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Foreign);
+        var childKey = TestKeys.Foreign();
+        var parentKey = TestKeys.Primary();
 
-        var parentKeyMock = new Mock<IDatabaseKey>(MockBehavior.Strict);
-        parentKeyMock.Setup(k => k.KeyType).Returns(DatabaseKeyType.Primary);
-
-        var key = new MySqlRelationalKey(childTableName, childKeyMock.Object, parentTableName, parentKeyMock.Object, ReferentialAction.NoAction, ReferentialAction.NoAction);
+        var key = new MySqlRelationalKey(childTableName, childKey, parentTableName, parentKey, ReferentialAction.NoAction, ReferentialAction.NoAction);
 
         using (Assert.EnterMultipleScope())
         {
