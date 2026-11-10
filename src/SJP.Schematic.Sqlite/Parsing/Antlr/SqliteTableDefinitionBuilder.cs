@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using LanguageExt;
 using SJP.Schematic.Core;
+using SJP.Schematic.Core.Extensions;
 using static SJP.Schematic.Sqlite.Parsing.Antlr.AntlrParsingExtensions;
 
 namespace SJP.Schematic.Sqlite.Parsing.Antlr;
@@ -34,8 +35,7 @@ internal static class SqliteTableDefinitionBuilder
             var nullable = true;
             var autoIncrement = false;
             var collation = SqliteCollation.None;
-            var defaultValue = string.Empty;
-            var defaultValueKind = DefaultValueKind.Unknown;
+            var defaultValue = Option<DatabaseDefaultValue>.None;
             var computedDefinition = string.Empty;
             var computedColumnType = SqliteGeneratedColumnType.None;
 
@@ -64,8 +64,7 @@ internal static class SqliteTableDefinitionBuilder
                 }
                 else if (columnConstraint.DEFAULT_() != null)
                 {
-                    defaultValue = GetDefaultValueText(columnConstraint);
-                    defaultValueKind = GetDefaultValueKind(columnConstraint);
+                    defaultValue = GetDefaultValue(columnConstraint);
                 }
                 else if (columnConstraint.foreign_key_clause() != null)
                 {
@@ -92,7 +91,6 @@ internal static class SqliteTableDefinitionBuilder
                 autoIncrement,
                 collation,
                 defaultValue,
-                defaultValueKind,
                 computedDefinition,
                 computedColumnType
             ));
@@ -160,28 +158,37 @@ internal static class SqliteTableDefinitionBuilder
     // SQLite allows a literal, a signed number, or a parenthesised expression after DEFAULT, so the
     // token the parser matched already says what the default evaluates to. SQLite has no sequences,
     // so a default is never drawn from one.
-    private static DefaultValueKind GetDefaultValueKind(SQLiteParser.Column_constraintContext columnConstraint)
+    private static Option<DatabaseDefaultValue> GetDefaultValue(SQLiteParser.Column_constraintContext columnConstraint)
+    {
+        var definition = GetDefaultValueText(columnConstraint);
+
+        return !definition.IsNullOrWhiteSpace()
+            ? Option<DatabaseDefaultValue>.Some(ClassifyDefaultValue(columnConstraint, definition))
+            : Option<DatabaseDefaultValue>.None;
+    }
+
+    private static DatabaseDefaultValue ClassifyDefaultValue(SQLiteParser.Column_constraintContext columnConstraint, string definition)
     {
         if (columnConstraint.signed_number() != null)
-            return DefaultValueKind.Literal;
+            return new DatabaseDefaultValue.Literal(definition);
 
         var literal = columnConstraint.literal_value();
         if (literal != null)
         {
             if (literal.NULL_() != null)
-                return DefaultValueKind.Null;
+                return new DatabaseDefaultValue.Null(definition);
 
             // the remaining keyword literals are the CURRENT_* pseudo-values, which the database
             // evaluates for each row that omits the column
             return literal.CURRENT_TIME_() != null || literal.CURRENT_DATE_() != null || literal.CURRENT_TIMESTAMP_() != null
-                ? DefaultValueKind.Expression
-                : DefaultValueKind.Literal;
+                ? new DatabaseDefaultValue.Expression(definition)
+                : new DatabaseDefaultValue.Literal(definition);
         }
 
         if (columnConstraint.OPEN_PAR() != null && columnConstraint.CLOSE_PAR() != null)
-            return DefaultValueKind.Expression;
+            return new DatabaseDefaultValue.Expression(definition);
 
-        return DefaultValueKind.Unknown;
+        return new DatabaseDefaultValue.Unknown(definition);
     }
 
     private static IndexedColumn BuildIndexedColumn(SQLiteParser.Indexed_columnContext indexedColumn)

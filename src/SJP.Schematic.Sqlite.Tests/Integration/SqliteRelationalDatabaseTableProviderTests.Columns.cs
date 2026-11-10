@@ -79,6 +79,16 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     }
 
     [Test]
+    public async Task Columns_WhenGivenTableWithColumnWithLiteralDefaultValue_ColumnReturnsLiteralDefault()
+    {
+        const string tableName = "table_test_table_33";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single();
+
+        Assert.That(column.Default.UnwrapSome().Value, Is.TypeOf<DatabaseDefaultValue.Literal>());
+    }
+
+    [Test]
     public async Task Columns_WhenGivenTableWithNonComputedColumn_ReturnsIsComputedFalse()
     {
         const string tableName = "table_test_table_1";

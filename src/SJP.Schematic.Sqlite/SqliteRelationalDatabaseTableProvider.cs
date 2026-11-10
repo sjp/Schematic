@@ -1390,7 +1390,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
+                ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo))
                 : Option<DatabaseDefaultValue>.None;
 
             var computedColumnType = parsedColumnInfo?.ComputedColumnType ?? SqliteGeneratedColumnType.None;
@@ -1435,14 +1435,24 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return LoadTableXInfoAsyncCore(tableName, queryCache, cancellationToken);
     }
 
-    private static DatabaseDefaultValue CreateDefaultValue(string definition, DefaultValueKind kind) => kind switch
+    // the text of a default comes from pragma table_info, and only its classification from the
+    // parsed definition, which leaves it unclassified when the definition could not be parsed
+    private static DatabaseDefaultValue CreateDefaultValue(string definition, Column? parsedColumn)
     {
-        DefaultValueKind.Literal => new DatabaseDefaultValue.Literal(definition),
-        DefaultValueKind.Null => new DatabaseDefaultValue.Null(definition),
-        DefaultValueKind.Expression => new DatabaseDefaultValue.Expression(definition),
-        DefaultValueKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition),
-        _ => new DatabaseDefaultValue.Unknown(definition),
-    };
+        var parsedDefault = parsedColumn?.Default ?? Option<DatabaseDefaultValue>.None;
+
+        return parsedDefault.Match<DatabaseDefaultValue>(
+            parsed => parsed switch
+            {
+                DatabaseDefaultValue.Unknown => new DatabaseDefaultValue.Unknown(definition),
+                DatabaseDefaultValue.Literal => new DatabaseDefaultValue.Literal(definition),
+                DatabaseDefaultValue.Null => new DatabaseDefaultValue.Null(definition),
+                DatabaseDefaultValue.Expression => new DatabaseDefaultValue.Expression(definition),
+                DatabaseDefaultValue.SequenceNextValue sequenceDefault => new DatabaseDefaultValue.SequenceNextValue(definition, sequenceDefault.ConstraintName, sequenceDefault.SequenceName),
+            },
+            () => new DatabaseDefaultValue.Unknown(definition)
+        );
+    }
 
     private async Task<IReadOnlyList<pragma_table_xinfo>> LoadTableXInfoAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
@@ -1506,7 +1516,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
+                ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo))
                 : Option<DatabaseDefaultValue>.None;
 
             var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);

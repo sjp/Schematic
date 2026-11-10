@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Sqlite.Parsing;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Parsing;
 
@@ -248,33 +250,33 @@ internal static class SqliteTableParserDefinitionTests
         var result = Parse(definition);
 
         var column = result.Columns.Single();
-        Assert.That(column.DefaultValue, Is.EqualTo(expected));
+        Assert.That(column.Default.UnwrapSome().Definition, Is.EqualTo(expected));
     }
 
-    [TestCase("create table t (a int default 5)", DefaultValueKind.Literal)]
-    [TestCase("create table t (a int default -5)", DefaultValueKind.Literal)]
-    [TestCase("create table t (a text default 'x')", DefaultValueKind.Literal)]
-    [TestCase("create table t (a int default true)", DefaultValueKind.Literal)]
-    [TestCase("create table t (a blob default x'53')", DefaultValueKind.Literal)]
-    [TestCase("create table t (a int default null)", DefaultValueKind.Null)]
-    [TestCase("create table t (a text default current_timestamp)", DefaultValueKind.Expression)]
-    [TestCase("create table t (a text default current_date)", DefaultValueKind.Expression)]
-    [TestCase("create table t (a int default (1 + 2))", DefaultValueKind.Expression)]
-    public static void Parse_GivenColumnWithDefault_ReturnsDefaultValueKind(string definition, DefaultValueKind expected)
+    [TestCase("create table t (a int default 5)", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("create table t (a int default -5)", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("create table t (a text default 'x')", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("create table t (a int default true)", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("create table t (a blob default x'53')", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("create table t (a int default null)", typeof(DatabaseDefaultValue.Null))]
+    [TestCase("create table t (a text default current_timestamp)", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("create table t (a text default current_date)", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("create table t (a int default (1 + 2))", typeof(DatabaseDefaultValue.Expression))]
+    public static void Parse_GivenColumnWithDefault_ReturnsDefaultOfExpectedKind(string definition, Type expected)
     {
         var result = Parse(definition);
 
         var column = result.Columns.Single();
-        Assert.That(column.DefaultValueKind, Is.EqualTo(expected));
+        Assert.That(column.Default.UnwrapSome().Value, Is.TypeOf(expected));
     }
 
     [Test]
-    public static void Parse_GivenColumnWithoutDefault_ReturnsUnknownDefaultValueKind()
+    public static void Parse_GivenColumnWithoutDefault_ReturnsNoneDefault()
     {
         var result = Parse("create table t (a int)");
 
         var column = result.Columns.Single();
-        Assert.That(column.DefaultValueKind, Is.EqualTo(DefaultValueKind.Unknown));
+        Assert.That(column.Default, OptionIs.None);
     }
 
     [Test]
