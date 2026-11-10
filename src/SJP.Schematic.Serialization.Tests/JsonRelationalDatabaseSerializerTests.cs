@@ -554,6 +554,72 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenSequenceCachesRoundTripped_PreservesCacheCases()
+    {
+        var db = CreateSequenceCachesDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var sequences = await importedDb.GetAllSequences();
+        var caches = sequences.ToDictionary(s => s.Name.LocalName, s => s.Cache.Value);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(caches["unknown_cache_seq"], Is.EqualTo(new SequenceCache.Unknown()));
+            Assert.That(caches["no_cache_seq"], Is.EqualTo(new SequenceCache.None()));
+            Assert.That(caches["sized_cache_seq"], Is.EqualTo(new SequenceCache.Sized(20)));
+            Assert.That(caches["engine_default_cache_seq"], Is.EqualTo(new SequenceCache.EngineDefault()));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenSequenceCachesRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateSequenceCachesDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        }
+    }
+
+    [TestCase("unknown_cache_seq", "Unknown", null)]
+    [TestCase("no_cache_seq", "None", null)]
+    [TestCase("sized_cache_seq", "Sized", 20)]
+    [TestCase("engine_default_cache_seq", "EngineDefault", null)]
+    public static async Task Serialize_WhenSequenceHasCache_WritesCacheMembers(string sequenceName, string expectedMode, int? expectedSize)
+    {
+        var db = CreateSequenceCachesDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+
+        using var document = JsonDocument.Parse(jsonOutputStream.ToArray());
+        var sequence = document.RootElement.GetProperty("Sequences")
+            .EnumerateArray()
+            .Single(s => s.GetProperty("SequenceName").GetProperty("LocalName").GetString() == sequenceName);
+        int? cacheSize = sequence.TryGetProperty("CacheSize", out var sizeElement) ? sizeElement.GetInt32() : null;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(sequence.GetProperty("CacheMode").GetString(), Is.EqualTo(expectedMode));
+            Assert.That(cacheSize, Is.EqualTo(expectedSize));
+        }
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenFilteredIndexRoundTripped_PreservesFilterDefinition()
     {
         const string filterDefinition = "([first_name] IS NOT NULL)";
@@ -1491,6 +1557,30 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [table],
             [],
             [],
+            [],
+            []
+        );
+    }
+
+    private static IRelationalDatabase CreateSequenceCachesDatabase()
+    {
+        var caches = new (string SequenceName, SequenceCache Cache)[]
+        {
+            ("unknown_cache_seq", new SequenceCache.Unknown()),
+            ("no_cache_seq", new SequenceCache.None()),
+            ("sized_cache_seq", new SequenceCache.Sized(20)),
+            ("engine_default_cache_seq", new SequenceCache.EngineDefault()),
+        };
+        var sequences = caches
+            .Select(c => (IDatabaseSequence)new DatabaseSequence(c.SequenceName, TestDbTypes.BigInteger, 1, 1, Option<decimal>.None, Option<decimal>.None, false, c.Cache, true))
+            .ToList();
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            sequences,
             [],
             []
         );
