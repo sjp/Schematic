@@ -620,6 +620,125 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
     }
 
     [Test]
+    public static async Task SerializeDeserialize_WhenUserDefinedTypesRoundTripped_PreservesTypeCases()
+    {
+        var db = CreateUserDefinedTypesDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var types = await importedDb.GetAllUserDefinedTypes();
+        var typesByName = types.ToDictionary(static t => t.Name.LocalName, static t => t.Value);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(typesByName["unknown_type"], Is.TypeOf<DatabaseUserDefinedType.Unknown>());
+            Assert.That(typesByName["alias_type"], Is.TypeOf<DatabaseUserDefinedType.Alias>());
+            Assert.That(typesByName["domain_type"], Is.TypeOf<DatabaseUserDefinedType.Domain>());
+            Assert.That(typesByName["enum_type"], Is.TypeOf<DatabaseUserDefinedType.Enum>());
+            Assert.That(typesByName["composite_type"], Is.TypeOf<DatabaseUserDefinedType.Composite>());
+            Assert.That(typesByName["range_type"], Is.TypeOf<DatabaseUserDefinedType.Range>());
+            Assert.That(typesByName["table_type"], Is.TypeOf<DatabaseUserDefinedType.Table>());
+            Assert.That(typesByName["clr_type"], Is.TypeOf<DatabaseUserDefinedType.Clr>());
+            Assert.That(typesByName["collection_type"], Is.TypeOf<DatabaseUserDefinedType.Collection>());
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenUserDefinedTypesRoundTripped_PreservesCasePayloads()
+    {
+        var db = CreateUserDefinedTypesDatabase();
+
+        var importedDb = await RoundTripAsync(db);
+
+        var types = (await importedDb.GetAllUserDefinedTypes()).ToDictionary(static t => t.Name.LocalName, static t => t.Value);
+        var unknown = (DatabaseUserDefinedType.Unknown)types["unknown_type"]!;
+        var alias = (DatabaseUserDefinedType.Alias)types["alias_type"]!;
+        var domain = (DatabaseUserDefinedType.Domain)types["domain_type"]!;
+        var enumType = (DatabaseUserDefinedType.Enum)types["enum_type"]!;
+        var composite = (DatabaseUserDefinedType.Composite)types["composite_type"]!;
+        var range = (DatabaseUserDefinedType.Range)types["range_type"]!;
+        var table = (DatabaseUserDefinedType.Table)types["table_type"]!;
+        var clr = (DatabaseUserDefinedType.Clr)types["clr_type"]!;
+        var collection = (DatabaseUserDefinedType.Collection)types["collection_type"]!;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(unknown.Definition.UnwrapSome(), Is.EqualTo("create type unknown_type"));
+            Assert.That(alias.AliasedType.TypeName, Is.EqualTo(TestDbTypes.BigInteger.TypeName));
+            Assert.That(alias.IsNullable, Is.False);
+            Assert.That(alias.DefaultValue.UnwrapSome(), Is.EqualTo("0"));
+            Assert.That(domain.AliasedType.TypeName, Is.EqualTo(TestDbTypes.BigInteger.TypeName));
+            Assert.That(domain.IsNullable, Is.False);
+            Assert.That(domain.DefaultValue.UnwrapSome(), Is.EqualTo("1"));
+            Assert.That(domain.Checks.Select(static c => c.Definition), Is.EqualTo(new[] { "value > 0" }));
+            Assert.That(enumType.Values, Is.EqualTo(new[] { "small", "large" }));
+            Assert.That(composite.Attributes.Select(static a => a.Name.LocalName), Is.EqualTo(new[] { "attr_one", "attr_two" }));
+            Assert.That(composite.Definition.UnwrapSome(), Is.EqualTo("create type composite_type"));
+            Assert.That(range.Subtype.TypeName, Is.EqualTo(TestDbTypes.BigInteger.TypeName));
+            Assert.That(table.Columns.Select(static c => c.Name.LocalName), Is.EqualTo(new[] { "col_one" }));
+            Assert.That(table.Checks.Select(static c => c.Definition), Is.EqualTo(new[] { "col_one > 0" }));
+            Assert.That(clr.ExternalName.UnwrapSome(), Is.EqualTo("TestAssembly.TestNamespace.TestType"));
+            Assert.That(collection.ElementType.TypeName, Is.EqualTo(TestDbTypes.BigInteger.TypeName));
+            Assert.That(collection.Definition.UnwrapSome(), Is.EqualTo("create type collection_type"));
+        }
+    }
+
+    [Test]
+    public static async Task SerializeDeserialize_WhenUserDefinedTypesRoundTripped_PreservesJsonStructure()
+    {
+        var db = CreateUserDefinedTypesDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+        var json = Encoding.UTF8.GetString(jsonOutputStream.ToArray());
+
+        jsonOutputStream.Seek(0, SeekOrigin.Begin);
+        var importedDb = await Serializer.DeserializeAsync(jsonOutputStream, new VerbatimIdentifierResolutionStrategy());
+
+        await using var jsonOutputStream2 = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream2, importedDb);
+        var reExportedJson = Encoding.UTF8.GetString(jsonOutputStream2.ToArray());
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(reExportedJson, Is.Not.Empty);
+            Assert.That(reExportedJson, Is.EqualTo(json));
+        }
+    }
+
+    [TestCase("unknown_type", "Unknown", null, true, "create type unknown_type")]
+    [TestCase("alias_type", "Alias", "bigint", false, null)]
+    [TestCase("domain_type", "Domain", "bigint", false, null)]
+    [TestCase("enum_type", "Enum", null, true, null)]
+    [TestCase("composite_type", "Composite", null, true, "create type composite_type")]
+    [TestCase("range_type", "Range", "bigint", true, null)]
+    [TestCase("table_type", "Table", null, true, null)]
+    [TestCase("clr_type", "Clr", null, true, "TestAssembly.TestNamespace.TestType")]
+    [TestCase("collection_type", "Collection", "bigint", true, "create type collection_type")]
+    public static async Task Serialize_WhenUserDefinedTypeOfEachCase_WritesKindBaseTypeNullabilityAndDefinition(string typeName, string expectedKind, string expectedBaseType, bool expectedIsNullable, string expectedDefinition)
+    {
+        var db = CreateUserDefinedTypesDatabase();
+
+        await using var jsonOutputStream = new MemoryStream();
+        await Serializer.SerializeAsync(jsonOutputStream, db);
+
+        using var document = JsonDocument.Parse(jsonOutputStream.ToArray());
+        var type = document.RootElement.GetProperty("UserDefinedTypes")
+            .EnumerateArray()
+            .Single(t => t.GetProperty("TypeName").GetProperty("LocalName").GetString() == typeName);
+        var baseType = type.TryGetProperty("BaseType", out var baseTypeElement) ? baseTypeElement.GetProperty("TypeName").GetProperty("LocalName").GetString() : null;
+        var definition = type.TryGetProperty("Definition", out var definitionElement) ? definitionElement.GetString() : null;
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(type.GetProperty("Kind").GetString(), Is.EqualTo(expectedKind));
+            Assert.That(baseType, Is.EqualTo(expectedBaseType));
+            Assert.That(type.GetProperty("IsNullable").GetBoolean(), Is.EqualTo(expectedIsNullable));
+            Assert.That(definition, Is.EqualTo(expectedDefinition));
+        }
+    }
+
+    [Test]
     public static async Task SerializeDeserialize_WhenFilteredIndexRoundTripped_PreservesFilterDefinition()
     {
         const string filterDefinition = "([first_name] IS NOT NULL)";
@@ -1559,6 +1678,35 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             []
+        );
+    }
+
+    private static IRelationalDatabase CreateUserDefinedTypesDatabase()
+    {
+        static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+
+        var userDefinedTypes = new DatabaseUserDefinedType[]
+        {
+            new DatabaseUserDefinedType.Unknown("unknown_type", "create type unknown_type"),
+            new DatabaseUserDefinedType.Alias("alias_type", TestDbTypes.BigInteger, false, "0"),
+            new DatabaseUserDefinedType.Domain("domain_type", TestDbTypes.BigInteger, false, "1", [new DatabaseCheckConstraint(Option<Identifier>.Some("ck_domain"), "value > 0", true)]),
+            new DatabaseUserDefinedType.Enum("enum_type", ["small", "large"]),
+            new DatabaseUserDefinedType.Composite("composite_type", [CreateColumn("attr_one"), CreateColumn("attr_two")], "create type composite_type"),
+            new DatabaseUserDefinedType.Range("range_type", TestDbTypes.BigInteger),
+            new DatabaseUserDefinedType.Table("table_type", [CreateColumn("col_one")], [new DatabaseCheckConstraint(Option<Identifier>.Some("ck_table"), "col_one > 0", true)]),
+            new DatabaseUserDefinedType.Clr("clr_type", "TestAssembly.TestNamespace.TestType"),
+            new DatabaseUserDefinedType.Collection("collection_type", TestDbTypes.BigInteger, "create type collection_type"),
+        };
+
+        return new RelationalDatabase(
+            new IdentifierDefaults(null, null, "main"),
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            userDefinedTypes
         );
     }
 
