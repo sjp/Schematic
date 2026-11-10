@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -90,5 +91,47 @@ internal static class ColumnWithNullDefaultValueRuleTests
         var messages = await rule.AnalyseTables(tables);
 
         Assert.That(messages, Is.Not.Empty);
+    }
+
+    private static IEnumerable<TestCaseData> ClassifiedDefaultValues()
+    {
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Null("(NULL)"), true).SetArgDisplayNames("Null");
+        // a dialect that could not classify the default leaves its text to speak for itself
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Unknown("NULL"), true).SetArgDisplayNames("UnknownNullText");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Unknown("0"), false).SetArgDisplayNames("UnknownOtherText");
+        // once classified, the text no longer decides
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Literal("NULL"), false).SetArgDisplayNames("Literal");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Expression("NULL"), false).SetArgDisplayNames("Expression");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.SequenceNextValue("NULL"), false).SetArgDisplayNames("SequenceNextValue");
+    }
+
+    [TestCaseSource(nameof(ClassifiedDefaultValues))]
+    public static async Task AnalyseTables_GivenColumnWithDefaultOfKind_ProducesMessagesOnlyForNullDefaults(DatabaseDefaultValue defaultValue, bool expectMessages)
+    {
+        var rule = new ColumnWithNullDefaultValueRule(RuleLevel.Error);
+
+        var testColumn = new DatabaseColumn(
+            "test_column",
+            Mock.Of<IDbType>(),
+            true,
+            Option<DatabaseDefaultValue>.Some(defaultValue),
+            null
+        );
+
+        var table = new RelationalDatabaseTable(
+            "test",
+            [testColumn],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        var messages = await rule.AnalyseTables([table]);
+
+        Assert.That(messages, expectMessages ? Is.Not.Empty : Is.Empty);
     }
 }

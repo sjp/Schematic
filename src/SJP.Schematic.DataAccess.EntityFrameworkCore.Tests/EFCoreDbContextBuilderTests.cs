@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -550,6 +551,58 @@ internal static class EFCoreDbContextBuilderTests
         var result = dbContextBuilder.Generate([table], [], []);
 
         Assert.That(result, Does.Contain(expectedConfiguration));
+    }
+
+    private static IEnumerable<TestCaseData> ColumnDefaults()
+    {
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Literal("((0))"), """Property(t => t.address_id).HasDefaultValue(0L)""").SetArgDisplayNames("Literal");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Unknown("((0))"), """Property(t => t.address_id).HasDefaultValueSql("((0))")""").SetArgDisplayNames("Unknown");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Expression("(getdate())"), """Property(t => t.address_id).HasDefaultValueSql("(getdate())")""").SetArgDisplayNames("Expression");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.SequenceNextValue("(next value for [dbo].[test_seq])"), """Property(t => t.address_id).HasDefaultValueSql("(next value for [dbo].[test_seq])")""").SetArgDisplayNames("SequenceNextValue");
+    }
+
+    [TestCaseSource(nameof(ColumnDefaults))]
+    public static void Generate_GivenColumnWithDefault_ConfiguresDefaultForKind(DatabaseDefaultValue defaultValue, string expectedConfiguration)
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var table = CreateDefaultedColumnTable("address_id", defaultValue);
+
+        var result = dbContextBuilder.Generate([table], [], []);
+
+        Assert.That(result, Does.Contain(expectedConfiguration));
+    }
+
+    [Test]
+    public static void Generate_GivenColumnWithNullDefault_DoesNotConfigureDefault()
+    {
+        var nameTranslator = new VerbatimNameTranslator();
+        var dbContextBuilder = new EFCoreDbContextBuilder(nameTranslator, "test");
+
+        var table = CreateDefaultedColumnTable("address_id", new DatabaseDefaultValue.Null("(NULL)"));
+
+        var result = dbContextBuilder.Generate([table], [], []);
+
+        Assert.That(result, Does.Not.Contain("HasDefaultValue"));
+    }
+
+    private static IRelationalDatabaseTable CreateDefaultedColumnTable(Identifier columnName, DatabaseDefaultValue defaultValue)
+    {
+        var columnType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(long),
+            false,
+            -1,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+
+        var column = new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+
+        return new RelationalDatabaseTable("address", [column], Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
     }
 
     private static IRelationalDatabaseTable CreateTable(Identifier tableName) =>
