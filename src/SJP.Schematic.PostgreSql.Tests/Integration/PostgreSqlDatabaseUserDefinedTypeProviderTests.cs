@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -9,17 +11,109 @@ internal sealed class PostgreSqlDatabaseUserDefinedTypeProviderTests : PostgreSq
 {
     private IDatabaseUserDefinedTypeProvider TypeProvider => new PostgreSqlDatabaseUserDefinedTypeProvider(DbConnection, IdentifierDefaults);
 
+    private async Task<T> GetUserDefinedTypeAsync<T>(string typeName)
+    {
+        var type = await TypeProvider.GetUserDefinedType(typeName, TestContext.CurrentContext.CancellationToken).UnwrapSomeAsync();
+
+        Assert.That(type.Value, Is.TypeOf<T>());
+        return (T)type.Value!;
+    }
+
     [OneTimeSetUp]
     public Task Init() => ExecuteBatchAsync(
         "create domain db_test_udt_domain_1 as integer not null check (value > 0)",
+        "create domain db_test_udt_domain_2 as varchar(20) default 'abc'",
+        "create type db_test_udt_enum_1 as enum ('small', 'medium', 'large')",
+        "create type db_test_udt_composite_1 as (attr_one integer, attr_two text)",
+        "create type db_test_udt_range_1 as range (subtype = float8)",
         "create table db_test_udt_table_1 (test_column int)"
     );
 
     [OneTimeTearDown]
     public Task CleanUp() => ExecuteBatchAsync(
         "drop domain db_test_udt_domain_1",
+        "drop domain db_test_udt_domain_2",
+        "drop type db_test_udt_enum_1",
+        "drop type db_test_udt_composite_1",
+        "drop type db_test_udt_range_1",
         "drop table db_test_udt_table_1"
     );
+
+    [Test]
+    public async Task GetUserDefinedType_ForDomainDeclaredNotNull_ReturnsNonNullableDomainWithAliasedTypeAndCheck()
+    {
+        var domain = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Domain>("db_test_udt_domain_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(domain.AliasedType.DataType, Is.EqualTo(DataType.Integer));
+            Assert.That(domain.IsNullable, Is.False);
+            Assert.That(domain.DefaultValue, OptionIs.None);
+            Assert.That(domain.Checks.Single().Definition, Does.Contain("VALUE > 0"));
+        }
+    }
+
+    [Test]
+    public async Task GetUserDefinedType_ForDomainWithDefault_ReturnsNullableDomainWithAliasedTypeAndDefault()
+    {
+        var domain = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Domain>("db_test_udt_domain_2");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(domain.AliasedType.MaxLength, Is.EqualTo(20));
+            Assert.That(domain.IsNullable, Is.True);
+            Assert.That(domain.DefaultValue.UnwrapSome(), Does.Contain("'abc'"));
+            Assert.That(domain.Checks, Is.Empty);
+        }
+    }
+
+    [Test]
+    public async Task GetUserDefinedType_ForEnum_ReturnsEnumWithValuesInDeclaredOrder()
+    {
+        var enumType = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Enum>("db_test_udt_enum_1");
+
+        Assert.That(enumType.Values, Is.EqualTo(new[] { "small", "medium", "large" }));
+    }
+
+    [Test]
+    public async Task GetUserDefinedType_ForCompositeType_ReturnsCompositeWithAttributesInDeclaredOrder()
+    {
+        var composite = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Composite>("db_test_udt_composite_1");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(composite.Attributes.Select(static a => a.Name.LocalName), Is.EqualTo(new[] { "attr_one", "attr_two" }));
+            Assert.That(composite.Attributes[0].Type.DataType, Is.EqualTo(DataType.Integer));
+            Assert.That(composite.Definition, OptionIs.None);
+        }
+    }
+
+    [Test]
+    public async Task GetUserDefinedType_ForRangeType_ReturnsRangeWithSubtype()
+    {
+        var range = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Range>("db_test_udt_range_1");
+
+        Assert.That(range.Subtype.TypeName.LocalName, Is.EqualTo("float8"));
+    }
+
+    [Test]
+    public async Task GetAllUserDefinedTypes_WhenRetrieved_ReturnsEachTestTypeAsItsCase()
+    {
+        var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
+        var typesByName = types
+            .Where(static t => t.Name.LocalName.StartsWith("db_test_udt_", StringComparison.Ordinal))
+            .ToDictionary(static t => t.Name.LocalName, static t => t.Value, StringComparer.Ordinal);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(typesByName["db_test_udt_domain_1"], Is.TypeOf<DatabaseUserDefinedType.Domain>());
+            Assert.That(typesByName["db_test_udt_domain_2"], Is.TypeOf<DatabaseUserDefinedType.Domain>());
+            Assert.That(typesByName["db_test_udt_enum_1"], Is.TypeOf<DatabaseUserDefinedType.Enum>());
+            Assert.That(typesByName["db_test_udt_composite_1"], Is.TypeOf<DatabaseUserDefinedType.Composite>());
+            Assert.That(typesByName["db_test_udt_range_1"], Is.TypeOf<DatabaseUserDefinedType.Range>());
+            Assert.That(typesByName, Does.Not.ContainKey("db_test_udt_table_1"));
+        }
+    }
 
     [Test]
     public async Task GetUserDefinedType_WhenTypePresentGivenLocalNameOnly_ReturnsTypeWithQualifiedName()
