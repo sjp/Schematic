@@ -306,39 +306,27 @@ internal sealed class OracleDatabaseSequenceProviderTests : OracleTest
     }
 
     [Test]
-    public async Task CacheMode_GivenDefaultSequence_ReturnsDefaultCacheSize()
+    public async Task Cache_GivenDefaultSequence_ReturnsDefaultCacheSize()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_1");
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
-            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(SequenceDefaultCache));
-        }
+        Assert.That(sequence.Cache.Value, Is.EqualTo(new SequenceCache.Sized(SequenceDefaultCache)));
     }
 
     [Test]
-    public async Task CacheMode_GivenSequenceWithCacheSet_ReturnsSizedCache()
+    public async Task Cache_GivenSequenceWithCacheSet_ReturnsSizedCache()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_10");
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
-            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(10));
-        }
+        Assert.That(sequence.Cache.Value, Is.EqualTo(new SequenceCache.Sized(10)));
     }
 
     [Test]
-    public async Task CacheMode_GivenSequenceWithNoCacheSet_ReturnsNoCache()
+    public async Task Cache_GivenSequenceWithNoCacheSet_ReturnsNoCache()
     {
         var sequence = await GetSequenceAsync("DB_TEST_SEQUENCE_11");
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.None));
-            Assert.That(sequence.CacheSize, OptionIs.None);
-        }
+        Assert.That(sequence.Cache.Value, Is.EqualTo(new SequenceCache.None()));
     }
 
     [Test]

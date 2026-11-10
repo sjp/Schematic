@@ -501,8 +501,7 @@ internal static class LikelyMisspelledNameRuleTests
             Option<decimal>.None,
             Option<decimal>.None,
             true,
-            SequenceCacheMode.Unknown,
-            Option<int>.None,
+            new SequenceCache.Unknown(),
             false
         );
     }

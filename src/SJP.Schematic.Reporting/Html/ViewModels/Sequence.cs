@@ -1,5 +1,4 @@
 ﻿using System;
-using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -19,15 +18,12 @@ public sealed class Sequence
         decimal increment,
         Option<decimal> minValue,
         Option<decimal> maxValue,
-        SequenceCacheMode cacheMode,
-        Option<int> cacheSize,
+        string cache,
         bool cycle,
         bool isOrdered
     )
     {
         ArgumentNullException.ThrowIfNull(sequenceName);
-        if (!cacheMode.IsValid())
-            throw new ArgumentException($"The {nameof(SequenceCacheMode)} provided must be a valid enum.", nameof(cacheMode));
 
         Name = sequenceName.ToVisibleName();
         SequenceUrl = UrlRouter.GetSequenceUrl(sequenceName);
@@ -38,7 +34,7 @@ public sealed class Sequence
         Increment = increment;
         MinValue = minValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
         MaxValue = maxValue.MatchUnsafe(static mv => mv, static () => (decimal?)null);
-        Cache = SequenceCacheNames.GetName(cacheMode, cacheSize);
+        Cache = cache;
         Cycle = cycle;
         IsOrdered = isOrdered;
     }

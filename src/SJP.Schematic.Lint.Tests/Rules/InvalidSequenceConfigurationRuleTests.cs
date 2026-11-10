@@ -12,7 +12,7 @@ internal static class InvalidSequenceConfigurationRuleTests
 {
     // The concrete DatabaseSequence type validates most of these states at construction,
     // so IDatabaseSequence is mocked to exercise the rule against arbitrary providers.
-    private static IDatabaseSequence CreateSequence(decimal start, decimal increment, Option<decimal> minValue, Option<decimal> maxValue, bool cycle, Option<int> cacheSize = default)
+    private static IDatabaseSequence CreateSequence(decimal start, decimal increment, Option<decimal> minValue, Option<decimal> maxValue, bool cycle, SequenceCache? cache = null)
     {
         var sequence = new Mock<IDatabaseSequence>(MockBehavior.Strict);
         sequence.Setup(s => s.Name).Returns("test_sequence");
@@ -21,7 +21,7 @@ internal static class InvalidSequenceConfigurationRuleTests
         sequence.Setup(s => s.MinValue).Returns(minValue);
         sequence.Setup(s => s.MaxValue).Returns(maxValue);
         sequence.Setup(s => s.Cycle).Returns(cycle);
-        sequence.Setup(s => s.CacheSize).Returns(cacheSize);
+        sequence.Setup(s => s.Cache).Returns(cache ?? new SequenceCache.None());
         return sequence.Object;
     }
 
@@ -121,7 +121,7 @@ internal static class InvalidSequenceConfigurationRuleTests
     public static async Task AnalyseSequences_GivenNonPositiveCacheSize_ProducesMessages()
     {
         var rule = new InvalidSequenceConfigurationRule(RuleLevel.Error);
-        var sequence = CreateSequence(1, 1, Option<decimal>.Some(1), Option<decimal>.Some(100), cycle: true, Option<int>.Some(0));
+        var sequence = CreateSequence(1, 1, Option<decimal>.Some(1), Option<decimal>.Some(100), cycle: true, new SequenceCache.Sized(0));
         var sequences = new[] { sequence };
 
         var messages = await rule.AnalyseSequences(sequences);

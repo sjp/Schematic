@@ -80,7 +80,7 @@ internal static class SchemasRendererTests
         using var tempDir = new TemporaryDirectory();
         var sequence = new DatabaseSequence(
             new Identifier("undeclared", "seq_one"), TestDbTypes.BigInteger, 1M, 1M,
-            Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
+            Option<decimal>.None, Option<decimal>.None, false, new SequenceCache.None(), true);
 
         var renderer = new SchemasRenderer();
         var data = ReportDataFactory.Create(database: Database(), sequences: [sequence]);

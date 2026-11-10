@@ -265,8 +265,7 @@ internal static class WhitespaceNameRuleTests
             1,
             100,
             true,
-            SequenceCacheMode.Sized,
-            Option<int>.Some(10),
+            new SequenceCache.Sized(10),
             true
         );
         var sequences = new[] { sequence };
@@ -290,8 +289,7 @@ internal static class WhitespaceNameRuleTests
             1,
             100,
             true,
-            SequenceCacheMode.Sized,
-            Option<int>.Some(10),
+            new SequenceCache.Sized(10),
             true
         );
         var sequences = new[] { sequence };
@@ -706,8 +704,7 @@ internal static class WhitespaceNameRuleTests
             1,
             100,
             true,
-            SequenceCacheMode.Sized,
-            Option<int>.Some(10),
+            new SequenceCache.Sized(10),
             true
         );
         var sequences = new[] { sequence };

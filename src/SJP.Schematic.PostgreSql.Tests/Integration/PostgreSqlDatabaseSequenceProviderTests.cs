@@ -158,15 +158,11 @@ internal sealed class PostgreSqlDatabaseSequenceProviderTests : PostgreSqlTest
     }
 
     [Test]
-    public async Task CacheMode_GivenDefaultSequence_ReturnsSizedCache()
+    public async Task Cache_GivenDefaultSequence_ReturnsSizedCache()
     {
         var sequence = await SequenceProvider.GetSequence("db_test_sequence_1").UnwrapSomeAsync();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.Sized));
-            Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(1));
-        }
+        Assert.That(sequence.Cache.Value, Is.EqualTo(new SequenceCache.Sized(1)));
     }
 
     [Test]

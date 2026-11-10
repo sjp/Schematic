@@ -68,7 +68,7 @@ internal static class SchemaRendererTests
         var sequenceName = new Identifier("app", "seq_one");
         var sequence = new DatabaseSequence(
             sequenceName, TestDbTypes.BigInteger, 1M, 1M,
-            Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
+            Option<decimal>.None, Option<decimal>.None, false, new SequenceCache.None(), true);
 
         var renderer = new SchemaRenderer();
         var data = ReportDataFactory.Create(database: Database(), schemas: [schema], sequences: [sequence]);

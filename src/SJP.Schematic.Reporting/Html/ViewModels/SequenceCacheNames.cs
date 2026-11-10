@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels;
@@ -13,20 +12,13 @@ internal static class SequenceCacheNames
     /// Describes a sequence's caching for display. A database that does not report how a sequence
     /// caches gets no name, so that nothing is shown in place of a size that is not known.
     /// </summary>
-    /// <param name="cacheMode">The cache mode reported for the sequence.</param>
-    /// <param name="cacheSize">The number of pre-allocated values, when the size is known.</param>
+    /// <param name="cache">The cache reported for the sequence.</param>
     /// <returns>A display name, or an empty string when the caching is unknown.</returns>
-    public static string GetName(SequenceCacheMode cacheMode, Option<int> cacheSize)
+    public static string GetName(SequenceCache cache) => cache switch
     {
-        return cacheMode switch
-        {
-            SequenceCacheMode.None => "None",
-            SequenceCacheMode.EngineDefault => "Database default",
-            SequenceCacheMode.Sized => cacheSize.Match(
-                static size => size.ToString(CultureInfo.InvariantCulture),
-                static () => string.Empty
-            ),
-            _ => string.Empty,
-        };
-    }
+        SequenceCache.Unknown => string.Empty,
+        SequenceCache.None => "None",
+        SequenceCache.Sized sized => sized.Size.ToString(CultureInfo.InvariantCulture),
+        SequenceCache.EngineDefault => "Database default",
+    };
 }

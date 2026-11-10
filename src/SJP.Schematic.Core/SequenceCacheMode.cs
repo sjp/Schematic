@@ -17,7 +17,7 @@ public enum SequenceCacheMode
     None,
 
     /// <summary>
-    /// A known number of values is pre-allocated, given by <see cref="IDatabaseSequence.CacheSize"/>.
+    /// A known number of values is pre-allocated, given by <see cref="SequenceCache.Sized.Size"/>.
     /// </summary>
     Sized,
 

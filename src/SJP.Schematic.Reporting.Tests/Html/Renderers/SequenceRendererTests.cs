@@ -27,7 +27,7 @@ internal static class SequenceRendererTests
     {
         using var tempDir = new TemporaryDirectory();
         var sequenceName = new Identifier("test_sequence");
-        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, new SequenceCache.None(), true);
 
         var renderer = new SequenceRenderer();
         var data = ReportDataFactory.Create(sequences: [sequence]);
@@ -43,7 +43,7 @@ internal static class SequenceRendererTests
     {
         using var tempDir = new TemporaryDirectory();
         var sequenceName = new Identifier("test_sequence");
-        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, SequenceCacheMode.None, Option<int>.None, true);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1M, 1M, Option<decimal>.None, Option<decimal>.None, false, new SequenceCache.None(), true);
         var bundle = new BundleBuilder();
 
         var renderer = new SequenceRenderer();

@@ -15,16 +15,10 @@ public interface IDatabaseSequence : IDatabaseEntity
     IDbType Type { get; }
 
     /// <summary>
-    /// Describes whether the database pre-allocates values for the sequence.
+    /// Describes whether, and how many, values the database pre-allocates for the sequence.
     /// </summary>
-    /// <value>The cache mode.</value>
-    SequenceCacheMode CacheMode { get; }
-
-    /// <summary>
-    /// The number of values that are pre-allocated, available only when <see cref="CacheMode"/> is <see cref="SequenceCacheMode.Sized"/>.
-    /// </summary>
-    /// <value>If available, the cache size.</value>
-    Option<int> CacheSize { get; }
+    /// <value>The sequence's cache.</value>
+    SequenceCache Cache { get; }
 
     /// <summary>
     /// Determines whether the values in the sequence can cycle. When cycling is configured, a sequence can generate duplicate values.

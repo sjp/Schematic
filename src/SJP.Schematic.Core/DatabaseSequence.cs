@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core.Extensions;
 using SJP.Schematic.Core.Utilities;
@@ -25,11 +24,10 @@ public class DatabaseSequence : IDatabaseSequence
     /// <param name="minValue">The minimum value of the sequence.</param>
     /// <param name="maxValue">The maximum value of the sequence.</param>
     /// <param name="cycle">Determines whether the sequence can cycle back to its starting values.</param>
-    /// <param name="cacheMode">Describes whether the database pre-allocates values for the sequence.</param>
-    /// <param name="cacheSize">The number of pre-allocated values. Ignored unless <paramref name="cacheMode"/> is <see cref="SequenceCacheMode.Sized"/>.</param>
+    /// <param name="cache">Describes whether, and how many, values the database pre-allocates for the sequence.</param>
     /// <param name="isOrdered">Determines whether values are generated in the order they are requested.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
-    /// <exception cref="ArgumentException"><paramref name="increment"/> is zero, or <paramref name="minValue"/> or <paramref name="maxValue"/> does not contain <paramref name="start"/>, or <paramref name="cacheMode"/> is not a valid enum.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="sequenceName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="cache"/> is a <see langword="default"/> <see cref="SequenceCache"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="increment"/> is zero, or <paramref name="minValue"/> or <paramref name="maxValue"/> does not contain <paramref name="start"/>.</exception>
     public DatabaseSequence(
         Identifier sequenceName,
         IDbType type,
@@ -38,8 +36,7 @@ public class DatabaseSequence : IDatabaseSequence
         Option<decimal> minValue,
         Option<decimal> maxValue,
         bool cycle,
-        SequenceCacheMode cacheMode,
-        Option<int> cacheSize,
+        SequenceCache cache,
         bool isOrdered
     )
     {
@@ -51,8 +48,8 @@ public class DatabaseSequence : IDatabaseSequence
             throw new ArgumentException("A non-zero increment is required", nameof(increment));
         Increment = increment;
 
-        if (!cacheMode.IsValid())
-            throw new ArgumentException($"The {nameof(SequenceCacheMode)} provided must be a valid enum.", nameof(cacheMode));
+        if (cache.Value is null)
+            throw new ArgumentNullException(nameof(cache), "The cache provided holds no cache description.");
 
         // The starting value must lie within the bounds of the sequence, regardless of
         // the direction of travel. A descending sequence typically starts at its maximum
@@ -65,10 +62,7 @@ public class DatabaseSequence : IDatabaseSequence
             .Where(mv => mv < start)
             .IfSome(static _ => throw new ArgumentException("When a maximum value is provided, the maximum value must not be less than the starting value.", nameof(maxValue)));
 
-        CacheMode = cacheMode;
-        // a cache size only describes a cache whose size the database reports, so it is dropped
-        // rather than kept alongside a mode that contradicts it
-        CacheSize = cacheMode == SequenceCacheMode.Sized ? cacheSize : Option<int>.None;
+        Cache = cache;
         Cycle = cycle;
         IsOrdered = isOrdered;
         MinValue = minValue;
@@ -87,16 +81,10 @@ public class DatabaseSequence : IDatabaseSequence
     public IDbType Type { get; }
 
     /// <summary>
-    /// Describes whether the database pre-allocates values for the sequence.
+    /// Describes whether, and how many, values the database pre-allocates for the sequence.
     /// </summary>
-    /// <value>The cache mode.</value>
-    public SequenceCacheMode CacheMode { get; }
-
-    /// <summary>
-    /// The number of values that are pre-allocated, available only when <see cref="CacheMode"/> is <see cref="SequenceCacheMode.Sized"/>.
-    /// </summary>
-    /// <value>If available, the cache size.</value>
-    public Option<int> CacheSize { get; }
+    /// <value>The sequence's cache.</value>
+    public SequenceCache Cache { get; }
 
     /// <summary>
     /// Determines whether the values in the sequence can cycle. When cycling is configured, a sequence can generate duplicate values.

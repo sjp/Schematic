@@ -9,7 +9,6 @@ namespace SJP.Schematic.Reporting.Tests.Html.ViewModels;
 internal static class MainTests
 {
     private static readonly Identifier TableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
-    private static readonly Identifier SequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "test_sequence");
     private static readonly Identifier SynonymName = Identifier.CreateQualifiedIdentifier("test_schema", "test_synonym");
     private static readonly Identifier RoutineName = Identifier.CreateQualifiedIdentifier("test_schema", "test_routine");
     private static readonly Identifier TypeName = Identifier.CreateQualifiedIdentifier("test_schema", "test_type");
@@ -63,17 +62,8 @@ internal static class MainTests
     public static void SequenceCtor_GivenNullSequenceName_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new Main.Sequence(null!, "bigint", Option<Uri>.None, 1, 1, Option<decimal>.None, Option<decimal>.None, SequenceCacheMode.None, Option<int>.None, false, false),
+            () => new Main.Sequence(null!, "bigint", Option<Uri>.None, 1, 1, Option<decimal>.None, Option<decimal>.None, "None", false, false),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequenceName")
-        );
-    }
-
-    [Test]
-    public static void SequenceCtor_GivenInvalidSequenceCacheMode_ThrowsArgumentException()
-    {
-        Assert.That(
-            () => new Main.Sequence(SequenceName, "bigint", Option<Uri>.None, 1, 1, Option<decimal>.None, Option<decimal>.None, (SequenceCacheMode)55, Option<int>.None, false, false),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("cacheMode")
         );
     }
 

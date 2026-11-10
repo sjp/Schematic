@@ -377,7 +377,7 @@ internal static class ReservedKeywordNameRuleTests
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
         var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "SELECT");
 
-        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1, 1, 1, 100, true, SequenceCacheMode.Sized, Option<int>.Some(10), true);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1, 1, 1, 100, true, new SequenceCache.Sized(10), true);
         var sequences = new[] { sequence };
 
         var messages = await rule.AnalyseSequences(sequences);

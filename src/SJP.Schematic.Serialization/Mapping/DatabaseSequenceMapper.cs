@@ -1,4 +1,5 @@
-﻿using Boxed.Mapping;
+﻿using System;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -20,7 +21,6 @@ public class DatabaseSequenceMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Dto.Identifier, Identifier>();
         var decimalMapper = MapperRegistry.GetMapper<decimal?, Option<decimal>>();
-        var intMapper = MapperRegistry.GetMapper<int?, Option<int>>();
         var dbTypeMapper = MapperRegistry.GetMapper<Dto.DbType, IDbType>();
 
         return new DatabaseSequence(
@@ -31,8 +31,7 @@ public class DatabaseSequenceMapper
             decimalMapper.Map(source.MinValue),
             decimalMapper.Map(source.MaxValue),
             source.Cycle,
-            source.CacheMode,
-            intMapper.Map(source.CacheSize),
+            MapCache(source),
             source.IsOrdered
         );
     }
@@ -46,8 +45,8 @@ public class DatabaseSequenceMapper
     {
         var identifierMapper = MapperRegistry.GetMapper<Identifier, Dto.Identifier>();
         var decimalMapper = MapperRegistry.GetMapper<Option<decimal>, decimal?>();
-        var intMapper = MapperRegistry.GetMapper<Option<int>, int?>();
         var dbTypeMapper = MapperRegistry.GetMapper<IDbType, Dto.DbType>();
+        var (cacheMode, cacheSize) = MapCache(source.Cache);
 
         return new Dto.DatabaseSequence
         {
@@ -58,9 +57,29 @@ public class DatabaseSequenceMapper
             MinValue = decimalMapper.Map(source.MinValue),
             MaxValue = decimalMapper.Map(source.MaxValue),
             Cycle = source.Cycle,
-            CacheMode = source.CacheMode,
-            CacheSize = intMapper.Map(source.CacheSize),
+            CacheMode = cacheMode,
+            CacheSize = cacheSize,
             IsOrdered = source.IsOrdered,
         };
     }
+
+    // a sized cache written without a size, which no dialect produces, reads back as an unknown
+    // cache rather than failing, as the size is the one thing a sized cache is meant to report
+    private static SequenceCache MapCache(Dto.DatabaseSequence source) => source.CacheMode switch
+    {
+        SequenceCacheMode.Unknown => new SequenceCache.Unknown(),
+        SequenceCacheMode.None => new SequenceCache.None(),
+        SequenceCacheMode.Sized when source.CacheSize is int size => new SequenceCache.Sized(size),
+        SequenceCacheMode.Sized => new SequenceCache.Unknown(),
+        SequenceCacheMode.EngineDefault => new SequenceCache.EngineDefault(),
+        _ => throw new ArgumentException($"The {nameof(SequenceCacheMode)} provided must be a valid enum.", nameof(source)),
+    };
+
+    private static (SequenceCacheMode CacheMode, int? CacheSize) MapCache(SequenceCache cache) => cache switch
+    {
+        SequenceCache.Unknown => (SequenceCacheMode.Unknown, null),
+        SequenceCache.None => (SequenceCacheMode.None, null),
+        SequenceCache.Sized sized => (SequenceCacheMode.Sized, sized.Size),
+        SequenceCache.EngineDefault => (SequenceCacheMode.EngineDefault, null),
+    };
 }

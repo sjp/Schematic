@@ -51,8 +51,7 @@ internal static class SequenceModelMapperTests
             Option<decimal>.None,
             Option<decimal>.None,
             false,
-            SequenceCacheMode.EngineDefault,
-            Option<int>.None,
+            new SequenceCache.EngineDefault(),
             true);
     }
 }

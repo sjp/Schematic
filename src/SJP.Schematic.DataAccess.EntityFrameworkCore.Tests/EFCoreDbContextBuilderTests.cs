@@ -109,8 +109,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<decimal>.Some(0),
             Option<decimal>.Some(100),
             true,
-            SequenceCacheMode.Sized,
-            Option<int>.Some(2),
+            new SequenceCache.Sized(2),
             true
         );
         var sequences = new[] { sequence };
@@ -150,8 +149,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<decimal>.None,
             Option<decimal>.None,
             true,
-            SequenceCacheMode.Sized,
-            Option<int>.Some(2),
+            new SequenceCache.Sized(2),
             true
         );
         var sequences = new[] { sequence };

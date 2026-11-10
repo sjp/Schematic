@@ -166,8 +166,7 @@ public class OracleDatabaseSequenceProvider : IDatabaseSequenceProvider
             Option<decimal>.Some(row.MaxValue),
             cycle,
             // NOCACHE is recorded as a cache of no values at all
-            row.CacheSize == 0 ? SequenceCacheMode.None : SequenceCacheMode.Sized,
-            Option<int>.Some(row.CacheSize),
+            row.CacheSize == 0 ? new SequenceCache.None() : new SequenceCache.Sized(row.CacheSize),
             isOrdered
         );
     }

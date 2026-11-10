@@ -135,14 +135,11 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
 
         // sys.sequences reports a cached sequence with no size when CACHE was given without one,
         // in which case the engine picks a size and never says which
-        var cacheMode = !row.IsCached
-            ? SequenceCacheMode.None
+        SequenceCache cache = !row.IsCached
+            ? new SequenceCache.None()
             : row.CacheSize.HasValue
-                ? SequenceCacheMode.Sized
-                : SequenceCacheMode.EngineDefault;
-        var cacheSize = row.IsCached && row.CacheSize.HasValue
-            ? Option<int>.Some(row.CacheSize.Value)
-            : Option<int>.None;
+                ? new SequenceCache.Sized(row.CacheSize.Value)
+                : new SequenceCache.EngineDefault();
 
         // bounds beyond the client decimal range are left out by the query rather than overflowing
         var minValue = row.MinValue.HasValue
@@ -160,8 +157,7 @@ public class SqlServerDatabaseSequenceProvider : IDatabaseSequenceProvider
             minValue,
             maxValue,
             row.Cycle,
-            cacheMode,
-            cacheSize,
+            cache,
             // a SQL Server sequence is served by a single instance, so values are always ordered
             true
         );

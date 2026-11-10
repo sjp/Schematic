@@ -21,7 +21,7 @@ internal static class InvalidSequenceConfigurationRuleTests
         sequence.Setup(s => s.MinValue).Returns(minValue);
         sequence.Setup(s => s.MaxValue).Returns(maxValue);
         sequence.Setup(s => s.Cycle).Returns(cycle);
-        sequence.Setup(s => s.CacheSize).Returns(Option<int>.None);
+        sequence.Setup(s => s.Cache).Returns(new SequenceCache.None());
         return sequence.Object;
     }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Tests.Utilities;
@@ -15,11 +16,10 @@ internal static class DatabaseSequenceTests
         decimal increment,
         Option<decimal> minValue,
         Option<decimal> maxValue,
-        SequenceCacheMode cacheMode = SequenceCacheMode.None,
-        Option<int> cacheSize = default,
+        SequenceCache? cache = null,
         bool cycle = true,
         bool isOrdered = true
-    ) => new(sequenceName, SequenceType, start, increment, minValue, maxValue, cycle, cacheMode, cacheSize, isOrdered);
+    ) => new(sequenceName, SequenceType, start, increment, minValue, maxValue, cycle, cache ?? new SequenceCache.None(), isOrdered);
 
     [Test]
     public static void Ctor_GivenNullName_ThrowsArgNullException()
@@ -34,18 +34,17 @@ internal static class DatabaseSequenceTests
     public static void Ctor_GivenNullType_ThrowsArgNullException()
     {
         Assert.That(
-            () => new DatabaseSequence("test", null, 1, 1, Option<decimal>.None, Option<decimal>.None, true, SequenceCacheMode.None, Option<int>.None, true),
+            () => new DatabaseSequence("test", null, 1, 1, Option<decimal>.None, Option<decimal>.None, true, new SequenceCache.None(), true),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("type")
         );
     }
 
     [Test]
-    public static void Ctor_GivenInvalidCacheMode_ThrowsArgException()
+    public static void Ctor_GivenDefaultCache_ThrowsArgNullException()
     {
-        const SequenceCacheMode cacheMode = (SequenceCacheMode)55;
         Assert.That(
-            () => new DatabaseSequence("test", SequenceType, 1, 1, Option<decimal>.None, Option<decimal>.None, true, cacheMode, Option<int>.None, true),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("cacheMode")
+            () => new DatabaseSequence("test", SequenceType, 1, 1, Option<decimal>.None, Option<decimal>.None, true, default, true),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("cache")
         );
     }
 
@@ -113,14 +112,6 @@ internal static class DatabaseSequenceTests
     }
 
     [Test]
-    public static void Ctor_GivenCacheSizeWithoutASizedCache_DiscardsCacheSize()
-    {
-        var sequence = CreateSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, SequenceCacheMode.EngineDefault, Option<int>.Some(20));
-
-        Assert.That(sequence.CacheSize, Is.EqualTo(Option<int>.None));
-    }
-
-    [Test]
     public static void Name_PropertyGet_MatchesCtorArg()
     {
         var sequenceName = new Identifier("test");
@@ -137,21 +128,20 @@ internal static class DatabaseSequenceTests
         Assert.That(sequence.Type, Is.EqualTo(SequenceType));
     }
 
-    [Test]
-    public static void CacheMode_PropertyGet_MatchesCtorArg()
+    private static IEnumerable<TestCaseData> Caches()
     {
-        var sequence = CreateSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, SequenceCacheMode.EngineDefault);
-
-        Assert.That(sequence.CacheMode, Is.EqualTo(SequenceCacheMode.EngineDefault));
+        yield return new TestCaseData((SequenceCache)new SequenceCache.Unknown()).SetArgDisplayNames("Unknown");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.None()).SetArgDisplayNames("None");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.Sized(20)).SetArgDisplayNames("Sized");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.EngineDefault()).SetArgDisplayNames("EngineDefault");
     }
 
-    [Test]
-    public static void CacheSize_PropertyGet_MatchesCtorArg()
+    [TestCaseSource(nameof(Caches))]
+    public static void Cache_PropertyGet_MatchesCtorArg(SequenceCache cache)
     {
-        const int cacheSize = 20;
-        var sequence = CreateSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, SequenceCacheMode.Sized, Option<int>.Some(cacheSize));
+        var sequence = CreateSequence("test", 1, 1, Option<decimal>.None, Option<decimal>.None, cache);
 
-        Assert.That(sequence.CacheSize.UnwrapSome(), Is.EqualTo(cacheSize));
+        Assert.That(sequence.Cache.Value, Is.SameAs(cache.Value));
     }
 
     [Test]

@@ -153,8 +153,7 @@ public class PostgreSqlDatabaseSequenceProviderBase : IDatabaseSequenceProvider
             row.Cycle,
             // PostgreSQL always pre-allocates, reporting a cache of one value for a sequence
             // declared without CACHE, so the size is always known
-            SequenceCacheMode.Sized,
-            Option<int>.Some(row.CacheSize),
+            new SequenceCache.Sized(row.CacheSize),
             // a PostgreSQL sequence is served by a single instance, so values are always ordered
             true
         );

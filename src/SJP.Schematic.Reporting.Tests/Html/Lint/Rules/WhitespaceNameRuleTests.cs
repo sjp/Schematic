@@ -170,7 +170,7 @@ internal static class WhitespaceNameRuleTests
         var rule = new WhitespaceNameRule(RuleLevel.Error);
         var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "   test   ");
 
-        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1, 1, 1, 100, true, SequenceCacheMode.Sized, Option<int>.Some(10), true);
+        var sequence = new DatabaseSequence(sequenceName, TestDbTypes.BigInteger, 1, 1, 1, 100, true, new SequenceCache.Sized(10), true);
         var sequences = new[] { sequence };
 
         var messages = await rule.AnalyseSequences(sequences);

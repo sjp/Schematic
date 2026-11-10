@@ -52,8 +52,7 @@ internal sealed class MainModelMapper
             sequence.Increment,
             sequence.MinValue,
             sequence.MaxValue,
-            sequence.CacheMode,
-            sequence.CacheSize,
+            SequenceCacheNames.GetName(sequence.Cache),
             sequence.Cycle,
             sequence.IsOrdered
         );
