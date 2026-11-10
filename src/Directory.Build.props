@@ -6,7 +6,8 @@
         <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
         <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
         <TreatSpecificWarningsAsErrors />
-        <Features>strict</Features>
+        <!-- runtime-async: the runtime implements async methods itself, so the compiler emits no state machines. -->
+        <Features>strict;runtime-async=on</Features>
         <AnalysisLevel>latest</AnalysisLevel>
         <VersionPrefix>0.1.0</VersionPrefix>
         <Copyright>Copyright © Simon Potter 2026</Copyright>
