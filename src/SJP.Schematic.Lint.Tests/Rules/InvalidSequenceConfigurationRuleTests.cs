@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LanguageExt;
 using Moq;
@@ -117,15 +118,36 @@ internal static class InvalidSequenceConfigurationRuleTests
         Assert.That(messages, Is.Not.Empty);
     }
 
-    [Test]
-    public static async Task AnalyseSequences_GivenNonPositiveCacheSize_ProducesMessages()
+    [TestCase(0)]
+    [TestCase(-1)]
+    public static async Task AnalyseSequences_GivenNonPositiveCacheSize_ProducesMessages(int cacheSize)
     {
         var rule = new InvalidSequenceConfigurationRule(RuleLevel.Error);
-        var sequence = CreateSequence(1, 1, Option<decimal>.Some(1), Option<decimal>.Some(100), cycle: true, new SequenceCache.Sized(0));
+        var sequence = CreateSequence(1, 1, Option<decimal>.Some(1), Option<decimal>.Some(100), cycle: true, new SequenceCache.Sized(cacheSize));
         var sequences = new[] { sequence };
 
         var messages = await rule.AnalyseSequences(sequences);
 
-        Assert.That(messages, Is.Not.Empty);
+        Assert.That(messages, Has.Count.EqualTo(1));
+    }
+
+    private static IEnumerable<TestCaseData> ValidCaches()
+    {
+        yield return new TestCaseData((SequenceCache)new SequenceCache.Unknown()).SetArgDisplayNames("Unknown");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.None()).SetArgDisplayNames("None");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.Sized(1)).SetArgDisplayNames("Sized");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.EngineDefault()).SetArgDisplayNames("EngineDefault");
+    }
+
+    [TestCaseSource(nameof(ValidCaches))]
+    public static async Task AnalyseSequences_GivenValidCacheOfEachCase_ProducesNoMessages(SequenceCache cache)
+    {
+        var rule = new InvalidSequenceConfigurationRule(RuleLevel.Error);
+        var sequence = CreateSequence(1, 1, Option<decimal>.Some(1), Option<decimal>.Some(100), cycle: true, cache);
+        var sequences = new[] { sequence };
+
+        var messages = await rule.AnalyseSequences(sequences);
+
+        Assert.That(messages, Is.Empty);
     }
 }

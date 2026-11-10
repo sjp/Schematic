@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -41,7 +42,37 @@ internal static class SequenceModelMapperTests
         Assert.That(model.TypeUrl, Is.EqualTo(UrlRouter.GetUserDefinedTypeUrl(TicketNumberName)));
     }
 
-    private static IDatabaseSequence CreateSequence(IDbType type)
+    private static IEnumerable<TestCaseData> CachesWithNames()
+    {
+        yield return new TestCaseData((SequenceCache)new SequenceCache.Unknown(), string.Empty).SetArgDisplayNames("Unknown");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.None(), "None").SetArgDisplayNames("None");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.Sized(20), "20").SetArgDisplayNames("Sized");
+        yield return new TestCaseData((SequenceCache)new SequenceCache.EngineDefault(), "Database default").SetArgDisplayNames("EngineDefault");
+    }
+
+    [TestCaseSource(nameof(CachesWithNames))]
+    public static void Map_GivenSequenceWithCache_DescribesCache(SequenceCache cache, string expectedName)
+    {
+        var sequence = CreateSequence(TestDbTypes.BigInteger, cache);
+
+        var model = new SequenceModelMapper().Map(sequence, new UserDefinedTypeTargets([]));
+
+        Assert.That(model.Cache, Is.EqualTo(expectedName));
+    }
+
+    [TestCaseSource(nameof(CachesWithNames))]
+    public static void MapSummary_GivenSequenceWithCache_DescribesCache(SequenceCache cache, string expectedName)
+    {
+        var sequence = CreateSequence(TestDbTypes.BigInteger, cache);
+
+        var model = new MainModelMapper().Map(sequence, new UserDefinedTypeTargets([]));
+
+        Assert.That(model.Cache, Is.EqualTo(expectedName));
+    }
+
+    private static IDatabaseSequence CreateSequence(IDbType type) => CreateSequence(type, new SequenceCache.EngineDefault());
+
+    private static IDatabaseSequence CreateSequence(IDbType type, SequenceCache cache)
     {
         return new DatabaseSequence(
             CounterName,
@@ -51,7 +82,7 @@ internal static class SequenceModelMapperTests
             Option<decimal>.None,
             Option<decimal>.None,
             false,
-            new SequenceCache.EngineDefault(),
+            cache,
             true);
     }
 }
