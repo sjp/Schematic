@@ -415,9 +415,9 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 continue;
 
             if (string.Equals(index.Name.LocalName, PrimaryKeyIndexName, StringComparison.Ordinal))
-                primaryKey = Option<IDatabaseKey>.Some(new MySqlDatabasePrimaryKey(columns, Option<IDatabaseIndex>.Some(index)));
+                primaryKey = Option<IDatabaseKey>.Some(new DatabaseKey(index.Name, DatabaseKeyType.Primary, columns, true, Option<IDatabaseIndex>.Some(index)));
             else
-                (uniqueKeys ??= []).Add(new MySqlDatabaseKey(index.Name, DatabaseKeyType.Unique, columns, Option<IDatabaseIndex>.Some(index)));
+                (uniqueKeys ??= []).Add(new DatabaseKey(index.Name, DatabaseKeyType.Unique, columns, true, Option<IDatabaseIndex>.Some(index)));
         }
 
         if (primaryKey.IsNone && uniqueKeys == null)
@@ -780,14 +780,14 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
     // Builds a foreign key as declared on the table holding it. Parent-key and child-key loading both build
     // it here, from the same rows, so a foreign key reads the same whichever end of the relationship it is
     // loaded from. The rows are in key order, so they are not sorted again here.
-    private static MySqlDatabaseKey CreateForeignKey(string constraintName, IEnumerable<GetTableParentKeys.Result> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
+    private static DatabaseKey CreateForeignKey(string constraintName, IEnumerable<GetTableParentKeys.Result> columnRows, IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup)
     {
         var keyName = Identifier.CreateQualifiedIdentifier(constraintName);
         var keyColumns = columnRows
             .Select(row => columnLookup[row.ColumnName])
             .ToList();
 
-        return new MySqlDatabaseKey(keyName, DatabaseKeyType.Foreign, keyColumns);
+        return new DatabaseKey(keyName, DatabaseKeyType.Foreign, keyColumns, true);
     }
 
     /// <summary>

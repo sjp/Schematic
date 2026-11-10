@@ -501,7 +501,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         var backingIndex = GetBackingIndex(indexes, firstRow.Key.IndexName);
 
-        var primaryKey = new OracleDatabaseKey(constraintName, DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex, isValidated, deferrability);
+        var primaryKey = new DatabaseKey(Identifier.CreateQualifiedIdentifier(constraintName), DatabaseKeyType.Primary, keyColumns, isEnabled, backingIndex, isValidated, deferrability);
         return Option<IDatabaseKey>.Some(primaryKey);
     }
 
@@ -531,7 +531,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var deferrability = GetDeferrability(uk.Key.Deferrable, uk.Key.Deferred);
             var backingIndex = GetBackingIndex(indexes, uk.Key.IndexName);
 
-            result.Add(new OracleDatabaseKey(uk.Key.ConstraintName, DatabaseKeyType.Unique, columns, isEnabled, backingIndex, isValidated, deferrability));
+            result.Add(new DatabaseKey(Identifier.CreateQualifiedIdentifier(uk.Key.ConstraintName), DatabaseKeyType.Unique, columns, isEnabled, backingIndex, isValidated, deferrability));
         }
 
         return result;
@@ -572,7 +572,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var isEnabled = string.Equals(fkey.Key.EnabledStatus, Constants.Enabled, StringComparison.Ordinal);
             var isValidated = string.Equals(fkey.Key.ValidatedStatus, Constants.Validated, StringComparison.Ordinal);
             var deferrability = GetDeferrability(fkey.Key.Deferrable, fkey.Key.Deferred);
-            var childKey = new OracleDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated, deferrability);
+            var childKey = new DatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated, deferrability);
 
             var parentKeyType = string.Equals(fkey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal)
                 ? DatabaseKeyType.Primary

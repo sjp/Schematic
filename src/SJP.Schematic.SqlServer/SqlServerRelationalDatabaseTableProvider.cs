@@ -526,7 +526,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     // Builds a primary or unique key from the rows of the index that enforces it. SQL Server always gives
     // that index the same name as its constraint (renaming either renames both), so the index name is the
     // constraint name and the index with that name is the key's backing index.
-    private static SqlServerDatabaseKey CreateKeyFromIndexRows(
+    private static DatabaseKey CreateKeyFromIndexRows(
         IReadOnlyCollection<GetTableIndexes.Result> indexRows,
         DatabaseKeyType keyType,
         IReadOnlyDictionary<Identifier, IDatabaseColumn> columnLookup,
@@ -546,7 +546,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
         var backingIndex = GetBackingIndex(indexes, constraintName);
 
-        return new SqlServerDatabaseKey(constraintName, keyType, keyColumns, isEnabled, backingIndex);
+        return new DatabaseKey(constraintName, keyType, keyColumns, isEnabled, backingIndex);
     }
 
     /// <summary>
@@ -741,7 +741,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
 
                     var isEnabled = !fkey.Key.IsDisabled;
                     var isValidated = !fkey.Key.IsNotTrusted;
-                    var childKey = new SqlServerDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated);
+                    var childKey = new DatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, isEnabled, Option<IDatabaseIndex>.None, isValidated, ConstraintDeferrability.NotDeferrable);
 
                     var deleteAction = ReferentialActionMapping[fkey.Key.DeleteAction];
                     var updateAction = ReferentialActionMapping[fkey.Key.UpdateAction];
@@ -954,7 +954,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
     private static IDatabaseKey CreateKeyFromUniqueIndex(IDatabaseIndex uniqueIndex)
     {
         var columns = uniqueIndex.Columns.SelectMany(static ic => ic.DependentColumns).ToList();
-        return new SqlServerDatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns, uniqueIndex.IsEnabled, Option<IDatabaseIndex>.Some(uniqueIndex));
+        return new DatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns, uniqueIndex.IsEnabled, Option<IDatabaseIndex>.Some(uniqueIndex));
     }
 
     private static class Constants

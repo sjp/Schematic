@@ -428,7 +428,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var keyType = row.IsPrimary ? DatabaseKeyType.Primary : DatabaseKeyType.Unique;
         var deferrability = GetDeferrability(row.IsDeferrable, row.IsInitiallyDeferred);
 
-        return new PostgreSqlDatabaseKey(row.ConstraintName!, keyType, columns, Option<IDatabaseIndex>.Some(backingIndex), true, deferrability);
+        return new DatabaseKey(Identifier.CreateQualifiedIdentifier(row.ConstraintName!), keyType, columns, true, Option<IDatabaseIndex>.Some(backingIndex), true, deferrability);
     }
 
     private static readonly TableIndexes NoIndexes = new([], Option<IDatabaseKey>.None, []);
@@ -690,7 +690,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
         var childKeyColumns = ResolveColumns(orderedRows.Select(static row => (Identifier)row.ColumnName), childColumnLookup).ToList();
 
         var deferrability = GetDeferrability(constraint.IsDeferrable, constraint.IsInitiallyDeferred);
-        var childKey = new PostgreSqlDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, Option<IDatabaseIndex>.None, constraint.IsValidated, deferrability);
+        var childKey = new DatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, true, Option<IDatabaseIndex>.None, constraint.IsValidated, deferrability);
 
         var deleteAction = ReferentialActionMapping[constraint.DeleteAction];
         var updateAction = ReferentialActionMapping[constraint.UpdateAction];
@@ -921,7 +921,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
     private static IDatabaseKey CreateKeyFromUniqueIndex(IDatabaseIndex uniqueIndex)
     {
         var columns = uniqueIndex.Columns.SelectMany(static ic => ic.DependentColumns).ToList();
-        return new PostgreSqlDatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns, Option<IDatabaseIndex>.Some(uniqueIndex));
+        return new DatabaseKey(uniqueIndex.Name, DatabaseKeyType.Unique, columns, true, Option<IDatabaseIndex>.Some(uniqueIndex));
     }
 
     /// <summary>

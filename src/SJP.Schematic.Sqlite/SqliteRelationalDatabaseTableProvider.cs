@@ -418,7 +418,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             : Option<IDatabaseIndex>.None;
 
         var primaryKeyName = parsedTable.PrimaryKey.Bind(c => c.Name.Map(Identifier.CreateQualifiedIdentifier));
-        var primaryKey = new SqliteDatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns, backingIndex);
+        var primaryKey = new DatabaseKey(primaryKeyName, DatabaseKeyType.Primary, keyColumns, true, backingIndex);
 
         return Option<IDatabaseKey>.Some(primaryKey);
     }
@@ -851,7 +851,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 ? Option<IDatabaseIndex>.Some(new SqliteDatabaseIndex(ukIndexList.name, ukIndexList.unique, backingIndexColumns, [], Option<string>.None))
                 : Option<IDatabaseIndex>.None;
 
-            var uniqueKey = new SqliteDatabaseKey(keyName, DatabaseKeyType.Unique, keyColumns, backingIndex);
+            var uniqueKey = new DatabaseKey(keyName, DatabaseKeyType.Unique, keyColumns, true, backingIndex);
             result.Add(uniqueKey);
         }
 
@@ -950,7 +950,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 : Option<IDatabaseIndex>.None;
 
             var keyName = Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(indexList.name));
-            result.Add(new SqliteDatabaseKey(keyName, DatabaseKeyType.Unique, keyColumns, backingIndex));
+            result.Add(new DatabaseKey(keyName, DatabaseKeyType.Unique, keyColumns, true, backingIndex));
         }
 
         return result;
@@ -1216,7 +1216,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                     var deferrability = parsedConstraintOption.Match(static fk => fk.Deferrability, static () => ConstraintDeferrability.NotDeferrable);
                     var matchType = parsedConstraintOption.Match(static fk => fk.MatchType, static () => ForeignKeyMatchType.Simple);
 
-                    var childKey = new SqliteDatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, Option<IDatabaseIndex>.None, deferrability);
+                    var childKey = new DatabaseKey(childKeyName, DatabaseKeyType.Foreign, childKeyColumns, true, Option<IDatabaseIndex>.None, true, deferrability);
 
                     var deleteAction = GetReferentialAction(fkey.Key.OnDelete);
                     var updateAction = GetReferentialAction(fkey.Key.OnUpdate);
