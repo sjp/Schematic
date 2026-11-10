@@ -574,15 +574,13 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             var deferrability = GetDeferrability(fkey.Key.Deferrable, fkey.Key.Deferred);
             var childKey = new DatabaseKey.Foreign(childKeyName, childKeyColumns, isEnabled, isValidated, deferrability);
 
-            var parentKeyType = string.Equals(fkey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal)
-                ? DatabaseKeyType.Primary
-                : DatabaseKeyType.Unique;
+            var referencesPrimaryKey = string.Equals(fkey.Key.ParentKeyType, Constants.PrimaryKeyType, StringComparison.Ordinal);
 
             result.Add(new ForeignKeyReference(
                 childKey,
                 Identifier.CreateQualifiedIdentifier(fkey.Key.ParentTableSchema, fkey.Key.ParentTableName),
                 Identifier.CreateQualifiedIdentifier(fkey.Key.ParentConstraintName),
-                parentKeyType,
+                referencesPrimaryKey,
                 OracleCatalogMapper.GetReferentialAction(fkey.Key.DeleteAction)
             ));
         }
@@ -652,22 +650,17 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
     /// <param name="ChildKey">The foreign key, over the columns of the table declaring it.</param>
     /// <param name="ParentTableName">The schema-qualified name of the referenced table, as recorded in the catalog.</param>
     /// <param name="ParentKeyName">The name of the referenced key.</param>
-    /// <param name="ParentKeyType">Whether the referenced key is a primary key or a unique key.</param>
+    /// <param name="ReferencesPrimaryKey">Whether the referenced key is the primary key, rather than a unique key.</param>
     /// <param name="DeleteAction">The action taken on the child rows when a referenced row is deleted.</param>
-    /// <exception cref="ArgumentException"><paramref name="ParentKeyType"/> or <paramref name="DeleteAction"/> is not a valid enum.</exception>
+    /// <exception cref="ArgumentException"><paramref name="DeleteAction"/> is not a valid enum.</exception>
     protected sealed record ForeignKeyReference(
         DatabaseKey.Foreign ChildKey,
         Identifier ParentTableName,
         Identifier ParentKeyName,
-        DatabaseKeyType ParentKeyType,
+        bool ReferencesPrimaryKey,
         ReferentialAction DeleteAction
     )
     {
-        /// <summary>Whether the referenced key is a primary key or a unique key.</summary>
-        public DatabaseKeyType ParentKeyType { get; init; } = ParentKeyType.IsValid()
-            ? ParentKeyType
-            : throw new ArgumentException($"The {nameof(DatabaseKeyType)} provided must be a valid enum.", nameof(ParentKeyType));
-
         /// <summary>The action taken on the child rows when a referenced row is deleted.</summary>
         public ReferentialAction DeleteAction { get; init; } = DeleteAction.IsValid()
             ? DeleteAction
@@ -842,7 +835,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 .BindAsync(async parentTableName =>
                 {
                     resolvedParentTableName = parentTableName;
-                    if (foreignKey.ParentKeyType == DatabaseKeyType.Primary)
+                    if (foreignKey.ReferencesPrimaryKey)
                     {
                         var pk = await queryCache.GetPrimaryKeyAsync(parentTableName, cancellationToken);
                         return pk.Map(static k => (CandidateKey)k).ToAsync();

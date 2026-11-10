@@ -112,19 +112,10 @@ internal static class OracleRelationalDatabaseTableProviderTests
     }
 
     [Test]
-    public static void ForeignKeyReferenceCtor_GivenInvalidParentKeyType_ThrowsArgumentException()
-    {
-        Assert.That(
-            () => ProviderAccessor.CreateForeignKeyReference((DatabaseKeyType)55, ReferentialAction.NoAction),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("ParentKeyType")
-        );
-    }
-
-    [Test]
     public static void ForeignKeyReferenceCtor_GivenInvalidDeleteAction_ThrowsArgumentException()
     {
         Assert.That(
-            () => ProviderAccessor.CreateForeignKeyReference(DatabaseKeyType.Primary, (ReferentialAction)55),
+            () => ProviderAccessor.CreateForeignKeyReference(true, (ReferentialAction)55),
             Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("DeleteAction")
         );
     }
@@ -217,13 +208,13 @@ internal static class OracleRelationalDatabaseTableProviderTests
 
         public static string GenerateNotNull(string columnName) => GenerateNotNullDefinition(columnName);
 
-        public static object CreateForeignKeyReference(DatabaseKeyType parentKeyType, ReferentialAction deleteAction)
+        public static object CreateForeignKeyReference(bool referencesPrimaryKey, ReferentialAction deleteAction)
         {
             return new ForeignKeyReference(
                 TestKeys.Foreign(),
                 Identifier.CreateQualifiedIdentifier("test_schema", "parent_table"),
                 "parent_key",
-                parentKeyType,
+                referencesPrimaryKey,
                 deleteAction
             );
         }
