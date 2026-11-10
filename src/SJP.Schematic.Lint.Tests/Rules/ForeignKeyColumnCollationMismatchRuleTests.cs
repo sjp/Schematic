@@ -14,7 +14,7 @@ internal static class ForeignKeyColumnCollationMismatchRuleTests
     {
         var collationOption = collation is null ? Option<Identifier>.None : Option<Identifier>.Some(collation);
         var dbType = Mock.Of<IDbType>(t => t.Collation == collationOption);
-        return new DatabaseColumn(name, dbType, true, null, null);
+        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, null);
     }
 
     private static IRelationalDatabaseTable CreateChildTable(IDatabaseColumn childColumn, IDatabaseColumn parentColumn)

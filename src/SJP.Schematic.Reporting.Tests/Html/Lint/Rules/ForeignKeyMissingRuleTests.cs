@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -13,7 +14,7 @@ internal static class ForeignKeyMissingRuleTests
 {
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, string columnName)
     {
-        var column = new DatabaseColumn(columnName, Mock.Of<IDbType>(), true, null, null);
+        var column = new DatabaseColumn(columnName, Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
         return new RelationalDatabaseTable(
             tableName,
             [column],

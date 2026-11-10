@@ -14,7 +14,7 @@ internal static class ForeignKeyIsPrimaryKeyRuleTests
 {
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, Identifier otherTableName)
     {
-        var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
             [column],

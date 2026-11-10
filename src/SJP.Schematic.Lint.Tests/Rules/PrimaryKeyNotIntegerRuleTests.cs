@@ -62,7 +62,7 @@ internal static class PrimaryKeyNotIntegerRuleTests
             "test_column_1",
             dataTypeMock.Object,
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testPrimaryKey = new DatabaseKey.Primary(
@@ -101,7 +101,7 @@ internal static class PrimaryKeyNotIntegerRuleTests
             "test_column_1",
             dataTypeMock.Object,
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testPrimaryKey = new DatabaseKey.Primary(
@@ -140,7 +140,7 @@ internal static class PrimaryKeyNotIntegerRuleTests
             "test_column_1",
             dataTypeMock.Object,
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testPrimaryKey = new DatabaseKey.Primary(
@@ -176,14 +176,14 @@ internal static class PrimaryKeyNotIntegerRuleTests
             "test_column_1",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testColumn2 = new DatabaseColumn(
             "test_column_2",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testPrimaryKey = new DatabaseKey.Primary(

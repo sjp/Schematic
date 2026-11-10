@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -46,9 +47,9 @@ internal static class TooManyColumnsRuleTests
         var rule = new TooManyColumnsRule(RuleLevel.Error, 2);
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
-        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), true, null, null);
-        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), true, null, null);
-        var testColumn3 = new DatabaseColumn("test_column_3", Mock.Of<IDbType>(), true, null, null);
+        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
+        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
+        var testColumn3 = new DatabaseColumn("test_column_3", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
 
         var table = new RelationalDatabaseTable(
             tableName,
@@ -76,7 +77,7 @@ internal static class TooManyColumnsRuleTests
     {
         var rule = new TooManyColumnsRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), true, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
 
         var table = new RelationalDatabaseTable(
             "test",

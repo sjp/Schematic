@@ -17,8 +17,8 @@ internal static class ColumnsModelMapperTests
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "person");
         IDatabaseColumn[] columns =
         [
-            new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null),
-            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(MoodName), true, null, null),
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, null),
         ];
         var table = new RelationalDatabaseTable(tableName, columns, Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
@@ -37,7 +37,7 @@ internal static class ColumnsModelMapperTests
         var viewName = Identifier.CreateQualifiedIdentifier("test_schema", "person_moods");
         IDatabaseColumn[] columns =
         [
-            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(MoodName), true, null, null),
+            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, null),
         ];
         var view = new DatabaseView(viewName, "select current_mood from person", columns);
 
@@ -54,12 +54,12 @@ internal static class ColumnsModelMapperTests
 
         IDatabaseColumn[] columns =
         [
-            new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null),
-            new DatabaseColumn("ID", TestDbTypes.BigInteger, false, null, null),
-            new DatabaseColumn("code", TestDbTypes.BigInteger, false, null, null),
-            new DatabaseColumn("customer_id", TestDbTypes.BigInteger, false, null, null),
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("ID", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("code", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("customer_id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
         ];
-        var parentColumn = new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null);
+        var parentColumn = new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null);
 
         var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("pk_orders"), [columns[0]], true);
         var uniqueKey = new DatabaseKey.Unique(Option<Identifier>.Some("uk_orders_code"), [columns[2], columns[3]], true);

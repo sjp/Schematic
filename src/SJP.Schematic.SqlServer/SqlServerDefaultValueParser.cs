@@ -14,37 +14,35 @@ namespace SJP.Schematic.SqlServer;
 /// </summary>
 internal static partial class SqlServerDefaultValueParser
 {
-    public static Option<IDatabaseDefaultValue> Parse(string? definition, string? constraintName)
+    public static Option<DatabaseDefaultValue> Parse(string? definition, string? constraintName)
     {
         if (definition.IsNullOrWhiteSpace())
-            return Option<IDatabaseDefaultValue>.None;
+            return Option<DatabaseDefaultValue>.None;
 
         var name = !constraintName.IsNullOrWhiteSpace()
             ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(constraintName))
             : Option<Identifier>.None;
 
-        var (kind, sequenceName) = Classify(definition);
-
-        return Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(definition, kind, name, sequenceName));
+        return Option<DatabaseDefaultValue>.Some(Classify(definition, name));
     }
 
-    private static (DefaultValueKind Kind, Option<Identifier> SequenceName) Classify(string definition)
+    private static DatabaseDefaultValue Classify(string definition, Option<Identifier> constraintName)
     {
         // sys.default_constraints wraps a definition in parentheses, and adds a further pair around
         // a scalar, so 'default 0' is reported as '((0))'.
         var value = RemoveEnclosingParentheses(definition.Trim());
 
         if (string.Equals(value, "NULL", StringComparison.OrdinalIgnoreCase))
-            return (DefaultValueKind.Null, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Null(definition, constraintName);
 
         if (NumericLiteralRegex().IsMatch(value) || IsStringLiteral(value))
-            return (DefaultValueKind.Literal, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Literal(definition, constraintName);
 
         var sequenceMatch = NextValueForRegex().Match(value);
         if (sequenceMatch.Success)
-            return (DefaultValueKind.SequenceNextValue, ParseQualifiedName(sequenceMatch.Groups[1].Value));
+            return new DatabaseDefaultValue.SequenceNextValue(definition, constraintName, ParseQualifiedName(sequenceMatch.Groups[1].Value));
 
-        return (DefaultValueKind.Expression, Option<Identifier>.None);
+        return new DatabaseDefaultValue.Expression(definition, constraintName);
     }
 
     private static string RemoveEnclosingParentheses(string input)

@@ -452,8 +452,8 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
                 : GetColumnType(declaredTypeName, AffinityParser.ParseTypeName(declaredTypeName));
             // a view column cannot carry a default, so there is no definition to classify
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value))
-                : Option<IDatabaseDefaultValue>.None;
+                ? Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(tableInfo.dflt_value))
+                : Option<DatabaseDefaultValue>.None;
 
             var column = new DatabaseColumn(columnName, columnType, !tableInfo.notnull, defaultValue, Option<IAutoIncrement>.None);
             result.Add(column);

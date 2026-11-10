@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -29,33 +30,33 @@ internal static class PostgreSqlDefaultValueParserTests
         }
     }
 
-    [TestCase("NULL", DefaultValueKind.Null)]
-    [TestCase("NULL::character varying", DefaultValueKind.Null)]
-    [TestCase("0", DefaultValueKind.Literal)]
-    [TestCase("-1.5", DefaultValueKind.Literal)]
-    [TestCase("true", DefaultValueKind.Literal)]
-    [TestCase("false", DefaultValueKind.Literal)]
-    [TestCase("'test'::text", DefaultValueKind.Literal)]
-    [TestCase("'test'::character varying(50)", DefaultValueKind.Literal)]
-    [TestCase("'{}'::jsonb", DefaultValueKind.Literal)]
-    [TestCase("'{}'::text[]", DefaultValueKind.Literal)]
-    [TestCase("'happy'::app.mood", DefaultValueKind.Literal)]
-    [TestCase("'happy'::\"Mood\"", DefaultValueKind.Literal)]
-    [TestCase("'happy'::app.\"Mood\"", DefaultValueKind.Literal)]
-    [TestCase("'happy'::\"App\".\"Mood\"", DefaultValueKind.Literal)]
-    [TestCase("'happy'::\"Odd \"\"Mood\"\" :: Name\"", DefaultValueKind.Literal)]
-    [TestCase("'{happy}'::app.mood[]", DefaultValueKind.Literal)]
-    [TestCase("'{happy}'::app.\"Mood\"[]", DefaultValueKind.Literal)]
-    [TestCase("('happy'::app.\"Mood\" || 'x'::text)", DefaultValueKind.Expression)]
-    [TestCase("now()", DefaultValueKind.Expression)]
-    [TestCase("CURRENT_TIMESTAMP", DefaultValueKind.Expression)]
-    [TestCase("(a)::integer + (b)::integer", DefaultValueKind.Expression)]
-    [TestCase("nextval('test_seq'::regclass)", DefaultValueKind.SequenceNextValue)]
-    public static void Parse_GivenDefinition_ReturnsExpectedKind(string definition, DefaultValueKind expectedKind)
+    [TestCase("NULL", typeof(DatabaseDefaultValue.Null))]
+    [TestCase("NULL::character varying", typeof(DatabaseDefaultValue.Null))]
+    [TestCase("0", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("-1.5", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("true", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("false", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'test'::text", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'test'::character varying(50)", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'{}'::jsonb", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'{}'::text[]", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'happy'::app.mood", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'happy'::\"Mood\"", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'happy'::app.\"Mood\"", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'happy'::\"App\".\"Mood\"", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'happy'::\"Odd \"\"Mood\"\" :: Name\"", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'{happy}'::app.mood[]", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'{happy}'::app.\"Mood\"[]", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("('happy'::app.\"Mood\" || 'x'::text)", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("now()", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("CURRENT_TIMESTAMP", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("(a)::integer + (b)::integer", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("nextval('test_seq'::regclass)", typeof(DatabaseDefaultValue.SequenceNextValue))]
+    public static void Parse_GivenDefinition_ReturnsExpectedKind(string definition, Type expectedKind)
     {
         var result = PostgreSqlDefaultValueParser.Parse(definition).UnwrapSome();
 
-        Assert.That(result.Kind, Is.EqualTo(expectedKind));
+        Assert.That(result.Value, Is.TypeOf(expectedKind));
     }
 
     [TestCase("nextval('test_seq'::regclass)", null, "test_seq")]
@@ -70,6 +71,8 @@ internal static class PostgreSqlDefaultValueParserTests
 
         var result = PostgreSqlDefaultValueParser.Parse(definition).UnwrapSome();
 
-        Assert.That(result.SequenceName.UnwrapSome(), Is.EqualTo(expectedName));
+        Assert.That(result.Value, Is.TypeOf<DatabaseDefaultValue.SequenceNextValue>());
+        var sequenceDefault = (DatabaseDefaultValue.SequenceNextValue)result.Value!;
+        Assert.That(sequenceDefault.SequenceName.UnwrapSome(), Is.EqualTo(expectedName));
     }
 }

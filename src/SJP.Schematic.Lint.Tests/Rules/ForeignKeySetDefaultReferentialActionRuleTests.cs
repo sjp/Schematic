@@ -16,7 +16,7 @@ internal static class ForeignKeySetDefaultReferentialActionRuleTests
             name,
             Mock.Of<IDbType>(),
             true,
-            defaultValue != null ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(defaultValue)) : Option<IDatabaseDefaultValue>.None,
+            defaultValue != null ? Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(defaultValue)) : Option<DatabaseDefaultValue>.None,
             null);
     }
 

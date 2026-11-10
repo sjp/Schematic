@@ -14,7 +14,7 @@ internal static class UnvalidatedConstraintsRuleTests
 {
     private static readonly Identifier TableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
-    private static readonly IDatabaseColumn TestColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+    private static readonly IDatabaseColumn TestColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
 
     [Test]
     public static void Ctor_GivenInvalidLevel_ThrowsArgumentException()

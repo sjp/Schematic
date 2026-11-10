@@ -108,7 +108,7 @@ internal static class UnvalidatedConstraintsRuleTests
         "test_column",
         Mock.Of<IDbType>(),
         false,
-        null,
+        Option<DatabaseDefaultValue>.None,
         null
     );
 

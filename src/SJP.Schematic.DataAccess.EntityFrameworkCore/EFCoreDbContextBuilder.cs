@@ -327,6 +327,35 @@ public class EFCoreDbContextBuilder
             .ToList();
     }
 
+    private static InvocationExpressionSyntax HasDefaultValue(InvocationExpressionSyntax property, ExpressionSyntax value)
+    {
+        return InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                property,
+                IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(value))));
+    }
+
+    private static InvocationExpressionSyntax HasDefaultValueSql(InvocationExpressionSyntax property, string definition)
+    {
+        return InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                property,
+                IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))))
+            .WithArgumentList(
+                ArgumentList(
+                    SingletonSeparatedList(
+                        Argument(
+                            LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(definition))))));
+    }
+
     // A default classified as a literal is written as a value rather than as SQL, so that the
     // generated context configures the same constant EF Core would insert. Returns null when the
     // constant cannot be recovered from the text, leaving the caller to pass the expression through.
@@ -399,40 +428,20 @@ public class EFCoreDbContextBuilder
 
         column.Default.IfSome(def =>
         {
-            // a default of NULL is the absence of a value rather than a value, and EF Core has
-            // nothing to configure for it
-            if (def.Kind == DefaultValueKind.Null)
-                return;
-
-            var literal = def.Kind == DefaultValueKind.Literal
-                ? TryGetLiteralExpression(def.Definition)
-                : null;
-
-            // A sequence default could be expressed with UseSequence, but that also asks EF Core to
-            // create the sequence, which the generated context does not describe, so the expression
-            // is passed through as SQL like any other.
-            property = literal != null
-                ? InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        property,
-                        IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValue))))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SingletonSeparatedList(
-                                Argument(literal))))
-                : InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        property,
-                        IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasDefaultValueSql))))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SingletonSeparatedList(
-                                Argument(
-                                    LiteralExpression(
-                                        SyntaxKind.StringLiteralExpression,
-                                        Literal(def.Definition))))));
+            property = def switch
+            {
+                // a default of NULL is the absence of a value rather than a value, and EF Core has
+                // nothing to configure for it
+                DatabaseDefaultValue.Null => property,
+                DatabaseDefaultValue.Literal literal => TryGetLiteralExpression(literal.Definition) is { } value
+                    ? HasDefaultValue(property, value)
+                    : HasDefaultValueSql(property, literal.Definition),
+                // A sequence default could be expressed with UseSequence, but that also asks EF Core
+                // to create the sequence, which the generated context does not describe, so the
+                // expression is passed through as SQL like any other.
+                DatabaseDefaultValue.Unknown or DatabaseDefaultValue.Expression or DatabaseDefaultValue.SequenceNextValue
+                    => HasDefaultValueSql(property, def.Definition),
+            };
         });
 
         column.AutoIncrement.IfSome(autoIncrement =>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -13,7 +14,7 @@ internal static class InconsistentColumnNamingConventionRuleTests
     private static IRelationalDatabaseTable CreateTable(string tableName, params string[] columnNames)
     {
         var columns = columnNames
-            .Select(static name => (IDatabaseColumn)new DatabaseColumn(name, Mock.Of<IDbType>(), true, null, null))
+            .Select(static name => (IDatabaseColumn)new DatabaseColumn(name, Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null))
             .ToList();
 
         return new RelationalDatabaseTable(

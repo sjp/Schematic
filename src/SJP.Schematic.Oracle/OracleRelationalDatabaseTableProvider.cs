@@ -910,7 +910,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 : Option<string>.None;
             // DATA_DEFAULT holds a virtual column's expression; Oracle allows no default on one
             var defaultValue = isComputed
-                ? Option<IDatabaseDefaultValue>.None
+                ? Option<DatabaseDefaultValue>.None
                 : OracleDefaultValueParser.Parse(row.DefaultValue);
 
             // Oracle evaluates a virtual column whenever it is read, so it is never stored.

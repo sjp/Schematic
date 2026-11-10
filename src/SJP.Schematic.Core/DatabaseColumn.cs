@@ -22,12 +22,12 @@ public class DatabaseColumn : IDatabaseColumn
     /// <param name="isNullable">Whether the column can hold <see langword="null" /> values.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
     /// <param name="autoIncrement">The auto-increment definition, if available.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" /></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
     public DatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
-        Option<IDatabaseDefaultValue> defaultValue,
+        Option<DatabaseDefaultValue> defaultValue,
         Option<IAutoIncrement> autoIncrement
     ) : this(columnName, type, isNullable, defaultValue, autoIncrement, false, Option<string>.None, ComputedColumnStorage.Unknown)
     {
@@ -44,13 +44,13 @@ public class DatabaseColumn : IDatabaseColumn
     /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
     /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
     /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" /></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
     public DatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
-        Option<IDatabaseDefaultValue> defaultValue,
+        Option<DatabaseDefaultValue> defaultValue,
         Option<IAutoIncrement> autoIncrement,
         bool isComputed,
         Option<string> computedDefinition,
@@ -71,13 +71,13 @@ public class DatabaseColumn : IDatabaseColumn
     /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
     /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
     /// <param name="isHidden">Whether the column is omitted from the expansion of <c>SELECT *</c>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" /></exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
     public DatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
-        Option<IDatabaseDefaultValue> defaultValue,
+        Option<DatabaseDefaultValue> defaultValue,
         Option<IAutoIncrement> autoIncrement,
         bool isComputed,
         Option<string> computedDefinition,
@@ -86,6 +86,8 @@ public class DatabaseColumn : IDatabaseColumn
     )
     {
         ArgumentNullException.ThrowIfNull(columnName);
+        if (defaultValue.Exists(static def => def.Value is null))
+            throw new ArgumentNullException(nameof(defaultValue), "The default value provided holds no default.");
         if (!computedStorage.IsValid())
             throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
 
@@ -104,7 +106,7 @@ public class DatabaseColumn : IDatabaseColumn
     /// The default applied to a column when omitted on an <c>INSERT</c> statement.
     /// </summary>
     /// <value>The default for a column, if available.</value>
-    public Option<IDatabaseDefaultValue> Default { get; }
+    public Option<DatabaseDefaultValue> Default { get; }
 
     /// <summary>
     /// An expression that creates a default value for a column when omitted on an <c>INSERT</c> statement.

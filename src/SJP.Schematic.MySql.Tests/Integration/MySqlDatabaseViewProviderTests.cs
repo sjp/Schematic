@@ -199,14 +199,14 @@ internal sealed class MySqlDatabaseViewProviderTests : MySqlTest
         Assert.That(definition, Is.EqualTo(expected));
     }
 
-    [TestCase("literal_column", DefaultValueKind.Literal)]
-    [TestCase("uuid_column", DefaultValueKind.Expression)]
-    public async Task Columns_WhenViewColumnHasDefault_ReturnsCorrectDefaultValueKind(string columnName, DefaultValueKind expectedKind)
+    [TestCase("literal_column", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("uuid_column", typeof(DatabaseDefaultValue.Expression))]
+    public async Task Columns_WhenViewColumnHasDefault_ReturnsCorrectDefaultValueKind(string columnName, Type expectedKind)
     {
         var view = await GetViewAsync("view_test_view_5");
         var column = view.Columns.Single(c => string.Equals(c.Name.LocalName, columnName, StringComparison.Ordinal));
 
-        Assert.That(column.Default.UnwrapSome().Kind, Is.EqualTo(expectedKind));
+        Assert.That(column.Default.UnwrapSome().Value, Is.TypeOf(expectedKind));
     }
 
     [Test]

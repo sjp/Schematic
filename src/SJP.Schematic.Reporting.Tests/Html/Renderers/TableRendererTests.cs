@@ -112,10 +112,10 @@ internal static class TableRendererTests
     private static IReadOnlyList<IDatabaseColumn> CreateColumns(params string[] keyColumnNames)
     {
         var columns = new List<IDatabaseColumn>();
-        columns.AddRange(keyColumnNames.Select(static name => new DatabaseColumn(name, TestDbTypes.BigInteger, false, null, null)));
+        columns.AddRange(keyColumnNames.Select(static name => new DatabaseColumn(name, TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null)));
 
         for (var i = columns.Count; i < ColumnsPerTable; i++)
-            columns.Add(new DatabaseColumn("attribute_column_" + i, TestDbTypes.BigInteger, true, null, null));
+            columns.Add(new DatabaseColumn("attribute_column_" + i, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, null));
 
         return columns;
     }

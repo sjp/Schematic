@@ -45,7 +45,7 @@ internal static class DbmlFormatterTests
     {
         var columns = new List<IDatabaseColumn>
         {
-            CreateColumn("first_name", "text", Option<IDatabaseDefaultValue>.None, true, Option<IAutoIncrement>.None),
+            CreateColumn("first_name", "text", Option<DatabaseDefaultValue>.None, true, Option<IAutoIncrement>.None),
             CreateColumn("last_name", "text"),
         };
         var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [], []);
@@ -59,7 +59,7 @@ internal static class DbmlFormatterTests
     public static void RenderTables_GivenAutoIncrementPrimaryKeyColumnWithDefault_RendersAllColumnOptions()
     {
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
-        var column = CreateColumn("id", "text", Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("0")), false, autoIncrement);
+        var column = CreateColumn("id", "text", Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("0")), false, autoIncrement);
         var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_table_pk"), [column], true);
         var table = CreateTable([column], primaryKey, [], []);
 
@@ -259,7 +259,7 @@ internal static class DbmlFormatterTests
     [TestCase("`quoted`", "'`quoted`'")]
     public static void RenderTables_GivenColumnWithDefaultValue_RendersClassifiedDefault(string defaultValue, string expectedDefault)
     {
-        var column = CreateColumn("test_column", "text", Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(defaultValue)));
+        var column = CreateColumn("test_column", "text", Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(defaultValue)));
         var table = CreateTable("test_table", [column], Option<DatabaseKey.Primary>.None, [], []);
 
         var result = new DbmlFormatter().RenderTables([table]);
@@ -268,18 +268,23 @@ internal static class DbmlFormatterTests
         Assert.That(result, Is.EqualTo(expected).IgnoreLineEndingFormat);
     }
 
-    [TestCase(DefaultValueKind.Null, "NULL", "null")]
-    [TestCase(DefaultValueKind.Literal, "((0))", "0")]
-    [TestCase(DefaultValueKind.Literal, "('test')", "'test'")]
-    // MySQL reports the value of a literal rather than the SQL that produced it
-    [TestCase(DefaultValueKind.Literal, "unassigned", "'unassigned'")]
-    [TestCase(DefaultValueKind.Expression, "(getdate())", "`getdate()`")]
-    // an expression that happens to look like a literal is still an expression
-    [TestCase(DefaultValueKind.Expression, "0", "`0`")]
-    [TestCase(DefaultValueKind.SequenceNextValue, "nextval('test_seq'::regclass)", "`nextval('test_seq'::regclass)`")]
-    public static void RenderTables_GivenClassifiedDefaultValue_RendersDefaultForKind(DefaultValueKind kind, string definition, string expectedDefault)
+    private static IEnumerable<TestCaseData> ClassifiedDefaultValues()
     {
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(definition, kind));
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Null("NULL"), "null");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Literal("((0))"), "0");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Literal("('test')"), "'test'");
+        // MySQL reports the value of a literal rather than the SQL that produced it
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Literal("unassigned"), "'unassigned'");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Expression("(getdate())"), "`getdate()`");
+        // an expression that happens to look like a literal is still an expression
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.Expression("0"), "`0`");
+        yield return new TestCaseData((DatabaseDefaultValue)new DatabaseDefaultValue.SequenceNextValue("nextval('test_seq'::regclass)"), "`nextval('test_seq'::regclass)`");
+    }
+
+    [TestCaseSource(nameof(ClassifiedDefaultValues))]
+    public static void RenderTables_GivenClassifiedDefaultValue_RendersDefaultForKind(DatabaseDefaultValue classifiedDefault, string expectedDefault)
+    {
+        var defaultValue = Option<DatabaseDefaultValue>.Some(classifiedDefault);
         var column = CreateColumn("test_column", "text", defaultValue);
         var table = CreateTable("test_table", [column], Option<DatabaseKey.Primary>.None, [], []);
 
@@ -643,15 +648,15 @@ internal static class DbmlFormatterTests
     }
 
     private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition)
-        => CreateColumn(columnName, typeDefinition, Option<IDatabaseDefaultValue>.None);
+        => CreateColumn(columnName, typeDefinition, Option<DatabaseDefaultValue>.None);
 
-    private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition, Option<IDatabaseDefaultValue> defaultValue)
+    private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition, Option<DatabaseDefaultValue> defaultValue)
         => CreateColumn(columnName, typeDefinition, defaultValue, false, Option<IAutoIncrement>.None);
 
     private static IDatabaseColumn CreateColumn(
         Identifier columnName,
         string typeDefinition,
-        Option<IDatabaseDefaultValue> defaultValue,
+        Option<DatabaseDefaultValue> defaultValue,
         bool isNullable,
         Option<IAutoIncrement> autoIncrement
     )
@@ -698,7 +703,7 @@ internal static class DbmlFormatterTests
             columnName,
             columnType,
             false,
-            Option<IDatabaseDefaultValue>.None,
+            Option<DatabaseDefaultValue>.None,
             Option<IAutoIncrement>.None,
             true,
             computedDefinition,

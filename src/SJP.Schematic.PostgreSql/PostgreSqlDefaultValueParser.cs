@@ -15,17 +15,15 @@ namespace SJP.Schematic.PostgreSql;
 /// </summary>
 internal static partial class PostgreSqlDefaultValueParser
 {
-    public static Option<IDatabaseDefaultValue> Parse(string? definition)
+    public static Option<DatabaseDefaultValue> Parse(string? definition)
     {
         if (definition.IsNullOrWhiteSpace())
-            return Option<IDatabaseDefaultValue>.None;
+            return Option<DatabaseDefaultValue>.None;
 
-        var (kind, sequenceName) = Classify(definition);
-
-        return Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(definition, kind, Option<Identifier>.None, sequenceName));
+        return Option<DatabaseDefaultValue>.Some(Classify(definition));
     }
 
-    private static (DefaultValueKind Kind, Option<Identifier> SequenceName) Classify(string definition)
+    private static DatabaseDefaultValue Classify(string definition)
     {
         var value = definition.Trim();
 
@@ -33,25 +31,25 @@ internal static partial class PostgreSqlDefaultValueParser
         // was created to own it
         var sequenceMatch = NextValueRegex().Match(value);
         if (sequenceMatch.Success)
-            return (DefaultValueKind.SequenceNextValue, ParseSequenceName(sequenceMatch.Groups[1].Value));
+            return new DatabaseDefaultValue.SequenceNextValue(definition, Option<Identifier>.None, ParseSequenceName(sequenceMatch.Groups[1].Value));
 
         // PostgreSQL stores a default in its parsed form, so a literal is written back out with an
         // explicit cast to the column's type, e.g. 'unassigned'::character varying
         value = RemoveTrailingCasts(value);
 
         if (string.Equals(value, "NULL", StringComparison.OrdinalIgnoreCase))
-            return (DefaultValueKind.Null, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Null(definition);
 
         if (string.Equals(value, "true", StringComparison.OrdinalIgnoreCase)
             || string.Equals(value, "false", StringComparison.OrdinalIgnoreCase))
         {
-            return (DefaultValueKind.Literal, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Literal(definition);
         }
 
         if (NumericLiteralRegex().IsMatch(value) || IsStringLiteral(value))
-            return (DefaultValueKind.Literal, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Literal(definition);
 
-        return (DefaultValueKind.Expression, Option<Identifier>.None);
+        return new DatabaseDefaultValue.Expression(definition);
     }
 
     private static string RemoveTrailingCasts(string input)

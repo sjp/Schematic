@@ -63,7 +63,7 @@ internal static class UserDefinedTypeRendererTests
     {
         using var tempDir = new TemporaryDirectory();
         var typeName = new Identifier("test_type");
-        var attribute = new DatabaseColumn(new Identifier("attr_one"), TestDbTypes.BigInteger, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var attribute = new DatabaseColumn(new Identifier("attr_one"), TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
         var check = new DatabaseCheckConstraint(new Identifier("ck_positive"), "value > 0", true);
         var userDefinedType = new DatabaseUserDefinedType(
             typeName,

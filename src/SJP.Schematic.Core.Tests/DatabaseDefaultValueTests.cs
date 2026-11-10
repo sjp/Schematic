@@ -7,130 +7,176 @@ namespace SJP.Schematic.Core.Tests;
 
 internal static class DatabaseDefaultValueTests
 {
-    [Test]
-    public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException()
+    internal enum DefaultKind
+    {
+        Unknown,
+        Literal,
+        Null,
+        Expression,
+        SequenceNextValue,
+    }
+
+    private static DatabaseDefaultValue CreateDefault(DefaultKind kind, string definition) => kind switch
+    {
+        DefaultKind.Unknown => new DatabaseDefaultValue.Unknown(definition),
+        DefaultKind.Literal => new DatabaseDefaultValue.Literal(definition),
+        DefaultKind.Null => new DatabaseDefaultValue.Null(definition),
+        DefaultKind.Expression => new DatabaseDefaultValue.Expression(definition),
+        DefaultKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+    };
+
+    private static DatabaseDefaultValue CreateDefault(DefaultKind kind, string definition, Option<Identifier> constraintName) => kind switch
+    {
+        DefaultKind.Unknown => new DatabaseDefaultValue.Unknown(definition, constraintName),
+        DefaultKind.Literal => new DatabaseDefaultValue.Literal(definition, constraintName),
+        DefaultKind.Null => new DatabaseDefaultValue.Null(definition, constraintName),
+        DefaultKind.Expression => new DatabaseDefaultValue.Expression(definition, constraintName),
+        DefaultKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition, constraintName, Option<Identifier>.None),
+        _ => throw new ArgumentOutOfRangeException(nameof(kind)),
+    };
+
+    [TestCase(DefaultKind.Unknown)]
+    [TestCase(DefaultKind.Literal)]
+    [TestCase(DefaultKind.Null)]
+    [TestCase(DefaultKind.Expression)]
+    [TestCase(DefaultKind.SequenceNextValue)]
+    public static void Ctor_GivenNullDefinition_ThrowsArgumentNullException(DefaultKind kind)
     {
         Assert.That(
-            () => new DatabaseDefaultValue(null),
+            () => CreateDefault(kind, null),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
         );
     }
 
-    [TestCase("")]
-    [TestCase("    ")]
-    public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(string definition)
+    [TestCase(DefaultKind.Unknown, "")]
+    [TestCase(DefaultKind.Unknown, "    ")]
+    [TestCase(DefaultKind.Literal, "")]
+    [TestCase(DefaultKind.Literal, "    ")]
+    [TestCase(DefaultKind.Null, "")]
+    [TestCase(DefaultKind.Null, "    ")]
+    [TestCase(DefaultKind.Expression, "")]
+    [TestCase(DefaultKind.Expression, "    ")]
+    [TestCase(DefaultKind.SequenceNextValue, "")]
+    [TestCase(DefaultKind.SequenceNextValue, "    ")]
+    public static void Ctor_GivenEmptyOrWhiteSpaceDefinition_ThrowsArgumentException(DefaultKind kind, string definition)
     {
         Assert.That(
-            () => new DatabaseDefaultValue(definition),
+            () => CreateDefault(kind, definition),
             Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("definition")
         );
     }
 
-    [Test]
-    public static void Ctor_GivenInvalidKind_ThrowsArgumentException()
+    [TestCase(DefaultKind.Unknown, typeof(DatabaseDefaultValue.Unknown))]
+    [TestCase(DefaultKind.Literal, typeof(DatabaseDefaultValue.Literal))]
+    [TestCase(DefaultKind.Null, typeof(DatabaseDefaultValue.Null))]
+    [TestCase(DefaultKind.Expression, typeof(DatabaseDefaultValue.Expression))]
+    [TestCase(DefaultKind.SequenceNextValue, typeof(DatabaseDefaultValue.SequenceNextValue))]
+    public static void Value_PropertyGet_IsTheConstructedCase(DefaultKind kind, Type expectedType)
     {
-        const DefaultValueKind kind = (DefaultValueKind)55;
+        var defaultValue = CreateDefault(kind, "0");
 
-        Assert.That(
-            () => new DatabaseDefaultValue("0", kind),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("kind")
-        );
+        Assert.That(defaultValue.Value, Is.TypeOf(expectedType));
     }
 
-    [Test]
-    public static void Definition_PropertyGet_ReturnsCtorArg()
+    [TestCase(DefaultKind.Unknown)]
+    [TestCase(DefaultKind.Literal)]
+    [TestCase(DefaultKind.Null)]
+    [TestCase(DefaultKind.Expression)]
+    [TestCase(DefaultKind.SequenceNextValue)]
+    public static void Definition_PropertyGet_ReturnsCtorArg(DefaultKind kind)
     {
         const string definition = "((0))";
 
-        var defaultValue = new DatabaseDefaultValue(definition);
+        var defaultValue = CreateDefault(kind, definition);
 
         Assert.That(defaultValue.Definition, Is.EqualTo(definition));
     }
 
-    [Test]
-    public static void Kind_GivenNoKind_ReturnsUnknown()
+    [TestCase(DefaultKind.Unknown)]
+    [TestCase(DefaultKind.Literal)]
+    [TestCase(DefaultKind.Null)]
+    [TestCase(DefaultKind.Expression)]
+    [TestCase(DefaultKind.SequenceNextValue)]
+    public static void ConstraintName_GivenNoName_ReturnsNone(DefaultKind kind)
     {
-        var defaultValue = new DatabaseDefaultValue("0");
-
-        Assert.That(defaultValue.Kind, Is.EqualTo(DefaultValueKind.Unknown));
-    }
-
-    [Test]
-    public static void Kind_PropertyGet_ReturnsCtorArg()
-    {
-        var defaultValue = new DatabaseDefaultValue("0", DefaultValueKind.Literal);
-
-        Assert.That(defaultValue.Kind, Is.EqualTo(DefaultValueKind.Literal));
-    }
-
-    [Test]
-    public static void ConstraintName_GivenNoName_ReturnsNone()
-    {
-        var defaultValue = new DatabaseDefaultValue("0", DefaultValueKind.Literal);
+        var defaultValue = CreateDefault(kind, "0");
 
         Assert.That(defaultValue.ConstraintName, OptionIs.None);
     }
 
-    [Test]
-    public static void ConstraintName_GivenQualifiedName_ReturnsLocalNameOnly()
+    [TestCase(DefaultKind.Unknown)]
+    [TestCase(DefaultKind.Literal)]
+    [TestCase(DefaultKind.Null)]
+    [TestCase(DefaultKind.Expression)]
+    [TestCase(DefaultKind.SequenceNextValue)]
+    public static void ConstraintName_GivenQualifiedName_ReturnsLocalNameOnly(DefaultKind kind)
     {
         var constraintName = Identifier.CreateQualifiedIdentifier("test_schema", "df_test");
 
-        var defaultValue = new DatabaseDefaultValue(
-            "((0))",
-            DefaultValueKind.Literal,
-            Option<Identifier>.Some(constraintName),
-            Option<Identifier>.None);
+        var defaultValue = CreateDefault(kind, "((0))", constraintName);
 
         Assert.That(defaultValue.ConstraintName.UnwrapSome(), Is.EqualTo(Identifier.CreateQualifiedIdentifier("df_test")));
     }
 
     [Test]
-    public static void SequenceName_GivenSequenceNextValueKind_ReturnsCtorArg()
+    public static void SequenceName_PropertyGet_ReturnsCtorArg()
     {
         var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "test_seq");
 
-        var defaultValue = new DatabaseDefaultValue(
+        var defaultValue = new DatabaseDefaultValue.SequenceNextValue(
             "next value for [test_schema].[test_seq]",
-            DefaultValueKind.SequenceNextValue,
             Option<Identifier>.None,
-            Option<Identifier>.Some(sequenceName));
+            sequenceName);
 
         Assert.That(defaultValue.SequenceName.UnwrapSome(), Is.EqualTo(sequenceName));
     }
 
     [Test]
-    public static void SequenceName_GivenNonSequenceKind_ReturnsNone()
+    public static void SequenceName_WhenNotProvidedInCtor_ReturnsNone()
     {
-        var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "test_seq");
-
-        var defaultValue = new DatabaseDefaultValue(
-            "0",
-            DefaultValueKind.Literal,
-            Option<Identifier>.None,
-            Option<Identifier>.Some(sequenceName));
+        var defaultValue = new DatabaseDefaultValue.SequenceNextValue("next value for [test_schema].[test_seq]");
 
         Assert.That(defaultValue.SequenceName, OptionIs.None);
     }
 
-    [Test]
-    public static void ToString_WhenInvoked_ReturnsExpectedValues()
+    [TestCase(DefaultKind.Unknown)]
+    [TestCase(DefaultKind.Literal)]
+    [TestCase(DefaultKind.Null)]
+    [TestCase(DefaultKind.Expression)]
+    [TestCase(DefaultKind.SequenceNextValue)]
+    public static void ToString_WhenInvoked_ReturnsExpectedValues(DefaultKind kind)
     {
-        const string definition = "((0))";
-        var defaultValue = new DatabaseDefaultValue(
-            definition,
-            DefaultValueKind.Literal,
-            Option<Identifier>.Some("df_test"),
-            Option<Identifier>.None);
+        var defaultValue = CreateDefault(kind, "((0))", Option<Identifier>.Some("df_test"));
 
         Assert.That(defaultValue.ToString(), Is.EqualTo("Default: df_test = ((0))"));
     }
 
-    [Test]
-    public static void ToString_GivenNoConstraintName_ReturnsExpectedValues()
+    [TestCase(DefaultKind.Unknown)]
+    [TestCase(DefaultKind.Literal)]
+    [TestCase(DefaultKind.Null)]
+    [TestCase(DefaultKind.Expression)]
+    [TestCase(DefaultKind.SequenceNextValue)]
+    public static void ToString_GivenNoConstraintName_ReturnsExpectedValues(DefaultKind kind)
     {
-        var defaultValue = new DatabaseDefaultValue("((0))", DefaultValueKind.Literal);
+        var defaultValue = CreateDefault(kind, "((0))");
 
         Assert.That(defaultValue.ToString(), Is.EqualTo("Default: ((0))"));
+    }
+
+    [Test]
+    public static void Definition_WhenDefaultValue_Throws()
+    {
+        var defaultValue = default(DatabaseDefaultValue);
+
+        Assert.That(() => defaultValue.Definition, Throws.InstanceOf<InvalidOperationException>());
+    }
+
+    [Test]
+    public static void ToString_WhenDefaultValue_ReturnsEmptyString()
+    {
+        var defaultValue = default(DatabaseDefaultValue);
+
+        Assert.That(defaultValue.ToString(), Is.Empty);
     }
 }

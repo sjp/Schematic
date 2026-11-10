@@ -14,7 +14,7 @@ internal static class ForeignKeyRelationshipCycleRuleTests
 {
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, Identifier referencedTableName)
     {
-        var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var childKey = new DatabaseKey.Foreign(Option<Identifier>.Some("test_fk"), [column], true);
         var parentKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_pk"), [column], true);
         var relationalKey = new DatabaseRelationalKey(
@@ -82,7 +82,7 @@ internal static class ForeignKeyRelationshipCycleRuleTests
     public static async Task AnalyseTables_GivenTablesWithoutACycle_ProducesNoMessages()
     {
         var rule = new ForeignKeyRelationshipCycleRule(RuleLevel.Error);
-        var parentColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var parentColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var parentTable = new RelationalDatabaseTable(
             "parent_table",
             [parentColumn],

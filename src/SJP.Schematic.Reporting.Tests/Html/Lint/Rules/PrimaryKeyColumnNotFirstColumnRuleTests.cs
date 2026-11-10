@@ -38,8 +38,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
         var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
-        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, null, null);
-        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), false, null, null);
+        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
             [testColumn2],
@@ -72,8 +72,8 @@ internal static class PrimaryKeyColumnNotFirstColumnRuleTests
     {
         var rule = new PrimaryKeyColumnNotFirstColumnRule(RuleLevel.Error);
 
-        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, null, null);
-        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), false, null, null);
+        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
             [testColumn1],

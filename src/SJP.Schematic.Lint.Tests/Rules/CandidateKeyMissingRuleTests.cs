@@ -62,7 +62,7 @@ internal static class CandidateKeyMissingRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testPrimaryKey = new DatabaseKey.Primary(
@@ -98,7 +98,7 @@ internal static class CandidateKeyMissingRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
         var testUniqueKey = new DatabaseKey.Unique(

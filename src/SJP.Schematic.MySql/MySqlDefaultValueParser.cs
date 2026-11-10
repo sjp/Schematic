@@ -38,54 +38,54 @@ internal static partial class MySqlDefaultValueParser
     /// definition on its own, so it is returned quoted, the way MariaDB reports it.
     /// </para>
     /// </remarks>
-    public static Option<IDatabaseDefaultValue> Parse(string? definition, string? extraInformation, bool isMariaDb)
+    public static Option<DatabaseDefaultValue> Parse(string? definition, string? extraInformation, bool isMariaDb)
     {
         if (definition == null)
-            return Option<IDatabaseDefaultValue>.None;
+            return Option<DatabaseDefaultValue>.None;
 
         if (definition.IsNullOrWhiteSpace())
         {
             // MariaDB quotes every string default, so there is nothing to recover from blank text
             return isMariaDb
-                ? Option<IDatabaseDefaultValue>.None
-                : Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("'" + definition + "'", DefaultValueKind.Literal));
+                ? Option<DatabaseDefaultValue>.None
+                : Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Literal("'" + definition + "'"));
         }
 
         if (string.Equals(definition.Trim(), NullDefault, StringComparison.OrdinalIgnoreCase))
-            return Option<IDatabaseDefaultValue>.None;
+            return Option<DatabaseDefaultValue>.None;
 
-        var kind = isMariaDb
+        var defaultValue = isMariaDb
             ? ClassifyMariaDb(definition)
             : ClassifyMySql(definition, extraInformation);
-        return Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(definition, kind));
+        return Option<DatabaseDefaultValue>.Some(defaultValue);
     }
 
-    private static DefaultValueKind ClassifyMySql(string definition, string? extraInformation)
+    private static DatabaseDefaultValue ClassifyMySql(string definition, string? extraInformation)
     {
         // 'extra' marks a default that the server evaluates for each row rather than stores, which
         // is the only way to tell an expression apart from a literal that happens to look like one
         if (extraInformation?.Contains(DefaultGenerated, StringComparison.OrdinalIgnoreCase) == true)
-            return DefaultValueKind.Expression;
+            return new DatabaseDefaultValue.Expression(definition);
 
         // a temporal default predates expression defaults, so servers that do not mark one as
         // generated still report it here
         if (CurrentTimestampRegex().IsMatch(definition.Trim()))
-            return DefaultValueKind.Expression;
+            return new DatabaseDefaultValue.Expression(definition);
 
         // information_schema reports the value of an ordinary default rather than the SQL that
         // produced it, so whatever is left is the literal itself
-        return DefaultValueKind.Literal;
+        return new DatabaseDefaultValue.Literal(definition);
     }
 
-    private static DefaultValueKind ClassifyMariaDb(string definition)
+    private static DatabaseDefaultValue ClassifyMariaDb(string definition)
     {
         // MariaDB never marks a default as generated, but it reports a default as SQL: strings and
         // temporal values quoted, numbers and bit or hex values as literals, and anything else as
         // the expression that was declared (with constant expressions already folded to a literal)
         var trimmed = definition.Trim();
         return trimmed.StartsWith('\'') || NumericLiteralRegex().IsMatch(trimmed) || BinaryLiteralRegex().IsMatch(trimmed)
-            ? DefaultValueKind.Literal
-            : DefaultValueKind.Expression;
+            ? new DatabaseDefaultValue.Literal(definition)
+            : new DatabaseDefaultValue.Expression(definition);
     }
 
     [GeneratedRegex(@"^[+-]?([0-9]+\.?[0-9]*|\.[0-9]+)([eE][+-]?[0-9]+)?$", RegexOptions.Compiled | RegexOptions.CultureInvariant, matchTimeoutMilliseconds: 100)]

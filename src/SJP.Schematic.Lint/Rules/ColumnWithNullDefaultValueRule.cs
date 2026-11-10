@@ -81,14 +81,15 @@ public class ColumnWithNullDefaultValueRule : Rule, ITableRule
     /// </summary>
     /// <param name="defaultValue">A column's default.</param>
     /// <returns><see langword="true" /> if the provided default is a null value; otherwise, <see langword="false" />.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="defaultValue"/> is <see langword="null" />.</exception>
-    protected static bool IsNullDefaultValue(IDatabaseDefaultValue defaultValue)
+    protected static bool IsNullDefaultValue(DatabaseDefaultValue defaultValue)
     {
-        ArgumentNullException.ThrowIfNull(defaultValue);
-
-        // a dialect that could not classify the default leaves its text to speak for itself
-        return defaultValue.Kind == DefaultValueKind.Null
-            || (defaultValue.Kind == DefaultValueKind.Unknown && IsNullDefaultValue(defaultValue.Definition));
+        return defaultValue switch
+        {
+            DatabaseDefaultValue.Null => true,
+            // a dialect that could not classify the default leaves its text to speak for itself
+            DatabaseDefaultValue.Unknown unknown => IsNullDefaultValue(unknown.Definition),
+            DatabaseDefaultValue.Literal or DatabaseDefaultValue.Expression or DatabaseDefaultValue.SequenceNextValue => false,
+        };
     }
 
     /// <summary>

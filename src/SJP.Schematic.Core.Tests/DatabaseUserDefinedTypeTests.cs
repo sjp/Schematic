@@ -104,7 +104,7 @@ internal static class DatabaseUserDefinedTypeTests
     public static void Ctor_GivenFullDefinition_PropertiesEqualCtorArgs()
     {
         var baseType = TestDbTypes.BigInteger;
-        var attribute = new DatabaseColumn("attr", baseType, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var attribute = new DatabaseColumn("attr", baseType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
         var check = new DatabaseCheckConstraint(Option<Identifier>.Some("ck_test"), "([value] > 0)", true);
         IReadOnlyList<string> enumValues = ["a", "b"];
 

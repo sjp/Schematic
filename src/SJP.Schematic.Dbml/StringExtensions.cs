@@ -61,21 +61,19 @@ internal static partial class StringExtensions
         return "`" + input + "`";
     }
 
-    public static string ToDbmlDefaultValue(this IDatabaseDefaultValue defaultValue)
+    public static string ToDbmlDefaultValue(this DatabaseDefaultValue defaultValue)
     {
-        ArgumentNullException.ThrowIfNull(defaultValue);
-
         var value = RemoveEnclosingParentheses(defaultValue.Definition.Trim());
         if (value.Length == 0)
             return "''";
 
-        return defaultValue.Kind switch
+        return defaultValue switch
         {
-            DefaultValueKind.Null => "null",
-            DefaultValueKind.Literal => ToDbmlLiteralValue(value),
-            DefaultValueKind.Expression or DefaultValueKind.SequenceNextValue => ToDbmlExpressionValue(value),
+            DatabaseDefaultValue.Null => "null",
+            DatabaseDefaultValue.Literal => ToDbmlLiteralValue(value),
+            DatabaseDefaultValue.Expression or DatabaseDefaultValue.SequenceNextValue => ToDbmlExpressionValue(value),
             // a dialect that could not classify the default leaves DBML to guess from its shape
-            _ => ToDbmlUnclassifiedValue(value),
+            DatabaseDefaultValue.Unknown => ToDbmlUnclassifiedValue(value),
         };
     }
 

@@ -38,7 +38,7 @@ public interface IDatabaseColumn
     /// name of the constraint carrying it and a classification of what its expression evaluates to.
     /// </summary>
     /// <value>The default for a column, if available.</value>
-    Option<IDatabaseDefaultValue> Default { get; }
+    Option<DatabaseDefaultValue> Default { get; }
 
     /// <summary>
     /// An expression that creates a default value for a column when omitted on an <c>INSERT</c> statement.

@@ -17,8 +17,8 @@ internal static class UserDefinedTypeModelMapperTests
     {
         IDatabaseColumn[] attributes =
         [
-            new DatabaseColumn("intensity", TestDbTypes.BigInteger, false, null, null),
-            new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, null, null),
+            new DatabaseColumn("intensity", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, null),
         ];
         var feeling = new DatabaseUserDefinedType(
             FeelingName,

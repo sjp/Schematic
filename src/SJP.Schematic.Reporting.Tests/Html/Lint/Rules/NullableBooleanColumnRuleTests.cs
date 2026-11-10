@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -14,7 +15,7 @@ internal static class NullableBooleanColumnRuleTests
     private static DatabaseColumn CreateColumn(string name, DataType dataType, bool isNullable)
     {
         var dbType = Mock.Of<IDbType>(t => t.DataType == dataType);
-        return new DatabaseColumn(name, dbType, isNullable, null, null);
+        return new DatabaseColumn(name, dbType, isNullable, Option<DatabaseDefaultValue>.None, null);
     }
 
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, IDatabaseColumn column)

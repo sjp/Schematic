@@ -24,7 +24,7 @@ internal static class ForeignKeyColumnTypeMismatchRuleTests
             Option<INumericPrecision>.None,
             Option<Identifier>.None
         );
-        return new DatabaseColumn(name, dbType, true, null, null);
+        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, null);
     }
 
     private static IRelationalDatabaseTable CreateChildTable(Identifier childTableName, Identifier parentTableName, IDatabaseColumn childColumn, IDatabaseColumn parentColumn)

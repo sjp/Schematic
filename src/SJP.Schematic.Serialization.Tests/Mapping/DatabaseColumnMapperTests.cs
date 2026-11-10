@@ -23,7 +23,7 @@ internal static class DatabaseColumnMapperTests
     public static void Map_GivenColumnWithoutDefault_RoundTrips()
     {
         var mapper = new DatabaseColumnMapper();
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         var result = mapper.Map(mapper.Map(column));
 
@@ -34,22 +34,16 @@ internal static class DatabaseColumnMapperTests
     public static void Map_GivenNamedLiteralDefault_RoundTrips()
     {
         var mapper = new DatabaseColumnMapper();
-        var defaultValue = new DatabaseDefaultValue(
-            "((0))",
-            DefaultValueKind.Literal,
-            Option<Identifier>.Some("df_test_column"),
-            Option<Identifier>.None
-        );
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<IDatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var defaultValue = new DatabaseDefaultValue.Literal("((0))", Option<Identifier>.Some("df_test_column"));
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
 
         var result = mapper.Map(mapper.Map(column)).Default.UnwrapSome();
 
         using (Assert.EnterMultipleScope())
         {
+            Assert.That(result.Value, Is.TypeOf<DatabaseDefaultValue.Literal>());
             Assert.That(result.Definition, Is.EqualTo("((0))"));
-            Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.Literal));
             Assert.That(result.ConstraintName.UnwrapSome(), Is.EqualTo(Identifier.CreateQualifiedIdentifier("df_test_column")));
-            Assert.That(result.SequenceName, OptionIs.None);
         }
     }
 
@@ -58,21 +52,18 @@ internal static class DatabaseColumnMapperTests
     {
         var mapper = new DatabaseColumnMapper();
         var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "test_seq");
-        var defaultValue = new DatabaseDefaultValue(
+        var defaultValue = new DatabaseDefaultValue.SequenceNextValue(
             "nextval('test_schema.test_seq'::regclass)",
-            DefaultValueKind.SequenceNextValue,
             Option<Identifier>.None,
             Option<Identifier>.Some(sequenceName)
         );
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<IDatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
 
         var result = mapper.Map(mapper.Map(column)).Default.UnwrapSome();
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.SequenceNextValue));
-            Assert.That(result.SequenceName.UnwrapSome(), Is.EqualTo(sequenceName));
-        }
+        Assert.That(result.Value, Is.TypeOf<DatabaseDefaultValue.SequenceNextValue>());
+        var sequenceDefault = (DatabaseDefaultValue.SequenceNextValue)result.Value!;
+        Assert.That(sequenceDefault.SequenceName.UnwrapSome(), Is.EqualTo(sequenceName));
     }
 
     [Test]
@@ -95,8 +86,8 @@ internal static class DatabaseColumnMapperTests
 
         using (Assert.EnterMultipleScope())
         {
+            Assert.That(result.Value, Is.TypeOf<DatabaseDefaultValue.Unknown>());
             Assert.That(result.Definition, Is.EqualTo("((0))"));
-            Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.Unknown));
             Assert.That(result.ConstraintName, OptionIs.None);
         }
     }
@@ -110,7 +101,7 @@ internal static class DatabaseColumnMapperTests
             "test_column",
             ColumnType,
             true,
-            Option<IDatabaseDefaultValue>.None,
+            Option<DatabaseDefaultValue>.None,
             Option<IAutoIncrement>.None,
             false,
             Option<string>.None,

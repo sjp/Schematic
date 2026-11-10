@@ -837,7 +837,7 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                     : Option<IAutoIncrement>.None;
                 var defaultValue = row.HasDefaultValue
                     ? SqlServerDefaultValueParser.Parse(row.DefaultValue, row.DefaultConstraintName)
-                    : Option<IDatabaseDefaultValue>.None;
+                    : Option<DatabaseDefaultValue>.None;
                 var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
                     ? Option<string>.Some(row.ComputedColumnDefinition)
                     : Option<string>.None;

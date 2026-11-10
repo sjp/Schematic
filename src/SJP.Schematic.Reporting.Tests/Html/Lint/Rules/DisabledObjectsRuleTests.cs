@@ -45,7 +45,7 @@ internal static class DisabledObjectsRuleTests
     {
         var rule = new DisabledObjectsRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
             [testColumn],
@@ -76,7 +76,7 @@ internal static class DisabledObjectsRuleTests
     {
         var rule = new DisabledObjectsRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testForeignKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
             [testColumn],
@@ -120,7 +120,7 @@ internal static class DisabledObjectsRuleTests
     {
         var rule = new DisabledObjectsRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testUniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test_unique_key"),
             [testColumn],
@@ -151,7 +151,7 @@ internal static class DisabledObjectsRuleTests
     {
         var rule = new DisabledObjectsRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testIndex = new DatabaseIndex(
             "test_index",
             true,

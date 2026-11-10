@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -38,7 +39,7 @@ internal static class ColumnWithNumericSuffixRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             true,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -69,7 +70,7 @@ internal static class ColumnWithNumericSuffixRuleTests
             "test_column_1",
             Mock.Of<IDbType>(),
             true,
-            new DatabaseDefaultValue("null", DefaultValueKind.Null),
+            Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Null("null")),
             null
         );
 

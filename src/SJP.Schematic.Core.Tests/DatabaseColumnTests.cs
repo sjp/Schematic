@@ -13,7 +13,7 @@ internal static class DatabaseColumnTests
     {
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         Assert.That(
@@ -27,7 +27,7 @@ internal static class DatabaseColumnTests
     {
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         Assert.That(
@@ -42,7 +42,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -56,7 +56,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_schema", "test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -70,7 +70,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -84,7 +84,7 @@ internal static class DatabaseColumnTests
     {
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -98,7 +98,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.None;
+        var defaultValue = Option<DatabaseDefaultValue>.None;
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -113,7 +113,7 @@ internal static class DatabaseColumnTests
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
         const string defaultExpression = "test_default_value";
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(defaultExpression));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(defaultExpression));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -127,7 +127,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.None;
+        var defaultValue = Option<DatabaseDefaultValue>.None;
         var autoIncrement = Option<IAutoIncrement>.None;
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -141,18 +141,31 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var columnDefault = new DatabaseDefaultValue("((0))", DefaultValueKind.Literal, Option<Identifier>.Some("df_test"), Option<Identifier>.None);
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(columnDefault);
+        var columnDefault = new DatabaseDefaultValue.Literal("((0))", Option<Identifier>.Some("df_test"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(columnDefault);
         var autoIncrement = Option<IAutoIncrement>.None;
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(column.Default.UnwrapSome(), Is.SameAs(columnDefault));
+            Assert.That(column.Default.UnwrapSome().Value, Is.SameAs(columnDefault));
             // the string form stays available as a convenience over the default's definition
             Assert.That(column.DefaultValue.UnwrapSome(), Is.EqualTo("((0))"));
         }
+    }
+
+    [Test]
+    public static void Ctor_GivenSomeDefaultWithNoValue_ThrowsArgumentNullException()
+    {
+        var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
+        var dbType = Mock.Of<IDbType>();
+        var defaultValue = Option<DatabaseDefaultValue>.Some(default);
+
+        Assert.That(
+            () => new DatabaseColumn(columnName, dbType, false, defaultValue, Option<IAutoIncrement>.None),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("defaultValue")
+        );
     }
 
     [Test]
@@ -161,7 +174,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.None;
+        var defaultValue = Option<DatabaseDefaultValue>.None;
         var autoIncrement = Option<IAutoIncrement>.None;
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -175,7 +188,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
 
         const decimal initialValue = 123m;
         const decimal increment = 456m;
@@ -197,7 +210,7 @@ internal static class DatabaseColumnTests
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
         const string defaultExpression = "test_default_value";
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(defaultExpression));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(defaultExpression));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -211,7 +224,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.None;
+        var defaultValue = Option<DatabaseDefaultValue>.None;
         var autoIncrement = Option<IAutoIncrement>.None;
         var definition = Option<string>.Some("1");
         const ComputedColumnStorage storage = (ComputedColumnStorage)55;
@@ -264,7 +277,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.None;
+        var defaultValue = Option<DatabaseDefaultValue>.None;
         var autoIncrement = Option<IAutoIncrement>.None;
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement, false, Option<string>.Some("1"), ComputedColumnStorage.Stored);
@@ -282,7 +295,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.None;
 
         var column = new DatabaseColumn(columnName, dbType, isNullable, defaultValue, autoIncrement);
@@ -301,7 +314,7 @@ internal static class DatabaseColumnTests
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
 
-        var column = new DatabaseColumn(Identifier.CreateQualifiedIdentifier(columnName), dbType, isNullable, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
+        var column = new DatabaseColumn(Identifier.CreateQualifiedIdentifier(columnName), dbType, isNullable, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
         var result = column.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
@@ -313,7 +326,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
 
-        var column = new DatabaseColumn(columnName, dbType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn(columnName, dbType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
 
         Assert.That(column.IsHidden, Is.False);
     }
@@ -329,7 +342,7 @@ internal static class DatabaseColumnTests
             columnName,
             dbType,
             false,
-            Option<IDatabaseDefaultValue>.None,
+            Option<DatabaseDefaultValue>.None,
             Option<IAutoIncrement>.None,
             false,
             Option<string>.None,
@@ -344,7 +357,7 @@ internal static class DatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier("test_column_name");
         var dbType = Mock.Of<IDbType>();
 
-        return new DatabaseColumn(columnName, dbType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, computedDefinition, storage);
+        return new DatabaseColumn(columnName, dbType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, computedDefinition, storage);
     }
 
     [TestCase("test_column_1", "Column: test_column_1")]
@@ -353,7 +366,7 @@ internal static class DatabaseColumnTests
     {
         var dbType = Mock.Of<IDbType>();
         const bool isNullable = false;
-        var defaultValue = Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue("test_default_value"));
+        var defaultValue = Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("test_default_value"));
         var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(123, 456));
 
         var column = new DatabaseColumn(Identifier.CreateQualifiedIdentifier(columnName), dbType, isNullable, defaultValue, autoIncrement);

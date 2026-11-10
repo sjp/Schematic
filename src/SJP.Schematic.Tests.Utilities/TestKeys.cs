@@ -22,7 +22,7 @@ public static class TestKeys
         "test_key_column",
         TestDbTypes.BigInteger,
         false,
-        Option<IDatabaseDefaultValue>.None,
+        Option<DatabaseDefaultValue>.None,
         Option<IAutoIncrement>.None
     );
 

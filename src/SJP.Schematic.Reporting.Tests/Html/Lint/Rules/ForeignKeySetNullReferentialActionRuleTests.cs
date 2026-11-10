@@ -14,7 +14,7 @@ internal static class ForeignKeySetNullReferentialActionRuleTests
 {
     private static DatabaseColumn CreateColumn(string name, bool isNullable)
     {
-        return new DatabaseColumn(name, Mock.Of<IDbType>(), isNullable, null, null);
+        return new DatabaseColumn(name, Mock.Of<IDbType>(), isNullable, Option<DatabaseDefaultValue>.None, null);
     }
 
     private static IRelationalDatabaseTable CreateChildTable(Identifier childTableName, IDatabaseColumn childColumn, ReferentialAction deleteAction, ReferentialAction updateAction)

@@ -27,7 +27,7 @@ internal static class ColumnTypeMismatchAcrossTablesRuleTests
             Option<INumericPrecision>.None,
             Option<Identifier>.None
         );
-        return new DatabaseColumn(name, dbType, true, null, null);
+        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, null);
     }
 
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, IDatabaseColumn column)

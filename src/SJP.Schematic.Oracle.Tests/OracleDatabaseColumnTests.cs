@@ -14,7 +14,7 @@ internal static class OracleDatabaseColumnTests
     {
         var columnType = Mock.Of<IDbType>();
         Assert.That(
-            () => new OracleDatabaseColumn(null, columnType, true, null),
+            () => new OracleDatabaseColumn(null, columnType, true, Option<DatabaseDefaultValue>.None),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnName")
         );
     }
@@ -23,7 +23,7 @@ internal static class OracleDatabaseColumnTests
     public static void Ctor_GivenNullType_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new OracleDatabaseColumn("test_column", null, true, null),
+            () => new OracleDatabaseColumn("test_column", null, true, Option<DatabaseDefaultValue>.None),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("type")
         );
     }
@@ -34,7 +34,7 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
         Assert.That(column.Name, Is.EqualTo(columnName));
     }
@@ -45,7 +45,7 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
         Assert.That(column.Type, Is.EqualTo(columnType));
     }
@@ -55,7 +55,7 @@ internal static class OracleDatabaseColumnTests
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
-        var column = new OracleDatabaseColumn(columnName, columnType, false, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None);
 
         Assert.That(column.IsNullable, Is.False);
     }
@@ -65,7 +65,7 @@ internal static class OracleDatabaseColumnTests
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
         Assert.That(column.IsNullable, Is.True);
     }
@@ -76,7 +76,7 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
         const string defaultValue = "1";
-        var column = new OracleDatabaseColumn(columnName, columnType, true, new DatabaseDefaultValue(defaultValue));
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(defaultValue)));
 
         Assert.That(column.DefaultValue.UnwrapSome(), Is.EqualTo(defaultValue));
     }
@@ -86,7 +86,7 @@ internal static class OracleDatabaseColumnTests
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
         Assert.That(column.IsComputed, Is.False);
     }
@@ -96,7 +96,7 @@ internal static class OracleDatabaseColumnTests
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
         Assert.That(column.AutoIncrement, OptionIs.None);
     }
@@ -107,7 +107,7 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
         var autoIncrement = new AutoIncrement(1, 1, IdentityGeneration.Always, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.Some("ISEQ$$_12345"));
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.Some(autoIncrement));
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.Some(autoIncrement));
 
         Assert.That(column.AutoIncrement.UnwrapSome(), Is.EqualTo(autoIncrement));
     }
@@ -119,7 +119,7 @@ internal static class OracleDatabaseColumnTests
         var columnType = Mock.Of<IDbType>();
 
         Assert.That(
-            () => new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), (ComputedColumnStorage)55),
+            () => new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), (ComputedColumnStorage)55),
             Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("computedStorage")
         );
     }
@@ -131,7 +131,7 @@ internal static class OracleDatabaseColumnTests
         var columnType = Mock.Of<IDbType>();
         const string definition = "1 + 1";
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some(definition), ComputedColumnStorage.Virtual);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some(definition), ComputedColumnStorage.Virtual);
 
         using (Assert.EnterMultipleScope())
         {
@@ -147,7 +147,7 @@ internal static class OracleDatabaseColumnTests
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
         using (Assert.EnterMultipleScope())
         {
@@ -163,7 +163,7 @@ internal static class OracleDatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier(name);
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
         var result = column.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));
@@ -176,7 +176,7 @@ internal static class OracleDatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier(name);
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, null);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
         var result = column.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));

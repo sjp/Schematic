@@ -1,4 +1,5 @@
 using System.Linq;
+using LanguageExt;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Reporting.Html.ViewModels.Mappers;
@@ -14,8 +15,8 @@ internal static class ViewModelMapperTests
         var moodName = Identifier.CreateQualifiedIdentifier("test_schema", "mood");
         IDatabaseColumn[] columns =
         [
-            new DatabaseColumn("id", TestDbTypes.BigInteger, false, null, null),
-            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, null, null),
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, Option<DatabaseDefaultValue>.None, null),
         ];
         var view = new DatabaseView(
             Identifier.CreateQualifiedIdentifier("test_schema", "person_moods"),

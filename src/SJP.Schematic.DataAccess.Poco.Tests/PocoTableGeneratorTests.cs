@@ -165,7 +165,7 @@ internal static class PocoTableGeneratorTests
             columnName,
             columnType,
             false,
-            Option<IDatabaseDefaultValue>.None,
+            Option<DatabaseDefaultValue>.None,
             Option<IAutoIncrement>.None,
             false,
             Option<string>.None,

@@ -56,7 +56,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             "test_column_1",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -96,7 +96,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             "test_column_1",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -136,7 +136,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             "test_column_1",
             Mock.Of<IDbType>(),
             true,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 

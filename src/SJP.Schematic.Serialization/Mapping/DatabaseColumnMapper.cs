@@ -1,4 +1,5 @@
-﻿using Boxed.Mapping;
+﻿using System;
+using Boxed.Mapping;
 using LanguageExt;
 using SJP.Schematic.Core;
 
@@ -25,12 +26,7 @@ public class DatabaseColumnMapper
         var autoIncrMapper = MapperRegistry.GetMapper<Dto.AutoIncrement?, Option<IAutoIncrement>>();
 
         var defaultValue = optionalMapper.Map(source.DefaultValue)
-            .Map(def => (IDatabaseDefaultValue)new DatabaseDefaultValue(
-                def,
-                source.DefaultValueKind,
-                optionalIdentifierMapper.Map(source.DefaultConstraintName),
-                optionalIdentifierMapper.Map(source.DefaultSequenceName)
-            ));
+            .Map(def => MapDefaultValue(source, def, optionalIdentifierMapper));
 
         return new DatabaseColumn(
             identifierMapper.Map(source.ColumnName),
@@ -43,6 +39,21 @@ public class DatabaseColumnMapper
             source.ComputedStorage,
             source.IsHidden
         );
+    }
+
+    private static DatabaseDefaultValue MapDefaultValue(Dto.DatabaseColumn source, string definition, IImmutableMapper<Dto.Identifier?, Option<Identifier>> identifierMapper)
+    {
+        var constraintName = identifierMapper.Map(source.DefaultConstraintName);
+
+        return source.DefaultValueKind switch
+        {
+            DefaultValueKind.Unknown => new DatabaseDefaultValue.Unknown(definition, constraintName),
+            DefaultValueKind.Literal => new DatabaseDefaultValue.Literal(definition, constraintName),
+            DefaultValueKind.Null => new DatabaseDefaultValue.Null(definition, constraintName),
+            DefaultValueKind.Expression => new DatabaseDefaultValue.Expression(definition, constraintName),
+            DefaultValueKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition, constraintName, identifierMapper.Map(source.DefaultSequenceName)),
+            _ => throw new ArgumentException($"The {nameof(DefaultValueKind)} provided must be a valid enum.", nameof(source)),
+        };
     }
 
     /// <summary>
@@ -69,6 +80,11 @@ public class DatabaseColumnMapper
             cache.Types.Add(source.Type, type);
         }
 
+        var (defaultValueKind, defaultSequenceName) = source.Default.Match(
+            MapDefaultValueKind,
+            static () => (DefaultValueKind.Unknown, Option<Identifier>.None)
+        );
+
         var result = new Dto.DatabaseColumn
         {
             ColumnName = identifierMapper.Map(source.Name),
@@ -76,8 +92,8 @@ public class DatabaseColumnMapper
             IsNullable = source.IsNullable,
             DefaultValue = optionalMapper.Map(source.Default.Map(static def => def.Definition)),
             DefaultConstraintName = optionalIdentifierMapper.Map(source.Default.Bind(static def => def.ConstraintName)),
-            DefaultValueKind = source.Default.Match(static def => def.Kind, static () => DefaultValueKind.Unknown),
-            DefaultSequenceName = optionalIdentifierMapper.Map(source.Default.Bind(static def => def.SequenceName)),
+            DefaultValueKind = defaultValueKind,
+            DefaultSequenceName = optionalIdentifierMapper.Map(defaultSequenceName),
             AutoIncrement = autoIncrMapper.Map(source.AutoIncrement),
             IsComputed = source.IsComputed,
             IsHidden = source.IsHidden,
@@ -88,4 +104,13 @@ public class DatabaseColumnMapper
         cache.Columns.Add(source, result);
         return result;
     }
+
+    private static (DefaultValueKind Kind, Option<Identifier> SequenceName) MapDefaultValueKind(DatabaseDefaultValue defaultValue) => defaultValue switch
+    {
+        DatabaseDefaultValue.Unknown => (DefaultValueKind.Unknown, Option<Identifier>.None),
+        DatabaseDefaultValue.Literal => (DefaultValueKind.Literal, Option<Identifier>.None),
+        DatabaseDefaultValue.Null => (DefaultValueKind.Null, Option<Identifier>.None),
+        DatabaseDefaultValue.Expression => (DefaultValueKind.Expression, Option<Identifier>.None),
+        DatabaseDefaultValue.SequenceNextValue sequenceDefault => (DefaultValueKind.SequenceNextValue, sequenceDefault.SequenceName),
+    };
 }

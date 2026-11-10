@@ -16,7 +16,7 @@ internal static class AutoIncrementColumnNotInKeyRuleTests
             name,
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
         );
     }

@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -29,7 +30,7 @@ internal static class MySqlDefaultValueParserTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo(expectedDefinition));
-            Assert.That(result.Kind, Is.EqualTo(DefaultValueKind.Literal));
+            Assert.That(result.Value, Is.TypeOf<DatabaseDefaultValue.Literal>());
         }
     }
 
@@ -43,54 +44,53 @@ internal static class MySqlDefaultValueParserTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(result.Definition, Is.EqualTo(definition));
-            // MySQL has neither named default constraints nor sequences
+            // MySQL has no named default constraints
             Assert.That(result.ConstraintName, OptionIs.None);
-            Assert.That(result.SequenceName, OptionIs.None);
         }
     }
 
-    [TestCase("0", null, DefaultValueKind.Literal)]
+    [TestCase("0", null, typeof(DatabaseDefaultValue.Literal))]
     // information_schema reports the value of a literal rather than the SQL that produced it
-    [TestCase("unassigned", null, DefaultValueKind.Literal)]
-    [TestCase("(now())", "DEFAULT_GENERATED", DefaultValueKind.Expression)]
-    [TestCase("(uuid())", "DEFAULT_GENERATED", DefaultValueKind.Expression)]
+    [TestCase("unassigned", null, typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("(now())", "DEFAULT_GENERATED", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("(uuid())", "DEFAULT_GENERATED", typeof(DatabaseDefaultValue.Expression))]
     // a server that does not mark a temporal default as generated still reports it here
-    [TestCase("CURRENT_TIMESTAMP", null, DefaultValueKind.Expression)]
-    [TestCase("current_timestamp(6)", "on update CURRENT_TIMESTAMP(6)", DefaultValueKind.Expression)]
-    public static void Parse_GivenMySqlDefinition_ReturnsExpectedKind(string definition, string extraInformation, DefaultValueKind expectedKind)
+    [TestCase("CURRENT_TIMESTAMP", null, typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("current_timestamp(6)", "on update CURRENT_TIMESTAMP(6)", typeof(DatabaseDefaultValue.Expression))]
+    public static void Parse_GivenMySqlDefinition_ReturnsExpectedKind(string definition, string extraInformation, Type expectedKind)
     {
         var result = MySqlDefaultValueParser.Parse(definition, extraInformation, false).UnwrapSome();
 
-        Assert.That(result.Kind, Is.EqualTo(expectedKind));
+        Assert.That(result.Value, Is.TypeOf(expectedKind));
     }
 
     // MariaDB never marks a default as generated: literals are quoted or numeric, anything else is SQL
-    [TestCase("'abc'", DefaultValueKind.Literal)]
-    [TestCase("''", DefaultValueKind.Literal)]
-    [TestCase("'NULL'", DefaultValueKind.Literal)]
-    [TestCase("'2020-01-01'", DefaultValueKind.Literal)]
-    [TestCase("5", DefaultValueKind.Literal)]
-    [TestCase("-1.50", DefaultValueKind.Literal)]
-    [TestCase("1000", DefaultValueKind.Literal)]
-    [TestCase("-0.001", DefaultValueKind.Literal)]
-    [TestCase("1e3", DefaultValueKind.Literal)]
-    [TestCase("b'101'", DefaultValueKind.Literal)]
-    [TestCase("x'41'", DefaultValueKind.Literal)]
-    [TestCase("0x41", DefaultValueKind.Literal)]
-    [TestCase("current_timestamp()", DefaultValueKind.Expression)]
-    [TestCase("current_timestamp(6)", DefaultValueKind.Expression)]
-    [TestCase("uuid()", DefaultValueKind.Expression)]
-    [TestCase("curtime()", DefaultValueKind.Expression)]
-    [TestCase("(1 + 1)", DefaultValueKind.Expression)]
-    [TestCase("(rand() * 0)", DefaultValueKind.Expression)]
-    [TestCase("concat('a','b')", DefaultValueKind.Expression)]
-    public static void Parse_GivenMariaDbDefinition_ReturnsExpectedKind(string definition, DefaultValueKind expectedKind)
+    [TestCase("'abc'", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("''", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'NULL'", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("'2020-01-01'", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("5", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("-1.50", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("1000", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("-0.001", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("1e3", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("b'101'", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("x'41'", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("0x41", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("current_timestamp()", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("current_timestamp(6)", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("uuid()", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("curtime()", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("(1 + 1)", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("(rand() * 0)", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("concat('a','b')", typeof(DatabaseDefaultValue.Expression))]
+    public static void Parse_GivenMariaDbDefinition_ReturnsExpectedKind(string definition, Type expectedKind)
     {
         var result = MySqlDefaultValueParser.Parse(definition, null, true).UnwrapSome();
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(result.Kind, Is.EqualTo(expectedKind));
+            Assert.That(result.Value, Is.TypeOf(expectedKind));
             Assert.That(result.Definition, Is.EqualTo(definition));
         }
     }

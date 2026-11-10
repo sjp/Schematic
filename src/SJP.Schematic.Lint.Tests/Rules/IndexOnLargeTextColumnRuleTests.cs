@@ -13,7 +13,7 @@ internal static class IndexOnLargeTextColumnRuleTests
     private static IRelationalDatabaseTable CreateTableWithIndexedColumnType(DataType dataType)
     {
         var dbType = Mock.Of<IDbType>(t => t.DataType == dataType);
-        var column = new DatabaseColumn("indexed_column", dbType, true, null, null);
+        var column = new DatabaseColumn("indexed_column", dbType, true, Option<DatabaseDefaultValue>.None, null);
         var indexColumn = new DatabaseIndexColumn("indexed_column", column, IndexColumnOrder.Ascending);
         var index = new DatabaseIndex(
             "test_index",

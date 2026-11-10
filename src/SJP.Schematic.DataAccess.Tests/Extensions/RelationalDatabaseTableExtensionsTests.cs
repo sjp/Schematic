@@ -128,7 +128,7 @@ internal static class RelationalDatabaseTableExtensionsTests
             columnName,
             columnType,
             false,
-            Option<IDatabaseDefaultValue>.None,
+            Option<DatabaseDefaultValue>.None,
             Option<IAutoIncrement>.None,
             false,
             Option<string>.None,

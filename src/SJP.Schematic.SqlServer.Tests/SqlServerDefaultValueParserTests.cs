@@ -1,3 +1,4 @@
+using System;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 using SJP.Schematic.Tests.Utilities;
@@ -35,24 +36,24 @@ internal static class SqlServerDefaultValueParserTests
         Assert.That(result.ConstraintName, OptionIs.None);
     }
 
-    [TestCase("(NULL)", DefaultValueKind.Null)]
-    [TestCase("(null)", DefaultValueKind.Null)]
-    [TestCase("((0))", DefaultValueKind.Literal)]
-    [TestCase("0", DefaultValueKind.Literal)]
-    [TestCase(" ( ( 0 ) ) ", DefaultValueKind.Literal)]
-    [TestCase("('(a)')", DefaultValueKind.Literal)]
-    [TestCase("((-1.5))", DefaultValueKind.Literal)]
-    [TestCase("('test')", DefaultValueKind.Literal)]
-    [TestCase("(N'test')", DefaultValueKind.Literal)]
-    [TestCase("('o''brien')", DefaultValueKind.Literal)]
-    [TestCase("(getdate())", DefaultValueKind.Expression)]
-    [TestCase("(('a')+('b'))", DefaultValueKind.Expression)]
-    [TestCase("(next value for [dbo].[test_seq])", DefaultValueKind.SequenceNextValue)]
-    public static void Parse_GivenDefinition_ReturnsExpectedKind(string definition, DefaultValueKind expectedKind)
+    [TestCase("(NULL)", typeof(DatabaseDefaultValue.Null))]
+    [TestCase("(null)", typeof(DatabaseDefaultValue.Null))]
+    [TestCase("((0))", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("0", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase(" ( ( 0 ) ) ", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("('(a)')", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("((-1.5))", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("('test')", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("(N'test')", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("('o''brien')", typeof(DatabaseDefaultValue.Literal))]
+    [TestCase("(getdate())", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("(('a')+('b'))", typeof(DatabaseDefaultValue.Expression))]
+    [TestCase("(next value for [dbo].[test_seq])", typeof(DatabaseDefaultValue.SequenceNextValue))]
+    public static void Parse_GivenDefinition_ReturnsExpectedKind(string definition, Type expectedKind)
     {
         var result = SqlServerDefaultValueParser.Parse(definition, null).UnwrapSome();
 
-        Assert.That(result.Kind, Is.EqualTo(expectedKind));
+        Assert.That(result.Value, Is.TypeOf(expectedKind));
     }
 
     [TestCase("(NEXT VALUE FOR [dbo].[test_seq])", "dbo", "test_seq")]
@@ -66,14 +67,8 @@ internal static class SqlServerDefaultValueParserTests
 
         var result = SqlServerDefaultValueParser.Parse(definition, null).UnwrapSome();
 
-        Assert.That(result.SequenceName.UnwrapSome(), Is.EqualTo(expectedName));
-    }
-
-    [Test]
-    public static void Parse_GivenNonLiteralDefinition_ReturnsNoneSequenceName()
-    {
-        var result = SqlServerDefaultValueParser.Parse("(getdate())", null).UnwrapSome();
-
-        Assert.That(result.SequenceName, OptionIs.None);
+        Assert.That(result.Value, Is.TypeOf<DatabaseDefaultValue.SequenceNextValue>());
+        var sequenceDefault = (DatabaseDefaultValue.SequenceNextValue)result.Value!;
+        Assert.That(sequenceDefault.SequenceName.UnwrapSome(), Is.EqualTo(expectedName));
     }
 }

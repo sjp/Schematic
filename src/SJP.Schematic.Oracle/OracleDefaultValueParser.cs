@@ -16,17 +16,15 @@ namespace SJP.Schematic.Oracle;
 /// </summary>
 internal static partial class OracleDefaultValueParser
 {
-    public static Option<IDatabaseDefaultValue> Parse(string? definition)
+    public static Option<DatabaseDefaultValue> Parse(string? definition)
     {
         if (definition.IsNullOrWhiteSpace())
-            return Option<IDatabaseDefaultValue>.None;
+            return Option<DatabaseDefaultValue>.None;
 
-        var (kind, sequenceName) = Classify(definition);
-
-        return Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(definition, kind, Option<Identifier>.None, sequenceName));
+        return Option<DatabaseDefaultValue>.Some(Classify(definition));
     }
 
-    private static (DefaultValueKind Kind, Option<Identifier> SequenceName) Classify(string definition)
+    private static DatabaseDefaultValue Classify(string definition)
     {
         // DATA_DEFAULT is a LONG holding the source text of the clause, which usually keeps the
         // trailing whitespace that followed it in the DDL
@@ -34,15 +32,15 @@ internal static partial class OracleDefaultValueParser
 
         var sequenceName = TryGetSequenceName(value);
         if (sequenceName.IsSome)
-            return (DefaultValueKind.SequenceNextValue, sequenceName);
+            return new DatabaseDefaultValue.SequenceNextValue(definition, Option<Identifier>.None, sequenceName);
 
         if (string.Equals(value, "NULL", StringComparison.OrdinalIgnoreCase))
-            return (DefaultValueKind.Null, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Null(definition);
 
         if (NumericLiteralRegex().IsMatch(value) || IsStringLiteral(value))
-            return (DefaultValueKind.Literal, Option<Identifier>.None);
+            return new DatabaseDefaultValue.Literal(definition);
 
-        return (DefaultValueKind.Expression, Option<Identifier>.None);
+        return new DatabaseDefaultValue.Expression(definition);
     }
 
     private static bool IsStringLiteral(string input)

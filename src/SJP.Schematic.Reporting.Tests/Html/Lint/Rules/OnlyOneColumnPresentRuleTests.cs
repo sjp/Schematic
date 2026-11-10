@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -37,7 +38,7 @@ internal static class OnlyOneColumnPresentRuleTests
         var rule = new OnlyOneColumnPresentRule(RuleLevel.Error);
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), true, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
 
         var table = new RelationalDatabaseTable(
             tableName,
@@ -92,8 +93,8 @@ internal static class OnlyOneColumnPresentRuleTests
     {
         var rule = new OnlyOneColumnPresentRule(RuleLevel.Error);
 
-        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), true, null, null);
-        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), true, null, null);
+        var testColumn1 = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
+        var testColumn2 = new DatabaseColumn("test_column_2", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
 
         var table = new RelationalDatabaseTable(
             "test",

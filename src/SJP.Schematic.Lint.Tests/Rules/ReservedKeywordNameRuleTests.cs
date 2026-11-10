@@ -122,7 +122,7 @@ internal static class ReservedKeywordNameRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -153,7 +153,7 @@ internal static class ReservedKeywordNameRuleTests
             "SELECT",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -221,7 +221,7 @@ internal static class ReservedKeywordNameRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -247,7 +247,7 @@ internal static class ReservedKeywordNameRuleTests
             "SELECT",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -374,7 +374,7 @@ internal static class ReservedKeywordNameRuleTests
     {
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testIndex = new DatabaseIndex(
             "test_index",
             false,
@@ -407,7 +407,7 @@ internal static class ReservedKeywordNameRuleTests
     {
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var testIndex = new DatabaseIndex(
             "SELECT",
             false,
@@ -440,7 +440,7 @@ internal static class ReservedKeywordNameRuleTests
     {
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("SELECT"),
             [testColumn],
@@ -470,7 +470,7 @@ internal static class ReservedKeywordNameRuleTests
     {
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.None,
             [testColumn],
@@ -500,7 +500,7 @@ internal static class ReservedKeywordNameRuleTests
     {
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var uniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("SELECT"),
             [testColumn],
@@ -530,7 +530,7 @@ internal static class ReservedKeywordNameRuleTests
     {
         var rule = new ReservedKeywordNameRule(CreateFakeDialect(), RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, null, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
         var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("SELECT"),
             [testColumn],

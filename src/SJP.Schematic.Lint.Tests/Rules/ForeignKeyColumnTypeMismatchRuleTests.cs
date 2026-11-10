@@ -21,7 +21,7 @@ internal static class ForeignKeyColumnTypeMismatchRuleTests
             Option<INumericPrecision>.None,
             collation == null ? Option<Identifier>.None : Option<Identifier>.Some(collation)
         );
-        return new DatabaseColumn(name, dbType, true, null, null);
+        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, null);
     }
 
     private static IRelationalDatabaseTable CreateChildTable(IDatabaseColumn childColumn, IDatabaseColumn parentColumn)

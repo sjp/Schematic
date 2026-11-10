@@ -568,7 +568,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<Identifier>.None
         );
 
-        return new DatabaseColumn(columnName, columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
     }
 
     private static IDatabaseColumn CreateComputedColumn(Identifier columnName, ComputedColumnStorage storage)
@@ -584,7 +584,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<Identifier>.None
         );
 
-        return new DatabaseColumn(columnName, columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1 + 1"), storage);
+        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1 + 1"), storage);
     }
 
     private static IDatabaseColumn CreateIdentityColumn(Identifier columnName, IdentityGeneration generation)
@@ -602,7 +602,7 @@ internal static class EFCoreDbContextBuilderTests
 
         var autoIncrement = new AutoIncrement(1, 1, generation, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None);
 
-        return new DatabaseColumn(columnName, columnType, false, Option<IDatabaseDefaultValue>.None, Option<IAutoIncrement>.Some(autoIncrement));
+        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.Some(autoIncrement));
     }
 
     private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier childKeyName, IDatabaseColumn childColumn, Identifier parentTableName, CandidateKey parentKey) =>

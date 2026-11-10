@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using LanguageExt;
 using Moq;
 using NUnit.Framework;
 using SJP.Schematic.Core;
@@ -41,7 +42,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             true,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 
@@ -75,7 +76,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
             "test_column",
             Mock.Of<IDbType>(),
             false,
-            null,
+            Option<DatabaseDefaultValue>.None,
             null
         );
 

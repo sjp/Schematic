@@ -290,7 +290,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
                 columnName,
                 columnType,
                 isNullable,
-                Option<IDatabaseDefaultValue>.None,
+                Option<DatabaseDefaultValue>.None,
                 Option<IAutoIncrement>.None,
                 false,
                 Option<string>.None,

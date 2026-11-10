@@ -90,7 +90,7 @@ internal static class OracleUserDefinedTypeMapper
                 Identifier.CreateQualifiedIdentifier(row.AttributeName!),
                 typeProvider.CreateColumnType(typeMetadata),
                 true,
-                Option<IDatabaseDefaultValue>.None);
+                Option<DatabaseDefaultValue>.None);
         }).ToList();
     }
 }

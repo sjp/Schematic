@@ -22,8 +22,8 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="type">A column type.</param>
     /// <param name="isNullable">If set to <see langword="true" /> the column is nullable.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
-    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<IDatabaseDefaultValue> defaultValue)
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
+    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<DatabaseDefaultValue> defaultValue)
         : this(columnName, type, isNullable, defaultValue, Option<IAutoIncrement>.None)
     {
     }
@@ -36,8 +36,8 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="isNullable">If set to <see langword="true" /> the column is nullable.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
     /// <param name="autoIncrement">The identity definition applied to the column, if it has one.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
-    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<IDatabaseDefaultValue> defaultValue, Option<IAutoIncrement> autoIncrement)
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
+    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<DatabaseDefaultValue> defaultValue, Option<IAutoIncrement> autoIncrement)
         : this(columnName, type, isNullable, defaultValue, autoIncrement, false, Option<string>.None, ComputedColumnStorage.Unknown)
     {
     }
@@ -53,13 +53,13 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
     /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
     /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
     public OracleDatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
-        Option<IDatabaseDefaultValue> defaultValue,
+        Option<DatabaseDefaultValue> defaultValue,
         Option<IAutoIncrement> autoIncrement,
         bool isComputed,
         Option<string> computedDefinition,
@@ -80,13 +80,13 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
     /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
     /// <param name="isHidden">Whether the column was declared <c>INVISIBLE</c>, and is therefore omitted from the expansion of <c>SELECT *</c>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
     public OracleDatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
-        Option<IDatabaseDefaultValue> defaultValue,
+        Option<DatabaseDefaultValue> defaultValue,
         Option<IAutoIncrement> autoIncrement,
         bool isComputed,
         Option<string> computedDefinition,
@@ -95,6 +95,8 @@ public class OracleDatabaseColumn : IDatabaseColumn
     )
     {
         ArgumentNullException.ThrowIfNull(columnName);
+        if (defaultValue.Exists(static def => def.Value is null))
+            throw new ArgumentNullException(nameof(defaultValue), "The default value provided holds no default.");
         if (!computedStorage.IsValid())
             throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
 
@@ -113,7 +115,7 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// The default applied to a column when omitted on an <c>INSERT</c> statement.
     /// </summary>
     /// <value>The default for a column, if available.</value>
-    public Option<IDatabaseDefaultValue> Default { get; }
+    public Option<DatabaseDefaultValue> Default { get; }
 
     /// <summary>
     /// An expression that creates a default value for a column when omitted on an <c>INSERT</c> statement.

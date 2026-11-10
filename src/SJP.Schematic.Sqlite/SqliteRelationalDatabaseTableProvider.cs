@@ -1390,8 +1390,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
-                : Option<IDatabaseDefaultValue>.None;
+                ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
+                : Option<DatabaseDefaultValue>.None;
 
             var computedColumnType = parsedColumnInfo?.ComputedColumnType ?? SqliteGeneratedColumnType.None;
             var isComputed = computedColumnType != SqliteGeneratedColumnType.None;
@@ -1434,6 +1434,15 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
 
         return LoadTableXInfoAsyncCore(tableName, queryCache, cancellationToken);
     }
+
+    private static DatabaseDefaultValue CreateDefaultValue(string definition, DefaultValueKind kind) => kind switch
+    {
+        DefaultValueKind.Literal => new DatabaseDefaultValue.Literal(definition),
+        DefaultValueKind.Null => new DatabaseDefaultValue.Null(definition),
+        DefaultValueKind.Expression => new DatabaseDefaultValue.Expression(definition),
+        DefaultValueKind.SequenceNextValue => new DatabaseDefaultValue.SequenceNextValue(definition),
+        _ => new DatabaseDefaultValue.Unknown(definition),
+    };
 
     private async Task<IReadOnlyList<pragma_table_xinfo>> LoadTableXInfoAsyncCore(Identifier tableName, SqliteTableQueryCache queryCache, CancellationToken cancellationToken)
     {
@@ -1497,8 +1506,8 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
-                ? Option<IDatabaseDefaultValue>.Some(new DatabaseDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
-                : Option<IDatabaseDefaultValue>.None;
+                ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo?.DefaultValueKind ?? DefaultValueKind.Unknown))
+                : Option<DatabaseDefaultValue>.None;
 
             var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
             result.Add(column);
