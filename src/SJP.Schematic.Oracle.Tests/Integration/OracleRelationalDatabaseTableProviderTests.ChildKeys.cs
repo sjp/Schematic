@@ -36,10 +36,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_16", StringComparison.Ordinal));
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
-        }
+        Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Primary>());
     }
 
     [Test]
@@ -153,10 +150,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync("table_test_table_15");
         var foreignKey = table.ChildKeys.Single(k => string.Equals(k.ChildTable.LocalName, "TABLE_TEST_TABLE_17", StringComparison.Ordinal));
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
-        }
+        Assert.That(foreignKey.ParentKey.Value, Is.TypeOf<DatabaseKey.Unique>());
     }
 
     [Test]
