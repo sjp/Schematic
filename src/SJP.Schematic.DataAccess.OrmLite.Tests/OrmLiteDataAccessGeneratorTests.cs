@@ -191,6 +191,8 @@ internal static class OrmLiteDataAccessGeneratorTests
             [view],
             [],
             [],
+            [],
+            [],
             []
         );
     }

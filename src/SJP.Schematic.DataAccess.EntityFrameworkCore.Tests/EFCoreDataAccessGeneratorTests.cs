@@ -190,6 +190,8 @@ internal static class EFCoreDataAccessGeneratorTests
             [view],
             [],
             [],
+            [],
+            [],
             []
         );
     }

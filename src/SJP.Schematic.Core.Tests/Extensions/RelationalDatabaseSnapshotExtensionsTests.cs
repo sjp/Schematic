@@ -17,6 +17,8 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         [],
         [],
         [],
+        [],
+        [],
         []
     );
 
@@ -105,6 +107,8 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             [],
             [],
             [],
+            [],
+            [],
             []
         );
 
@@ -127,6 +131,8 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
         var database = new RelationalDatabase(
             identifierDefaults,
             identifierResolver,
+            [],
+            [],
             [],
             [],
             [],
@@ -182,7 +188,9 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var snapshot = await database.SnapshotAsync(identifierResolver);
@@ -240,7 +248,9 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var snapshot = await database.SnapshotAsync();
@@ -307,7 +317,9 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var snapshot = await database.SnapshotAsync(identifierResolver);
@@ -365,7 +377,9 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var snapshot = await database.SnapshotAsync(identifierResolver);
@@ -432,7 +446,9 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var snapshot = await database.SnapshotAsync(new RelationalDatabaseSnapshotOptions());
@@ -602,7 +618,9 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var snapshot = await database.SnapshotAsync(new RelationalDatabaseSnapshotOptions());
@@ -726,7 +744,8 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             [],
             [],
             [],
-            userDefinedTypes
+            userDefinedTypes,
+            []
         );
 
         var snapshot = await database.SnapshotAsync(new RelationalDatabaseSnapshotOptions());
@@ -753,7 +772,8 @@ internal static class RelationalDatabaseSnapshotExtensionsTests
             [],
             [],
             [],
-            [userDefinedType]
+            [userDefinedType],
+            []
         );
 
         var snapshot = await database.SnapshotAsync(RelationalDatabaseSnapshotOptions.Empty);

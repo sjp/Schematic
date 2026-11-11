@@ -19,6 +19,8 @@ internal static class RelationalDatabaseTests
         [],
         [],
         [],
+        [],
+        [],
         []
     );
 
@@ -40,7 +42,9 @@ internal static class RelationalDatabaseTests
                 views,
                 sequences,
                 synonyms,
-                routines
+                routines,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierDefaults")
         );
@@ -64,7 +68,9 @@ internal static class RelationalDatabaseTests
                 views,
                 sequences,
                 synonyms,
-                routines
+                routines,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("identifierResolver")
         );
@@ -88,7 +94,9 @@ internal static class RelationalDatabaseTests
                 views,
                 sequences,
                 synonyms,
-                routines
+                routines,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("tables")
         );
@@ -112,7 +120,9 @@ internal static class RelationalDatabaseTests
                 null,
                 sequences,
                 synonyms,
-                routines
+                routines,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
         );
@@ -136,7 +146,9 @@ internal static class RelationalDatabaseTests
                 views,
                 null,
                 synonyms,
-                routines
+                routines,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("sequences")
         );
@@ -160,7 +172,9 @@ internal static class RelationalDatabaseTests
                 views,
                 sequences,
                 null,
-                routines
+                routines,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms")
         );
@@ -184,7 +198,9 @@ internal static class RelationalDatabaseTests
                 views,
                 sequences,
                 synonyms,
-                null
+                null,
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
         );
@@ -201,6 +217,8 @@ internal static class RelationalDatabaseTests
                 identifierDefaults,
                 identifierResolver,
                 new IRelationalDatabaseTable[] { null },
+                [],
+                [],
                 [],
                 [],
                 [],
@@ -224,6 +242,8 @@ internal static class RelationalDatabaseTests
                 new IDatabaseView[] { null },
                 [],
                 [],
+                [],
+                [],
                 []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("views")
@@ -243,6 +263,8 @@ internal static class RelationalDatabaseTests
                 [],
                 [],
                 new IDatabaseSequence[] { null },
+                [],
+                [],
                 [],
                 []
             ),
@@ -264,6 +286,8 @@ internal static class RelationalDatabaseTests
                 [],
                 [],
                 new IDatabaseSynonym[] { null },
+                [],
+                [],
                 []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("synonyms")
@@ -284,7 +308,9 @@ internal static class RelationalDatabaseTests
                 [],
                 [],
                 [],
-                new IDatabaseRoutine[] { null }
+                new IDatabaseRoutine[] { null },
+                [],
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("routines")
         );
@@ -308,7 +334,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         tables.Add(Mock.Of<IRelationalDatabaseTable>());
@@ -395,7 +423,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbTables = await database.EnumerateAllTables().ToListAsync();
@@ -427,7 +457,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbTables = await database.GetAllTables();
@@ -459,7 +491,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbTable = await database.GetTable(testTableName).ToOption();
@@ -495,7 +529,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbTable = await database.GetTable("missing_table_name").ToOption();
@@ -525,7 +561,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbViews = await database.EnumerateAllViews().ToListAsync();
@@ -556,7 +594,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbViews = await database.GetAllViews();
@@ -589,7 +629,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbView = await database.GetView(testViewName).ToOption();
@@ -626,7 +668,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbView = await database.GetView("missing_view_name").ToOption();
@@ -656,7 +700,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSequences = await database.EnumerateAllSequences().ToListAsync();
@@ -687,7 +733,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSequences = await database.GetAllSequences();
@@ -720,7 +768,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSequence = await database.GetSequence(testSequenceName).ToOption();
@@ -757,7 +807,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSequence = await database.GetSequence("missing_sequence_name").ToOption();
@@ -787,7 +839,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSynonyms = await database.EnumerateAllSynonyms().ToListAsync();
@@ -818,7 +872,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSynonyms = await database.GetAllSynonyms();
@@ -851,7 +907,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSynonym = await database.GetSynonym(testSynonymName).ToOption();
@@ -888,7 +946,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbSynonym = await database.GetSynonym("missing_synonym_name").ToOption();
@@ -918,7 +978,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbRoutines = await database.EnumerateAllRoutines().ToListAsync();
@@ -949,7 +1011,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbRoutines = await database.GetAllRoutines();
@@ -981,7 +1045,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbRoutine = await database.GetRoutine(testRoutineName).ToOption();
@@ -1017,7 +1083,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var dbRoutine = await database.GetRoutine("missing_routine_name").ToOption();
@@ -1048,7 +1116,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var enumerationCountAfterCtor = tables.EnumerationCount;
@@ -1086,7 +1156,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var qualifiedTableName = Identifier.CreateQualifiedIdentifier("test_database", "test_schema", "test_table_name");
@@ -1123,7 +1195,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var otherDatabaseTableName = Identifier.CreateQualifiedIdentifier("other_database", "test_schema", "test_table_name");
@@ -1155,7 +1229,9 @@ internal static class RelationalDatabaseTests
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         var otherServerTableName = Identifier.CreateQualifiedIdentifier("other_server", "test_database", "test_schema", "test_table_name");
@@ -1184,7 +1260,8 @@ internal static class RelationalDatabaseTests
                 sequences,
                 synonyms,
                 routines,
-                null
+                null,
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
@@ -1209,7 +1286,8 @@ internal static class RelationalDatabaseTests
                 sequences,
                 synonyms,
                 routines,
-                new DatabaseUserDefinedType[] { default }
+                new DatabaseUserDefinedType[] { default },
+                []
             ),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("userDefinedTypes"));
     }
@@ -1416,7 +1494,7 @@ internal static class RelationalDatabaseTests
             .Returns(new[] { new Identifier("missing_table_name"), new Identifier("second_table_name"), new Identifier("first_table_name") });
 
         var tables = new[] { CreateTable("first_table_name"), CreateTable("second_table_name") };
-        var database = new RelationalDatabase(identifierDefaults, identifierResolver.Object, tables, [], [], [], []);
+        var database = new RelationalDatabase(identifierDefaults, identifierResolver.Object, tables, [], [], [], [], [], []);
 
         var table = await database.GetTable("requested_table_name").UnwrapSomeAsync();
 
@@ -1433,7 +1511,7 @@ internal static class RelationalDatabaseTests
     private sealed class QualifyingRelationalDatabase : RelationalDatabase
     {
         public QualifyingRelationalDatabase(IIdentifierDefaults identifierDefaults)
-            : base(identifierDefaults, new VerbatimIdentifierResolutionStrategy(), [], [], [], [], [])
+            : base(identifierDefaults, new VerbatimIdentifierResolutionStrategy(), [], [], [], [], [], [], [])
         {
         }
 
@@ -1475,7 +1553,8 @@ internal static class RelationalDatabaseTests
             [],
             [],
             [],
-            userDefinedTypes
+            userDefinedTypes,
+            []
         );
     }
 

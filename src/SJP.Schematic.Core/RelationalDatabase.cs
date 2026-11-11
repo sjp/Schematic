@@ -30,56 +30,6 @@ public class RelationalDatabase : IRelationalDatabase
     /// <param name="sequences">A collection of database sequences.</param>
     /// <param name="synonyms">A collection of database synonyms.</param>
     /// <param name="routines">A collection of database routines.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/> or <paramref name="routines"/> is <see langword="null" /> or contains <see langword="null" /> values.</exception>
-    public RelationalDatabase(
-        IIdentifierDefaults identifierDefaults,
-        IIdentifierResolutionStrategy identifierResolver,
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        IReadOnlyCollection<IDatabaseView> views,
-        IReadOnlyCollection<IDatabaseSequence> sequences,
-        IReadOnlyCollection<IDatabaseSynonym> synonyms,
-        IReadOnlyCollection<IDatabaseRoutine> routines
-    )
-        : this(identifierDefaults, identifierResolver, tables, views, sequences, synonyms, routines, [])
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RelationalDatabase"/> class.
-    /// </summary>
-    /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
-    /// <param name="tables">A collection of database tables.</param>
-    /// <param name="views">A collection of database views.</param>
-    /// <param name="sequences">A collection of database sequences.</param>
-    /// <param name="synonyms">A collection of database synonyms.</param>
-    /// <param name="routines">A collection of database routines.</param>
-    /// <param name="userDefinedTypes">A collection of database user-defined types.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/> or <paramref name="userDefinedTypes"/> is <see langword="null" /> or contains <see langword="null" /> values, or <paramref name="userDefinedTypes"/> contains a <see langword="default" /> value.</exception>
-    public RelationalDatabase(
-        IIdentifierDefaults identifierDefaults,
-        IIdentifierResolutionStrategy identifierResolver,
-        IReadOnlyCollection<IRelationalDatabaseTable> tables,
-        IReadOnlyCollection<IDatabaseView> views,
-        IReadOnlyCollection<IDatabaseSequence> sequences,
-        IReadOnlyCollection<IDatabaseSynonym> synonyms,
-        IReadOnlyCollection<IDatabaseRoutine> routines,
-        IReadOnlyCollection<DatabaseUserDefinedType> userDefinedTypes
-    )
-        : this(identifierDefaults, identifierResolver, tables, views, sequences, synonyms, routines, userDefinedTypes, [])
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RelationalDatabase"/> class.
-    /// </summary>
-    /// <param name="identifierDefaults">Database identifier defaults.</param>
-    /// <param name="identifierResolver">An identifier resolver to use when an object cannot be found using the given name.</param>
-    /// <param name="tables">A collection of database tables.</param>
-    /// <param name="views">A collection of database views.</param>
-    /// <param name="sequences">A collection of database sequences.</param>
-    /// <param name="synonyms">A collection of database synonyms.</param>
-    /// <param name="routines">A collection of database routines.</param>
     /// <param name="userDefinedTypes">A collection of database user-defined types.</param>
     /// <param name="schemas">A collection of database schemas.</param>
     /// <exception cref="ArgumentNullException"><paramref name="identifierDefaults"/> or <paramref name="identifierResolver"/> is <see langword="null" />. Alternatively if <paramref name="tables"/>, <paramref name="views"/>, <paramref name="sequences"/>, <paramref name="synonyms"/>, <paramref name="routines"/>, <paramref name="userDefinedTypes"/> or <paramref name="schemas"/> is <see langword="null" /> or contains <see langword="null" /> values, or <paramref name="userDefinedTypes"/> contains a <see langword="default" /> value.</exception>

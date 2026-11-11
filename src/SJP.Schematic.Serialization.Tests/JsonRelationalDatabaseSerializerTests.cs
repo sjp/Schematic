@@ -210,7 +210,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         await using var jsonOutputStream = new MemoryStream();
@@ -250,7 +252,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         await using var jsonOutputStream = new MemoryStream();
@@ -290,7 +294,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         await using var jsonOutputStream = new MemoryStream();
@@ -320,7 +326,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         await using var jsonOutputStream = new MemoryStream();
@@ -360,7 +368,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         await using var jsonOutputStream = new MemoryStream();
@@ -390,7 +400,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             views,
             sequences,
             synonyms,
-            routines
+            routines,
+            [],
+            []
         );
 
         await using var jsonOutputStream = new MemoryStream();
@@ -1568,6 +1580,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }
@@ -1628,6 +1642,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }
@@ -1677,6 +1693,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }
@@ -1706,7 +1724,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
-            userDefinedTypes
+            userDefinedTypes,
+            []
         );
     }
 
@@ -1729,6 +1748,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             sequences,
+            [],
+            [],
             [],
             []
         );
@@ -1778,6 +1799,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }
@@ -1821,6 +1844,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             new IdentifierDefaults(null, null, "main"),
             new VerbatimIdentifierResolutionStrategy(),
             [table],
+            [],
+            [],
             [],
             [],
             [],
@@ -1901,6 +1926,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }
@@ -1957,6 +1984,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             new IdentifierDefaults(null, null, "main"),
             new VerbatimIdentifierResolutionStrategy(),
             [table],
+            [],
+            [],
             [],
             [],
             [],
@@ -2040,6 +2069,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }
@@ -2084,6 +2115,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             new IdentifierDefaults(null, null, "main"),
             new VerbatimIdentifierResolutionStrategy(),
             [table],
+            [],
+            [],
             [],
             [],
             [],
@@ -2198,7 +2231,9 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             [],
             [],
             [],
-            [routine]
+            [routine],
+            [],
+            []
         );
     }
 
@@ -2249,6 +2284,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             new IdentifierDefaults(null, null, "main"),
             new VerbatimIdentifierResolutionStrategy(),
             [table],
+            [],
+            [],
             [],
             [],
             [],

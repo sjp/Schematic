@@ -140,6 +140,8 @@ internal static class RelationalDatabaseMapperTests
             [],
             [],
             [],
+            [],
+            [],
             []
         );
     }

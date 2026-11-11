@@ -249,6 +249,8 @@ internal static class PocoDataAccessGeneratorTests
             views,
             [],
             [],
+            [],
+            [],
             []
         );
     }
