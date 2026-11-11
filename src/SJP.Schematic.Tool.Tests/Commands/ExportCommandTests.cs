@@ -2,9 +2,15 @@
 using System;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using LanguageExt;
+using Moq;
 using NUnit.Framework;
+using SJP.Schematic.Core;
+using SJP.Schematic.Serialization;
 using SJP.Schematic.Tool.Commands;
 using SJP.Schematic.Tool.Handlers;
 using Spectre.Console;
@@ -93,14 +99,21 @@ internal static class ExportCommandTests
         Assert.That(result.Successful, Is.True);
     }
 
-    private static async Task<(int exitCode, string output)> RunExportAsync(string dbPath, string format, string outputPath)
+    private static Task<(int exitCode, string output)> RunExportAsync(string dbPath, string format, string outputPath)
+        => RunExportAsync(new DatabaseCommandDependencyProviderFactory(), $"Data Source={dbPath}", format, outputPath);
+
+    private static async Task<(int exitCode, string output)> RunExportAsync(
+        IDatabaseCommandDependencyProviderFactory dependencyProviderFactory,
+        string connectionString,
+        string format,
+        string outputPath)
     {
         var (console, writer) = CommandAppHarness.CreateCapturingConsole();
 
         var registrar = new CommandAppHarness.InstanceRegistrar();
         registrar.RegisterInstance(typeof(IAnsiConsole), console);
         registrar.RegisterInstance(typeof(IFileSystem), new FileSystem());
-        registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), new DatabaseCommandDependencyProviderFactory());
+        registrar.RegisterInstance(typeof(IDatabaseCommandDependencyProviderFactory), dependencyProviderFactory);
 
         var app = new CommandApp(registrar);
         app.Configure(config => config.AddCommand<ExportCommand>("export"));
@@ -108,7 +121,7 @@ internal static class ExportCommandTests
         var exitCode = await app.RunAsync([
             "export",
             "--dialect", "sqlite",
-            "--connection-string", $"Data Source={dbPath}",
+            "--connection-string", connectionString,
             "--format", format,
             "--output", outputPath,
         ]);
@@ -158,6 +171,75 @@ internal static class ExportCommandTests
         finally
         {
             CommandAppHarness.DeleteSqliteDatabase(dbPath);
+            if (File.Exists(outputPath))
+                File.Delete(outputPath);
+        }
+    }
+
+    [Test]
+    public static async Task ExecuteAsync_GivenJsonFormatAndDatabaseWithUserDefinedTypesAndSchemas_ExportsThemSorted()
+    {
+        DatabaseUserDefinedType[] userDefinedTypes =
+        [
+            new DatabaseUserDefinedType.Enum(new Identifier("zeta", "mood"), ["happy", "sad"]),
+            new DatabaseUserDefinedType.Enum(new Identifier("alpha", "size"), ["small", "large"]),
+            new DatabaseUserDefinedType.Enum(new Identifier("alpha", "colour"), ["red", "green"]),
+        ];
+        IDatabaseSchema[] schemas =
+        [
+            new DatabaseSchema(new Identifier("zeta"), Option<string>.None, false, false),
+            new DatabaseSchema(new Identifier("alpha"), Option<string>.None, true, false),
+            new DatabaseSchema(new Identifier("mid"), Option<string>.None, false, false),
+        ];
+        var database = new RelationalDatabase(
+            IdentifierDefaults.Empty,
+            new VerbatimIdentifierResolutionStrategy(),
+            [],
+            [],
+            [],
+            [],
+            [],
+            userDefinedTypes,
+            schemas);
+
+        var databaseProvider = new Mock<IRelationalDatabaseProvider>(MockBehavior.Strict);
+        databaseProvider
+            .Setup(p => p.GetRelationalDatabaseAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(database);
+
+        var connection = Mock.Of<ISchematicConnection>();
+        var provider = new Mock<IDatabaseCommandDependencyProvider>(MockBehavior.Strict);
+        provider.Setup(p => p.GetSchematicConnection()).Returns(connection);
+        provider.Setup(p => p.GetRelationalDatabaseProvider(connection)).Returns(databaseProvider.Object);
+
+        var factory = new Mock<IDatabaseCommandDependencyProviderFactory>(MockBehavior.Strict);
+        factory.Setup(f => f.GetDbDependencies(It.IsAny<CommonSettings>())).Returns(provider.Object);
+
+        var outputPath = Path.Combine(Path.GetTempPath(), $"schematic-export-{Guid.NewGuid():N}.json");
+        try
+        {
+            var (exitCode, _) = await RunExportAsync(factory.Object, "Data Source=:memory:", "json", outputPath);
+
+            IRelationalDatabase exported;
+            await using (var stream = File.OpenRead(outputPath))
+                exported = await new JsonRelationalDatabaseSerializer().DeserializeAsync(stream, new VerbatimIdentifierResolutionStrategy());
+
+            var exportedTypes = await exported.GetAllUserDefinedTypes();
+            var exportedSchemas = await exported.GetAllSchemas();
+
+            using (Assert.EnterMultipleScope())
+            {
+                Assert.That(exitCode, Is.Zero);
+                Assert.That(
+                    exportedTypes.Select(static t => (t.Name.Schema, t.Name.LocalName)),
+                    Is.EqualTo(new[] { ("alpha", "colour"), ("alpha", "size"), ("zeta", "mood") }));
+                Assert.That(
+                    exportedSchemas.Select(static s => s.Name.LocalName),
+                    Is.EqualTo(new[] { "alpha", "mid", "zeta" }));
+            }
+        }
+        finally
+        {
             if (File.Exists(outputPath))
                 File.Delete(outputPath);
         }
