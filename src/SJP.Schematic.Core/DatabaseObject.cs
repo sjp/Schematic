@@ -20,7 +20,7 @@ namespace SJP.Schematic.Core;
 /// </remarks>
 /// <seealso cref="IDatabaseEntity" />
 [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-public union DatabaseObject(
+public readonly union DatabaseObject(
     IRelationalDatabaseTable,
     IDatabaseView,
     IDatabaseSequence,

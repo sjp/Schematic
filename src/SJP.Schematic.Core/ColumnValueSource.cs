@@ -28,7 +28,7 @@ namespace SJP.Schematic.Core;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-public union ColumnValueSource(
+public readonly union ColumnValueSource(
     ColumnValueSource.Stored,
     ColumnValueSource.Computed,
     ColumnValueSource.Generated

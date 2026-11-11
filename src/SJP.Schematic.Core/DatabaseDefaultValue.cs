@@ -25,7 +25,7 @@ namespace SJP.Schematic.Core;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-public union DatabaseDefaultValue(
+public readonly union DatabaseDefaultValue(
     DatabaseDefaultValue.Unknown,
     DatabaseDefaultValue.Literal,
     DatabaseDefaultValue.Null,

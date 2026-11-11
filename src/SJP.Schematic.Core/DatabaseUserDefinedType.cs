@@ -23,7 +23,7 @@ namespace SJP.Schematic.Core;
 /// </remarks>
 /// <seealso cref="IDatabaseEntity" />
 [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-public union DatabaseUserDefinedType(
+public readonly union DatabaseUserDefinedType(
     DatabaseUserDefinedType.Unknown,
     DatabaseUserDefinedType.Alias,
     DatabaseUserDefinedType.Domain,

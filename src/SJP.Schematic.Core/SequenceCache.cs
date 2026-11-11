@@ -17,7 +17,7 @@ namespace SJP.Schematic.Core;
 /// </para>
 /// </remarks>
 [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-public union SequenceCache(
+public readonly union SequenceCache(
     SequenceCache.Unknown,
     SequenceCache.None,
     SequenceCache.Sized,

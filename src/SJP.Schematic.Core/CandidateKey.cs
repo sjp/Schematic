@@ -14,7 +14,7 @@ namespace SJP.Schematic.Core;
 /// <seealso cref="DatabaseKey" />
 /// <seealso cref="IDatabaseRelationalKey.ParentKey" />
 [DebuggerDisplay("{" + nameof(ToString) + "(),nq}")]
-public union CandidateKey(DatabaseKey.Primary, DatabaseKey.Unique)
+public readonly union CandidateKey(DatabaseKey.Primary, DatabaseKey.Unique)
 {
     /// <summary>
     /// The name of the key constraint, if available.
