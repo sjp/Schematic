@@ -19,14 +19,23 @@ internal static class ValueTaskCollectionExtensionsTests
     }
 
     [Test]
-    public static void WhenAll_GivenIncompleteValueTasks_DoesNotCompleteSynchronously()
+    public static async Task WhenAll_GivenIncompleteValueTasks_DoesNotCompleteSynchronously()
     {
+        // TaskCompletionSource rather than Task.Yield: a yielded continuation can finish on the
+        // thread pool before the assertion runs.
+        var source1 = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var source2 = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+
         var result = (
-            Incomplete(1),
-            Incomplete("2")
+            new ValueTask<int>(source1.Task),
+            new ValueTask<string>(source2.Task)
         ).WhenAll();
 
         Assert.That(result.IsCompleted, Is.False);
+
+        source1.SetResult(1);
+        source2.SetResult("2");
+        await result;
     }
 
     [Test]
