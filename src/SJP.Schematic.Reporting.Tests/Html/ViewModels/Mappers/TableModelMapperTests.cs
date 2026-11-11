@@ -131,4 +131,52 @@ internal static class TableModelMapperTests
     {
         return names.Select(static name => (IDatabaseColumn)new DatabaseColumn(name, TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored())).ToList();
     }
+
+    [Test]
+    public static void Map_GivenColumnOfEachValueSource_DescribesHowEachColumnGetsItsValues()
+    {
+        var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "orders_id_seq");
+        var identity = new AutoIncrement(1, 1, IdentityGeneration.Always, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.Some(sequenceName));
+        IDatabaseColumn[] columns =
+        [
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Generated(identity)),
+            new DatabaseColumn("quantity", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Literal("1")), new ColumnValueSource.Stored()),
+            new DatabaseColumn("total", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Computed(Option<string>.Some("quantity * 2"), ComputedColumnStorage.Stored)),
+            new DatabaseColumn("opaque", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Computed(Option<string>.None, ComputedColumnStorage.Unknown)),
+        ];
+        var table = new RelationalDatabaseTable(OrdersName, columns, Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
+
+        var model = new TableModelMapper([OrdersName]).Map(table, new UserDefinedTypeTargets([]));
+
+        var generated = GetColumn(model, "id");
+        var stored = GetColumn(model, "quantity");
+        var computed = GetColumn(model, "total");
+        var opaque = GetColumn(model, "opaque");
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(generated.IsAutoIncrement, Is.True);
+            Assert.That(generated.IdentityGeneration, Is.EqualTo("Always"));
+            Assert.That(generated.IdentitySequenceName, Is.EqualTo("test_schema.orders_id_seq"));
+            Assert.That(generated.IsComputed, Is.False);
+            Assert.That(generated.ComputedDefinition, Is.Empty);
+            Assert.That(generated.ComputedStorage, Is.Empty);
+
+            Assert.That(stored.IsAutoIncrement, Is.False);
+            Assert.That(stored.IdentityGeneration, Is.Empty);
+            Assert.That(stored.IdentitySequenceName, Is.Empty);
+            Assert.That(stored.IsComputed, Is.False);
+            Assert.That(stored.ComputedDefinition, Is.Empty);
+            Assert.That(stored.ComputedStorage, Is.Empty);
+            Assert.That(stored.DefaultValue, Is.EqualTo("1"));
+
+            Assert.That(computed.IsAutoIncrement, Is.False);
+            Assert.That(computed.IsComputed, Is.True);
+            Assert.That(computed.ComputedDefinition, Is.EqualTo("quantity * 2"));
+            Assert.That(computed.ComputedStorage, Is.EqualTo("Stored"));
+
+            Assert.That(opaque.IsComputed, Is.True);
+            Assert.That(opaque.ComputedDefinition, Is.Empty);
+            Assert.That(opaque.ComputedStorage, Is.Empty);
+        }
+    }
 }
