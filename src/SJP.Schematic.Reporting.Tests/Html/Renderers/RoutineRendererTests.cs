@@ -114,7 +114,7 @@ internal static class RoutineRendererTests
         var renderer = new RoutineRenderer();
         var data = ReportDataFactory.Create(
             routines: [routine],
-            referencedObjectTargets: new ReferencedObjectTargets(dependencyProvider.Object, [tableName], [], [], [], [], []));
+            referencedObjectTargets: new ReferencedObjectTargets(dependencyProvider.Object, [TestDatabaseObjects.Table(tableName)]));
         var context = new RenderContext(new JsonDataWriter(), new BundleBuilder(), new DirectoryInfo(tempDir.DirectoryPath));
         await renderer.RenderAsync(data, context);
 

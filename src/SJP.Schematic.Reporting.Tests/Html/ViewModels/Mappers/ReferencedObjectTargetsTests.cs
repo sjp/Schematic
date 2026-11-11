@@ -13,17 +13,26 @@ internal static class ReferencedObjectTargetsTests
     private static readonly Identifier ViewName = Identifier.CreateQualifiedIdentifier("app", "order_summary");
 
     [Test]
+    public static void Ctor_GivenDefaultObject_ThrowsArgumentNullException()
+    {
+        Assert.That(() => new ReferencedObjectTargets(new Mock<IDependencyProvider>().Object, [default]), Throws.ArgumentNullException);
+    }
+
+    [Test]
     public static void GetReferencedObjects_GivenNameInSeveralKinds_ListsLinksInKindOrder()
     {
         var orders = Identifier.CreateQualifiedIdentifier("app", "orders");
         var targets = CreateTargets(
             [Identifier.CreateQualifiedIdentifier("orders")],
-            tableNames: [orders],
-            viewNames: [orders],
-            sequenceNames: [orders],
-            synonymNames: [orders],
-            routineNames: [orders],
-            userDefinedTypeNames: [orders]
+            // Given in reverse, as links follow the precedence of each kind and not the order given.
+            [
+                TestDatabaseObjects.UserDefinedType(orders),
+                TestDatabaseObjects.Routine(orders),
+                TestDatabaseObjects.Synonym(orders),
+                TestDatabaseObjects.Sequence(orders),
+                TestDatabaseObjects.View(orders),
+                TestDatabaseObjects.Table(orders),
+            ]
         );
 
         var urls = targets.GetReferencedObjects(ViewName, "select 1").Select(static o => o.Url);
@@ -44,7 +53,7 @@ internal static class ReferencedObjectTargetsTests
     {
         var lower = Identifier.CreateQualifiedIdentifier("app", "orders");
         var upper = Identifier.CreateQualifiedIdentifier("APP", "ORDERS");
-        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("App", "Orders")], tableNames: [lower, upper, lower]);
+        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("App", "Orders")], [TestDatabaseObjects.Table(lower), TestDatabaseObjects.Table(upper), TestDatabaseObjects.Table(lower)]);
 
         var names = targets.GetReferencedObjects(ViewName, "select 1").Select(static o => o.Name);
 
@@ -56,7 +65,7 @@ internal static class ReferencedObjectTargetsTests
     {
         var appOrders = Identifier.CreateQualifiedIdentifier("app", "orders");
         var otherOrders = Identifier.CreateQualifiedIdentifier("other", "orders");
-        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("orders")], tableNames: [otherOrders, appOrders]);
+        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("orders")], [TestDatabaseObjects.Table(otherOrders), TestDatabaseObjects.Table(appOrders)]);
 
         var names = targets.GetReferencedObjects(ViewName, "select 1").Select(static o => o.Name);
 
@@ -70,7 +79,7 @@ internal static class ReferencedObjectTargetsTests
         var orders = Identifier.CreateQualifiedIdentifier("orders");
         var targets = CreateTargets(
             [Identifier.CreateQualifiedIdentifier("ORDERS")],
-            tableNames: [orders, Identifier.CreateQualifiedIdentifier("app", "orders")]
+            [TestDatabaseObjects.Table(orders), TestDatabaseObjects.Table(Identifier.CreateQualifiedIdentifier("app", "orders"))]
         );
 
         var names = targets.GetReferencedObjects(viewName, "select 1").Select(static o => o.Name);
@@ -84,8 +93,7 @@ internal static class ReferencedObjectTargetsTests
         var orders = Identifier.CreateQualifiedIdentifier("app", "orders");
         var targets = CreateTargets(
             [Identifier.CreateQualifiedIdentifier("ORDER_SUMMARY"), orders],
-            tableNames: [orders],
-            viewNames: [ViewName]
+            [TestDatabaseObjects.Table(orders), TestDatabaseObjects.View(ViewName)]
         );
 
         var names = targets.GetReferencedObjects(ViewName, "select 1").Select(static o => o.Name);
@@ -100,7 +108,7 @@ internal static class ReferencedObjectTargetsTests
         var orders = Identifier.CreateQualifiedIdentifier("app", "orders");
         var targets = CreateTargets(
             [Identifier.CreateQualifiedIdentifier("orders"), Identifier.CreateQualifiedIdentifier("column_a"), orders, Identifier.CreateQualifiedIdentifier("Customers")],
-            tableNames: [orders, customers]
+            [TestDatabaseObjects.Table(orders), TestDatabaseObjects.Table(customers)]
         );
 
         var names = targets.GetReferencedObjects(ViewName, "select 1").Select(static o => o.Name);
@@ -112,7 +120,7 @@ internal static class ReferencedObjectTargetsTests
     public static void GetReferencedObjects_GivenReferenceToUserDefinedType_LinksToTypePage()
     {
         var mood = Identifier.CreateQualifiedIdentifier("app", "mood");
-        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("app", "Mood")], userDefinedTypeNames: [mood]);
+        var targets = CreateTargets([Identifier.CreateQualifiedIdentifier("app", "Mood")], [TestDatabaseObjects.UserDefinedType(mood)]);
 
         var links = targets.GetReferencedObjects(ViewName, "select 1").ToList();
 
@@ -131,33 +139,20 @@ internal static class ReferencedObjectTargetsTests
         dependencyProvider
             .Setup(static p => p.GetDependencies(It.IsAny<Identifier>(), It.IsAny<string>()))
             .Throws(static () => new ArgumentException("Could not parse the given expression as a SQL expression.", "expression"));
-        var targets = new ReferencedObjectTargets(dependencyProvider.Object, [orders], [], [], [], [], []);
+        var targets = new ReferencedObjectTargets(dependencyProvider.Object, [TestDatabaseObjects.Table(orders)]);
 
         Assert.That(() => targets.GetReferencedObjects(ViewName, "not sql at all"), Is.Empty);
     }
 
     private static ReferencedObjectTargets CreateTargets(
         IReadOnlyCollection<Identifier> dependencies,
-        IEnumerable<Identifier> tableNames = null,
-        IEnumerable<Identifier> viewNames = null,
-        IEnumerable<Identifier> sequenceNames = null,
-        IEnumerable<Identifier> synonymNames = null,
-        IEnumerable<Identifier> routineNames = null,
-        IEnumerable<Identifier> userDefinedTypeNames = null)
+        IEnumerable<DatabaseObject> databaseObjects)
     {
         var dependencyProvider = new Mock<IDependencyProvider>();
         dependencyProvider
             .Setup(static p => p.GetDependencies(It.IsAny<Identifier>(), It.IsAny<string>()))
             .Returns(dependencies);
 
-        return new ReferencedObjectTargets(
-            dependencyProvider.Object,
-            tableNames ?? [],
-            viewNames ?? [],
-            sequenceNames ?? [],
-            synonymNames ?? [],
-            routineNames ?? [],
-            userDefinedTypeNames ?? []
-        );
+        return new ReferencedObjectTargets(dependencyProvider.Object, databaseObjects);
     }
 }

@@ -1,47 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class SynonymTargets
 {
-    public SynonymTargets(
-        IEnumerable<Identifier> tableNames,
-        IEnumerable<Identifier> viewNames,
-        IEnumerable<Identifier> sequenceNames,
-        IEnumerable<Identifier> synonymNames,
-        IEnumerable<Identifier> routineNames,
-        IEnumerable<Identifier> userDefinedTypeNames
-    )
+    public SynonymTargets(IEnumerable<DatabaseObject> databaseObjects)
     {
-        ArgumentNullException.ThrowIfNull(tableNames);
-        ArgumentNullException.ThrowIfNull(viewNames);
-        ArgumentNullException.ThrowIfNull(sequenceNames);
-        ArgumentNullException.ThrowIfNull(synonymNames);
-        ArgumentNullException.ThrowIfNull(routineNames);
-        ArgumentNullException.ThrowIfNull(userDefinedTypeNames);
+        ArgumentNullException.ThrowIfNull(databaseObjects);
 
-        TableNames = new ObjectNames(tableNames);
-        ViewNames = new ObjectNames(viewNames);
-        SequenceNames = new ObjectNames(sequenceNames);
-        SynonymNames = new ObjectNames(synonymNames);
-        RoutineNames = new ObjectNames(routineNames);
-        UserDefinedTypeNames = new ObjectNames(userDefinedTypeNames);
+        var objects = databaseObjects.ToList();
+        if (objects.Exists(static o => o.Value is null))
+            throw new ArgumentNullException(nameof(databaseObjects), "A database object provided holds no object.");
+
+        // One set of names per kind of object, searched in order of precedence, so a kind that ranks
+        // higher wins even when a lower-ranked kind matches the target's casing exactly.
+        NamesByKind = objects
+            .GroupBy(DatabaseObjectPrecedence.Of)
+            .OrderBy(static kind => kind.Key)
+            .Select(static kind => new ObjectNames(kind))
+            .ToList();
     }
 
-    private ObjectNames TableNames { get; }
-
-    private ObjectNames ViewNames { get; }
-
-    private ObjectNames SequenceNames { get; }
-
-    private ObjectNames SynonymNames { get; }
-
-    private ObjectNames RoutineNames { get; }
-
-    private ObjectNames UserDefinedTypeNames { get; }
+    private IReadOnlyList<ObjectNames> NamesByKind { get; }
 
     /// <summary>
     /// Resolves a synonym's target to the hash route of the object it names.
@@ -55,23 +38,11 @@ internal sealed class SynonymTargets
     {
         ArgumentNullException.ThrowIfNull(targetName);
 
-        if (TableNames.TryResolve(targetName, out var objectName))
-            return new Uri(UrlRouter.GetTableUrl(objectName), UriKind.Relative);
-
-        if (ViewNames.TryResolve(targetName, out objectName))
-            return new Uri(UrlRouter.GetViewUrl(objectName), UriKind.Relative);
-
-        if (SequenceNames.TryResolve(targetName, out objectName))
-            return new Uri(UrlRouter.GetSequenceUrl(objectName), UriKind.Relative);
-
-        if (SynonymNames.TryResolve(targetName, out objectName))
-            return new Uri(UrlRouter.GetSynonymUrl(objectName), UriKind.Relative);
-
-        if (RoutineNames.TryResolve(targetName, out objectName))
-            return new Uri(UrlRouter.GetRoutineUrl(objectName), UriKind.Relative);
-
-        if (UserDefinedTypeNames.TryResolve(targetName, out objectName))
-            return new Uri(UrlRouter.GetUserDefinedTypeUrl(objectName), UriKind.Relative);
+        foreach (var names in NamesByKind)
+        {
+            if (names.TryResolve(targetName, out var databaseObject))
+                return new Uri(UrlRouter.GetUrl(databaseObject), UriKind.Relative);
+        }
 
         return LanguageExt.Option<Uri>.None;
     }
@@ -82,28 +53,24 @@ internal sealed class SynonymTargets
     // whose names differ only in casing each keep their own route.
     private sealed class ObjectNames
     {
-        public ObjectNames(IEnumerable<Identifier> names)
+        public ObjectNames(IEnumerable<DatabaseObject> databaseObjects)
         {
-            foreach (var name in names)
+            foreach (var databaseObject in databaseObjects)
             {
-                ExactNames.Add(name);
-                NamesIgnoringCase.TryAdd(name, name);
+                var name = databaseObject.Name;
+                ExactNames.TryAdd(name, databaseObject);
+                NamesIgnoringCase.TryAdd(name, databaseObject);
             }
         }
 
-        private HashSet<Identifier> ExactNames { get; } = [];
+        private Dictionary<Identifier, DatabaseObject> ExactNames { get; } = [];
 
-        private Dictionary<Identifier, Identifier> NamesIgnoringCase { get; } = new(IdentifierComparer.OrdinalIgnoreCase);
+        private Dictionary<Identifier, DatabaseObject> NamesIgnoringCase { get; } = new(IdentifierComparer.OrdinalIgnoreCase);
 
-        public bool TryResolve(Identifier targetName, [NotNullWhen(true)] out Identifier? objectName)
+        public bool TryResolve(Identifier targetName, out DatabaseObject databaseObject)
         {
-            if (ExactNames.Contains(targetName))
-            {
-                objectName = targetName;
-                return true;
-            }
-
-            return NamesIgnoringCase.TryGetValue(targetName, out objectName);
+            return ExactNames.TryGetValue(targetName, out databaseObject)
+                || NamesIgnoringCase.TryGetValue(targetName, out databaseObject);
         }
     }
 }

@@ -8,35 +8,40 @@ namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
 
 internal sealed class ReferencedObjectTargets
 {
-    public ReferencedObjectTargets(
-        IDependencyProvider dependencyProvider,
-        IEnumerable<Identifier> tableNames,
-        IEnumerable<Identifier> viewNames,
-        IEnumerable<Identifier> sequenceNames,
-        IEnumerable<Identifier> synonymNames,
-        IEnumerable<Identifier> routineNames,
-        IEnumerable<Identifier> userDefinedTypeNames
-    )
+    public ReferencedObjectTargets(IDependencyProvider dependencyProvider, IEnumerable<DatabaseObject> databaseObjects)
     {
         DependencyProvider = dependencyProvider ?? throw new ArgumentNullException(nameof(dependencyProvider));
-        ArgumentNullException.ThrowIfNull(tableNames);
-        ArgumentNullException.ThrowIfNull(viewNames);
-        ArgumentNullException.ThrowIfNull(sequenceNames);
-        ArgumentNullException.ThrowIfNull(synonymNames);
-        ArgumentNullException.ThrowIfNull(routineNames);
-        ArgumentNullException.ThrowIfNull(userDefinedTypeNames);
+        ArgumentNullException.ThrowIfNull(databaseObjects);
+
+        var objects = databaseObjects.ToList();
+        if (objects.Exists(static o => o.Value is null))
+            throw new ArgumentNullException(nameof(databaseObjects), "A database object provided holds no object.");
 
         // Every view and routine resolves each of its dependencies against every object name, so the
-        // links are built once up front. Adding the kinds in a fixed order keeps each name's links
-        // ordered by kind (table, view, sequence, synonym, routine, user-defined type), then by
-        // position in the source list.
+        // links are built once up front. Adding the objects in order of precedence keeps each name's
+        // links ordered by kind (table, view, sequence, synonym, routine, user-defined type), then by
+        // position in the source list, as the sort is stable.
         var targets = new Dictionary<(string? Schema, string LocalName), List<ReferencedObject>>(SchemaLocalNameComparer.OrdinalIgnoreCase);
-        AddTargets(targets, tableNames, UrlRouter.GetTableUrl);
-        AddTargets(targets, viewNames, UrlRouter.GetViewUrl);
-        AddTargets(targets, sequenceNames, UrlRouter.GetSequenceUrl);
-        AddTargets(targets, synonymNames, UrlRouter.GetSynonymUrl);
-        AddTargets(targets, routineNames, UrlRouter.GetRoutineUrl);
-        AddTargets(targets, userDefinedTypeNames, UrlRouter.GetUserDefinedTypeUrl);
+        var seenObjects = new HashSet<(int Precedence, Identifier Name)>();
+        var objectsByPrecedence = objects
+            .Select(static o => (Precedence: DatabaseObjectPrecedence.Of(o), Object: o))
+            .OrderBy(static o => o.Precedence);
+        foreach (var (precedence, databaseObject) in objectsByPrecedence)
+        {
+            var objectName = databaseObject.Name;
+            if (!seenObjects.Add((precedence, objectName)))
+                continue;
+
+            var key = (objectName.Schema, objectName.LocalName);
+            if (!targets.TryGetValue(key, out var links))
+            {
+                links = [];
+                targets[key] = links;
+            }
+
+            links.Add(new ReferencedObject(objectName.ToVisibleName(), UrlRouter.GetUrl(databaseObject)));
+        }
+
         Targets = targets;
     }
 
@@ -98,28 +103,5 @@ internal sealed class ReferencedObjectTargets
         }
 
         return result;
-    }
-
-    private static void AddTargets(
-        Dictionary<(string? Schema, string LocalName), List<ReferencedObject>> targets,
-        IEnumerable<Identifier> objectNames,
-        Func<Identifier, string> urlFactory)
-    {
-        var seenNames = new HashSet<Identifier>();
-        foreach (var objectName in objectNames)
-        {
-            ArgumentNullException.ThrowIfNull(objectName);
-            if (!seenNames.Add(objectName))
-                continue;
-
-            var key = (objectName.Schema, objectName.LocalName);
-            if (!targets.TryGetValue(key, out var links))
-            {
-                links = [];
-                targets[key] = links;
-            }
-
-            links.Add(new ReferencedObject(objectName.ToVisibleName(), urlFactory(objectName)));
-        }
     }
 }

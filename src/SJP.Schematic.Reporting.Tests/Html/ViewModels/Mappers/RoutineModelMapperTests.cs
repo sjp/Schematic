@@ -70,7 +70,7 @@ internal static class RoutineModelMapperTests
     {
         return new RoutineModelMapper().Map(
             routine,
-            new ReferencedObjectTargets(new EmptyDependencyProvider(), [], [], [], [], [], []),
+            new ReferencedObjectTargets(new EmptyDependencyProvider(), []),
             new UserDefinedTypeTargets([MoodName]));
     }
 }

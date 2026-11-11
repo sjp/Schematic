@@ -25,7 +25,7 @@ internal static class ViewModelMapperTests
 
         var model = new ViewModelMapper().Map(
             view,
-            new ReferencedObjectTargets(new EmptyDependencyProvider(), [], [], [], [], [], []),
+            new ReferencedObjectTargets(new EmptyDependencyProvider(), []),
             new UserDefinedTypeTargets([moodName]));
 
         var viewColumns = model.Columns.ToList();

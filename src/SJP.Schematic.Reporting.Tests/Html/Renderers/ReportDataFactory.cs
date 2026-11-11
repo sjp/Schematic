@@ -36,8 +36,8 @@ internal static class ReportDataFactory
             schemas ?? [],
             userDefinedTypes ?? [],
             databaseVersion,
-            referencedObjectTargets ?? new ReferencedObjectTargets(new EmptyDependencyProvider(), [], [], [], [], [], []),
-            synonymTargets ?? new SynonymTargets([], [], [], [], [], []),
+            referencedObjectTargets ?? new ReferencedObjectTargets(new EmptyDependencyProvider(), []),
+            synonymTargets ?? new SynonymTargets([]),
             userDefinedTypeTargets ?? new UserDefinedTypeTargets([]),
             tableStatistics ?? new Dictionary<Identifier, ITableStatistics>());
     }

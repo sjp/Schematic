@@ -12,7 +12,7 @@ internal static class SynonymTargetsTests
     [Test]
     public static void GetTargetUrl_GivenNullTargetName_ThrowsArgumentNullException()
     {
-        var targets = new SynonymTargets([], [], [], [], [], []);
+        var targets = new SynonymTargets([]);
 
         Assert.That(() => targets.GetTargetUrl(null), Throws.ArgumentNullException);
     }
@@ -20,7 +20,7 @@ internal static class SynonymTargetsTests
     [Test]
     public static void GetTargetUrl_GivenUnknownTarget_ReturnsNone()
     {
-        var targets = new SynonymTargets([], [], [], [], [], []);
+        var targets = new SynonymTargets([]);
 
         var url = targets.GetTargetUrl(TargetName);
 
@@ -30,7 +30,7 @@ internal static class SynonymTargetsTests
     [Test]
     public static void GetTargetUrl_GivenUserDefinedTypeTarget_ReturnsTypeUrl()
     {
-        var targets = new SynonymTargets([], [], [], [], [], [TargetName]);
+        var targets = new SynonymTargets([TestDatabaseObjects.UserDefinedType(TargetName)]);
 
         var url = targets.GetTargetUrl(Identifier.CreateQualifiedIdentifier("APP", "MOOD"));
 
@@ -41,7 +41,7 @@ internal static class SynonymTargetsTests
     public static void GetTargetUrl_GivenTargetDifferingOnlyInCasing_ReturnsUrlOfObjectName()
     {
         var tableName = Identifier.CreateQualifiedIdentifier("app", "orders");
-        var targets = new SynonymTargets([tableName], [], [], [], [], []);
+        var targets = new SynonymTargets([TestDatabaseObjects.Table(tableName)]);
 
         var url = targets.GetTargetUrl(Identifier.CreateQualifiedIdentifier("App", "Orders"));
 
@@ -53,7 +53,7 @@ internal static class SynonymTargetsTests
     {
         var lowerName = Identifier.CreateQualifiedIdentifier("app", "orders");
         var mixedName = Identifier.CreateQualifiedIdentifier("app", "Orders");
-        var targets = new SynonymTargets([lowerName, mixedName], [], [], [], [], []);
+        var targets = new SynonymTargets([TestDatabaseObjects.Table(lowerName), TestDatabaseObjects.Table(mixedName)]);
 
         var url = targets.GetTargetUrl(mixedName);
 
@@ -63,10 +63,27 @@ internal static class SynonymTargetsTests
     [Test]
     public static void GetTargetUrl_GivenNameSharedByRoutineAndUserDefinedType_PrefersRoutine()
     {
-        var targets = new SynonymTargets([], [], [], [], [TargetName], [TargetName]);
+        var targets = new SynonymTargets([TestDatabaseObjects.UserDefinedType(TargetName), TestDatabaseObjects.Routine(TargetName)]);
 
         var url = targets.GetTargetUrl(TargetName);
 
         Assert.That(url.MatchUnsafe(static u => u.ToString(), static () => null), Is.EqualTo(UrlRouter.GetRoutineUrl(TargetName)));
+    }
+
+    [Test]
+    public static void Ctor_GivenDefaultObject_ThrowsArgumentNullException()
+    {
+        Assert.That(() => new SynonymTargets([default]), Throws.ArgumentNullException);
+    }
+
+    [Test]
+    public static void GetTargetUrl_GivenTableDifferingInCasingAndViewMatchingExactly_PrefersTable()
+    {
+        var tableName = Identifier.CreateQualifiedIdentifier("APP", "MOOD");
+        var targets = new SynonymTargets([TestDatabaseObjects.View(TargetName), TestDatabaseObjects.Table(tableName)]);
+
+        var url = targets.GetTargetUrl(TargetName);
+
+        Assert.That(url.MatchUnsafe(static u => u.ToString(), static () => null), Is.EqualTo(UrlRouter.GetTableUrl(tableName)));
     }
 }

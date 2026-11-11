@@ -182,24 +182,25 @@ public class ReportGenerator
         ArgumentNullException.ThrowIfNull(schemas);
         ArgumentNullException.ThrowIfNull(userDefinedTypes);
 
+        var databaseObjects = tables.Select(static t => (DatabaseObject)t)
+            .Concat(views.Select(static v => (DatabaseObject)v))
+            .Concat(sequences.Select(static s => (DatabaseObject)s))
+            .Concat(synonyms.Select(static s => (DatabaseObject)s))
+            .Concat(routines.Select(static r => (DatabaseObject)r))
+            .Concat(userDefinedTypes.Select(static t => (DatabaseObject)t))
+            .ToList();
+
         // Referenced-object resolution (used by view detail) maps a dependency expression to the
         // owning object's hash route, across every object type.
-        var tableNames = tables.Select(static t => t.Name).ToList();
-        var viewNames = views.Select(static v => v.Name).ToList();
-        var sequenceNames = sequences.Select(static s => s.Name).ToList();
-        var synonymNames = synonyms.Select(static s => s.Name).ToList();
-        var routineNames = routines.Select(static r => r.Name).ToList();
-        var userDefinedTypeNames = userDefinedTypes.Select(static t => t.Name).ToList();
-
         var dependencyProvider = Connection.Dialect.GetDependencyProvider();
-        var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, tableNames, viewNames, sequenceNames, synonymNames, routineNames, userDefinedTypeNames);
+        var referencedObjectTargets = new ReferencedObjectTargets(dependencyProvider, databaseObjects);
 
         // Synonym target resolution maps an aliased object name to its owning object's hash route.
-        var synonymTargets = new SynonymTargets(tableNames, viewNames, sequenceNames, synonymNames, routineNames, userDefinedTypeNames);
+        var synonymTargets = new SynonymTargets(databaseObjects);
 
         // Type resolution maps the type a column, parameter, sequence or attribute declares to the
         // hash route of the user-defined type it names.
-        var userDefinedTypeTargets = new UserDefinedTypeTargets(userDefinedTypeNames);
+        var userDefinedTypeTargets = new UserDefinedTypeTargets(userDefinedTypes.Select(static t => t.Name));
 
         return new ReportData(Database, tables, views, sequences, synonyms, routines, schemas, userDefinedTypes, databaseVersion, referencedObjectTargets, synonymTargets, userDefinedTypeTargets, tableStatistics);
     }
