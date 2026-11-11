@@ -378,4 +378,54 @@ internal static class EFCoreTableGeneratorTests
 
         Assert.That(result, Does.Not.Contain("[Precision("));
     }
+
+    private static readonly ColumnValueSource[] ValueSourcesWithoutIdentity =
+    [
+        new ColumnValueSource.Stored(),
+        new ColumnValueSource.Computed(Option<string>.Some("1 + 1"), ComputedColumnStorage.Stored),
+    ];
+
+    [Test]
+    public static void Generate_GivenGeneratedColumn_GeneratesDatabaseGeneratedAttribute()
+    {
+        var result = GenerateForValueSource(new ColumnValueSource.Generated(new AutoIncrement(1, 1)));
+
+        Assert.That(result, Does.Contain("[DatabaseGenerated(DatabaseGeneratedOption.Identity)]"));
+    }
+
+    [TestCaseSource(nameof(ValueSourcesWithoutIdentity))]
+    public static void Generate_GivenColumnWithoutIdentity_GeneratesNoDatabaseGeneratedAttribute(ColumnValueSource valueSource)
+    {
+        var result = GenerateForValueSource(valueSource);
+
+        Assert.That(result, Does.Not.Contain("DatabaseGenerated"));
+    }
+
+    private static string GenerateForValueSource(ColumnValueSource valueSource)
+    {
+        var columnType = new ColumnDataType(
+            "integer",
+            DataType.Integer,
+            "integer",
+            typeof(long),
+            false,
+            -1,
+            Option<INumericPrecision>.None,
+            Option<Identifier>.None
+        );
+        var column = new DatabaseColumn("test_column", columnType, false, Option<DatabaseDefaultValue>.None, valueSource);
+        var table = new RelationalDatabaseTable(
+            "test_table",
+            [column],
+            Option<DatabaseKey.Primary>.None,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+
+        return GetTableGenerator().Generate([table], table, Option<IRelationalDatabaseTableComments>.None);
+    }
 }
