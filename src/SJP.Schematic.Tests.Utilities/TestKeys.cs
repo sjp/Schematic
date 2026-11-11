@@ -23,7 +23,7 @@ public static class TestKeys
         TestDbTypes.BigInteger,
         false,
         Option<DatabaseDefaultValue>.None,
-        Option<IAutoIncrement>.None
+        new ColumnValueSource.Stored()
     );
 
     /// <summary>

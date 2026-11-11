@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using NUnit.Framework;
 using SJP.Schematic.Core;
+using SJP.Schematic.Tests.Utilities;
 
 namespace SJP.Schematic.Sqlite.Tests.Integration;
 
@@ -20,7 +21,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     {
         var table = await GetTableAsync("table_test_table_37");
 
-        var physicalColumns = table.Columns.Where(c => !c.IsComputed).ToList();
+        var physicalColumns = table.Columns.Where(c => c.ValueSource is not ColumnValueSource.Computed).ToList();
 
         Assert.That(physicalColumns, Has.Exactly(1).Items);
     }
@@ -31,7 +32,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var expectedColumnNames = new[] { "test_column_2", "test_column_3", "test_column_4" };
         var table = await GetTableAsync("table_test_table_37");
         var columns = table.Columns;
-        var columnNames = columns.Where(c => c.IsComputed).Select(c => c.Name.LocalName).ToList();
+        var columnNames = columns.Where(c => c.ValueSource is ColumnValueSource.Computed).Select(c => c.Name.LocalName).ToList();
 
         var equalNames = columnNames.SequenceEqual(expectedColumnNames, System.StringComparer.Ordinal);
         Assert.That(equalNames, Is.True);
@@ -60,8 +61,8 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         };
         var table = await GetTableAsync("table_test_table_37");
         var columns = table.Columns;
-        var definitions = columns.Where(c => c.IsComputed)
-            .Select(c => c.ComputedDefinition)
+        var definitions = columns.Where(c => c.ValueSource is ColumnValueSource.Computed)
+            .Select(c => c.ValueSource.UnwrapComputed().Definition)
             .SelectMany(x => x)
             .ToList();
 
@@ -80,8 +81,8 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         };
         var table = await GetTableAsync("table_test_table_37");
         var storage = table.Columns
-            .Where(c => c.IsComputed)
-            .Select(c => c.ComputedStorage)
+            .Where(c => c.ValueSource is ColumnValueSource.Computed)
+            .Select(c => c.ValueSource.UnwrapComputed().Storage)
             .ToList();
 
         Assert.That(storage, Is.EqualTo(expectedStorage));

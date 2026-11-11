@@ -82,78 +82,60 @@ internal static class OracleDatabaseColumnTests
     }
 
     [Test]
-    public static void IsComputed_PropertyGet_ReturnsFalse()
-    {
-        Identifier columnName = "test_column";
-        var columnType = Mock.Of<IDbType>();
-        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
-
-        Assert.That(column.IsComputed, Is.False);
-    }
-
-    [Test]
-    public static void AutoIncrement_PropertyGet_ReturnsNone()
-    {
-        Identifier columnName = "test_column";
-        var columnType = Mock.Of<IDbType>();
-        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
-
-        Assert.That(column.AutoIncrement, OptionIs.None);
-    }
-
-    [Test]
-    public static void AutoIncrement_GivenIdentityCtorArgument_ReturnsCtorArgument()
-    {
-        Identifier columnName = "test_column";
-        var columnType = Mock.Of<IDbType>();
-        var autoIncrement = new AutoIncrement(1, 1, IdentityGeneration.Always, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.Some("ISEQ$$_12345"));
-        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.Some(autoIncrement));
-
-        Assert.That(column.AutoIncrement.UnwrapSome(), Is.EqualTo(autoIncrement));
-    }
-
-    [Test]
-    public static void Ctor_GivenInvalidComputedStorage_ThrowsArgumentException()
+    public static void Ctor_GivenDefaultValueSource_ThrowsArgumentNullException()
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
 
         Assert.That(
-            () => new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), (ComputedColumnStorage)55),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("computedStorage")
+            () => new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, default(ColumnValueSource)),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("valueSource")
         );
     }
 
     [Test]
-    public static void ComputedDefinition_GivenComputedCtorArgs_ReturnsCtorArgs()
+    public static void ValueSource_GivenNoValueSourceCtorArgument_ReturnsStored()
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
-        const string definition = "1 + 1";
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some(definition), ComputedColumnStorage.Virtual);
-
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(column.IsComputed, Is.True);
-            Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(definition));
-            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
-        }
+        Assert.That(column.ValueSource, Is.EqualTo((ColumnValueSource)new ColumnValueSource.Stored()));
     }
 
     [Test]
-    public static void ComputedDefinition_WhenColumnIsNotComputed_ReturnsNone()
+    public static void ValueSource_GivenIdentityCtorArgument_ReturnsCtorArgument()
+    {
+        Identifier columnName = "test_column";
+        var columnType = Mock.Of<IDbType>();
+        var autoIncrement = new AutoIncrement(1, 1, IdentityGeneration.Always, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.Some("ISEQ$$_12345"));
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Generated(autoIncrement));
+
+        Assert.That(column.ValueSource.UnwrapIdentity(), Is.EqualTo(autoIncrement));
+    }
+
+    [Test]
+    public static void ValueSource_GivenComputedCtorArgument_ReturnsCtorArgument()
+    {
+        Identifier columnName = "test_column";
+        var columnType = Mock.Of<IDbType>();
+        var valueSource = new ColumnValueSource.Computed(Option<string>.Some("1 + 1"), ComputedColumnStorage.Virtual);
+
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, valueSource);
+
+        Assert.That(column.ValueSource.UnwrapComputed(), Is.SameAs(valueSource));
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public static void IsHidden_PropertyGet_EqualsCtorArg(bool isHidden)
     {
         Identifier columnName = "test_column";
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored(), isHidden);
 
-        using (Assert.EnterMultipleScope())
-        {
-            Assert.That(column.ComputedDefinition, OptionIs.None);
-            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Unknown));
-        }
+        Assert.That(column.IsHidden, Is.EqualTo(isHidden));
     }
 
     [TestCase("test_column_1", "Computed Column: test_column_1")]
@@ -163,7 +145,7 @@ internal static class OracleDatabaseColumnTests
         var columnName = Identifier.CreateQualifiedIdentifier(name);
         var columnType = Mock.Of<IDbType>();
 
-        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1"), ComputedColumnStorage.Virtual);
+        var column = new OracleDatabaseColumn(columnName, columnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Computed(Option<string>.Some("1"), ComputedColumnStorage.Virtual));
         var result = column.ToString();
 
         Assert.That(result, Is.EqualTo(expectedResult));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using LanguageExt;
 using SJP.Schematic.Core;
 
 namespace SJP.Schematic.Reporting.Html.ViewModels.Mappers;
@@ -73,6 +74,13 @@ internal sealed class TableModelMapper
                 ? childLinks.ConvertAll(link => new Table.ChildKey(link.ConstraintName, link.TableName, link.ColumnName, qualifiedColumnName))
                 : [];
 
+            var (autoIncrement, isComputed, computedDefinition, computedStorage) = col.ValueSource switch
+            {
+                ColumnValueSource.Stored => (Option<IAutoIncrement>.None, false, Option<string>.None, string.Empty),
+                ColumnValueSource.Computed computed => (Option<IAutoIncrement>.None, true, computed.Definition, ComputedColumnStorageNames.GetName(computed.Storage)),
+                ColumnValueSource.Generated generated => (Option<IAutoIncrement>.Some(generated.Identity), false, Option<string>.None, string.Empty),
+            };
+
             var column = new Table.Column(
                 columnName,
                 tableColumn.Ordinal,
@@ -85,10 +93,10 @@ internal sealed class TableModelMapper
                 keyColumns.ForeignKeyColumns.Contains(columnName),
                 columnChildKeys,
                 columnParentKeys,
-                tableColumn.Column.AutoIncrement,
-                tableColumn.Column.IsComputed,
-                tableColumn.Column.ComputedDefinition,
-                tableColumn.Column.ComputedStorage,
+                autoIncrement,
+                isComputed,
+                computedDefinition,
+                computedStorage,
                 tableColumn.Column.IsHidden
             );
             columns.Add(column);

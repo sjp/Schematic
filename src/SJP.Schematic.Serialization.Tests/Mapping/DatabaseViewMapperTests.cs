@@ -59,7 +59,7 @@ internal static class DatabaseViewMapperTests
             new ColumnDataType("int", DataType.Integer, "int", typeof(int), false, 4, Option<INumericPrecision>.None, Option<Identifier>.None),
             false,
             Option<DatabaseDefaultValue>.None,
-            Option<IAutoIncrement>.None
+            new ColumnValueSource.Stored()
         );
         var index = new DatabaseIndex(
             "test_index",

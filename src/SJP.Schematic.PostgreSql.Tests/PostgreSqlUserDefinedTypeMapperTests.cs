@@ -80,7 +80,7 @@ internal static class PostgreSqlUserDefinedTypeMapperTests
     [Test]
     public static void MapType_GivenCompositeRow_ReturnsCompositeWithAttributesAndNoDefinition()
     {
-        var attribute = new DatabaseColumn("attr", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var attribute = new DatabaseColumn("attr", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var composite = MapType<DatabaseUserDefinedType.Composite>(CreateRow("c"), attributes: [attribute]);
 

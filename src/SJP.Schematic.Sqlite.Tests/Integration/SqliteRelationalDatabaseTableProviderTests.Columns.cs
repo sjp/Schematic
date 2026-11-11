@@ -95,7 +95,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.IsComputed, Is.False);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Computed>());
     }
 
     [Test]
@@ -105,14 +105,14 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
     public async Task Columns_WhenGivenAutoIncrementColumn_ReturnsByDefaultGeneration()
     {
         var table = await GetTableAsync("table_test_table_41");
-        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+        var autoIncrement = table.Columns.Single().ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -127,7 +127,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     public async Task Columns_WhenGivenIntegerPrimaryKeyColumn_ReturnsAutoIncrementForRowidAlias()
     {
         var table = await GetTableAsync("table_test_table_42");
-        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+        var autoIncrement = table.Columns.Single().ValueSource.UnwrapIdentity();
 
         Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefault));
     }
@@ -138,7 +138,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var table = await GetTableAsync("table_test_table_43");
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -147,7 +147,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var table = await GetTableAsync("table_test_table_44");
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -156,7 +156,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         var table = await GetTableAsync("table_test_table_45");
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -164,7 +164,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     {
         const string tableName = "table_test_table_1";
         var table = await GetTableAsync(tableName);
-        var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
+        var computedColumns = table.Columns.Where(c => c.ValueSource is ColumnValueSource.Computed).ToList();
 
         Assert.That(computedColumns, Is.Empty);
     }
@@ -174,7 +174,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
     {
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName);
-        var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
+        var computedColumns = table.Columns.Where(c => c.ValueSource is ColumnValueSource.Computed).ToList();
 
         Assert.That(computedColumns, Has.Exactly(3).Items);
     }
@@ -185,7 +185,7 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName);
         var expectedColumnNames = new[] { "test_column_2", "test_column_3", "test_column_4" };
-        var computedColumnNames = table.Columns.Where(c => c.IsComputed).Select(c => c.Name.LocalName).ToList();
+        var computedColumnNames = table.Columns.Where(c => c.ValueSource is ColumnValueSource.Computed).Select(c => c.Name.LocalName).ToList();
 
         Assert.That(computedColumnNames, Is.EqualTo(expectedColumnNames));
     }
@@ -202,8 +202,8 @@ internal sealed partial class SqliteRelationalDatabaseTableProviderTests : Sqlit
         };
         var table = await GetTableAsync(tableName);
         var computedColumnDefinitions = table.Columns
-            .Where(c => c.IsComputed)
-            .Select(c => c.ComputedDefinition.Match(x => x, () => string.Empty))
+            .Where(c => c.ValueSource is ColumnValueSource.Computed)
+            .Select(c => c.ValueSource.UnwrapComputed().Definition.Match(x => x, () => string.Empty))
             .ToList();
 
         Assert.That(computedColumnDefinitions, Is.EqualTo(expectedDefinitions));

@@ -151,19 +151,10 @@ internal static class TableTests
     }
 
     [Test]
-    public static void ColumnCtor_GivenInvalidComputedColumnStorage_ThrowsArgumentException()
-    {
-        Assert.That(
-            () => new Table.Column("test_column", 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, [], [], Option<IAutoIncrement>.None, false, Option<string>.None, (ComputedColumnStorage)55, false),
-            Throws.ArgumentException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("computedStorage")
-        );
-    }
-
-    [Test]
     public static void ColumnCtor_GivenNullColumnName_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new Table.Column(null!, 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, [], [], Option<IAutoIncrement>.None, false, Option<string>.None, ComputedColumnStorage.Unknown, false),
+            () => new Table.Column(null!, 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, [], [], Option<IAutoIncrement>.None, false, Option<string>.None, string.Empty, false),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("columnName")
         );
     }
@@ -172,7 +163,7 @@ internal static class TableTests
     public static void ColumnCtor_GivenNullChildKeys_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new Table.Column("test_column", 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, null!, [], Option<IAutoIncrement>.None, false, Option<string>.None, ComputedColumnStorage.Unknown, false),
+            () => new Table.Column("test_column", 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, null!, [], Option<IAutoIncrement>.None, false, Option<string>.None, string.Empty, false),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("childKeys")
         );
     }
@@ -181,7 +172,7 @@ internal static class TableTests
     public static void ColumnCtor_GivenNullParentKeys_ThrowsArgumentNullException()
     {
         Assert.That(
-            () => new Table.Column("test_column", 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, [], null!, Option<IAutoIncrement>.None, false, Option<string>.None, ComputedColumnStorage.Unknown, false),
+            () => new Table.Column("test_column", 1, false, "integer", Option<Uri>.None, Option<string>.None, false, false, false, [], null!, Option<IAutoIncrement>.None, false, Option<string>.None, string.Empty, false),
             Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("parentKeys")
         );
     }

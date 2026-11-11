@@ -324,10 +324,7 @@ public class OracleDatabaseMaterializedViewProvider : IDatabaseViewProvider
                 columnType,
                 isNullable,
                 defaultValue,
-                Option<IAutoIncrement>.None,
-                false,
-                Option<string>.None,
-                ComputedColumnStorage.Unknown,
+                new ColumnValueSource.Stored(),
                 isHidden);
 
             result.Add(column);

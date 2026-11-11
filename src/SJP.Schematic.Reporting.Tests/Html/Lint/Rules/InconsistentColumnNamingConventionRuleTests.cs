@@ -15,7 +15,7 @@ internal static class InconsistentColumnNamingConventionRuleTests
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, params string[] columnNames)
     {
         var columns = columnNames
-            .Select(static name => (IDatabaseColumn)new DatabaseColumn(name, Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null))
+            .Select(static name => (IDatabaseColumn)new DatabaseColumn(name, Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()))
             .ToList();
 
         return new RelationalDatabaseTable(

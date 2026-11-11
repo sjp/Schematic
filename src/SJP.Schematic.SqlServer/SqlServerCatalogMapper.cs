@@ -11,7 +11,8 @@ namespace SJP.Schematic.SqlServer;
 /// <summary>
 /// Maps the raw index and trigger rows returned by the SQL Server catalog onto the core model.
 /// Indexes and triggers attach to tables and to views in exactly the same shape, so the table and
-/// view providers share this mapping rather than each carrying its own copy.
+/// view providers share this mapping rather than each carrying its own copy. Table columns and table
+/// type attributes likewise share how the source of their values is read.
 /// </summary>
 internal static class SqlServerCatalogMapper
 {
@@ -183,4 +184,53 @@ internal static class SqlServerCatalogMapper
         [6] = IndexType.ColumnStore,
         [7] = IndexType.Hash,
     };
+
+    /// <summary>
+    /// Describes where the values of a table column or table type attribute come from, as
+    /// <c>sys.columns</c>, <c>sys.computed_columns</c> and <c>sys.identity_columns</c> report it.
+    /// </summary>
+    /// <param name="isComputed"><c>sys.columns.is_computed</c>.</param>
+    /// <param name="computedDefinition"><c>sys.computed_columns.definition</c>, if the column is computed.</param>
+    /// <param name="computedIsPersisted"><c>sys.computed_columns.is_persisted</c>, if the column is computed.</param>
+    /// <param name="isIdentity"><c>sys.columns.is_identity</c>.</param>
+    /// <param name="identitySeed"><c>sys.identity_columns.seed_value</c>, if the column is an identity.</param>
+    /// <param name="identityIncrement"><c>sys.identity_columns.increment_value</c>, if the column is an identity.</param>
+    /// <returns>The source of the column's values.</returns>
+    public static ColumnValueSource MapColumnValueSource(
+        bool isComputed,
+        string? computedDefinition,
+        bool? computedIsPersisted,
+        bool isIdentity,
+        decimal? identitySeed,
+        decimal? identityIncrement)
+    {
+        // SQL Server rejects IDENTITY on a computed column, so at most one of these is set.
+        if (isComputed)
+        {
+            var definition = !computedDefinition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(computedDefinition)
+                : Option<string>.None;
+
+            // is_persisted separates a computed column whose value is written with the row from
+            // one evaluated on every read.
+            var storage = computedIsPersisted == true
+                ? ComputedColumnStorage.Stored
+                : ComputedColumnStorage.Virtual;
+
+            return new ColumnValueSource.Computed(definition, storage);
+        }
+
+        if (isIdentity)
+        {
+            // sys.identity_columns reports the seed and increment as sql_variant, which can be
+            // null for a column whose identity was defined without them; SQL Server's own
+            // defaults are 1 and 1.
+            var seed = identitySeed ?? 1;
+            var increment = identityIncrement is decimal incr && incr != 0 ? incr : 1;
+
+            return new ColumnValueSource.Generated(new AutoIncrement(seed, increment));
+        }
+
+        return new ColumnValueSource.Stored();
+    }
 }

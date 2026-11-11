@@ -32,7 +32,7 @@ internal static class MapperRegistry
         RegisterMapper<IDatabaseCheckConstraint, Dto.DatabaseCheckConstraint>(mappers, () => new DatabaseCheckMapper());
 
         RegisterMapper<Dto.DatabaseColumn, IDatabaseColumn>(mappers, () => new DatabaseColumnMapper());
-        // computed columns are handled by the IDatabaseColumn mapping, which dispatches on the runtime type
+        // computed and identity columns are handled by the IDatabaseColumn mapping, which switches on the column's value source
         RegisterMapper<IDatabaseColumn, Dto.DatabaseColumn>(mappers, () => new DatabaseColumnMapper());
 
         RegisterMapper<Dto.DatabaseIndexColumn, IDatabaseIndexColumn>(mappers, () => new DatabaseIndexColumnMapper());

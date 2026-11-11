@@ -25,7 +25,7 @@ internal static class NearDuplicateColumnNameRuleTests
             Option<INumericPrecision>.None,
             Option<Identifier>.None
         );
-        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, null);
+        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
     }
 
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, params string[] columnNames)

@@ -89,7 +89,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.IsComputed, Is.False);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Computed>());
     }
 
     [Test]
@@ -99,7 +99,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
 
-        Assert.That(column.IsComputed, Is.True);
+        Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
     }
 
     [Test]
@@ -111,7 +111,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
 
-        Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+        Assert.That(column.ValueSource.UnwrapComputed().Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
     }
 
     [Test]
@@ -121,7 +121,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single(c => string.Equals(c.Name.LocalName, "test_column_3", StringComparison.Ordinal));
 
-        Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
+        Assert.That(column.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Virtual));
     }
 
     [Test]
@@ -133,8 +133,8 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(column.IsComputed, Is.True);
-            Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Stored));
+            Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
+            Assert.That(column.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Stored));
         }
     }
 
@@ -145,7 +145,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -155,7 +155,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement, OptionIs.Some);
+        Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -165,7 +165,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(10));
+        Assert.That(column.ValueSource.UnwrapIdentity().InitialValue, Is.EqualTo(10));
     }
 
     [Test]
@@ -175,7 +175,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(5));
+        Assert.That(column.ValueSource.UnwrapIdentity().Increment, Is.EqualTo(5));
     }
 
     [Test]
@@ -183,7 +183,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
     {
         const string tableName = "table_test_table_45";
         var table = await GetTableAsync(tableName);
-        var autoIncrement = table.Columns[0].AutoIncrement.UnwrapSome();
+        var autoIncrement = table.Columns[0].ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -198,7 +198,7 @@ internal sealed partial class SqlServerRelationalDatabaseTableProviderTests : Sq
         const string tableName = "table_test_table_35";
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
-        var autoIncrement = column.AutoIncrement.UnwrapSome();
+        var autoIncrement = column.ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {

@@ -81,33 +81,23 @@ internal static class SqlServerUserDefinedTypeMapper
                 NumericPrecision = new NumericPrecision(row.Precision, row.Scale),
             };
 
-            // sys.identity_columns reports the seed and increment as sql_variant, which can be
-            // null for a column whose identity was defined without them; SQL Server's own
-            // defaults are 1 and 1.
-            var identitySeed = row.IdentitySeed ?? 1;
-            var identityIncrement = row.IdentityIncrement is decimal incr && incr != 0 ? incr : 1;
-            var autoIncrement = row.IsIdentity
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(identitySeed, identityIncrement))
-                : Option<IAutoIncrement>.None;
             // sys.default_constraints is joined for the definition alone, so an attribute default
             // never carries the name of the constraint holding it
             var defaultValue = SqlServerDefaultValueParser.Parse(row.DefaultValue, null);
-            var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.ComputedColumnDefinition)
-                : Option<string>.None;
-            var computedStorage = row.ComputedColumnIsPersisted == true
-                ? ComputedColumnStorage.Stored
-                : ComputedColumnStorage.Virtual;
+            var valueSource = SqlServerCatalogMapper.MapColumnValueSource(
+                row.IsComputed,
+                row.ComputedColumnDefinition,
+                row.ComputedColumnIsPersisted,
+                row.IsIdentity,
+                row.IdentitySeed,
+                row.IdentityIncrement);
 
             return new DatabaseColumn(
                 Identifier.CreateQualifiedIdentifier(row.ColumnName),
                 typeProvider.CreateColumnType(typeMetadata),
                 row.IsNullable,
                 defaultValue,
-                autoIncrement,
-                row.IsComputed,
-                computedColumnDefinition,
-                computedStorage);
+                valueSource);
         }).ToList();
     }
 

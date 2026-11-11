@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core;
 using SJP.Schematic.Core.Utilities;
@@ -16,7 +15,8 @@ namespace SJP.Schematic.Oracle;
 public class OracleDatabaseColumn : IDatabaseColumn
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="OracleDatabaseColumn"/> class.
+    /// Initializes a new instance of the <see cref="OracleDatabaseColumn"/> class, describing an
+    /// ordinary column whose values are written to it.
     /// </summary>
     /// <param name="columnName">A column name.</param>
     /// <param name="type">A column type.</param>
@@ -24,7 +24,7 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
     /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
     public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<DatabaseDefaultValue> defaultValue)
-        : this(columnName, type, isNullable, defaultValue, Option<IAutoIncrement>.None)
+        : this(columnName, type, isNullable, defaultValue, new ColumnValueSource.Stored())
     {
     }
 
@@ -35,10 +35,10 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="type">A column type.</param>
     /// <param name="isNullable">If set to <see langword="true" /> the column is nullable.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <param name="autoIncrement">The identity definition applied to the column, if it has one.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
-    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<DatabaseDefaultValue> defaultValue, Option<IAutoIncrement> autoIncrement)
-        : this(columnName, type, isNullable, defaultValue, autoIncrement, false, Option<string>.None, ComputedColumnStorage.Unknown)
+    /// <param name="valueSource">Where the values of the column come from.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>, or <paramref name="valueSource"/> is a <see langword="default"/> <see cref="ColumnValueSource"/>.</exception>
+    public OracleDatabaseColumn(Identifier columnName, IDbType type, bool isNullable, Option<DatabaseDefaultValue> defaultValue, ColumnValueSource valueSource)
+        : this(columnName, type, isNullable, defaultValue, valueSource, false)
     {
     }
 
@@ -49,65 +49,29 @@ public class OracleDatabaseColumn : IDatabaseColumn
     /// <param name="type">A column type.</param>
     /// <param name="isNullable">If set to <see langword="true" /> the column is nullable.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <param name="autoIncrement">The identity definition applied to the column, if it has one.</param>
-    /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
-    /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
-    /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
-    public OracleDatabaseColumn(
-        Identifier columnName,
-        IDbType type,
-        bool isNullable,
-        Option<DatabaseDefaultValue> defaultValue,
-        Option<IAutoIncrement> autoIncrement,
-        bool isComputed,
-        Option<string> computedDefinition,
-        ComputedColumnStorage computedStorage
-    ) : this(columnName, type, isNullable, defaultValue, autoIncrement, isComputed, computedDefinition, computedStorage, false)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="OracleDatabaseColumn"/> class.
-    /// </summary>
-    /// <param name="columnName">A column name.</param>
-    /// <param name="type">A column type.</param>
-    /// <param name="isNullable">If set to <see langword="true" /> the column is nullable.</param>
-    /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <param name="autoIncrement">The identity definition applied to the column, if it has one.</param>
-    /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
-    /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
-    /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
+    /// <param name="valueSource">Where the values of the column come from.</param>
     /// <param name="isHidden">Whether the column was declared <c>INVISIBLE</c>, and is therefore omitted from the expansion of <c>SELECT *</c>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>, or <paramref name="valueSource"/> is a <see langword="default"/> <see cref="ColumnValueSource"/>.</exception>
     public OracleDatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
         Option<DatabaseDefaultValue> defaultValue,
-        Option<IAutoIncrement> autoIncrement,
-        bool isComputed,
-        Option<string> computedDefinition,
-        ComputedColumnStorage computedStorage,
+        ColumnValueSource valueSource,
         bool isHidden
     )
     {
         ArgumentNullException.ThrowIfNull(columnName);
         if (defaultValue.Exists(static def => def.Value is null))
             throw new ArgumentNullException(nameof(defaultValue), "The default value provided holds no default.");
-        if (!computedStorage.IsValid())
-            throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
+        if (valueSource.Value is null)
+            throw new ArgumentNullException(nameof(valueSource), "The value source provided holds no value source.");
 
         Name = columnName.LocalName;
         Type = type ?? throw new ArgumentNullException(nameof(type));
         IsNullable = isNullable;
         Default = defaultValue;
-        AutoIncrement = autoIncrement;
-        IsComputed = isComputed;
-        ComputedDefinition = isComputed ? computedDefinition : Option<string>.None;
-        ComputedStorage = isComputed ? computedStorage : ComputedColumnStorage.Unknown;
+        ValueSource = valueSource;
         IsHidden = isHidden;
     }
 
@@ -124,22 +88,10 @@ public class OracleDatabaseColumn : IDatabaseColumn
     public Option<string> DefaultValue => Default.Map(static def => def.Definition);
 
     /// <summary>
-    /// Determines whether the values of this column are generated by the database.
+    /// Where the values of this column come from.
     /// </summary>
-    /// <value><see langword="true" /> if the values within this column are computed by the database; otherwise, <see langword="false" />.</value>
-    public bool IsComputed { get; }
-
-    /// <summary>
-    /// The expression that computes the values of this column. Optional as Oracle allows the definition to be missing.
-    /// </summary>
-    /// <value>A computed column definition, if available.</value>
-    public Option<string> ComputedDefinition { get; }
-
-    /// <summary>
-    /// Determines whether the computed values of this column are stored in the table or evaluated when the column is read.
-    /// </summary>
-    /// <value>The storage applied to a computed column. Oracle virtual columns are never stored.</value>
-    public ComputedColumnStorage ComputedStorage { get; }
+    /// <value>The source of the column's values.</value>
+    public ColumnValueSource ValueSource { get; }
 
     /// <summary>
     /// Determines whether the column was declared <c>INVISIBLE</c>, and is therefore omitted from the expansion of <c>SELECT *</c>.
@@ -166,12 +118,6 @@ public class OracleDatabaseColumn : IDatabaseColumn
     public bool IsNullable { get; }
 
     /// <summary>
-    /// Retrieves the identity definition applied to this column, if it is an identity column.
-    /// </summary>
-    /// <value>An automatic increment definition, if available.</value>
-    public Option<IAutoIncrement> AutoIncrement { get; }
-
-    /// <summary>
     /// Returns a string that provides a basic string representation of this object.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
@@ -184,7 +130,7 @@ public class OracleDatabaseColumn : IDatabaseColumn
         {
             var builder = StringBuilderCache.Acquire();
 
-            builder.Append(IsComputed ? "Computed Column: " : "Column: ")
+            builder.Append(ValueSource is ColumnValueSource.Computed ? "Computed Column: " : "Column: ")
                 .Append(Name.LocalName);
 
             return builder.GetStringAndRelease();

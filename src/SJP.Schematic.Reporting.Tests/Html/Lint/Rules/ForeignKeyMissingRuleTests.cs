@@ -14,7 +14,7 @@ internal static class ForeignKeyMissingRuleTests
 {
     private static IRelationalDatabaseTable CreateTable(Identifier tableName, string columnName)
     {
-        var column = new DatabaseColumn(columnName, Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
+        var column = new DatabaseColumn(columnName, Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         return new RelationalDatabaseTable(
             tableName,
             [column],

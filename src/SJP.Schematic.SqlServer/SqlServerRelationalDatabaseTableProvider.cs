@@ -827,36 +827,23 @@ public class SqlServerRelationalDatabaseTableProvider : IRelationalDatabaseTable
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                // sys.identity_columns reports the seed and increment as sql_variant, which can be
-                // null for a column whose identity was defined without them; SQL Server's own
-                // defaults are 1 and 1.
-                var identitySeed = row.IdentitySeed ?? 1;
-                var identityIncrement = row.IdentityIncrement is decimal incr && incr != 0 ? incr : 1;
-                var autoIncrement = row.IsIdentity
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(identitySeed, identityIncrement))
-                    : Option<IAutoIncrement>.None;
                 var defaultValue = row.HasDefaultValue
                     ? SqlServerDefaultValueParser.Parse(row.DefaultValue, row.DefaultConstraintName)
                     : Option<DatabaseDefaultValue>.None;
-                var computedColumnDefinition = !row.ComputedColumnDefinition.IsNullOrWhiteSpace()
-                    ? Option<string>.Some(row.ComputedColumnDefinition)
-                    : Option<string>.None;
-
-                // sys.computed_columns.is_persisted separates a computed column whose value is
-                // written with the row from one evaluated on every read.
-                var computedStorage = row.ComputedColumnIsPersisted == true
-                    ? ComputedColumnStorage.Stored
-                    : ComputedColumnStorage.Virtual;
+                var valueSource = SqlServerCatalogMapper.MapColumnValueSource(
+                    row.IsComputed,
+                    row.ComputedColumnDefinition,
+                    row.ComputedColumnIsPersisted,
+                    row.IsIdentity,
+                    row.IdentitySeed,
+                    row.IdentityIncrement);
 
                 return new DatabaseColumn(
                     columnName,
                     columnType,
                     row.IsNullable,
                     defaultValue,
-                    autoIncrement,
-                    row.IsComputed,
-                    computedColumnDefinition,
-                    computedStorage,
+                    valueSource,
                     row.IsHidden);
             })
             .ToListAsync(cancellationToken);

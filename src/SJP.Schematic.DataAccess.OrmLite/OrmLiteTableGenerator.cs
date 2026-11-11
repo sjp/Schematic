@@ -324,7 +324,7 @@ public class OrmLiteTableGenerator : DatabaseTableGenerator
             attributes.Add(primaryKeyAttribute);
         }
 
-        if (column.AutoIncrement.IsSome)
+        if (column.ValueSource is ColumnValueSource.Generated)
         {
             var autoIncrementAttribute = AttributeList(
                 SingletonSeparatedList(

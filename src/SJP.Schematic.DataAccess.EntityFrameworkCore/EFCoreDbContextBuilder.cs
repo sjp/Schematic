@@ -307,7 +307,7 @@ public class EFCoreDbContextBuilder
         ArgumentNullException.ThrowIfNull(navigationResolver);
 
         var columnExprs = table.GetMappedColumns()
-            .Where(static c => c.IsComputed || c.Default.IsSome || c.AutoIncrement.IsSome)
+            .Where(static c => c.Default.IsSome || c.ValueSource is not ColumnValueSource.Stored)
             .Select(c => BuildTableColumnPropertyForBuilder(table, c));
         var primaryKeyExpr = table.PrimaryKey
             .Match(
@@ -444,66 +444,75 @@ public class EFCoreDbContextBuilder
             };
         });
 
-        column.AutoIncrement.IfSome(autoIncrement =>
+        property = column.ValueSource switch
+        {
+            ColumnValueSource.Stored => property,
+            ColumnValueSource.Generated generated => ValueGeneratedOnAdd(property, generated.Identity),
+            ColumnValueSource.Computed computed => computed.Definition.Match(
+                definition => HasComputedColumnSql(property, definition, computed.Storage),
+                () => property
+            ),
+        };
+
+        return property;
+    }
+
+    private static InvocationExpressionSyntax ValueGeneratedOnAdd(InvocationExpressionSyntax property, IAutoIncrement identity)
+    {
+        property = InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                property,
+                IdentifierName(nameof(PropertyBuilder.ValueGeneratedOnAdd))));
+
+        // As with the index options above, this is a provider-specific extension method
+        // (NpgsqlPropertyBuilderExtensions) named rather than referenced. Only PostgreSQL and
+        // Oracle report an always-generated identity, so a context generated from any other
+        // database never calls it.
+        if (identity.Generation == IdentityGeneration.Always)
         {
             property = InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     property,
-                    IdentifierName(nameof(PropertyBuilder.ValueGeneratedOnAdd))));
-
-            // As with the index options above, this is a provider-specific extension method
-            // (NpgsqlPropertyBuilderExtensions) named rather than referenced. Only PostgreSQL and
-            // Oracle report an always-generated identity, so a context generated from any other
-            // database never calls it.
-            if (autoIncrement.Generation == IdentityGeneration.Always)
-            {
-                property = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        property,
-                        IdentifierName("UseIdentityAlwaysColumn")));
-            }
-        });
-
-        if (column.IsComputed)
-        {
-            column.ComputedDefinition.IfSome(def =>
-            {
-                var arguments = new List<ArgumentSyntax>
-                {
-                    Argument(
-                        LiteralExpression(
-                            SyntaxKind.StringLiteralExpression,
-                            Literal(def))),
-                };
-
-                // The 'stored' argument is nullable, so it is only supplied when the source database
-                // says how the computed values are kept; EF Core otherwise falls back to its
-                // provider default.
-                if (column.ComputedStorage != ComputedColumnStorage.Unknown)
-                {
-                    arguments.Add(
-                        Argument(
-                            LiteralExpression(
-                                column.ComputedStorage == ComputedColumnStorage.Stored
-                                    ? SyntaxKind.TrueLiteralExpression
-                                    : SyntaxKind.FalseLiteralExpression))
-                        .WithNameColon(NameColon(IdentifierName("stored"))));
-                }
-
-                property = InvocationExpression(
-                    MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        property,
-                        IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))))
-                    .WithArgumentList(
-                        ArgumentList(
-                            SeparatedList(arguments)));
-            });
+                    IdentifierName("UseIdentityAlwaysColumn")));
         }
 
         return property;
+    }
+
+    private static InvocationExpressionSyntax HasComputedColumnSql(InvocationExpressionSyntax property, string definition, ComputedColumnStorage storage)
+    {
+        var arguments = new List<ArgumentSyntax>
+        {
+            Argument(
+                LiteralExpression(
+                    SyntaxKind.StringLiteralExpression,
+                    Literal(definition))),
+        };
+
+        // The 'stored' argument is nullable, so it is only supplied when the source database
+        // says how the computed values are kept; EF Core otherwise falls back to its
+        // provider default.
+        if (storage != ComputedColumnStorage.Unknown)
+        {
+            arguments.Add(
+                Argument(
+                    LiteralExpression(
+                        storage == ComputedColumnStorage.Stored
+                            ? SyntaxKind.TrueLiteralExpression
+                            : SyntaxKind.FalseLiteralExpression))
+                .WithNameColon(NameColon(IdentifierName("stored"))));
+        }
+
+        return InvocationExpression(
+            MemberAccessExpression(
+                SyntaxKind.SimpleMemberAccessExpression,
+                property,
+                IdentifierName(nameof(RelationalPropertyBuilderExtensions.HasComputedColumnSql))))
+            .WithArgumentList(
+                ArgumentList(
+                    SeparatedList(arguments)));
     }
 
     private InvocationExpressionSyntax BuildTablePrimaryKeyForBuilder(IRelationalDatabaseTable table, DatabaseKey.Primary primaryKey)

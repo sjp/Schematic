@@ -250,14 +250,13 @@ public class MySqlDatabaseViewProvider : IDatabaseViewProvider
         var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
         var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName!);
-        var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
-        var autoIncrement = isAutoIncrement
-            ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1))
-            : Option<IAutoIncrement>.None;
+        ColumnValueSource valueSource = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true
+            ? new ColumnValueSource.Generated(new AutoIncrement(1, 1))
+            : new ColumnValueSource.Stored();
         var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
         var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation, isMariaDb);
 
-        return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, autoIncrement);
+        return new DatabaseColumn(columnName, columnType, isNullable, defaultValue, valueSource);
     }
 
     /// <summary>

@@ -7,8 +7,8 @@ namespace SJP.Schematic.Core;
 public enum ComputedColumnStorage
 {
     /// <summary>
-    /// The storage of the computed column is not known, either because the column is not computed,
-    /// or because the database does not report how the values are kept.
+    /// The storage of the computed column is not known, because the database does not report how the
+    /// values are kept.
     /// </summary>
     Unknown,
 

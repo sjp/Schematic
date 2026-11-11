@@ -765,12 +765,30 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(row.SequenceSchemaName, row.SequenceLocalName))
                     : Option<Identifier>.None;
 
-                // Both an identity column and a serial column draw their values from a sequence, so
-                // the sequence's parameters describe either kind. A serial column is an ordinary
-                // column defaulting to nextval() over an owned sequence, so an explicitly supplied
-                // value is always accepted.
-                var autoIncrement = sequenceName.IsSome && row.SequenceStart is long seqStart && row.SequenceIncrement is long seqIncrement
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(
+                ColumnValueSource valueSource;
+                if (!row.GenerationKind.IsNullOrEmpty())
+                {
+                    // Generated columns were stored-only until virtual generated columns arrived, so
+                    // a server that does not report the kind can only have stored ones.
+                    var computedStorage = string.Equals(row.GenerationKind, Constants.VirtualGenerated, StringComparison.Ordinal)
+                        ? ComputedColumnStorage.Virtual
+                        : ComputedColumnStorage.Stored;
+
+                    // PostgreSQL rejects a column that is both an identity and generated, but any
+                    // column may be made the owner of a sequence with ALTER SEQUENCE ... OWNED BY,
+                    // generated columns included. A generation expression must be immutable, so it
+                    // can never draw from that sequence, and the column is computed regardless.
+                    valueSource = new ColumnValueSource.Computed(
+                        Option<string>.Some(row.GenerationExpression ?? string.Empty),
+                        computedStorage);
+                }
+                else if (sequenceName.IsSome && row.SequenceStart is long seqStart && row.SequenceIncrement is long seqIncrement)
+                {
+                    // Both an identity column and a serial column draw their values from a sequence,
+                    // so the sequence's parameters describe either kind. A serial column is an
+                    // ordinary column defaulting to nextval() over an owned sequence, so an
+                    // explicitly supplied value is always accepted.
+                    valueSource = new ColumnValueSource.Generated(new AutoIncrement(
                         seqStart,
                         seqIncrement,
                         string.Equals(row.IdentityKind, Constants.IdentityAlways, StringComparison.Ordinal)
@@ -779,22 +797,15 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                         ToNumericBound(row.SequenceMinValue),
                         ToNumericBound(row.SequenceMaxValue),
                         row.SequenceCycle == true,
-                        sequenceName))
-                    : Option<IAutoIncrement>.None;
+                        sequenceName));
+                }
+                else
+                {
+                    valueSource = new ColumnValueSource.Stored();
+                }
 
                 var defaultValue = PostgreSqlDefaultValueParser.Parse(row.ColumnDefault);
                 var isNullable = string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal);
-
-                var isComputed = !row.GenerationKind.IsNullOrEmpty();
-                var computedDefinition = isComputed
-                    ? Option<string>.Some(row.GenerationExpression ?? string.Empty)
-                    : Option<string>.None;
-
-                // Generated columns were stored-only until virtual generated columns arrived, so a
-                // server that does not report the kind can only have stored ones.
-                var computedStorage = string.Equals(row.GenerationKind, Constants.VirtualGenerated, StringComparison.Ordinal)
-                    ? ComputedColumnStorage.Virtual
-                    : ComputedColumnStorage.Stored;
 
                 // PostgreSQL has no way to declare a column invisible, so every column a table
                 // reports is one that SELECT * returns.
@@ -803,10 +814,7 @@ public class PostgreSqlRelationalDatabaseTableProviderBase : IRelationalDatabase
                     columnType,
                     isNullable,
                     defaultValue,
-                    autoIncrement,
-                    isComputed,
-                    computedDefinition,
-                    computedStorage);
+                    valueSource);
             })
             .ToListAsync(cancellationToken);
     }

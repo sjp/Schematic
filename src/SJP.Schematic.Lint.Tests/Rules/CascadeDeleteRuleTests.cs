@@ -12,7 +12,7 @@ internal static class CascadeDeleteRuleTests
 {
     private static IRelationalDatabaseTable CreateChildTable(ReferentialAction deleteAction)
     {
-        var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var column = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
             [column],

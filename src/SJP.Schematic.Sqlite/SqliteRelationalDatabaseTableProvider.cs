@@ -1382,22 +1382,12 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 ? new SqliteColumnType(columnTypeName, affinity)
                 : new SqliteColumnType(columnTypeName, affinity, collation);
 
-            var isAutoIncrement = (parsedColumnInfo?.IsAutoIncrement ?? false)
-                || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
-            var autoIncrement = isAutoIncrement
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
-                : Option<IAutoIncrement>.None;
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo))
                 : Option<DatabaseDefaultValue>.None;
-
-            var computedColumnType = parsedColumnInfo?.ComputedColumnType ?? SqliteGeneratedColumnType.None;
-            var isComputed = computedColumnType != SqliteGeneratedColumnType.None;
-            var computedStorage = computedColumnType == SqliteGeneratedColumnType.Stored
-                ? ComputedColumnStorage.Stored
-                : ComputedColumnStorage.Virtual;
+            var valueSource = CreateValueSource(tableInfo.name, parsedColumnInfo, rowidAliasColumnName);
 
             // the other hidden values describe a generated column, which SELECT * still expands to
             var isHidden = tableInfo.hidden == HiddenColumnType.Hidden;
@@ -1407,10 +1397,7 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 columnType,
                 !tableInfo.notnull,
                 defaultValue,
-                autoIncrement,
-                isComputed,
-                parsedColumnInfo?.ComputedDefinition,
-                computedStorage,
+                valueSource,
                 isHidden);
             result.Add(column);
         }
@@ -1508,18 +1495,14 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
                 ? new SqliteColumnType(columnTypeName, affinity)
                 : new SqliteColumnType(columnTypeName, affinity, collation);
 
-            var isAutoIncrement = (parsedColumnInfo?.IsAutoIncrement ?? false)
-                || string.Equals(rowidAliasColumnName, tableInfo.name, StringComparison.OrdinalIgnoreCase);
-            var autoIncrement = isAutoIncrement
-                ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
-                : Option<IAutoIncrement>.None;
             // pragma table_info reports the text of the default, and the parsed definition says what
             // that text evaluates to
             var defaultValue = !tableInfo.dflt_value.IsNullOrWhiteSpace()
                 ? Option<DatabaseDefaultValue>.Some(CreateDefaultValue(tableInfo.dflt_value, parsedColumnInfo))
                 : Option<DatabaseDefaultValue>.None;
+            var valueSource = CreateValueSource(tableInfo.name, parsedColumnInfo, rowidAliasColumnName);
 
-            var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, autoIncrement);
+            var column = new DatabaseColumn(tableInfo.name, columnType, !tableInfo.notnull, defaultValue, valueSource);
             result.Add(column);
         }
 
@@ -1537,6 +1520,31 @@ public class SqliteRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             result.TryAdd(column.Name, column);
 
         return result;
+    }
+
+    // SQLite rejects a generated column in a primary key, and AUTOINCREMENT is only allowed on an
+    // INTEGER PRIMARY KEY, so a column that is computed is never also auto-incrementing.
+    private static ColumnValueSource CreateValueSource(string columnName, Column? parsedColumnInfo, string? rowidAliasColumnName)
+    {
+        var computedColumnType = parsedColumnInfo?.ComputedColumnType ?? SqliteGeneratedColumnType.None;
+        if (computedColumnType != SqliteGeneratedColumnType.None)
+        {
+            var definition = !parsedColumnInfo!.ComputedDefinition.IsNullOrWhiteSpace()
+                ? Option<string>.Some(parsedColumnInfo.ComputedDefinition)
+                : Option<string>.None;
+            var storage = computedColumnType == SqliteGeneratedColumnType.Stored
+                ? ComputedColumnStorage.Stored
+                : ComputedColumnStorage.Virtual;
+
+            return new ColumnValueSource.Computed(definition, storage);
+        }
+
+        var isAutoIncrement = (parsedColumnInfo?.IsAutoIncrement ?? false)
+            || string.Equals(rowidAliasColumnName, columnName, StringComparison.OrdinalIgnoreCase);
+
+        return isAutoIncrement
+            ? new ColumnValueSource.Generated(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
+            : new ColumnValueSource.Stored();
     }
 
     // A column declared as INTEGER PRIMARY KEY in a rowid table is an alias for the table's rowid,

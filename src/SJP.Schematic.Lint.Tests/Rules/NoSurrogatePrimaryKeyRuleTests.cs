@@ -57,7 +57,7 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
@@ -93,14 +93,14 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testColumnB = new DatabaseColumn(
             "test_column_b",
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
@@ -136,14 +136,14 @@ internal static class NoSurrogatePrimaryKeyRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testColumnB = new DatabaseColumn(
             "test_column_b",
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),

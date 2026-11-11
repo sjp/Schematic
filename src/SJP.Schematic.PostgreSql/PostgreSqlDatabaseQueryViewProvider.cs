@@ -292,10 +292,9 @@ public class PostgreSqlDatabaseQueryViewProvider : IDatabaseViewProvider
 
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                var autoIncrement = Option<IAutoIncrement>.None;
                 var defaultValue = PostgreSqlDefaultValueParser.Parse(row.ColumnDefault);
 
-                return new DatabaseColumn(columnName, columnType, string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal), defaultValue, autoIncrement);
+                return new DatabaseColumn(columnName, columnType, string.Equals(row.IsNullable, Constants.Yes, StringComparison.Ordinal), defaultValue, new ColumnValueSource.Stored());
             })
             .ToListAsync(cancellationToken);
     }

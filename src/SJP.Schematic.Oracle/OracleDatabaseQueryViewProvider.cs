@@ -291,10 +291,7 @@ public class OracleDatabaseQueryViewProvider : IDatabaseViewProvider
                 columnType,
                 isNullable,
                 Option<DatabaseDefaultValue>.None,
-                Option<IAutoIncrement>.None,
-                false,
-                Option<string>.None,
-                ComputedColumnStorage.Unknown,
+                new ColumnValueSource.Stored(),
                 isHidden);
 
             result.Add(column);

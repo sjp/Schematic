@@ -437,8 +437,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(column.IsComputed, Is.True);
-            Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(definition));
+            Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
+            Assert.That(column.ValueSource.UnwrapComputed().Definition.UnwrapSome(), Is.EqualTo(definition));
         }
     }
 
@@ -454,8 +454,8 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(column.IsComputed, Is.True);
-            Assert.That(column.ComputedDefinition.IsNone, Is.True);
+            Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
+            Assert.That(column.ValueSource.UnwrapComputed().Definition.IsNone, Is.True);
         }
     }
 
@@ -471,7 +471,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var tables = await importedDb.GetAllTables();
         var column = tables.Single().Columns.Single(c => c.Name.LocalName == "test_computed_column");
 
-        Assert.That(column.ComputedStorage, Is.EqualTo(storage));
+        Assert.That(column.ValueSource.UnwrapComputed().Storage, Is.EqualTo(storage));
     }
 
     [Test]
@@ -1008,7 +1008,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
         var importedDb = await RoundTripAsync(db);
 
         var tables = await importedDb.GetAllTables();
-        var autoIncrement = tables.Single().Columns.Single().AutoIncrement.UnwrapSome();
+        var autoIncrement = tables.Single().Columns.Single().ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -1559,7 +1559,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var table = new RelationalDatabaseTable(
             "test_table_name",
@@ -1621,7 +1621,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
     private static IRelationalDatabase CreateColumnTypeDatabase(IDbType columnType)
     {
-        var column = new DatabaseColumn("test_column_name", columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column_name", columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var table = new RelationalDatabaseTable(
             "test_table_name",
@@ -1667,11 +1667,11 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var columns = new List<IDatabaseColumn>
         {
             firstNameColumn,
-            new DatabaseColumn("test_computed_column", columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, definition, storage),
+            new DatabaseColumn("test_computed_column", columnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Computed(definition, storage)),
         };
 
         var table = new RelationalDatabaseTable(
@@ -1701,7 +1701,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
 
     private static IRelationalDatabase CreateUserDefinedTypesDatabase()
     {
-        static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var userDefinedTypes = new DatabaseUserDefinedType[]
         {
@@ -1777,7 +1777,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             ("sequence_column", new DatabaseDefaultValue.SequenceNextValue("(next value for [dbo].[test_seq])", Option<Identifier>.None, Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier("dbo", "test_seq")))),
         };
         var columns = defaults
-            .Select(d => (IDatabaseColumn)new DatabaseColumn(d.ColumnName, columnType, true, Option<DatabaseDefaultValue>.Some(d.Default), Option<IAutoIncrement>.None))
+            .Select(d => (IDatabaseColumn)new DatabaseColumn(d.ColumnName, columnType, true, Option<DatabaseDefaultValue>.Some(d.Default), new ColumnValueSource.Stored()))
             .ToList();
 
         var table = new RelationalDatabaseTable(
@@ -1818,7 +1818,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var primaryKey = hasPrimaryKey
             ? Option<DatabaseKey.Primary>.Some(new DatabaseKey.Primary(
@@ -1869,7 +1869,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_pk_name"),
@@ -1947,7 +1947,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var detailedTrigger = new DatabaseTrigger(
             "test_detailed_trigger",
@@ -2006,7 +2006,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var index = new DatabaseIndex(
             "test_index_name",
@@ -2088,7 +2088,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             Option<Identifier>.None
         );
 
-        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var firstNameColumn = new DatabaseColumn("first_name", columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var index = new DatabaseIndex(
             "test_index_name",
@@ -2265,7 +2265,7 @@ internal sealed class JsonRelationalDatabaseSerializerTests : SakilaTest
             columnType,
             false,
             Option<DatabaseDefaultValue>.None,
-            Option<IAutoIncrement>.Some(autoIncrement)
+            new ColumnValueSource.Generated(autoIncrement)
         );
 
         var table = new RelationalDatabaseTable(

@@ -193,13 +193,13 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
     public async Task GetUserDefinedType_ForTableTypeWithIdentityAttribute_ReturnsSeedAndIncrement()
     {
         var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Table>("db_test_udt_table_1");
-        var autoIncrement = type.Columns[0].AutoIncrement.UnwrapSome();
+        var autoIncrement = type.Columns[0].ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
             Assert.That(autoIncrement.InitialValue, Is.EqualTo(2));
             Assert.That(autoIncrement.Increment, Is.EqualTo(3));
-            Assert.That(type.Columns[1].AutoIncrement, OptionIs.None);
+            Assert.That(type.Columns[1].ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
         }
     }
 
@@ -207,7 +207,7 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
     public async Task GetUserDefinedType_ForTableTypeWithIdentitySeedBeyondBigint_ReturnsSeedAndIncrement()
     {
         var type = await GetUserDefinedTypeAsync<DatabaseUserDefinedType.Table>("db_test_udt_table_2");
-        var autoIncrement = type.Columns[0].AutoIncrement.UnwrapSome();
+        var autoIncrement = type.Columns[0].ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -221,7 +221,7 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
     {
         var types = await TypeProvider.GetAllUserDefinedTypes(TestContext.CurrentContext.CancellationToken);
         var tableType = AsCase<DatabaseUserDefinedType.Table>(types.First(static t => string.Equals(t.Name.LocalName, "db_test_udt_table_2", StringComparison.Ordinal)));
-        var autoIncrement = tableType.Columns[0].AutoIncrement.UnwrapSome();
+        var autoIncrement = tableType.Columns[0].ValueSource.UnwrapIdentity();
 
         Assert.That(autoIncrement.InitialValue, Is.EqualTo(10000000000000000000m));
     }
@@ -234,10 +234,10 @@ internal sealed class SqlServerDatabaseUserDefinedTypeProviderTests : SqlServerT
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(computedAttribute.IsComputed, Is.True);
-            Assert.That(computedAttribute.ComputedDefinition.UnwrapSome(), Does.Contain("attr_one"));
-            Assert.That(computedAttribute.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
-            Assert.That(type.Columns[0].IsComputed, Is.False);
+            Assert.That(computedAttribute.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
+            Assert.That(computedAttribute.ValueSource.UnwrapComputed().Definition.UnwrapSome(), Does.Contain("attr_one"));
+            Assert.That(computedAttribute.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Virtual));
+            Assert.That(type.Columns[0].ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Computed>());
         }
     }
 

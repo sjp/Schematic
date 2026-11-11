@@ -455,7 +455,7 @@ public class SqliteDatabaseViewProvider : IDatabaseViewProvider
                 ? Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(tableInfo.dflt_value))
                 : Option<DatabaseDefaultValue>.None;
 
-            var column = new DatabaseColumn(columnName, columnType, !tableInfo.notnull, defaultValue, Option<IAutoIncrement>.None);
+            var column = new DatabaseColumn(columnName, columnType, !tableInfo.notnull, defaultValue, new ColumnValueSource.Stored());
             result.Add(column);
         }
 

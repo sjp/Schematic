@@ -985,25 +985,32 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                 var columnType = Dialect.TypeProvider.CreateColumnType(typeMetadata);
 
                 var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-                // MySQL exposes no per-column start or increment: the starting value is a table
-                // option that moves as rows are inserted, and the step is the server-wide
-                // auto_increment_increment variable. Both are server state rather than schema, so
-                // the sequence is described by its defaults of 1 and 1.
-                var isAutoIncrement = row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true;
-                var autoIncrement = isAutoIncrement
-                    ? Option<IAutoIncrement>.Some(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None))
-                    : Option<IAutoIncrement>.None;
-                var isComputed = !row.ComputedColumnDefinition.IsNullOrWhiteSpace();
                 var isNullable = !string.Equals(row.IsNullable, Constants.No, StringComparison.OrdinalIgnoreCase);
                 var defaultValue = MySqlDefaultValueParser.Parse(row.DefaultValue, row.ExtraInformation, features.IsMariaDb);
-                var computedColumnDefinition = isComputed
-                    ? Option<string>.Some(row.ComputedColumnDefinition!)
-                    : Option<string>.None;
 
-                // 'extra' spells out how a generated column is kept, e.g. 'STORED GENERATED'.
-                var computedStorage = row.ExtraInformation?.Contains(Constants.StoredGenerated, StringComparison.OrdinalIgnoreCase) == true
-                    ? ComputedColumnStorage.Stored
-                    : ComputedColumnStorage.Virtual;
+                // MySQL and MariaDB both reject AUTO_INCREMENT on a generated column, so a column is
+                // never both.
+                ColumnValueSource valueSource;
+                if (!row.ComputedColumnDefinition.IsNullOrWhiteSpace())
+                {
+                    // 'extra' spells out how a generated column is kept, e.g. 'STORED GENERATED'.
+                    var computedStorage = row.ExtraInformation?.Contains(Constants.StoredGenerated, StringComparison.OrdinalIgnoreCase) == true
+                        ? ComputedColumnStorage.Stored
+                        : ComputedColumnStorage.Virtual;
+                    valueSource = new ColumnValueSource.Computed(Option<string>.Some(row.ComputedColumnDefinition!), computedStorage);
+                }
+                else if (row.ExtraInformation?.Contains(Constants.AutoIncrement, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    // MySQL exposes no per-column start or increment: the starting value is a table
+                    // option that moves as rows are inserted, and the step is the server-wide
+                    // auto_increment_increment variable. Both are server state rather than schema, so
+                    // the sequence is described by its defaults of 1 and 1.
+                    valueSource = new ColumnValueSource.Generated(new AutoIncrement(1, 1, IdentityGeneration.ByDefault, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None));
+                }
+                else
+                {
+                    valueSource = new ColumnValueSource.Stored();
+                }
 
                 // MySQL 8.0.23 and later report a column declared INVISIBLE in 'extra' as well.
                 var isHidden = row.ExtraInformation?.Contains(Constants.Invisible, StringComparison.OrdinalIgnoreCase) == true;
@@ -1013,10 +1020,7 @@ public class MySqlRelationalDatabaseTableProvider : IRelationalDatabaseTableProv
                     columnType,
                     isNullable,
                     defaultValue,
-                    autoIncrement,
-                    isComputed,
-                    computedColumnDefinition,
-                    computedStorage,
+                    valueSource,
                     isHidden);
             })
             .ToListAsync(cancellationToken);

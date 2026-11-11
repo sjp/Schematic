@@ -484,7 +484,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
             attributes.Add(requiredAttribute);
         }
 
-        column.AutoIncrement.IfSome(_ =>
+        if (column.ValueSource is ColumnValueSource.Generated)
         {
             var databaseGeneratedAttribute = AttributeList(
                 SingletonSeparatedList(
@@ -498,7 +498,7 @@ public class EFCoreTableGenerator : DatabaseTableGenerator
                                         IdentifierName(nameof(DatabaseGeneratedOption)),
                                         IdentifierName(nameof(DatabaseGeneratedOption.Identity)))))))));
             attributes.Add(databaseGeneratedAttribute);
-        });
+        }
 
         var columnAttributeArgs = new List<AttributeArgumentSyntax>();
         if (!string.Equals(propertyName, column.Name.LocalName, StringComparison.Ordinal))

@@ -63,7 +63,7 @@ public class AutoIncrementColumnNotInKeyRule : Rule, ITableRule
         var result = new List<IRuleMessage>();
         foreach (var column in table.Columns)
         {
-            if (column.AutoIncrement.IsNone)
+            if (column.ValueSource is not ColumnValueSource.Generated)
                 continue;
             if (keyColumnNames.Contains(column.Name.LocalName))
                 continue;

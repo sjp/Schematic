@@ -15,8 +15,8 @@ internal static class ViewModelMapperTests
         var moodName = Identifier.CreateQualifiedIdentifier("test_schema", "mood");
         IDatabaseColumn[] columns =
         [
-            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
-            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()),
+            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()),
         ];
         var view = new DatabaseView(
             Identifier.CreateQualifiedIdentifier("test_schema", "person_moods"),

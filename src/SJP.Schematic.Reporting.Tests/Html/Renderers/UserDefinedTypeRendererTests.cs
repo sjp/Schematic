@@ -61,7 +61,7 @@ internal static class UserDefinedTypeRendererTests
     [Test]
     public static async Task RenderAsync_GivenCompositeType_WritesAttributesToTheDetailFile()
     {
-        var attribute = new DatabaseColumn(new Identifier("attr_one"), TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var attribute = new DatabaseColumn(new Identifier("attr_one"), TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var userDefinedType = new DatabaseUserDefinedType.Composite(
             new Identifier("test_type"),
             [attribute],

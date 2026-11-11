@@ -23,7 +23,7 @@ internal static class DatabaseUserDefinedTypeMapperTests
         Option<INumericPrecision>.None,
         Option<Identifier>.None);
 
-    private static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, VarcharType, false, Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Literal("'x'")), Option<IAutoIncrement>.None);
+    private static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, VarcharType, false, Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Literal("'x'")), new ColumnValueSource.Stored());
 
     private static IDatabaseCheckConstraint CreateCheck(string checkName) => new DatabaseCheckConstraint(Option<Identifier>.Some(checkName), "([value] > 0)", true);
 

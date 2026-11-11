@@ -28,15 +28,22 @@ public class DatabaseColumnMapper
         var defaultValue = optionalMapper.Map(source.DefaultValue)
             .Map(def => MapDefaultValue(source, def, optionalIdentifierMapper));
 
+        // No database lets a column be both computed and an identity, so a document that says both
+        // was not written from one. The computed expression is what produces the column's values,
+        // so it is kept, and the identity is dropped.
+        ColumnValueSource valueSource = source.IsComputed
+            ? new ColumnValueSource.Computed(optionalMapper.Map(source.Definition), source.ComputedStorage)
+            : autoIncrMapper.Map(source.AutoIncrement).Match<ColumnValueSource>(
+                static identity => new ColumnValueSource.Generated(identity),
+                static () => new ColumnValueSource.Stored()
+            );
+
         return new DatabaseColumn(
             identifierMapper.Map(source.ColumnName),
             dbTypeMapper.Map(source.Type),
             source.IsNullable,
             defaultValue,
-            autoIncrMapper.Map(source.AutoIncrement),
-            source.IsComputed,
-            optionalMapper.Map(source.Definition),
-            source.ComputedStorage,
+            valueSource,
             source.IsHidden
         );
     }
@@ -85,6 +92,15 @@ public class DatabaseColumnMapper
             static () => (Dto.DefaultValueKind.Unknown, Option<Identifier>.None)
         );
 
+        // The document keeps the members it has always had, which a stored column leaves empty:
+        // not computed, with no definition, an unknown storage and no identity.
+        var (isComputed, computedDefinition, computedStorage, autoIncrement) = source.ValueSource switch
+        {
+            ColumnValueSource.Stored => (false, Option<string>.None, ComputedColumnStorage.Unknown, Option<IAutoIncrement>.None),
+            ColumnValueSource.Computed computed => (true, computed.Definition, computed.Storage, Option<IAutoIncrement>.None),
+            ColumnValueSource.Generated generated => (false, Option<string>.None, ComputedColumnStorage.Unknown, Option<IAutoIncrement>.Some(generated.Identity)),
+        };
+
         var result = new Dto.DatabaseColumn
         {
             ColumnName = identifierMapper.Map(source.Name),
@@ -94,11 +110,11 @@ public class DatabaseColumnMapper
             DefaultConstraintName = optionalIdentifierMapper.Map(source.Default.Bind(static def => def.ConstraintName)),
             DefaultValueKind = defaultValueKind,
             DefaultSequenceName = optionalIdentifierMapper.Map(defaultSequenceName),
-            AutoIncrement = autoIncrMapper.Map(source.AutoIncrement),
-            IsComputed = source.IsComputed,
+            AutoIncrement = autoIncrMapper.Map(autoIncrement),
+            IsComputed = isComputed,
             IsHidden = source.IsHidden,
-            Definition = optionalMapper.Map(source.ComputedDefinition),
-            ComputedStorage = source.ComputedStorage,
+            Definition = optionalMapper.Map(computedDefinition),
+            ComputedStorage = computedStorage,
         };
 
         cache.Columns.Add(source, result);

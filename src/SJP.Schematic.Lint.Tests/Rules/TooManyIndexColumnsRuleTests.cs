@@ -16,7 +16,7 @@ internal static class TooManyIndexColumnsRuleTests
         var indexColumns = Enumerable.Range(1, columnCount)
             .Select(i =>
             {
-                var column = new DatabaseColumn("col_" + i.ToString(), Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
+                var column = new DatabaseColumn("col_" + i.ToString(), Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
                 return (IDatabaseIndexColumn)new DatabaseIndexColumn("col_" + i.ToString(), column, IndexColumnOrder.Ascending);
             })
             .ToList();

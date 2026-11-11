@@ -69,7 +69,7 @@ internal static class CandidateKeyMissingRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),

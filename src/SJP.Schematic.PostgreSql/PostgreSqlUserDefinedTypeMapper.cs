@@ -108,7 +108,7 @@ internal static class PostgreSqlUserDefinedTypeMapper
                 typeProvider.CreateColumnType(typeMetadata),
                 isNullable,
                 defaultValue,
-                Option<IAutoIncrement>.None);
+                new ColumnValueSource.Stored());
         }).ToList();
     }
 

@@ -25,7 +25,7 @@ internal static class DatabaseColumnMapperTests
     public static void Map_GivenColumnWithoutDefault_RoundTrips()
     {
         var mapper = new DatabaseColumnMapper();
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var result = mapper.Map(mapper.Map(column));
 
@@ -37,7 +37,7 @@ internal static class DatabaseColumnMapperTests
     {
         var mapper = new DatabaseColumnMapper();
         var defaultValue = new DatabaseDefaultValue.Literal("((0))", Option<Identifier>.Some("df_test_column"));
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), new ColumnValueSource.Stored());
 
         var result = mapper.Map(mapper.Map(column)).Default.UnwrapSome();
 
@@ -59,7 +59,7 @@ internal static class DatabaseColumnMapperTests
             Option<Identifier>.None,
             Option<Identifier>.Some(sequenceName)
         );
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), new ColumnValueSource.Stored());
 
         var result = mapper.Map(mapper.Map(column)).Default.UnwrapSome();
 
@@ -107,7 +107,7 @@ internal static class DatabaseColumnMapperTests
     public static void Map_GivenDefaultOfEachKind_WritesKindAndDefinition(DatabaseDefaultValue defaultValue, Dto.DefaultValueKind expectedKind)
     {
         var mapper = new DatabaseColumnMapper();
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), new ColumnValueSource.Stored());
 
         var result = mapper.Map(column);
 
@@ -123,7 +123,7 @@ internal static class DatabaseColumnMapperTests
     public static void Map_GivenColumnWithoutDefault_WritesUnknownKindAndNoDefault()
     {
         var mapper = new DatabaseColumnMapper();
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var result = mapper.Map(column);
 
@@ -145,7 +145,7 @@ internal static class DatabaseColumnMapperTests
             Option<Identifier>.None,
             Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier("test_schema", "test_seq"))
         );
-        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), new ColumnValueSource.Stored());
 
         var result = mapper.Map(column);
 
@@ -254,10 +254,7 @@ internal static class DatabaseColumnMapperTests
             ColumnType,
             true,
             Option<DatabaseDefaultValue>.None,
-            Option<IAutoIncrement>.None,
-            false,
-            Option<string>.None,
-            ComputedColumnStorage.Unknown,
+            new ColumnValueSource.Stored(),
             isHidden
         );
 

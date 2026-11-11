@@ -38,7 +38,7 @@ internal static class OracleUserDefinedTypeMapperTests
     [Test]
     public static void MapType_GivenObjectTypeRow_ReturnsCompositeWithAttributesAndSpecification()
     {
-        var attribute = new DatabaseColumn("ATTR", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var attribute = new DatabaseColumn("ATTR", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var composite = MapType<DatabaseUserDefinedType.Composite>(CreateRow("OBJECT"), [attribute]);
 

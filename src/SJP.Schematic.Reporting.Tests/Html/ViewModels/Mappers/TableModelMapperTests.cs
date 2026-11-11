@@ -21,8 +21,8 @@ internal static class TableModelMapperTests
         var moodName = Identifier.CreateQualifiedIdentifier("test_schema", "mood");
         IDatabaseColumn[] columns =
         [
-            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
-            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("id", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()),
+            new DatabaseColumn("current_mood", UserDefinedDbTypes.Named(moodName), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()),
         ];
         var table = new RelationalDatabaseTable(OrdersName, columns, Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
 
@@ -129,6 +129,6 @@ internal static class TableModelMapperTests
 
     private static IReadOnlyList<IDatabaseColumn> CreateColumns(params string[] names)
     {
-        return names.Select(static name => (IDatabaseColumn)new DatabaseColumn(name, TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null)).ToList();
+        return names.Select(static name => (IDatabaseColumn)new DatabaseColumn(name, TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored())).ToList();
     }
 }

@@ -60,7 +60,7 @@ internal static class SqlServerUserDefinedTypeMapperTests
     [Test]
     public static void MapType_GivenTableTypeRow_ReturnsTableWithColumnsAndChecks()
     {
-        var column = new DatabaseColumn("col", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn("col", TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var check = new DatabaseCheckConstraint(Option<Identifier>.Some("ck_test"), "([col] > (0))", true);
 
         var table = MapType<DatabaseUserDefinedType.Table>(CreateRow(isTableType: true), [column], [check]);

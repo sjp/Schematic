@@ -40,7 +40,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var testColumn2 = new DatabaseColumn(
@@ -48,7 +48,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var testColumn3 = new DatabaseColumn(
@@ -56,7 +56,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
             Mock.Of<IDbType>(),
             true,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var table = new RelationalDatabaseTable(
@@ -87,7 +87,7 @@ internal static class NoNonNullableColumnsPresentRuleTests
             Mock.Of<IDbType>(),
             true,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var table = new RelationalDatabaseTable(

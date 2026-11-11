@@ -9,7 +9,7 @@ namespace SJP.Schematic.Core.Tests;
 
 internal static class DatabaseUserDefinedTypeTests
 {
-    private static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+    private static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
     private static IDatabaseCheckConstraint CreateCheck() => new DatabaseCheckConstraint(Option<Identifier>.Some("ck_test"), "([value] > 0)", true);
 

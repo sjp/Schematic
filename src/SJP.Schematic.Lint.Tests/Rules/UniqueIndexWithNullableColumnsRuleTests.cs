@@ -57,7 +57,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var index = new DatabaseIndex(
@@ -97,7 +97,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var uniqueIndex = new DatabaseIndex(
@@ -137,7 +137,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
             Mock.Of<IDbType>(),
             true,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var uniqueIndex = new DatabaseIndex(

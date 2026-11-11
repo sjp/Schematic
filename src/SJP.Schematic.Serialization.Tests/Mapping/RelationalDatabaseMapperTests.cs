@@ -113,7 +113,7 @@ internal static class RelationalDatabaseMapperTests
     private static IRelationalDatabase CreateParentChildDatabase(string parentTableName, string childTableName)
     {
         var columnType = new ColumnDataType("int", DataType.Integer, "int", typeof(int), false, 4, Option<INumericPrecision>.None, Option<Identifier>.None);
-        IDatabaseColumn CreateColumn(string name) => new DatabaseColumn(name, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        IDatabaseColumn CreateColumn(string name) => new DatabaseColumn(name, columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var parentId = CreateColumn("id");
         var parentIndex = new DatabaseIndex("parent_pk_index", true, [new DatabaseIndexColumn("id", parentId, IndexColumnOrder.Ascending)], [], true, Option<string>.None);

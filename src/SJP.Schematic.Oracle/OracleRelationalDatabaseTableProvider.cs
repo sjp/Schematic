@@ -905,24 +905,25 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             // the system-generated hidden columns that back function-based indexes and object types
             var isHidden = string.Equals(row.IsHidden, Constants.Yes, StringComparison.Ordinal);
             var columnName = Identifier.CreateQualifiedIdentifier(row.ColumnName);
-            var computedColumnDefinition = isComputed && !row.DefaultValue.IsNullOrWhiteSpace()
-                ? Option<string>.Some(row.DefaultValue)
-                : Option<string>.None;
             // DATA_DEFAULT holds a virtual column's expression; Oracle allows no default on one
             var defaultValue = isComputed
                 ? Option<DatabaseDefaultValue>.None
                 : OracleDefaultValueParser.Parse(row.DefaultValue);
 
-            // Oracle evaluates a virtual column whenever it is read, so it is never stored.
+            // Oracle evaluates a virtual column whenever it is read, so it is never stored. A
+            // virtual column cannot be an identity column.
+            var valueSource = isComputed
+                ? new ColumnValueSource.Computed(
+                    !row.DefaultValue.IsNullOrWhiteSpace() ? Option<string>.Some(row.DefaultValue) : Option<string>.None,
+                    ComputedColumnStorage.Virtual)
+                : BuildValueSource(row, tableName);
+
             var column = new OracleDatabaseColumn(
                 columnName,
                 columnType,
                 isNullable,
                 defaultValue,
-                isComputed ? Option<IAutoIncrement>.None : BuildAutoIncrement(row, tableName),
-                isComputed,
-                computedColumnDefinition,
-                ComputedColumnStorage.Virtual,
+                valueSource,
                 isHidden);
 
             result.Add(column);
@@ -931,10 +932,10 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
         return result;
     }
 
-    private static Option<IAutoIncrement> BuildAutoIncrement(GetTableColumns.Result row, Identifier tableName)
+    private static ColumnValueSource BuildValueSource(GetTableColumns.Result row, Identifier tableName)
     {
         if (!string.Equals(row.IsIdentity, Constants.Yes, StringComparison.Ordinal))
-            return Option<IAutoIncrement>.None;
+            return new ColumnValueSource.Stored();
 
         var options = ParseIdentityOptions(row.IdentityOptions);
 
@@ -950,7 +951,7 @@ public class OracleRelationalDatabaseTableProvider : IRelationalDatabaseTablePro
             ? Option<Identifier>.Some(Identifier.CreateQualifiedIdentifier(tableName.Schema, row.SequenceName))
             : Option<Identifier>.None;
 
-        return Option<IAutoIncrement>.Some(new AutoIncrement(
+        return new ColumnValueSource.Generated(new AutoIncrement(
             GetIdentityOption(options, Constants.StartWith).IfNone(1),
             GetIdentityOption(options, Constants.IncrementBy).Match(static incr => incr != 0 ? incr : 1, static () => 1),
             generation,

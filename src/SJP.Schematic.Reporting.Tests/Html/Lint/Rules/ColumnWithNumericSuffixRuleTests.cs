@@ -43,7 +43,7 @@ internal static class ColumnWithNumericSuffixRuleTests
             Mock.Of<IDbType>(),
             true,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var table = new RelationalDatabaseTable(
@@ -77,7 +77,7 @@ internal static class ColumnWithNumericSuffixRuleTests
             Mock.Of<IDbType>(),
             true,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var table = new RelationalDatabaseTable(

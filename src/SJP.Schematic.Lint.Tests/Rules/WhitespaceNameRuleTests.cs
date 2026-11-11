@@ -111,7 +111,7 @@ internal static class WhitespaceNameRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var table = new RelationalDatabaseTable(
@@ -142,7 +142,7 @@ internal static class WhitespaceNameRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var table = new RelationalDatabaseTable(
@@ -210,7 +210,7 @@ internal static class WhitespaceNameRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var view = new DatabaseView(
@@ -236,7 +236,7 @@ internal static class WhitespaceNameRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
 
         var view = new DatabaseView(
@@ -360,7 +360,7 @@ internal static class WhitespaceNameRuleTests
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var testIndex = new DatabaseIndex(
             "test_index",
             false,
@@ -393,7 +393,7 @@ internal static class WhitespaceNameRuleTests
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var testIndex = new DatabaseIndex(
             "test name",
             false,
@@ -426,7 +426,7 @@ internal static class WhitespaceNameRuleTests
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test name"),
             [testColumn],
@@ -456,7 +456,7 @@ internal static class WhitespaceNameRuleTests
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var primaryKey = new DatabaseKey.Primary(
             Option<Identifier>.None,
             [testColumn],
@@ -486,7 +486,7 @@ internal static class WhitespaceNameRuleTests
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var uniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test name"),
             [testColumn],
@@ -516,7 +516,7 @@ internal static class WhitespaceNameRuleTests
     {
         var rule = new WhitespaceNameRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
         var childKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test name"),
             [testColumn],

@@ -598,7 +598,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<Identifier>.None
         );
 
-        var column = new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.Some(defaultValue), Option<IAutoIncrement>.None);
+        var column = new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.Some(defaultValue), new ColumnValueSource.Stored());
 
         return new RelationalDatabaseTable("address", [column], Option<DatabaseKey.Primary>.None, [], [], [], [], [], []);
     }
@@ -619,7 +619,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<Identifier>.None
         );
 
-        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None);
+        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
     }
 
     private static IDatabaseColumn CreateComputedColumn(Identifier columnName, ComputedColumnStorage storage)
@@ -635,7 +635,7 @@ internal static class EFCoreDbContextBuilderTests
             Option<Identifier>.None
         );
 
-        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.None, true, Option<string>.Some("1 + 1"), storage);
+        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Computed(Option<string>.Some("1 + 1"), storage));
     }
 
     private static IDatabaseColumn CreateIdentityColumn(Identifier columnName, IdentityGeneration generation)
@@ -653,7 +653,7 @@ internal static class EFCoreDbContextBuilderTests
 
         var autoIncrement = new AutoIncrement(1, 1, generation, Option<decimal>.None, Option<decimal>.None, false, Option<Identifier>.None);
 
-        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, Option<IAutoIncrement>.Some(autoIncrement));
+        return new DatabaseColumn(columnName, columnType, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Generated(autoIncrement));
     }
 
     private static IDatabaseRelationalKey CreateRelationalKey(Identifier childTableName, Identifier childKeyName, IDatabaseColumn childColumn, Identifier parentTableName, CandidateKey parentKey) =>

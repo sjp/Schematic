@@ -75,7 +75,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.IsComputed, Is.False);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Computed>());
     }
 
     [Test]
@@ -85,7 +85,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -95,7 +95,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement, OptionIs.Some);
+        Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -105,7 +105,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(1));
+        Assert.That(column.ValueSource.UnwrapIdentity().InitialValue, Is.EqualTo(1));
     }
 
     [Test]
@@ -115,7 +115,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(1));
+        Assert.That(column.ValueSource.UnwrapIdentity().Increment, Is.EqualTo(1));
     }
 
     [Test]
@@ -125,7 +125,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement, OptionIs.Some);
+        Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -135,7 +135,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement.UnwrapSome().InitialValue, Is.EqualTo(123));
+        Assert.That(column.ValueSource.UnwrapIdentity().InitialValue, Is.EqualTo(123));
     }
 
     [Test]
@@ -145,7 +145,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.AutoIncrement.UnwrapSome().Increment, Is.EqualTo(456));
+        Assert.That(column.ValueSource.UnwrapIdentity().Increment, Is.EqualTo(456));
     }
 
     [Test]
@@ -154,7 +154,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_35";
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
-        var autoIncrement = column.AutoIncrement.UnwrapSome();
+        var autoIncrement = column.ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -170,7 +170,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_36";
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
-        var autoIncrement = column.AutoIncrement.UnwrapSome();
+        var autoIncrement = column.ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -186,7 +186,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_43";
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
-        var autoIncrement = column.AutoIncrement.UnwrapSome();
+        var autoIncrement = column.ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -205,7 +205,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_45";
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
-        var autoIncrement = column.AutoIncrement.UnwrapSome();
+        var autoIncrement = column.ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -220,7 +220,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     {
         const string tableName = "table_test_table_1";
         var table = await GetTableAsync(tableName);
-        var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
+        var computedColumns = table.Columns.Where(c => c.ValueSource is ColumnValueSource.Computed).ToList();
 
         Assert.That(computedColumns, Is.Empty);
     }
@@ -230,7 +230,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     {
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName);
-        var computedColumns = table.Columns.Where(c => c.IsComputed).ToList();
+        var computedColumns = table.Columns.Where(c => c.ValueSource is ColumnValueSource.Computed).ToList();
 
         Assert.That(computedColumns, Has.Exactly(1).Items);
     }
@@ -241,7 +241,7 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_37";
         const string expectedColumnName = "test_column_2";
         var table = await GetTableAsync(tableName);
-        var computedColumn = table.Columns.Single(c => c.IsComputed);
+        var computedColumn = table.Columns.Single(c => c.ValueSource is ColumnValueSource.Computed);
 
         Assert.That(computedColumn.Name.LocalName, Is.EqualTo(expectedColumnName));
     }
@@ -379,9 +379,9 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
         const string tableName = "table_test_table_37";
         const string expectedDefinition = "(test_column_1 * 2)";
         var table = await GetTableAsync(tableName);
-        var computedColumn = table.Columns.Single(c => c.IsComputed);
+        var computedColumn = table.Columns.Single(c => c.ValueSource is ColumnValueSource.Computed);
 
-        Assert.That(computedColumn.ComputedDefinition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+        Assert.That(computedColumn.ValueSource.UnwrapComputed().Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
     }
 
     [Test]
@@ -389,8 +389,8 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
     {
         const string tableName = "table_test_table_37";
         var table = await GetTableAsync(tableName);
-        var computedColumn = table.Columns.Single(c => c.IsComputed);
+        var computedColumn = table.Columns.Single(c => c.ValueSource is ColumnValueSource.Computed);
 
-        Assert.That(computedColumn.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Stored));
+        Assert.That(computedColumn.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Stored));
     }
 }

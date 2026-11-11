@@ -120,7 +120,7 @@ internal static class NoIndexesPresentOnTableRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testUniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test_unique_key"),

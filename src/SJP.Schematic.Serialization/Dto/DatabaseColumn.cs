@@ -93,6 +93,10 @@ public sealed record DatabaseColumn
     /// <summary>
     /// The auto-incrementing sequence attached to the column, if any.
     /// </summary>
+    /// <remarks>
+    /// A column is never both computed and an identity, so this is not read back when
+    /// <see cref="IsComputed"/> is <see langword="true"/>.
+    /// </remarks>
     public AutoIncrement? AutoIncrement { get; init; }
 
     /// <summary>

@@ -13,7 +13,7 @@ internal static class NullableBooleanColumnRuleTests
     private static DatabaseColumn CreateColumn(string name, DataType dataType, bool isNullable)
     {
         var dbType = Mock.Of<IDbType>(t => t.DataType == dataType);
-        return new DatabaseColumn(name, dbType, isNullable, Option<DatabaseDefaultValue>.None, null);
+        return new DatabaseColumn(name, dbType, isNullable, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
     }
 
     private static IRelationalDatabaseTable CreateTable(IDatabaseColumn column)

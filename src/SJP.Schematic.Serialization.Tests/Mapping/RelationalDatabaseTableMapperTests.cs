@@ -16,7 +16,7 @@ internal static class RelationalDatabaseTableMapperTests
             new ColumnDataType("int", DataType.Integer, "int", typeof(int), false, 4, Option<INumericPrecision>.None, Option<Identifier>.None),
             false,
             Option<DatabaseDefaultValue>.None,
-            Option<IAutoIncrement>.None
+            new ColumnValueSource.Stored()
         );
     }
 

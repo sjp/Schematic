@@ -19,7 +19,7 @@ internal static class ForeignKeySetDefaultReferentialActionRuleTests
             Mock.Of<IDbType>(),
             true,
             defaultValue != null ? Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown(defaultValue)) : Option<DatabaseDefaultValue>.None,
-            null);
+            new ColumnValueSource.Stored());
     }
 
     private static IRelationalDatabaseTable CreateChildTable(Identifier childTableName, IDatabaseColumn childColumn, ReferentialAction deleteAction, ReferentialAction updateAction)

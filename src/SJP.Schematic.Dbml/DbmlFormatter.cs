@@ -138,7 +138,7 @@ public class DbmlFormatter : IDbmlFormatter
             .Append(" [")
             .Append(column.IsNullable ? "null" : "not null");
 
-        if (column.AutoIncrement.IsSome)
+        if (column.ValueSource is ColumnValueSource.Generated)
             builder.Append(", increment");
 
         if (ColumnIsPrimaryKey(table, column))
@@ -149,22 +149,22 @@ public class DbmlFormatter : IDbmlFormatter
         column.Default.IfSome(def => builder.Append(", default: ").Append(def.ToDbmlDefaultValue()));
 
         // DBML has no computed column syntax, so the expression is preserved as a column note
-        if (column.IsComputed)
-            builder.Append(", note: ").Append(BuildComputedColumnNote(column).ToDbmlStringLiteral());
+        if (column.ValueSource is ColumnValueSource.Computed computed)
+            builder.Append(", note: ").Append(BuildComputedColumnNote(computed).ToDbmlStringLiteral());
 
         builder.AppendLine("]");
     }
 
-    private static string BuildComputedColumnNote(IDatabaseColumn column)
+    private static string BuildComputedColumnNote(ColumnValueSource.Computed computed)
     {
-        var description = column.ComputedStorage switch
+        var description = computed.Storage switch
         {
             ComputedColumnStorage.Stored => "stored computed column",
             ComputedColumnStorage.Virtual => "virtual computed column",
             _ => "computed column"
         };
 
-        return column.ComputedDefinition.Match(def => description + ": " + def, () => description);
+        return computed.Definition.Match(def => description + ": " + def, () => description);
     }
 
     private static void RenderIndexes(StringBuilder builder, IRelationalDatabaseTable table)

@@ -206,13 +206,10 @@ public sealed class Table
             Option<IAutoIncrement> autoIncrement,
             bool isComputed,
             Option<string> computedDefinition,
-            ComputedColumnStorage computedStorage,
+            string computedStorage,
             bool isHidden
         )
         {
-            if (!computedStorage.IsValid())
-                throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
-
             ColumnName = columnName ?? throw new ArgumentNullException(nameof(columnName));
             Ordinal = ordinal;
             IsNullable = isNullable;
@@ -238,7 +235,7 @@ public sealed class Table
 
             IsComputed = isComputed;
             ComputedDefinition = computedDefinition.Match(static def => def ?? string.Empty, static () => string.Empty);
-            ComputedStorage = ComputedColumnStorageNames.GetName(computedStorage);
+            ComputedStorage = computedStorage ?? string.Empty;
 
             IsHidden = isHidden;
         }

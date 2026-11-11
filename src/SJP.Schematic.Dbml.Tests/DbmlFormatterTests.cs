@@ -45,7 +45,7 @@ internal static class DbmlFormatterTests
     {
         var columns = new List<IDatabaseColumn>
         {
-            CreateColumn("first_name", "text", Option<DatabaseDefaultValue>.None, true, Option<IAutoIncrement>.None),
+            CreateColumn("first_name", "text", Option<DatabaseDefaultValue>.None, true, new ColumnValueSource.Stored()),
             CreateColumn("last_name", "text"),
         };
         var table = CreateTable(columns, Option<DatabaseKey.Primary>.None, [], []);
@@ -58,7 +58,7 @@ internal static class DbmlFormatterTests
     [Test]
     public static void RenderTables_GivenAutoIncrementPrimaryKeyColumnWithDefault_RendersAllColumnOptions()
     {
-        var autoIncrement = Option<IAutoIncrement>.Some(new AutoIncrement(1, 1));
+        var autoIncrement = new ColumnValueSource.Generated(new AutoIncrement(1, 1));
         var column = CreateColumn("id", "text", Option<DatabaseDefaultValue>.Some(new DatabaseDefaultValue.Unknown("0")), false, autoIncrement);
         var primaryKey = new DatabaseKey.Primary(Option<Identifier>.Some("test_table_pk"), [column], true);
         var table = CreateTable([column], primaryKey, [], []);
@@ -651,14 +651,14 @@ internal static class DbmlFormatterTests
         => CreateColumn(columnName, typeDefinition, Option<DatabaseDefaultValue>.None);
 
     private static IDatabaseColumn CreateColumn(Identifier columnName, string typeDefinition, Option<DatabaseDefaultValue> defaultValue)
-        => CreateColumn(columnName, typeDefinition, defaultValue, false, Option<IAutoIncrement>.None);
+        => CreateColumn(columnName, typeDefinition, defaultValue, false, new ColumnValueSource.Stored());
 
     private static IDatabaseColumn CreateColumn(
         Identifier columnName,
         string typeDefinition,
         Option<DatabaseDefaultValue> defaultValue,
         bool isNullable,
-        Option<IAutoIncrement> autoIncrement
+        ColumnValueSource valueSource
     )
     {
         var columnType = new ColumnDataType(
@@ -677,7 +677,7 @@ internal static class DbmlFormatterTests
             columnType,
             isNullable,
             defaultValue,
-            autoIncrement
+            valueSource
         );
     }
 
@@ -704,10 +704,7 @@ internal static class DbmlFormatterTests
             columnType,
             false,
             Option<DatabaseDefaultValue>.None,
-            Option<IAutoIncrement>.None,
-            true,
-            computedDefinition,
-            computedStorage
+            new ColumnValueSource.Computed(computedDefinition, computedStorage)
         );
     }
 

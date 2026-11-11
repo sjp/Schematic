@@ -63,7 +63,7 @@ internal static class DisabledObjectsRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testPrimaryKey = new DatabaseKey.Primary(
             Option<Identifier>.Some("test_primary_key"),
@@ -99,7 +99,7 @@ internal static class DisabledObjectsRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testForeignKey = new DatabaseKey.Foreign(
             Option<Identifier>.Some("test_foreign_key"),
@@ -148,7 +148,7 @@ internal static class DisabledObjectsRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testUniqueKey = new DatabaseKey.Unique(
             Option<Identifier>.Some("test_unique_key"),
@@ -184,7 +184,7 @@ internal static class DisabledObjectsRuleTests
             Mock.Of<IDbType>(),
             false,
             Option<DatabaseDefaultValue>.None,
-            null
+            new ColumnValueSource.Stored()
         );
         var testIndex = new DatabaseIndex(
             "test_index",

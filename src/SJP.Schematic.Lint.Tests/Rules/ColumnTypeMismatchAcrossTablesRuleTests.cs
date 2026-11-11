@@ -26,7 +26,7 @@ internal static class ColumnTypeMismatchAcrossTablesRuleTests
             Option<INumericPrecision>.None,
             Option<Identifier>.None
         );
-        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, null);
+        return new DatabaseColumn(name, dbType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
     }
 
     // The base rule renders table names via Identifier.ToString(), whose format is asserted elsewhere.

@@ -88,7 +88,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.IsComputed, Is.False);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Computed>());
     }
 
     [Test]
@@ -98,7 +98,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.IsComputed, Is.True);
+        Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
     }
 
     [Test]
@@ -110,7 +110,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.ComputedDefinition.UnwrapSome(), Is.EqualTo(expectedDefinition));
+        Assert.That(column.ValueSource.UnwrapComputed().Definition.UnwrapSome(), Is.EqualTo(expectedDefinition));
     }
 
     [Test]
@@ -120,7 +120,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns[table.Columns.Count - 1];
 
-        Assert.That(column.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Virtual));
+        Assert.That(column.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Virtual));
     }
 
     [Test]
@@ -140,7 +140,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
         var table = await GetTableAsync(tableName);
         var column = table.Columns.Single();
 
-        Assert.That(column.AutoIncrement, OptionIs.None);
+        Assert.That(column.ValueSource.Value, Is.Not.TypeOf<ColumnValueSource.Generated>());
     }
 
     [Test]
@@ -148,7 +148,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     {
         const string tableName = "TABLE_TEST_TABLE_39";
         var table = await GetTableAsync(tableName);
-        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+        var autoIncrement = table.Columns.Single().ValueSource.UnwrapIdentity();
 
         using (Assert.EnterMultipleScope())
         {
@@ -167,7 +167,7 @@ internal sealed partial class OracleRelationalDatabaseTableProviderTests : Oracl
     {
         const string tableName = "TABLE_TEST_TABLE_40";
         var table = await GetTableAsync(tableName);
-        var autoIncrement = table.Columns.Single().AutoIncrement.UnwrapSome();
+        var autoIncrement = table.Columns.Single().ValueSource.UnwrapIdentity();
 
         Assert.That(autoIncrement.Generation, Is.EqualTo(IdentityGeneration.ByDefaultOnNull));
     }

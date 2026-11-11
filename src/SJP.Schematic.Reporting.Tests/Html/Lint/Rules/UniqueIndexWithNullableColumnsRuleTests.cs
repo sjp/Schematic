@@ -38,7 +38,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
         var rule = new UniqueIndexWithNullableColumnsRule(RuleLevel.Error);
         var tableName = Identifier.CreateQualifiedIdentifier("test_schema", "test_table");
 
-        var testColumn = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var uniqueIndex = new DatabaseIndex(
             "test_index_name",
@@ -75,7 +75,7 @@ internal static class UniqueIndexWithNullableColumnsRuleTests
     {
         var rule = new UniqueIndexWithNullableColumnsRule(RuleLevel.Error);
 
-        var testColumn = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, null);
+        var testColumn = new DatabaseColumn("test_column_1", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
         var uniqueIndex = new DatabaseIndex(
             "test_index_name",

@@ -109,7 +109,7 @@ internal static class UnvalidatedConstraintsRuleTests
         Mock.Of<IDbType>(),
         false,
         Option<DatabaseDefaultValue>.None,
-        null
+        new ColumnValueSource.Stored()
     );
 
     private static DatabaseKey.Primary CreatePrimaryKey(bool isEnabled, bool isValidated)

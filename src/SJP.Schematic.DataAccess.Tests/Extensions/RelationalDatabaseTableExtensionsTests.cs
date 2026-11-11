@@ -129,10 +129,7 @@ internal static class RelationalDatabaseTableExtensionsTests
             columnType,
             false,
             Option<DatabaseDefaultValue>.None,
-            Option<IAutoIncrement>.None,
-            false,
-            Option<string>.None,
-            ComputedColumnStorage.Unknown,
+            new ColumnValueSource.Stored(),
             isHidden
         );
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using EnumsNET;
 using LanguageExt;
 using SJP.Schematic.Core.Utilities;
 
@@ -21,15 +20,15 @@ public class DatabaseColumn : IDatabaseColumn
     /// <param name="type">The column data type.</param>
     /// <param name="isNullable">Whether the column can hold <see langword="null" /> values.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <param name="autoIncrement">The auto-increment definition, if available.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
+    /// <param name="valueSource">Where the values of the column come from.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>, or <paramref name="valueSource"/> is a <see langword="default"/> <see cref="ColumnValueSource"/>.</exception>
     public DatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
         Option<DatabaseDefaultValue> defaultValue,
-        Option<IAutoIncrement> autoIncrement
-    ) : this(columnName, type, isNullable, defaultValue, autoIncrement, false, Option<string>.None, ComputedColumnStorage.Unknown)
+        ColumnValueSource valueSource
+    ) : this(columnName, type, isNullable, defaultValue, valueSource, false)
     {
     }
 
@@ -40,65 +39,29 @@ public class DatabaseColumn : IDatabaseColumn
     /// <param name="type">The column data type.</param>
     /// <param name="isNullable">Whether the column can hold <see langword="null" /> values.</param>
     /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <param name="autoIncrement">The auto-increment definition, if available.</param>
-    /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
-    /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
-    /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
-    public DatabaseColumn(
-        Identifier columnName,
-        IDbType type,
-        bool isNullable,
-        Option<DatabaseDefaultValue> defaultValue,
-        Option<IAutoIncrement> autoIncrement,
-        bool isComputed,
-        Option<string> computedDefinition,
-        ComputedColumnStorage computedStorage
-    ) : this(columnName, type, isNullable, defaultValue, autoIncrement, isComputed, computedDefinition, computedStorage, false)
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DatabaseColumn"/> class.
-    /// </summary>
-    /// <param name="columnName">The name of the column. Only the local name is kept.</param>
-    /// <param name="type">The column data type.</param>
-    /// <param name="isNullable">Whether the column can hold <see langword="null" /> values.</param>
-    /// <param name="defaultValue">The default applied when an <c>INSERT</c> omits the column, if available.</param>
-    /// <param name="autoIncrement">The auto-increment definition, if available.</param>
-    /// <param name="isComputed">Whether the values of the column are computed by the database.</param>
-    /// <param name="computedDefinition">The expression that computes the column's values, if available.</param>
-    /// <param name="computedStorage">Whether the computed values are stored or evaluated when read.</param>
+    /// <param name="valueSource">Where the values of the column come from.</param>
     /// <param name="isHidden">Whether the column is omitted from the expansion of <c>SELECT *</c>.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, or <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="computedStorage"/> is not a valid enum value.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="columnName"/> or <paramref name="type"/> is <see langword="null" />, <paramref name="defaultValue"/> is <c>Some</c> of a <see langword="default"/> <see cref="DatabaseDefaultValue"/>, or <paramref name="valueSource"/> is a <see langword="default"/> <see cref="ColumnValueSource"/>.</exception>
     public DatabaseColumn(
         Identifier columnName,
         IDbType type,
         bool isNullable,
         Option<DatabaseDefaultValue> defaultValue,
-        Option<IAutoIncrement> autoIncrement,
-        bool isComputed,
-        Option<string> computedDefinition,
-        ComputedColumnStorage computedStorage,
+        ColumnValueSource valueSource,
         bool isHidden
     )
     {
         ArgumentNullException.ThrowIfNull(columnName);
         if (defaultValue.Exists(static def => def.Value is null))
             throw new ArgumentNullException(nameof(defaultValue), "The default value provided holds no default.");
-        if (!computedStorage.IsValid())
-            throw new ArgumentException($"The {nameof(ComputedColumnStorage)} provided must be a valid enum.", nameof(computedStorage));
+        if (valueSource.Value is null)
+            throw new ArgumentNullException(nameof(valueSource), "The value source provided holds no value source.");
 
         Name = LocalIdentifier.From(columnName);
         Type = type ?? throw new ArgumentNullException(nameof(type));
         IsNullable = isNullable;
         Default = defaultValue;
-        AutoIncrement = autoIncrement;
-        IsComputed = isComputed;
-        ComputedDefinition = isComputed ? computedDefinition : Option<string>.None;
-        ComputedStorage = isComputed ? computedStorage : ComputedColumnStorage.Unknown;
+        ValueSource = valueSource;
         IsHidden = isHidden;
     }
 
@@ -115,22 +78,10 @@ public class DatabaseColumn : IDatabaseColumn
     public Option<string> DefaultValue => Default.Map(static def => def.Definition);
 
     /// <summary>
-    /// Determines whether the values of this column are generated by the database.
+    /// Where the values of this column come from.
     /// </summary>
-    /// <value><see langword="true" /> if the values within this column are computed by the database; otherwise, <see langword="false" />.</value>
-    public bool IsComputed { get; }
-
-    /// <summary>
-    /// The expression that computes the values of this column. Optional as some providers (e.g. Oracle) allow the definition to be missing.
-    /// </summary>
-    /// <value>A computed column definition, if available.</value>
-    public Option<string> ComputedDefinition { get; }
-
-    /// <summary>
-    /// Determines whether the computed values of this column are stored in the table or evaluated when the column is read.
-    /// </summary>
-    /// <value>The storage applied to a computed column.</value>
-    public ComputedColumnStorage ComputedStorage { get; }
+    /// <value>The source of the column's values.</value>
+    public ColumnValueSource ValueSource { get; }
 
     /// <summary>
     /// Determines whether the column is omitted from the expansion of <c>SELECT *</c>.
@@ -157,12 +108,6 @@ public class DatabaseColumn : IDatabaseColumn
     public bool IsNullable { get; }
 
     /// <summary>
-    /// Retrieves the auto-increment parameters applies to this column, if available.
-    /// </summary>
-    /// <value>An automatic increment definition, if available.</value>
-    public Option<IAutoIncrement> AutoIncrement { get; }
-
-    /// <summary>
     /// Returns a string that provides a basic string representation of this object.
     /// </summary>
     /// <returns>A <see cref="string"/> that represents this instance.</returns>
@@ -175,7 +120,7 @@ public class DatabaseColumn : IDatabaseColumn
         {
             var builder = StringBuilderCache.Acquire();
 
-            builder.Append(IsComputed ? "Computed Column: " : "Column: ")
+            builder.Append(ValueSource is ColumnValueSource.Computed ? "Computed Column: " : "Column: ")
                 .Append(Name.LocalName);
 
             return builder.GetStringAndRelease();

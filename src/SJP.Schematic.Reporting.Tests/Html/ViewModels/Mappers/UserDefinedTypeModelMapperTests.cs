@@ -19,8 +19,8 @@ internal static class UserDefinedTypeModelMapperTests
     {
         IDatabaseColumn[] attributes =
         [
-            new DatabaseColumn("intensity", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, null),
-            new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, null),
+            new DatabaseColumn("intensity", TestDbTypes.BigInteger, false, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()),
+            new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored()),
         ];
         var feeling = new DatabaseUserDefinedType.Composite(FeelingName, attributes);
 
@@ -64,7 +64,7 @@ internal static class UserDefinedTypeModelMapperTests
         Assert.That(model.BaseTypeUrl, Is.Null);
     }
 
-    private static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, null);
+    private static IDatabaseColumn CreateColumn(string columnName) => new DatabaseColumn(columnName, TestDbTypes.BigInteger, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
 
     private static IDatabaseCheckConstraint CreateCheck() => new DatabaseCheckConstraint(Option<Identifier>.Some("ck_test"), "value > 0", true);
 
@@ -137,7 +137,7 @@ internal static class UserDefinedTypeModelMapperTests
     [Test]
     public static void Map_GivenTableTypeWithColumnOfUserDefinedType_LinksTheColumnAsAnAttribute()
     {
-        var table = new DatabaseUserDefinedType.Table(FeelingName, [new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, null)]);
+        var table = new DatabaseUserDefinedType.Table(FeelingName, [new DatabaseColumn("mood", UserDefinedDbTypes.Named(MoodName), true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored())]);
 
         var model = new UserDefinedTypeModelMapper().Map(table, new UserDefinedTypeTargets([MoodName, FeelingName]));
 
