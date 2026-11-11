@@ -119,4 +119,34 @@ internal static class AutoIncrementColumnNotInKeyRuleTests
 
         Assert.That(messages, Is.Not.Empty);
     }
+
+    private static readonly ColumnValueSource[] ValueSourcesWithoutIdentity =
+    [
+        new ColumnValueSource.Stored(),
+        new ColumnValueSource.Computed(Option<string>.Some("1 + 1"), ComputedColumnStorage.Stored),
+        new ColumnValueSource.Computed(Option<string>.None, ComputedColumnStorage.Virtual),
+    ];
+
+    [TestCaseSource(nameof(ValueSourcesWithoutIdentity))]
+    public static async Task AnalyseTables_GivenColumnWithoutIdentityNotInAnyKey_ProducesNoMessages(ColumnValueSource valueSource)
+    {
+        var rule = new AutoIncrementColumnNotInKeyRule(RuleLevel.Error);
+        var column = new DatabaseColumn("counter", Mock.Of<IDbType>(), false, Option<DatabaseDefaultValue>.None, valueSource);
+        var table = new RelationalDatabaseTable(
+            "test",
+            [column],
+            null,
+            [],
+            [],
+            [],
+            [],
+            [],
+            []
+        );
+        var tables = new[] { table };
+
+        var messages = await rule.AnalyseTables(tables);
+
+        Assert.That(messages, Is.Empty);
+    }
 }
