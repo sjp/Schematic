@@ -11,6 +11,27 @@ namespace SJP.Schematic.Reporting;
 /// </summary>
 internal static class UrlRouter
 {
+    /// <summary>
+    /// Builds the route to the detail page of any database object, choosing the route by the kind
+    /// of object.
+    /// </summary>
+    /// <exception cref="ArgumentNullException"><paramref name="databaseObject"/> holds no object.</exception>
+    public static string GetUrl(DatabaseObject databaseObject)
+    {
+        if (databaseObject.Value is null)
+            throw new ArgumentNullException(nameof(databaseObject), "The database object provided holds no object.");
+
+        return databaseObject switch
+        {
+            IRelationalDatabaseTable table => GetTableUrl(table.Name),
+            IDatabaseView view => GetViewUrl(view.Name),
+            IDatabaseSequence sequence => GetSequenceUrl(sequence.Name),
+            IDatabaseSynonym synonym => GetSynonymUrl(synonym.Name),
+            IDatabaseRoutine routine => GetRoutineUrl(routine.Name),
+            DatabaseUserDefinedType userDefinedType => GetUserDefinedTypeUrl(userDefinedType.Name),
+        };
+    }
+
     public static string GetSchemaUrl(Identifier schemaName)
     {
         ArgumentNullException.ThrowIfNull(schemaName);

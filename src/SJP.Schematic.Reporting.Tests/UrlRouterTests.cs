@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using SJP.Schematic.Core;
 
@@ -6,6 +7,34 @@ namespace SJP.Schematic.Reporting.Tests;
 
 internal static class UrlRouterTests
 {
+    private static readonly Identifier ObjectName = Identifier.CreateQualifiedIdentifier("app", "test_object");
+
+    private static IEnumerable<TestCaseData> EveryObjectKind()
+    {
+        yield return new TestCaseData(TestDatabaseObjects.Table(ObjectName), "#/tables/").SetArgDisplayNames("Table");
+        yield return new TestCaseData(TestDatabaseObjects.View(ObjectName), "#/views/").SetArgDisplayNames("View");
+        yield return new TestCaseData(TestDatabaseObjects.Sequence(ObjectName), "#/sequences/").SetArgDisplayNames("Sequence");
+        yield return new TestCaseData(TestDatabaseObjects.Synonym(ObjectName), "#/synonyms/").SetArgDisplayNames("Synonym");
+        yield return new TestCaseData(TestDatabaseObjects.Routine(ObjectName), "#/routines/").SetArgDisplayNames("Routine");
+        yield return new TestCaseData(TestDatabaseObjects.UserDefinedType(ObjectName), "#/user-defined-types/").SetArgDisplayNames("UserDefinedType");
+    }
+
+    [TestCaseSource(nameof(EveryObjectKind))]
+    public static void GetUrl_GivenObject_ReturnsRouteForItsKind(DatabaseObject databaseObject, string expectedRoutePrefix)
+    {
+        var url = UrlRouter.GetUrl(databaseObject);
+
+        Assert.That(url, Is.EqualTo(expectedRoutePrefix + ObjectName.ToSafeKey()));
+    }
+
+    [Test]
+    public static void GetUrl_GivenDefaultObject_ThrowsArgumentNullException()
+    {
+        Assert.That(
+            () => UrlRouter.GetUrl(default),
+            Throws.ArgumentNullException.With.Property(nameof(ArgumentException.ParamName)).EqualTo("databaseObject"));
+    }
+
     [Test]
     public static void GetSchemaUrl_GivenNullSchemaName_ThrowsArgumentNullException()
     {
