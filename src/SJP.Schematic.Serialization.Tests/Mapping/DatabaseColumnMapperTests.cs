@@ -282,4 +282,179 @@ internal static class DatabaseColumnMapperTests
 
         Assert.That(result.IsHidden, Is.False);
     }
+
+    [Test]
+    public static void Map_GivenStoredColumn_WritesNoComputedOrIdentityMembers()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
+
+        var dto = mapper.Map(column);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dto.IsComputed, Is.False);
+            Assert.That(dto.Definition, Is.Null);
+            Assert.That(dto.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Unknown));
+            Assert.That(dto.AutoIncrement, Is.Null);
+        }
+    }
+
+    [Test]
+    public static void Map_GivenComputedColumn_WritesComputedMembersOnly()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var valueSource = new ColumnValueSource.Computed(Option<string>.Some("a + b"), ComputedColumnStorage.Stored);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, valueSource);
+
+        var dto = mapper.Map(column);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dto.IsComputed, Is.True);
+            Assert.That(dto.Definition, Is.EqualTo("a + b"));
+            Assert.That(dto.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Stored));
+            Assert.That(dto.AutoIncrement, Is.Null);
+        }
+    }
+
+    [Test]
+    public static void Map_GivenGeneratedColumn_WritesIdentityMembersOnly()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var valueSource = new ColumnValueSource.Generated(new AutoIncrement(10, 5));
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, valueSource);
+
+        var dto = mapper.Map(column);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(dto.IsComputed, Is.False);
+            Assert.That(dto.Definition, Is.Null);
+            Assert.That(dto.ComputedStorage, Is.EqualTo(ComputedColumnStorage.Unknown));
+            Assert.That(dto.AutoIncrement?.InitialValue, Is.EqualTo(10));
+            Assert.That(dto.AutoIncrement?.Increment, Is.EqualTo(5));
+        }
+    }
+
+    [Test]
+    public static void Map_GivenStoredColumn_RoundTrips()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Stored());
+
+        var result = mapper.Map(mapper.Map(column));
+
+        Assert.That(result.ValueSource, Is.EqualTo((ColumnValueSource)new ColumnValueSource.Stored()));
+    }
+
+    [TestCase("a + b", ComputedColumnStorage.Stored)]
+    [TestCase("a + b", ComputedColumnStorage.Virtual)]
+    [TestCase("a + b", ComputedColumnStorage.Unknown)]
+    [TestCase(null, ComputedColumnStorage.Virtual)]
+    public static void Map_GivenComputedColumn_RoundTrips(string definition, ComputedColumnStorage storage)
+    {
+        var mapper = new DatabaseColumnMapper();
+        var computedDefinition = definition != null ? Option<string>.Some(definition) : Option<string>.None;
+        var valueSource = new ColumnValueSource.Computed(computedDefinition, storage);
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, valueSource);
+
+        var result = mapper.Map(mapper.Map(column));
+
+        Assert.That(result.ValueSource, Is.EqualTo((ColumnValueSource)valueSource));
+    }
+
+    [Test]
+    public static void Map_GivenGeneratedColumn_RoundTrips()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var sequenceName = Identifier.CreateQualifiedIdentifier("test_schema", "test_seq");
+        var identity = new AutoIncrement(10, 5, IdentityGeneration.Always, Option<decimal>.Some(1), Option<decimal>.Some(1000), true, Option<Identifier>.Some(sequenceName));
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.None, new ColumnValueSource.Generated(identity));
+
+        var result = mapper.Map(mapper.Map(column));
+
+        Assert.That(result.ValueSource.UnwrapIdentity(), Is.EqualTo(identity));
+    }
+
+    [Test]
+    public static void Map_GivenStoredColumnWithDefault_RoundTripsBoth()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var defaultValue = new DatabaseDefaultValue.Literal("0");
+        var column = new DatabaseColumn("test_column", ColumnType, true, Option<DatabaseDefaultValue>.Some(defaultValue), new ColumnValueSource.Stored());
+
+        var result = mapper.Map(mapper.Map(column));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(result.ValueSource.Value, Is.TypeOf<ColumnValueSource.Stored>());
+            Assert.That(result.Default.UnwrapSome().Definition, Is.EqualTo("0"));
+        }
+    }
+
+    [Test]
+    public static void Map_GivenDocumentWithComputedAndIdentityColumn_ReadsBackAsComputed()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var identifierMapper = new IdentifierMapper();
+        var dbTypeMapper = new DbTypeMapper();
+
+        // no database reports a column that is both, so only a hand-written document can say so
+        var dto = new Dto.DatabaseColumn
+        {
+            ColumnName = identifierMapper.Map((Identifier)"test_column"),
+            Type = dbTypeMapper.Map(ColumnType),
+            IsNullable = true,
+            IsComputed = true,
+            Definition = "a + b",
+            ComputedStorage = ComputedColumnStorage.Stored,
+            AutoIncrement = new Dto.AutoIncrement { InitialValue = 1, Increment = 1 },
+        };
+
+        var result = mapper.Map(dto);
+
+        Assert.That(result.ValueSource, Is.EqualTo((ColumnValueSource)new ColumnValueSource.Computed(Option<string>.Some("a + b"), ComputedColumnStorage.Stored)));
+    }
+
+    [Test]
+    public static void Map_GivenDocumentWithDefinitionOnNonComputedColumn_ReadsBackAsStored()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var identifierMapper = new IdentifierMapper();
+        var dbTypeMapper = new DbTypeMapper();
+
+        var dto = new Dto.DatabaseColumn
+        {
+            ColumnName = identifierMapper.Map((Identifier)"test_column"),
+            Type = dbTypeMapper.Map(ColumnType),
+            IsNullable = true,
+            IsComputed = false,
+            Definition = "a + b",
+            ComputedStorage = ComputedColumnStorage.Stored,
+        };
+
+        var result = mapper.Map(dto);
+
+        Assert.That(result.ValueSource, Is.EqualTo((ColumnValueSource)new ColumnValueSource.Stored()));
+    }
+
+    [Test]
+    public static void Map_GivenDocumentWithInvalidComputedStorage_ThrowsArgumentException()
+    {
+        var mapper = new DatabaseColumnMapper();
+        var identifierMapper = new IdentifierMapper();
+        var dbTypeMapper = new DbTypeMapper();
+
+        var dto = new Dto.DatabaseColumn
+        {
+            ColumnName = identifierMapper.Map((Identifier)"test_column"),
+            Type = dbTypeMapper.Map(ColumnType),
+            IsNullable = true,
+            IsComputed = true,
+            ComputedStorage = (ComputedColumnStorage)55,
+        };
+
+        Assert.That(() => mapper.Map(dto), Throws.ArgumentException);
+    }
 }
