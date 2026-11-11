@@ -104,15 +104,19 @@ internal sealed class ExportCommand : AsyncCommand<ExportCommand.Settings>
     // otherwise only as stable as the underlying provider's enumeration order. Sorting the
     // top-level objects here (but not their nested columns/indexes/keys, whose order is either
     // meaningful or already deterministic per run) keeps diffs on exported files readable across
-    // re-exports.
+    // re-exports. Every top-level collection must be carried over, as anything left out of the
+    // rebuilt database is silently dropped from the export. Schema names are local-name-only, so
+    // schemas end up ordered by their local name alone.
     private static async Task<IRelationalDatabase> SortDatabaseAsync(IRelationalDatabase db, CancellationToken cancellationToken)
     {
-        var (tables, views, sequences, synonyms, routines) = await (
+        var (tables, views, sequences, synonyms, routines, userDefinedTypes, schemas) = await (
             db.GetAllTables(cancellationToken),
             db.GetAllViews(cancellationToken),
             db.GetAllSequences(cancellationToken),
             db.GetAllSynonyms(cancellationToken),
-            db.GetAllRoutines(cancellationToken)
+            db.GetAllRoutines(cancellationToken),
+            db.GetAllUserDefinedTypes(cancellationToken),
+            db.GetAllSchemas(cancellationToken)
         ).WhenAll();
 
         return new RelationalDatabase(
@@ -122,7 +126,9 @@ internal sealed class ExportCommand : AsyncCommand<ExportCommand.Settings>
             Sort(views),
             Sort(sequences),
             Sort(synonyms),
-            Sort(routines));
+            Sort(routines),
+            Sort(userDefinedTypes),
+            Sort(schemas));
     }
 
     private static IReadOnlyCollection<T> Sort<T>(IReadOnlyCollection<T> entities) where T : IDatabaseEntity => entities
