@@ -279,6 +279,13 @@ create table table_test_table_47 (
         await DbConnection.ExecuteAsync("create type table_test_composite as (first_attr int, second_attr text)", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync("create domain table_test_domain_composite as table_test_composite", TestContext.CurrentContext.CancellationToken);
         await DbConnection.ExecuteAsync(@"
+create table table_test_table_49 (
+    test_column_1 int,
+    test_column_2 int generated always as (test_column_1 * 2) stored
+)", TestContext.CurrentContext.CancellationToken);
+        // any column can be made the owner of a sequence, a generated column included
+        await DbConnection.ExecuteAsync("create sequence table_test_table_49_seq owned by table_test_table_49.test_column_2", TestContext.CurrentContext.CancellationToken);
+        await DbConnection.ExecuteAsync(@"
 create table table_test_table_48 (
     domain_int_column table_test_domain_int,
     domain_enum_column table_test_domain_enum,
@@ -485,6 +492,7 @@ execute procedure test_trigger_fn()", TestContext.CurrentContext.CancellationTok
         "drop table table_test_table_46",
         "drop table table_test_table_47",
         "drop table table_test_table_48",
+        "drop table table_test_table_49",
         "drop domain table_test_domain_int",
         "drop domain table_test_domain_enum",
         "drop domain table_test_domain_array",

@@ -393,4 +393,33 @@ internal sealed partial class PostgreSqlRelationalDatabaseTableProviderTests : P
 
         Assert.That(computedColumn.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Stored));
     }
+
+    [Test]
+    public async Task Columns_WhenGivenGeneratedColumnOwningSequence_ReturnsComputedColumn()
+    {
+        const string tableName = "table_test_table_49";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single(c => c.Name.LocalName == "test_column_2");
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.ValueSource.Value, Is.TypeOf<ColumnValueSource.Computed>());
+            Assert.That(column.ValueSource.UnwrapComputed().Definition.UnwrapSome(), Is.EqualTo("(test_column_1 * 2)"));
+            Assert.That(column.ValueSource.UnwrapComputed().Storage, Is.EqualTo(ComputedColumnStorage.Stored));
+        }
+    }
+
+    [Test]
+    public async Task Columns_WhenGivenColumnWithDefaultButNoGeneration_ReturnsStoredColumn()
+    {
+        const string tableName = "table_test_table_33";
+        var table = await GetTableAsync(tableName);
+        var column = table.Columns.Single();
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(column.ValueSource, Is.EqualTo((ColumnValueSource)new ColumnValueSource.Stored()));
+            Assert.That(column.Default, OptionIs.Some);
+        }
+    }
 }
