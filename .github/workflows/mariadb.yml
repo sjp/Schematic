@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: ['10.11', '11.4', 'latest']
+        tag: ['10.11', '11.4', '11.8', '12.3', 'latest']
     services:
       mariadb:
         image: mariadb:${{ matrix.tag }}
