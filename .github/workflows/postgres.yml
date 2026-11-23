@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        tag: [14, 15, 16, 17, 18, latest]
+        tag: [14, 15, 16, 17, 18, 19, latest]
     services:
       postgres:
         image: postgres:${{ matrix.tag }}

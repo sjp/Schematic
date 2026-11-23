@@ -45,6 +45,7 @@ internal static class PostgreSqlDbTypeProviderTests
     [TestCase("text", DataType.Text)]
     [TestCase("name", DataType.String)]
     [TestCase("oid", DataType.Integer)]
+    [TestCase("oid8", DataType.BigInteger)]
     [TestCase("timestamp", DataType.DateTime)]
     [TestCase("timestamptz", DataType.DateTimeOffset)]
     [TestCase("time", DataType.Time)]
@@ -76,6 +77,7 @@ internal static class PostgreSqlDbTypeProviderTests
     [TestCase("timetz", typeof(DateTimeOffset))]
     [TestCase("money", typeof(decimal))]
     [TestCase("oid", typeof(long))]
+    [TestCase("oid8", typeof(ulong))]
     public static void CreateColumnType_GivenTypeName_ResolvesExpectedClrType(string typeName, Type expectedClrType)
     {
         var metadata = new ColumnTypeMetadata { TypeName = new Identifier("pg_catalog", typeName), DataType = DataType.Unknown };
