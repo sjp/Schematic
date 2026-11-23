@@ -29,13 +29,15 @@ jobs:
       matrix:
         # gvenzl/oracle-xe and gvenzl/oracle-free are the same test target with the same
         # credentials, but they differ in the default pluggable database they expose:
-        # oracle-xe serves XEPDB1, oracle-free (23ai) serves FREEPDB1.
+        # oracle-xe serves XEPDB1, oracle-free (23ai/26ai) serves FREEPDB1. oracle-free publishes
+        # no 23.26 line tag -- '23' moves with 'latest' -- so 26ai is pinned to an exact release;
+        # bump it when a new 23.26.x image ships.
         include:
           - image: oracle-xe
             tag: 21
             pdb: XEPDB1
           - image: oracle-free
-            tag: 23
+            tag: 23.26.4
             pdb: FREEPDB1
           - image: oracle-free
             tag: latest
